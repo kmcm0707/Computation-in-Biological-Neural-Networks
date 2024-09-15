@@ -40,6 +40,8 @@ Just normal equations - ignore.
 
 Summary of Murray paper
 
+#### RFLO
+
 ![[Pasted image 20240915181258.png]]
 RFLO good at small multiples of RNN time constant (**check this - probably a combination of the differential terms**).
 Local is issue.
@@ -59,6 +61,6 @@ Once this chain model is generalised so arbitrary connections of the variables c
 
 Show model can model long term relationships while being resilient to short term noise.
 
-#### Meta-learning biologically plausible plasticity rules, Shervani-Tabar and Rosenbaum
+#### Meta-learning Biologically Plausible Plasticity Rules, Shervani-Tabar and Rosenbaum
 BPTT needs symmetric connectivity for propagation of gradient to earlier to time steps (or latyers).
 Called weight transport problem.
