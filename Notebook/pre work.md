@@ -53,4 +53,12 @@ Synaptic modification, meta-plasticity and spacing effects emerge.
 
 Simplest form - chain of dynamic variables where each variable only interacts with its neighbours in a differential equation.
 Can control timescales.
+Less `storages` = less memories but reducing `flow` between storages increase memory.
 
+Once this chain model is generalised so arbitrary connections of the variables can be constructed, it is able to reproduce various experimental observations of biological memory systems.
+
+Show model can model long term relationships while being resilient to short term noise.
+
+#### Meta-learning biologically plausible plasticity rules, Shervani-Tabar and Rosenbaum
+BPTT needs symmetric connectivity for propagation of gradient to earlier to time steps (or latyers).
+Called weight transport problem.
