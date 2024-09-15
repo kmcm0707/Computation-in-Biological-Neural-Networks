@@ -37,3 +37,13 @@ Just normal equations - ignore.
 
 #### Real-time Recurrent Learning
 
+This analysis is included in Murray (read this paper).
+Basically just the same as BPTT.
+
+#### Local Online Random Feedback
+
+Summary of murry.
+Is RTRL with 2 steps.
+1) Locality enforced by using non local parts of the loss function.
+2) Feedback weight for gradient based learning at replaced with fixed random feedback weights.
+
