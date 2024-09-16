@@ -62,5 +62,44 @@ Once this chain model is generalised so arbitrary connections of the variables c
 Show model can model long term relationships while being resilient to short term noise.
 
 #### Meta-learning Biologically Plausible Plasticity Rules, Shervani-Tabar and Rosenbaum
-BPTT needs symmetric connectivity for propagation of gradient to earlier to time steps (or latyers).
+BPTT needs symmetric connectivity for propagation of gradient to earlier to time steps (or layers).
 Called weight transport problem.
+**Lillicrap et al.** (check out this - mentioned a lot but no meaning) shows that random backward connections can sufficiently transmit teaching signals - but deeper networks are harder (RNNS - can't train long sequences).
+To solve - optimise parameters over local plasticity rules.
+The goal is to develop general rules that are the same for all weights in the network rather than each weight having its own unique plasticity rule.
+2 loops: Inner = weights, outer = meta rules.
+Pool as good as BPTT but Feedback alignment (amit) is worse.
+### Methods
+#### Model Architecture
+**Where did the RCN equation come from?**
+Shared P parameters - the P parameters are the training. **Check the only thing being trained is the shared parameters - so every neural network connection is the same.**
+Note the weights matrices are now updated at the end of every **image?** by the synapses and also that unlike the RNN states the RCNs retain their state information from sequence to sequence
+z = number of parameters - **so what was the number of parameters used?**.
+**What is equation 3.7 where is the weight matrix being used.**
+RCNN = O(N^2$\times$P^2)
+#### Meta-Learning Approaches
+##### Supervised Meta-Learning of BPTT Gradients
+RCN meant to model BPTT so train RNN normally and record learning signals from state information of RNN. Then use these states to train RCN.
+**Double check learning signals are the values (vector) being sent down a `synapse`.**
+Training cost lower.
+##### Unsupervised Meta-Learning Using BPTT
+The RCNs are tasked with implicitly determining the gradients for their corresponding RNN weights.
+**Is algorithm 4 meant to say RCNN? - TBH what is going on here?**
+Another issue encountered with this training method is that we would end up in local optima for parameters, the network would predict a uniform distribution for all classes in the case of discrete classification and for continuous function prediction tasks it would saturate the tanh function or predict a straight line.
+
+**Question: As far as I can tell the meta learning approaches are trying to get the RCN to be in the same state at every node of the RNN. Why?**
+#### Optimization
+##### NGOpt by Meta
+**Why is there no performance report on this?**
+##### Evolutionary Strategies
+Start with a set of parameters then either swap or add gaussian noise.
+**Find some papers on this - pretty interesting.**
+#### Discussion on Rationale and Biological Plausibility of Model
+Probably read neuroscience book first.
+#### Sequential Task Creation
+##### EMNIST Dataset
+Images - interesting - to do this without CNNs (which are probably more like the structure of neuron RFs in our eyes is very interesting).
+Training on these tasks showed that the network would preferentially predict a uniform distribution, a very common local optimum likely due to the fact the network was being penalised for incorrect predictions early on despite not having sufficient information for correct classification - **I feel like this sentence doesn't make sense or why isn't this an issue in traditional RNNs**.
+Why is predicting at every time step happening here though? Surely you can't do it until unravel entire image.
+##### Gaussian Process Tasks
+Fourier Series.
