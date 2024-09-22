@@ -1,10 +1,9 @@
 ---
 category: literaturenote
-tags: {% if allTags %}{{allTags}}{% endif %}
+tags: {% if allTags %}{{allTags}}{% endif %} paper
 citekey: {{citekey}}
 ---
 # {{title}}
-
 > [!Cite]
 > {{bibliography}}
 
@@ -23,10 +22,10 @@ citekey: {{citekey}}
 > **Book**:: {{publicationTitle}} {%endif %}{%if publisher %}
 > **Publisher**:: {{publisher}} {%endif %}
 
-
 > [!LINK] 
 > {%for attachment in attachments | filterby("path", "endswith", ".pdf") %}
->  [{{attachment.title}}](file://{{attachment.path | replace(" ", "%20")}})  {%endfor -%}.
+>  [{{attachment.title}}](file://{{attachment.path | replace(" ", "%20")}})  {%endfor -%}
+>  Obsidian Link: @TODO
 
 > [!Abstract]
 > {%if abstractNote %}
