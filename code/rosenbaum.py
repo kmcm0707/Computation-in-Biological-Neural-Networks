@@ -242,10 +242,10 @@ class RosenbaumMetaLearner:
             acc = meta_stats(logits, (self.model.named_parameters(), y_qry.ravel(), y, self.model.Beta, self.res_dir))
 
             # -- update params
-            Theta = [p.detach().clone() for p in self.Theta]
             self.UpdateMetaParameters.zero_grad()
             loss_meta.backward()
             self.UpdateMetaParameters.step()
+            Theta = [p.detach().clone() for p in self.Theta]
 
             # -- log
             log([loss_meta.item()], self.result_directory + '/loss_meta.txt')

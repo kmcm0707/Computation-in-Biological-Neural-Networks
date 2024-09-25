@@ -22,28 +22,28 @@ def plasticity_rule(activation, e, params, feedback, Theta, feedbackType):
     """
     """ update forward weights """
     i = 0
-    with torch.no_grad():
-        for name, parameter in params.items():
-            if 'linear' in name:
-                if parameter.adapt:
-                    # -- pseudo-gradient
-                    parameter.update = - Theta[0] * torch.matmul(e[i + 1].T, activation[i])
-                    # -- eHebb rule
-                    parameter.update -= Theta[1] * torch.matmul(e[i + 1].T, e[i])
-                    # -- Oja's rule
-                    parameter.update += Theta[2] * (torch.matmul(activation[i + 1].T, activation[i]) - torch.matmul( 
-                        torch.matmul(activation[i + 1].T, activation[i + 1]), parameter.data))
+    #with torch.no_grad(): //Might be neccassary run code to check
+    for name, parameter in params.items():
+        if 'linear' in name:
+            if parameter.adapt:
+                # -- pseudo-gradient
+                parameter.update = - Theta[0] * torch.matmul(e[i + 1].T, activation[i])
+                # -- eHebb rule
+                parameter.update -= Theta[1] * torch.matmul(e[i + 1].T, e[i])
+                # -- Oja's rule
+                parameter.update += Theta[2] * (torch.matmul(activation[i + 1].T, activation[i]) - torch.matmul( 
+                    torch.matmul(activation[i + 1].T, activation[i + 1]), parameter.data))
 
-                    # -- weight update
-                    parameter.data += parameter.update
+                # -- weight update
+                parameter.data += parameter.update
 
-                i += 1
+            i += 1
 
-        """ enforce symmetric feedbacks for backprop training """
-        if feedbackType == 'sym':
-            # -- feedback update (symmetric)
-            for i, (name, parameter) in enumerate(feedback.items()):
-                parameter.data = params[name.replace('feedback', 'linear')].data # Maybe need .T here to make it symmetric
+    """ enforce symmetric feedbacks for backprop training """
+    if feedbackType == 'sym':
+        # -- feedback update (symmetric)
+        for i, (name, parameter) in enumerate(feedback.items()):
+            parameter.data = params[name.replace('feedback', 'linear')].data # Maybe need .T here to make it symmetric
 
 
 class RosenbaumOptimizer:
