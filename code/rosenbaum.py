@@ -102,11 +102,11 @@ class RosenbaumMetaLearner:
         # -- optimization params
         self.metaLossRegularization = 0
         self.loss_func = nn.CrossEntropyLoss()
-        self.UpdateWeights = RosenbaumOptimizer(plasticity_rule, self.Theta, self.fbk)
+        self.UpdateWeights = RosenbaumOptimizer(plasticity_rule, self.feedbackMode)
         self.UpdateMetaParameters = optim.Adam([{'params': self.model.theta.parameters(), 'lr': 1e-3}])
 
         # -- log params
-        self.result_directory = os.getcwd() + "../results"
+        self.result_directory = os.getcwd() + "/results"
         os.makedirs(self.result_directory, exist_ok=True)
         self.average_window = 10
         self.plot = Plot(self.result_directory, len(self.Theta), self.average_window)
@@ -176,7 +176,7 @@ class RosenbaumMetaLearner:
         # -- initialize weights
         self.model.apply(self.weights_init)
 
-        if self.fbk == 'sym':
+        if self.feedbackMode == 'sym':
             self.model.feedback1.weight.data = self.model.linear1.weight.data
             self.model.feedback2.weight.data = self.model.linear2.weight.data
             self.model.feedback3.weight.data = self.model.linear3.weight.data
@@ -225,7 +225,7 @@ class RosenbaumMetaLearner:
                 y, logits = self.model(x.unsqueeze(0).unsqueeze(0))
 
                 # -- update network params
-                self.UpdateWeights(self.model.named_parameters(), logits, label, y, self.model.Beta, self.Theta)
+                self.UpdateWeights(self.model.named_parameters(), logits, label, y, self.model.beta, self.Theta)
 
             """ meta update """
             # -- predict
@@ -233,13 +233,14 @@ class RosenbaumMetaLearner:
 
             # -- L1 regularization
             l1_reg = 0
+            print(self.model.theta)
             for theta in self.model.theta.parameters():
                 l1_reg += torch.linalg.norm(theta, 1)
 
             loss_meta = self.loss_func(logits, y_qry.ravel()) + l1_reg * self.lamb
 
             # -- compute and store meta stats
-            acc = meta_stats(logits, (self.model.named_parameters(), y_qry.ravel(), y, self.model.Beta, self.res_dir))
+            acc = meta_stats(logits, (self.model.named_parameters(), y_qry.ravel(), y, self.model.beta, self.res_dir))
 
             # -- update params
             self.UpdateMetaParameters.zero_grad()
@@ -277,7 +278,7 @@ def main():
 
     # -- load data
     queryDataPerClass = 10
-    dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=queryDataPerClass, dim=28)
+    dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=queryDataPerClass, dimensionImages=28)
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=600 * queryDataPerClass)
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=queryDataPerClass, drop_last=True)
 

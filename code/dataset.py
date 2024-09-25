@@ -1,5 +1,6 @@
 import os
 import emnist
+from emnist import list_datasets
 import torch
 
 from PIL import Image
@@ -45,7 +46,14 @@ class EmnistDataset(Dataset):
         self.dimensionImages = dimensionImages
         self.n_class = 47
 
-        self.emnist_test_data = emnist.extract_test_samples('balanced'); # Extracting the EMNIST test dataset
+        print(emnist.get_cached_data_path()) # Printing the path to the cached data
+        emnist.ensure_cached_data() # Ensuring the EMNIST dataset is cached
+
+        images, labels = emnist.extract_test_samples("balanced"); # Extracting the EMNIST test dataset
+        emnist_test_data = [[images[i] for i in range(len(labels)) if labels[i] == j] for j in range(47)] # Extracting the EMNIST test dataset
+        self.emnist_test_data = np.array(emnist_test_data)
+        self.emnist_test_data = self.emnist_test_data.reshape(self.emnist_test_data.shape[1], self.emnist_test_data.shape[0], 28, 28)
+
         self.transform = transforms.Compose([transforms.Resize((dimensionImages, dimensionImages)), transforms.ToTensor()])
 
     def __len__(self):
@@ -55,7 +63,7 @@ class EmnistDataset(Dataset):
         :return: int: the length of the dataset, i.e., the number of classes in the
             dataset
         """
-        return len(self.n_class)
+        return self.n_class
 
     def __getitem__(self, index):
         """
@@ -79,7 +87,7 @@ class EmnistDataset(Dataset):
         """
         images = []
         for image in self.emnist_test_data[:, index]:
-            images.append(self.transform(Image.open(Image.fromarray(image)).convert('L')))
+            images.append(self.transform(Image.fromarray(image).convert('L')))
 
         images = torch.cat(images)
         idx_vec = index * torch.ones_like(torch.empty(400), dtype=int)

@@ -23,7 +23,7 @@ def plasticity_rule(activation, e, params, feedback, Theta, feedbackType):
     """ update forward weights """
     i = 0
     #with torch.no_grad(): //Might be neccassary run code to check
-    for name, parameter in params.items():
+    for name, parameter in params:
         if 'linear' in name:
             if parameter.adapt:
                 # -- pseudo-gradient
