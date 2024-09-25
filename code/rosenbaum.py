@@ -109,7 +109,7 @@ class RosenbaumMetaLearner:
         self.result_directory = os.getcwd() + "../results"
         os.makedirs(self.result_directory, exist_ok=True)
         self.average_window = 10
-        self.plot = Plot(self.res_dir, len(self.Theta), self.average_window)
+        self.plot = Plot(self.result_directory, len(self.Theta), self.average_window)
 
     def load_model(self):
         """
@@ -136,7 +136,7 @@ class RosenbaumMetaLearner:
         return model
     
     @staticmethod
-    def weights_init(m):
+    def weights_init(modules):
         """
             Initialize weight matrices.
 
@@ -149,18 +149,18 @@ class RosenbaumMetaLearner:
         conference on artificial intelligence and statistics, pp. 249-256. JMLR Workshop
         and Conference Proceedings, 2010.
 
-        :param m: modules in the model.
+        :param modules: modules in the model.
         """
-        classname = m.__class__.__name__
+        classname = modules.__class__.__name__
         if classname.find('Linear') != -1:
 
             # -- weights
-            init_range = torch.sqrt(torch.tensor(6.0 / (m.in_features + m.out_features)))
-            m.weight.data.uniform_(-init_range, init_range)
+            init_range = torch.sqrt(torch.tensor(6.0 / (modules.in_features + modules.out_features)))
+            modules.weight.data.uniform_(-init_range, init_range)
 
             # -- bias
-            if m.bias is not None:
-                m.bias.data.uniform_(-init_range, init_range)
+            if modules.bias is not None:
+                modules.bias.data.uniform_(-init_range, init_range)
 
     def reinitialize(self):
         """
@@ -248,13 +248,13 @@ class RosenbaumMetaLearner:
             self.UpdateMetaParameters.step()
 
             # -- log
-            log([loss_meta.item()], self.res_dir + '/loss_meta.txt')
+            log([loss_meta.item()], self.result_directory + '/loss_meta.txt')
 
             line = 'Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}'.format(eps+1, loss_meta.item(), acc)
             for idx, param in enumerate(Theta):
                 line += '\tMetaParam_{}: {:.6f}'.format(idx + 1, param.cpu().numpy())
             print(line)
-            with open(self.res_dir + '/params.txt', 'a') as f:
+            with open(self.result_directory + '/params.txt', 'a') as f:
                 f.writelines(line+'\n')
 
         # -- plot
