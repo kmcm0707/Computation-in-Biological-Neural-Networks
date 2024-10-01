@@ -28,7 +28,7 @@ class EmnistDataset(Dataset):
         - n_class: (int) integer value representing the number of classes in the dataset.
         - emnist_test_data: (emnist.EMNIST) the EMNIST test dataset.
     """
-    def __init__(self, trainingDataPerClass, queryDataPerClass, dimensionImages):
+    def __init__(self, trainingDataPerClass: int, queryDataPerClass: int, dimensionImages: int):
         """
             Initialize the EmnistDataset class.
 
