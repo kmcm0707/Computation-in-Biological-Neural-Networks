@@ -29,7 +29,7 @@ class RosenbaumNN(nn.Module):
         torch.manual_seed(3)
 
         # Set the device
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = "cpu"# "cuda" if torch.cuda.is_available() else "cpu"
 
         # Model
         dim_out = 47
@@ -85,7 +85,7 @@ class RosenbaumMetaLearner:
         :param metatrain_dataset: (DataLoader) The meta-training dataset.
         """
         # -- processor params
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cpu') #torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         # -- data params
         self.trainingDataPerClass = 50
@@ -235,12 +235,12 @@ class RosenbaumMetaLearner:
             l1_reg = 0
             print(self.model.theta)
             for theta in self.model.theta.parameters():
-                l1_reg += torch.linalg.norm(theta, 1)
+                l1_reg += torch.linalg.norm(theta)
 
-            loss_meta = self.loss_func(logits, y_qry.ravel()) + l1_reg * self.lamb
+            loss_meta = self.loss_func(logits, y_qry.ravel()) + l1_reg * self.metaLossRegularization
 
             # -- compute and store meta stats
-            acc = meta_stats(logits, (self.model.named_parameters(), y_qry.ravel(), y, self.model.beta, self.res_dir))
+            acc = meta_stats(logits, self.model.named_parameters(), y_qry.ravel(), y, self.model.beta, self.result_directory)
 
             # -- update params
             self.UpdateMetaParameters.zero_grad()
