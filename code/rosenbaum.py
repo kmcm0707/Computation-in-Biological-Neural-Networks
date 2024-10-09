@@ -1,7 +1,7 @@
 import os
+from typing import Literal
 import torch
 import warnings
-import argparse
 import datetime
 
 from torch import nn, optim
@@ -20,7 +20,7 @@ class RosenbaumNN(nn.Module):
     
     """
 
-    def __init__(self):
+    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu'):
 
         # Initialize the parent class
         super(RosenbaumNN, self).__init__()
@@ -29,7 +29,7 @@ class RosenbaumNN(nn.Module):
         torch.manual_seed(1)
 
         # Set the device
-        self.device = "cpu"# "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = device
 
         # Model
         dim_out = 47
@@ -78,7 +78,7 @@ class RosenbaumMetaLearner:
 
     The MetaLearner class is used to define meta-learning algorithm.
     """
-    def __init__(self, metatrain_dataset, result_subdirectory: str):
+    def __init__(self, metatrain_dataset, result_subdirectory: str, save_results: bool = True):
         """
             Initialize the Meta-RosenbaumMetaLearner.
 
@@ -106,16 +106,27 @@ class RosenbaumMetaLearner:
         self.UpdateMetaParameters = optim.Adam(params=self.model.thetas.parameters(), lr=1e-3)
 
         # -- log params
-        self.result_directory = os.getcwd() + "/results"
-        os.makedirs(self.result_directory, exist_ok=True)
-        self.result_directory += "/" + result_subdirectory
-        try:
-            os.makedirs(self.result_directory, exist_ok=False)
-        except FileExistsError:
-            warnings.warn("The directory already exists. The results will be overwritten.")
+        if save_results:
+            self.result_directory = os.getcwd() + "/results"
+            os.makedirs(self.result_directory, exist_ok=True)
+            self.result_directory += "/" + result_subdirectory
+            try:
+                os.makedirs(self.result_directory, exist_ok=False)
+            except FileExistsError:
+                warnings.warn("The directory already exists. The results will be overwritten.")
 
-        self.average_window = 10
-        self.plot = Plot(self.result_directory, len(self.model.thetas), self.average_window)
+                username = input("Proceed? (y/n): ")
+                while username.lower() not in ['y', 'n']:
+                    username = input("Please enter 'y' or 'n': ")
+
+                if username.lower() == 'n':
+                    exit()
+                else:
+                    os.rmdir(self.result_directory)
+                    os.makedirs(self.result_directory, exist_ok=False)
+
+            self.average_window = 10
+            self.plot = Plot(self.result_directory, len(self.model.thetas), self.average_window)
 
     def load_model(self):
         """
@@ -125,19 +136,19 @@ class RosenbaumMetaLearner:
         and grad computation flags for its variables.
 
         :param args: (argparse.Namespace) The command-line arguments.
-        :return: model with flags "meta_fwd", "adapt", set for its parameters
+        :return: model with flags , "adapt", set for its parameters
         """
         # -- init model
-        model = RosenbaumNN()
+        model = RosenbaumNN(self.device)
 
         # -- learning flags
         for key, val in model.named_parameters():
             if 'forward' in key:
-                val.meta_fwd, val.adapt = False, True
+                val.adapt = False, True
             elif 'feedback' in key:
-                val.meta_fwd, val.adapt, val.requires_grad = False, False, False
+                val.adapt, val.requires_grad = False, False, False
             elif 'theta' in key:
-                val.meta_fwd, val.adapt = True, False
+                val.adapt = True, False
 
         return model
         
@@ -266,11 +277,14 @@ class RosenbaumMetaLearner:
             for idx, param in enumerate(theta_temp):
                 line += '\tMetaParam_{}: {:.6f}'.format(idx + 1, param.clone().detach().cpu().numpy())
             print(line)
-            with open(self.result_directory + '/params.txt', 'a') as f:
-                f.writelines(line+'\n')
+
+            if self.save_results:
+                with open(self.result_directory + '/params.txt', 'a') as f:
+                    f.writelines(line+'\n')
 
         # -- plot
-        self.plot()
+        if self.save_results:
+            self.plot()
 
 def main():
     """
@@ -289,14 +303,14 @@ def main():
 
     # -- load data
     result_subdirectory = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    result_subdirectory = "rosenbaum_updated" # override
+    result_subdirectory = "rosenbaum_updated_2" # override
 
-    dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionImages=28)
+    dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=600 * 5)
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- meta-train
-    metalearning_model = RosenbaumMetaLearner(metatrain_dataset, result_subdirectory)
+    metalearning_model = RosenbaumMetaLearner(metatrain_dataset, result_subdirectory, save_results=True)
     metalearning_model.train()
 
 

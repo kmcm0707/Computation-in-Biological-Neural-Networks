@@ -242,7 +242,7 @@ def accuracy(logits, label):
     :return: accuracy of the predicted logits.
     """
     # -- obtain predicted class labels
-    pred = functional.softmax(logits, dim=0).argmax(dim=1)
+    pred = functional.softmax(logits, dim=1).argmax(dim=1)
 
     return torch.eq(pred, label).sum().item() / len(label)
 

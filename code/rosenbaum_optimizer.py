@@ -28,13 +28,13 @@ def plasticity_rule(activation, e, params, feedback, Theta, feedbackType):
                 # -- pseudo-gradient
                 update = - Theta[0] * torch.matmul(e[i + 1].T, activation[i])
                 # -- eHebb rule
-                update = update - Theta[1] * torch.matmul(e[i + 1].T, e[i])
+                update -= Theta[1] * torch.matmul(e[i + 1].T, e[i])
                 # -- Oja's rule
-                update = update + Theta[2] * (torch.matmul(activation[i + 1].T, activation[i]) - torch.matmul( 
+                update += Theta[2] * (torch.matmul(activation[i + 1].T, activation[i]) - torch.matmul( 
                     torch.matmul(activation[i + 1].T, activation[i + 1]), parameter))
 
                 # -- weight update
-                params[name] = params[name] + update
+                params[name] = parameter + update
                 params[name].adapt = True
 
             i += 1
