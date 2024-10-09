@@ -26,18 +26,18 @@ class RosenbaumNN(nn.Module):
         super(RosenbaumNN, self).__init__()
 
         # Set the seed for reproducibility
-        torch.manual_seed(3)
+        torch.manual_seed(1)
 
         # Set the device
         self.device = "cpu"# "cuda" if torch.cuda.is_available() else "cpu"
 
         # Model
         dim_out = 47
-        self.linear1 = nn.Linear(784, 170, bias=False)
-        self.linear2 = nn.Linear(170, 130, bias=False)
-        self.linear3 = nn.Linear(130, 100, bias=False)
-        self.linear4 = nn.Linear(100, 70, bias=False)
-        self.linear5 = nn.Linear(70, dim_out, bias=False)
+        self.forward1 = nn.Linear(784, 170, bias=False)
+        self.forward2 = nn.Linear(170, 130, bias=False)
+        self.forward3 = nn.Linear(130, 100, bias=False)
+        self.forward4 = nn.Linear(100, 70, bias=False)
+        self.forward5 = nn.Linear(70, dim_out, bias=False)
 
         # Feedback pathway (fixed or symmetric) for plasticity
         # Symmetric feedback is used for backpropagation training
@@ -52,8 +52,10 @@ class RosenbaumNN(nn.Module):
         self.theta0 = nn.Parameter(torch.tensor(1e-3).float()) # Pseudo-inverse
         self.theta1 = nn.Parameter(torch.tensor(0.).float()) # Hebbian
         self.theta2 = nn.Parameter(torch.tensor(0.).float()) # Oja
+        self.theta3 = nn.Parameter(torch.tensor(0.).float()) # L1 regularization
+        self.theta4 = nn.Parameter(torch.tensor(0.).float()) # L2 regularization
         
-        self.theta = nn.ParameterList([self.theta0, self.theta1, self.theta2])
+        self.thetas = nn.ParameterList()
 
         # Activation function
         self.beta = 10
@@ -62,11 +64,11 @@ class RosenbaumNN(nn.Module):
     def forward(self, x):
         y0 = x.squeeze(1)
 
-        y1 = self.activation(self.linear1(y0))
-        y2 = self.activation(self.linear2(y1))
-        y3 = self.activation(self.linear3(y2))
-        y4 = self.activation(self.linear4(y3))
-        y5 = self.activation(self.linear5(y4))
+        y1 = self.activation(self.forward1(y0))
+        y2 = self.activation(self.forward2(y1))
+        y3 = self.activation(self.forward3(y2))
+        y4 = self.activation(self.forward4(y3))
+        y5 = self.forward5(y4)
 
         return (y0, y1, y2, y3, y4), y5
     
@@ -96,14 +98,14 @@ class RosenbaumMetaLearner:
 
         # -- model params
         self.model = self.load_model().to(self.device)
-        self.Theta = nn.ParameterList([*self.model.theta])
+        self.Theta = nn.ParameterList([*self.model.thetas])
         self.feedbackMode = "fixed" # 'sym' or 'fixed'
 
         # -- optimization params
         self.metaLossRegularization = 0
         self.loss_func = nn.CrossEntropyLoss()
         self.UpdateWeights = RosenbaumOptimizer(plasticity_rule, self.feedbackMode)
-        self.UpdateMetaParameters = optim.Adam([{'params': self.model.theta.parameters(), 'lr': 1e-3}])
+        self.UpdateMetaParameters = optim.Adam(params=self.model.thetas.parameters(), lr=1e-3)
 
         # -- log params
         self.result_directory = os.getcwd() + "/results"
@@ -126,14 +128,16 @@ class RosenbaumMetaLearner:
 
         # -- learning flags
         for key, val in model.named_parameters():
-            if 'linear' in key:
+            if 'forward' in key:
                 val.meta_fwd, val.adapt = False, True
             elif 'feedback' in key:
                 val.meta_fwd, val.adapt, val.requires_grad = False, False, False
             elif 'theta' in key:
                 val.meta_fwd, val.adapt = True, False
+                model.thetas.append(val)
 
         return model
+        
     
     @staticmethod
     def weights_init(modules):
@@ -152,7 +156,7 @@ class RosenbaumMetaLearner:
         :param modules: modules in the model.
         """
         classname = modules.__class__.__name__
-        if classname.find('Linear') != -1:
+        if classname.find('forward') != -1:
 
             # -- weights
             init_range = torch.sqrt(torch.tensor(6.0 / (modules.in_features + modules.out_features)))
@@ -177,21 +181,21 @@ class RosenbaumMetaLearner:
         self.model.apply(self.weights_init)
 
         if self.feedbackMode == 'sym':
-            self.model.feedback1.weight.data = self.model.linear1.weight.data
-            self.model.feedback2.weight.data = self.model.linear2.weight.data
-            self.model.feedback3.weight.data = self.model.linear3.weight.data
-            self.model.feedback4.weight.data = self.model.linear4.weight.data
-            self.model.feedback5.weight.data = self.model.linear5.weight.data
+            self.model.feedback1.weight.data = self.model.forward1.weight.data
+            self.model.feedback2.weight.data = self.model.forward2.weight.data
+            self.model.feedback3.weight.data = self.model.forward3.weight.data
+            self.model.feedback4.weight.data = self.model.forward4.weight.data
+            self.model.feedback5.weight.data = self.model.forward5.weight.data
 
 
-        # -- clone module parameters
-        # params = {key: val.clone() for key, val in dict(self.model.named_parameters()).items() if '.' in key}
+        #-- clone module parameters
+        params = {key: val.clone() for key, val in dict(self.model.named_parameters()).items() if '.' in key}
 
         # -- set adaptation flags for cloned parameters
-        # for key in params:
-        #    params[key].adapt = dict(self.model.named_parameters())[key].adapt
+        for key in params:
+            params[key].adapt = dict(self.model.named_parameters())[key].adapt
 
-        # return params
+        return params
 
     def train(self):
         """
@@ -209,51 +213,59 @@ class RosenbaumMetaLearner:
 
         :return: None
         """
+        self.model.cpu()
         self.model.train()
         for eps, data in enumerate(self.metatrain_dataset):
 
             # -- initialize
-            self.reinitialize()
+            params = self.reinitialize()
 
             # -- training data
-            x_trn, y_trn, x_qry, y_qry = self.data_process(data, self.queryDataPerClass)
+            x_trn, y_trn, x_qry, y_qry = self.data_process(data, 5)
 
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
 
                 # -- predict
-                y, logits = self.model(x.unsqueeze(0).unsqueeze(0))
+                y, logits = torch.func.functional_call(self.model, params, x.unsqueeze(0).unsqueeze(0))
 
                 # -- update network params
-                self.UpdateWeights(self.model.named_parameters(), logits, label, y, self.model.beta, self.Theta)
+                self.UpdateWeights(params, logits, label, y, self.model.beta, self.Theta)
 
             """ meta update """
             # -- predict
-            y, logits = self.model(x_qry.unsqueeze(1))
+            y, logits = y, logits = torch.func.functional_call(self.model, params, x_qry.unsqueeze(1))
 
             # -- L1 regularization
-            l1_reg = 0
-            print(self.model.theta)
-            for theta in self.model.theta.parameters():
-                l1_reg += torch.linalg.norm(theta)
+            l1_reg = None
+            for T in self.model.thetas.parameters():
+                if l1_reg is None:
+                    l1_reg = T.norm(1)
+                else:
+                    l1_reg = l1_reg + T.norm(1)
 
             loss_meta = self.loss_func(logits, y_qry.ravel()) + l1_reg * self.metaLossRegularization
+            print(loss_meta.grad)
 
             # -- compute and store meta stats
-            acc = meta_stats(logits, self.model.named_parameters(), y_qry.ravel(), y, self.model.beta, self.result_directory)
+            
+            #acc = meta_stats(logits, self.model.named_parameters(), y_qry.ravel(), y, self.model.beta, self.result_directory)
 
             # -- update params
             self.UpdateMetaParameters.zero_grad()
+            print(self.model.theta0.grad)
             loss_meta.backward()
+            print(self.model.theta0.grad)
             self.UpdateMetaParameters.step()
-            Theta = [p.detach().clone() for p in self.Theta]
+            print(self.model.theta0.grad)
 
             # -- log
             log([loss_meta.item()], self.result_directory + '/loss_meta.txt')
 
-            line = 'Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}'.format(eps+1, loss_meta.item(), acc)
-            for idx, param in enumerate(Theta):
-                line += '\tMetaParam_{}: {:.6f}'.format(idx + 1, param.cpu().numpy())
+            #line = 'Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}'.format(eps+1, loss_meta.item(), acc)
+            line = 'Train Episode: {}\tLoss: {:.6f}'.format(eps+1, loss_meta.item())
+            for idx, param in enumerate(self.Theta):
+                line += '\tMetaParam_{}: {:.6f}'.format(idx + 1, param.clone().detach().cpu().numpy())
             print(line)
             with open(self.result_directory + '/params.txt', 'a') as f:
                 f.writelines(line+'\n')
@@ -278,9 +290,9 @@ def main():
 
     # -- load data
     queryDataPerClass = 10
-    dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=queryDataPerClass, dimensionImages=28)
-    sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=600 * queryDataPerClass)
-    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=queryDataPerClass, drop_last=True)
+    dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionImages=28)
+    sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=600 * 5)
+    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- meta-train
     metalearning_model = RosenbaumMetaLearner(metatrain_dataset)

@@ -241,7 +241,7 @@ def accuracy(logits, label):
     :return: accuracy of the predicted logits.
     """
     # -- obtain predicted class labels
-    pred = functional.softmax(logits, dim=1).argmax(dim=1)
+    pred = functional.softmax(logits, dim=0).argmax(dim=1)
 
     return torch.eq(pred, label).sum().item() / len(label)
 
@@ -262,23 +262,27 @@ def meta_stats(logits, params, label, y, Beta, res_dir):
     :param res_dir: (str) output directory path for the log files.
     :return: float: computed accuracy value.
     """
+
+    all_params = dict({name: value for name, value in params})
     with torch.no_grad():
         # -- modulatory signal
-        B = dict({name: value for name, value in params if 'feedback' in name})
-        e = [functional.softmax(logits) - functional.one_hot(label, num_classes=47)]
+        B = dict({k: v for k, v in all_params.items() if 'feedback' in k})
+
+        e = [functional.softmax(logits, dim=0) - functional.one_hot(label, num_classes=47)]
         for y_, i in zip(reversed(y), reversed(list(B))):
             e.insert(0, torch.matmul(e[0], B[i]) * (1 - torch.exp(-Beta * y_)))
 
         # -- orthonormality errors
-        W = [v for k, v in params.items() if 'fc' in k]
-        E1 = [], []
-        activation = [*y, functional.softmax(logits, dim=1)]
+        
+        W = [v for k, v in all_params.items() if 'linear' in k]
+        E1 = []
+        activation = [*y, functional.softmax(logits, dim=0)]
         for i in range(len(activation)-1):
             E1.append((torch.norm(torch.matmul(activation[i], W[i].T)-torch.matmul(torch.matmul(activation[i+1], W[i]), W[i].T)) ** 2).item())
         log(E1, res_dir + '/E1_meta.txt')
 
         e_sym = [e[-1]]
-        W = dict({k: v for k, v in params.items() if 'fc' in k})
+        W = dict({k: v for k, v in all_params.items() if 'linear' in k})
         for y_, i in zip(reversed(y), reversed(list(W))):
             e_sym.insert(0, torch.matmul(e_sym[0], W[i]) * (1 - torch.exp(-Beta * y_)))
 

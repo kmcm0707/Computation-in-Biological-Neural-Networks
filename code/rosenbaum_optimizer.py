@@ -12,7 +12,7 @@ def plasticity_rule(activation, e, params, feedback, Theta, feedbackType):
 
     :param activation: (list) model activations,
     :param e: (list) modulatory signals,
-    :param params: self.model.named_parameters(),
+    :param params: (dict) model weights,
     :param feedback: (dict) feedback connections,
     :param Theta: (ParameterList) meta-learned plasticity coefficients,
     :param feedbackType: (str) the type of feedback matrix used in the model:
@@ -22,9 +22,10 @@ def plasticity_rule(activation, e, params, feedback, Theta, feedbackType):
     """
     """ update forward weights """
     i = 0
-    #with torch.no_grad(): //Might be neccassary run code to check
-    for name, parameter in params:
-        if 'linear' in name:
+    
+
+    for name, parameter in params.items():
+        if 'forward' in name:
             if parameter.adapt:
                 # -- pseudo-gradient
                 parameter.update = - Theta[0] * torch.matmul(e[i + 1].T, activation[i])
@@ -32,18 +33,21 @@ def plasticity_rule(activation, e, params, feedback, Theta, feedbackType):
                 parameter.update -= Theta[1] * torch.matmul(e[i + 1].T, e[i])
                 # -- Oja's rule
                 parameter.update += Theta[2] * (torch.matmul(activation[i + 1].T, activation[i]) - torch.matmul( 
-                    torch.matmul(activation[i + 1].T, activation[i + 1]), parameter.data))
+                    torch.matmul(activation[i + 1].T, activation[i + 1]), parameter))
 
                 # -- weight update
-                parameter.data += parameter.update
+                params[name] = parameter + parameter.update
+                params[name].adapt = parameter.adapt
 
             i += 1
 
     """ enforce symmetric feedbacks for backprop training """
     if feedbackType == 'sym':
         # -- feedback update (symmetric)
-        for i, (name, parameter) in enumerate(feedback.items()):
-            parameter.data = params[name.replace('feedback', 'linear')].data # Maybe need .T here to make it symmetric
+        feedback_ = dict({k: v for k, v in params.items() if 'forward' in k and 'weight' in k})
+        for i, ((k, B), (k_, _)) in enumerate(zip(feedback.items(), feedback_.items())):
+            params[k].data = params[k_]
+            params[k].adapt = B.adapt
 
 
 class RosenbaumOptimizer:
@@ -80,7 +84,7 @@ class RosenbaumOptimizer:
             we use g'(z) = 1 - e^(-Beta*y).
         2) Updates the model parameters using the update function.
 
-        :param params: self.model.named_parameters(),
+        :param params: (dict) model weights,
         :param logits: (torch.Tensor) unnormalized prediction values,
         :param label: (torch.Tensor) target class,
         :param activation: (tuple) vector of activations,
@@ -89,8 +93,9 @@ class RosenbaumOptimizer:
         :return: None.
         """
         # -- error
-        feedback = dict({name: value for name, value in params if 'feedback' in name})
-        e = [functional.softmax(logits) - functional.one_hot(label, num_classes=47)]
+        feedback = {name: value for name, value in params.items() if 'feedback' in name}
+        e = [functional.softmax(logits, dim=1) - functional.one_hot(label, num_classes=47)]
+        #print('e', e)
         for y, i in zip(reversed(activation), reversed(list(feedback))):
             e.insert(0, torch.matmul(e[0], feedback[i]) * (1 - torch.exp(-Beta * y)))
 
