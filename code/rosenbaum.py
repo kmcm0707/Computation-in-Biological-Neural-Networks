@@ -52,10 +52,8 @@ class RosenbaumNN(nn.Module):
         self.theta0 = nn.Parameter(torch.tensor(1e-3).float()) # Pseudo-inverse
         self.theta1 = nn.Parameter(torch.tensor(0.).float()) # Hebbian
         self.theta2 = nn.Parameter(torch.tensor(0.).float()) # Oja
-        self.theta3 = nn.Parameter(torch.tensor(0.).float()) # L1 regularization
-        self.theta4 = nn.Parameter(torch.tensor(0.).float()) # L2 regularization
         
-        self.thetas = nn.ParameterList()
+        self.thetas = nn.ParameterList([self.theta0, self.theta1, self.theta2])
 
         # Activation function
         self.beta = 10
@@ -80,11 +78,12 @@ class RosenbaumMetaLearner:
 
     The MetaLearner class is used to define meta-learning algorithm.
     """
-    def __init__(self, metatrain_dataset):
+    def __init__(self, metatrain_dataset, result_subdirectory: str):
         """
             Initialize the Meta-RosenbaumMetaLearner.
 
         :param metatrain_dataset: (DataLoader) The meta-training dataset.
+        :param result_subdirectory: (str) The subdirectory to store results.
         """
         # -- processor params
         self.device = torch.device('cpu') #torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -98,7 +97,6 @@ class RosenbaumMetaLearner:
 
         # -- model params
         self.model = self.load_model().to(self.device)
-        self.Theta = nn.ParameterList([*self.model.thetas])
         self.feedbackMode = "fixed" # 'sym' or 'fixed'
 
         # -- optimization params
@@ -110,8 +108,14 @@ class RosenbaumMetaLearner:
         # -- log params
         self.result_directory = os.getcwd() + "/results"
         os.makedirs(self.result_directory, exist_ok=True)
+        self.result_directory += "/" + result_subdirectory
+        try:
+            os.makedirs(self.result_directory, exist_ok=False)
+        except FileExistsError:
+            warnings.warn("The directory already exists. The results will be overwritten.")
+
         self.average_window = 10
-        self.plot = Plot(self.result_directory, len(self.Theta), self.average_window)
+        self.plot = Plot(self.result_directory, len(self.model.thetas), self.average_window)
 
     def load_model(self):
         """
@@ -134,7 +138,6 @@ class RosenbaumMetaLearner:
                 val.meta_fwd, val.adapt, val.requires_grad = False, False, False
             elif 'theta' in key:
                 val.meta_fwd, val.adapt = True, False
-                model.thetas.append(val)
 
         return model
         
@@ -188,7 +191,8 @@ class RosenbaumMetaLearner:
             self.model.feedback5.weight.data = self.model.forward5.weight.data
 
 
-        #-- clone module parameters
+        #-- module parameters
+        #-- parameters are not linked to the model even if .clone() is not used
         params = {key: val.clone() for key, val in dict(self.model.named_parameters()).items() if '.' in key}
 
         # -- set adaptation flags for cloned parameters
@@ -218,7 +222,9 @@ class RosenbaumMetaLearner:
         for eps, data in enumerate(self.metatrain_dataset):
 
             # -- initialize
-            params = self.reinitialize()
+            # Using a clone of the model parameters to allow for in-place operations
+            # Maintains the computational graph for the model as .detach() is not used
+            parameters = self.reinitialize()
 
             # -- training data
             x_trn, y_trn, x_qry, y_qry = self.data_process(data, 5)
@@ -227,44 +233,37 @@ class RosenbaumMetaLearner:
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
 
                 # -- predict
-                y, logits = torch.func.functional_call(self.model, params, x.unsqueeze(0).unsqueeze(0))
+                y, logits = torch.func.functional_call(self.model, parameters, x.unsqueeze(0).unsqueeze(0))
 
                 # -- update network params
-                self.UpdateWeights(params, logits, label, y, self.model.beta, self.Theta)
+                self.UpdateWeights(parameters, logits, label, y, self.model.beta, self.model.thetas)
 
             """ meta update """
             # -- predict
-            y, logits = y, logits = torch.func.functional_call(self.model, params, x_qry.unsqueeze(1))
+            y, logits = torch.func.functional_call(self.model, parameters, x_qry)
 
             # -- L1 regularization
-            l1_reg = None
-            for T in self.model.thetas.parameters():
-                if l1_reg is None:
-                    l1_reg = T.norm(1)
-                else:
-                    l1_reg = l1_reg + T.norm(1)
+            l1_reg = 0
+            for theta in self.model.thetas.parameters():
+                l1_reg += theta.norm(1)
 
             loss_meta = self.loss_func(logits, y_qry.ravel()) + l1_reg * self.metaLossRegularization
-            print(loss_meta.grad)
 
             # -- compute and store meta stats
             
-            #acc = meta_stats(logits, self.model.named_parameters(), y_qry.ravel(), y, self.model.beta, self.result_directory)
+            acc = meta_stats(logits, parameters, y_qry.ravel(), y, self.model.beta, self.result_directory)
 
             # -- update params
+            theta_temp = [theta.detach().clone() for theta in self.model.thetas]
             self.UpdateMetaParameters.zero_grad()
-            print(self.model.theta0.grad)
             loss_meta.backward()
-            print(self.model.theta0.grad)
             self.UpdateMetaParameters.step()
-            print(self.model.theta0.grad)
 
             # -- log
             log([loss_meta.item()], self.result_directory + '/loss_meta.txt')
 
-            #line = 'Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}'.format(eps+1, loss_meta.item(), acc)
-            line = 'Train Episode: {}\tLoss: {:.6f}'.format(eps+1, loss_meta.item())
-            for idx, param in enumerate(self.Theta):
+            line = 'Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}'.format(eps+1, loss_meta.item(), acc)
+            for idx, param in enumerate(theta_temp):
                 line += '\tMetaParam_{}: {:.6f}'.format(idx + 1, param.clone().detach().cpu().numpy())
             print(line)
             with open(self.result_directory + '/params.txt', 'a') as f:
@@ -289,13 +288,15 @@ def main():
     """
 
     # -- load data
-    queryDataPerClass = 10
+    result_subdirectory = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    result_subdirectory = "rosenbaum_updated" # override
+
     dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionImages=28)
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=600 * 5)
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- meta-train
-    metalearning_model = RosenbaumMetaLearner(metatrain_dataset)
+    metalearning_model = RosenbaumMetaLearner(metatrain_dataset, result_subdirectory)
     metalearning_model.train()
 
 

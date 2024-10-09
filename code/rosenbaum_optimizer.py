@@ -22,32 +22,30 @@ def plasticity_rule(activation, e, params, feedback, Theta, feedbackType):
     """
     """ update forward weights """
     i = 0
-    
-
     for name, parameter in params.items():
         if 'forward' in name:
             if parameter.adapt:
                 # -- pseudo-gradient
-                parameter.update = - Theta[0] * torch.matmul(e[i + 1].T, activation[i])
+                update = - Theta[0] * torch.matmul(e[i + 1].T, activation[i])
                 # -- eHebb rule
-                parameter.update -= Theta[1] * torch.matmul(e[i + 1].T, e[i])
+                update = update - Theta[1] * torch.matmul(e[i + 1].T, e[i])
                 # -- Oja's rule
-                parameter.update += Theta[2] * (torch.matmul(activation[i + 1].T, activation[i]) - torch.matmul( 
+                update = update + Theta[2] * (torch.matmul(activation[i + 1].T, activation[i]) - torch.matmul( 
                     torch.matmul(activation[i + 1].T, activation[i + 1]), parameter))
 
                 # -- weight update
-                params[name] = parameter + parameter.update
-                params[name].adapt = parameter.adapt
+                params[name] = params[name] + update
+                params[name].adapt = True
 
             i += 1
 
     """ enforce symmetric feedbacks for backprop training """
     if feedbackType == 'sym':
         # -- feedback update (symmetric)
-        feedback_ = dict({k: v for k, v in params.items() if 'forward' in k and 'weight' in k})
-        for i, ((k, B), (k_, _)) in enumerate(zip(feedback.items(), feedback_.items())):
-            params[k].data = params[k_]
-            params[k].adapt = B.adapt
+        forward = dict({k: v for k, v in params.items() if 'forward' in k and 'weight' in k})
+        for i, ((feedback_name, feedback_value), (forward_name, _)) in enumerate(zip(feedback.items(), forward.items())):
+            params[feedback_name].data = params[forward_name]
+            params[feedback_name].adapt = feedback_value.adapt
 
 
 class RosenbaumOptimizer:
@@ -94,10 +92,11 @@ class RosenbaumOptimizer:
         """
         # -- error
         feedback = {name: value for name, value in params.items() if 'feedback' in name}
-        e = [functional.softmax(logits, dim=1) - functional.one_hot(label, num_classes=47)]
-        #print('e', e)
+        error = [functional.softmax(logits, dim=1) - functional.one_hot(label, num_classes=47)]
+
+        # add the error for the first layer
         for y, i in zip(reversed(activation), reversed(list(feedback))):
-            e.insert(0, torch.matmul(e[0], feedback[i]) * (1 - torch.exp(-Beta * y)))
+            error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-Beta * y)))
 
         # -- weight update
-        self.update_rule([*activation, functional.softmax(logits, dim=1)], e, params, feedback, Theta, self.feedbackType)
+        self.update_rule([*activation, functional.softmax(logits, dim=1)], error, params, feedback, Theta, self.feedbackType)

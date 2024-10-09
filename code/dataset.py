@@ -1,16 +1,13 @@
 import os
-import gzip
+import emnist
+from emnist import list_datasets
 import torch
-import shutil
-import zipfile
-import requests
 
 from PIL import Image
 from torchvision import transforms
 from torch.utils.data import Dataset
 
 import numpy as np
-
 
 class EmnistDataset(Dataset):
     """
@@ -20,120 +17,44 @@ class EmnistDataset(Dataset):
     than a single image and the corresponding label, each data point
     represents samples from a class of images, containing training and query
     data from that category.
+
+    Uses: EMNIST Balanced: 131,600 characters. 47 balanced classes. - Only test dataset is used for metalearning.
+
+    Class Attributes:
+        - trainingDataPerClass: (int) integer value representing the number of training data per class,
+        - queryDataPerClass: (int) integer value representing the number of query data per class,
+        - dimensionImages: (int) integer value representing the dimension size of the images.
+        - transform: (torchvision.transforms.Compose) a composition of transformations to be applied to the images.
+        - n_class: (int) integer value representing the number of classes in the dataset.
+        - emnist_test_data: (emnist.EMNIST) the EMNIST test dataset.
     """
-    def __init__(self, trainingDataPerClass, queryDataPerClass, dimensionImages):
+    def __init__(self, trainingDataPerClass: int, queryDataPerClass: int, dimensionImages: int):
         """
             Initialize the EmnistDataset class.
 
         The method first downloads and preprocesses the EMNIST dataset, creating
-        directories and files necessary for later use. It then sets the values for
-        K, Q, and dim, which define the number of training data, the number of queries,
-        and the dimensions of the images to be loaded, respectively. It also sets the
-        path to the images and defines the transformation to be applied to the images.
+        directories and files necessary for later use. It then sets the values for the number of training data, the number of queries,
+        and the dimensions of the images to be loaded, respectively. It also defines the transformation to be applied to the images.
 
-        :param K: (int) integer value representing the number of training data per class,
-        :param Q: (int) integer value representing the number of query data per class,
-        :param dim: (int) integer value representing the dimension size of the images.
+        :param trainingDataPerClass: (int) integer value representing the number of training data per class,
+        :param queryDataPerClassQ: (int) integer value representing the number of query data per class,
+        :param dimensionImages: (int) integer value representing the dimension size of the images.
         """
-        try:
-            # -- create directory
-            s_dir = os.getcwd()
-            self.emnist_dir = s_dir + '/data/emnist/'
-            file_name = 'gzip'
-            os.makedirs(self.emnist_dir)
 
-            # -- download
-            emnist_url = 'https://biometrics.nist.gov/cs_links/EMNIST/'
-            self.download(emnist_url + file_name + '.zip', self.emnist_dir + file_name + '.zip')
+        self.trainingDataPerClass = trainingDataPerClass
+        self.queryDataPerClass = queryDataPerClass
+        self.dimensionImages = dimensionImages
+        self.n_class = 47
 
-            # -- unzip
-            with zipfile.ZipFile(self.emnist_dir + file_name + '.zip', 'r') as zip_file:
-                zip_file.extractall(self.emnist_dir)
-            os.remove(self.emnist_dir + file_name + '.zip')
+        print(emnist.get_cached_data_path()) # Printing the path to the cached data
+        emnist.ensure_cached_data() # Ensuring the EMNIST dataset is cached
 
-            balanced_path = [f for f in [fs for _, _, fs in os.walk(self.emnist_dir + file_name)][0] if 'balanced' in f]
-            for file in balanced_path:
-                with gzip.open(self.emnist_dir + 'gzip/' + file, 'rb') as f_in:
-                    try:
-                        f_in.read(1)
-                        with open(self.emnist_dir + file[:-3], 'wb') as f_out:
-                            shutil.copyfileobj(f_in, f_out)
-                    except OSError:
-                        pass
-            shutil.rmtree(self.emnist_dir + file_name)
+        images, labels = emnist.extract_test_samples("balanced"); # Extracting the EMNIST test dataset
+        emnist_test_data = [[images[i] for i in range(len(labels)) if labels[i] == j] for j in range(47)] # Extracting the EMNIST test dataset
+        self.emnist_test_data = np.array(emnist_test_data)
+        self.emnist_test_data = self.emnist_test_data.reshape(self.emnist_test_data.shape[1], self.emnist_test_data.shape[0], 28, 28)
 
-            # -- write images
-            self.write_to_file()
-
-            remove_path = [files for _, folders, files in os.walk(self.emnist_dir) if folders][0]
-            for path in remove_path:
-                os.unlink(self.emnist_dir + path)
-
-        except FileExistsError:
-            pass
-
-        self.K = trainingDataPerClass
-        self.Q = queryDataPerClass
-
-        self.char_path = [folder for folder, folders, _ in os.walk(self.emnist_dir) if not folders]
         self.transform = transforms.Compose([transforms.Resize((dimensionImages, dimensionImages)), transforms.ToTensor()])
-
-    @staticmethod
-    def download(url, filename):
-        """
-            A static method to download a file from a URL and save it to a local file.
-
-        :param url: (str) A string representing the URL from which to download the file,
-        :param filename: (str) A string representing the name of the local file to save
-            the downloaded data to.
-        :return: None
-        """
-        res = requests.get(url, stream=False)
-        with open(filename, 'wb') as f:
-            for chunk in res.iter_content(chunk_size=1024):
-                if chunk:
-                    f.write(chunk)
-
-    def write_to_file(self):
-        """
-            Write EMNIST images to files.
-
-        The function reads the EMNIST test images and labels from binary files and
-        writes them to files. Each image is saved to a file under a directory
-        corresponding to its label.
-
-        :return: None.
-        """
-        n_class = 47
-
-        # -- read images
-        with open(self.emnist_dir + 'emnist-balanced-test-images-idx3-ubyte', 'rb') as f:
-            f.read(3)
-            image_count = int.from_bytes(f.read(4), 'big')
-            height = int.from_bytes(f.read(4), 'big')
-            width = int.from_bytes(f.read(4), 'big')
-            images = np.frombuffer(f.read(), dtype=np.uint8).reshape((image_count, height, width))
-
-        # -- read labels
-        with open(self.emnist_dir + 'emnist-balanced-test-labels-idx1-ubyte', 'rb') as f:
-            f.read(3)
-            label_count = int.from_bytes(f.read(4), 'big')
-            labels = np.frombuffer(f.read(), dtype=np.uint8)
-
-        assert (image_count == label_count)
-
-        # -- write images
-        for i in range(n_class):
-            os.mkdir(self.emnist_dir + f'character{i + 1:02d}')
-
-        char_path = sorted([folder for folder, folders, _ in os.walk(self.emnist_dir) if not folders])
-
-        label_counter = np.ones(n_class, dtype=int)
-        for i in range(label_count):
-            im = Image.fromarray(images[i])
-            im.save(char_path[labels[i]] + f'/{labels[i] + 1:02d}_{label_counter[labels[i]]:04d}.png')
-
-            label_counter[labels[i]] += 1
 
     def __len__(self):
         """
@@ -142,9 +63,9 @@ class EmnistDataset(Dataset):
         :return: int: the length of the dataset, i.e., the number of classes in the
             dataset
         """
-        return len(self.char_path)
+        return self.n_class
 
-    def __getitem__(self, idx):
+    def __getitem__(self, index):
         """
             Return a tuple of tensors containing training and query images and
             corresponding labels for a given index.
@@ -157,25 +78,22 @@ class EmnistDataset(Dataset):
         specified at initialization. The indices corresponding to the images are
         also returned in tensors of size K and Q, respectively.
 
-        :param idx: (int) Index of the character folder from which images are to be retrieved.
+        :param index: (int) Index of the character folder from which images are to be retrieved.
         :return: tuple: A tuple (img_K, idx_vec_K, img_Q, idx_vec_Q) containing the following tensors:
-            - img_K (torch.Tensor): A tensor of K images from the character folder at idx
-                as training data.
-            - idx_vec_K (torch.Tensor): A tensor of K indices corresponding to the images
-                in img_K.
-            - img_Q (torch.Tensor): A tensor of Q images from the character folder at idx
-                as query data.
-            - idx_vec_Q (torch.Tensor): A tensor of Q indices corresponding to the images
-                in img_Q.
+            - img_K (torch.Tensor): A tensor of K images from class index
+            - idx_vec_K (torch.Tensor): A tensor of K indices corresponding to class index
+            - img_Q (torch.Tensor): A tensor of Q images from the class index
+            - idx_vec_Q (torch.Tensor): A tensor of Q indices corresponding to class index.
         """
-        img = []
-        for img_ in os.listdir(self.char_path[idx]):
-            img.append(self.transform(Image.open(self.char_path[idx] + '/' + img_, mode='r').convert('L')))
+        images = []
+        for image in self.emnist_test_data[:, index]:
+            images.append(self.transform(Image.fromarray(image).convert('L')))
 
-        img = torch.cat(img)
-        idx_vec = idx * torch.ones_like(torch.empty(400), dtype=int)
+        images = torch.cat(images)
+        idx_vec = index * torch.ones_like(torch.empty(400), dtype=int)
 
-        return img[:self.K], idx_vec[:self.K], img[self.K:self.K + self.Q], idx_vec[self.K:self.K + self.Q]
+        return images[:self.trainingDataPerClass], idx_vec[:self.trainingDataPerClass], \
+               images[self.trainingDataPerClass:self.trainingDataPerClass + self.queryDataPerClass], idx_vec[self.trainingDataPerClass:self.trainingDataPerClass + self.queryDataPerClass]
 
 
 class DataProcess:

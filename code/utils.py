@@ -1,3 +1,4 @@
+import os
 import re
 import torch
 
@@ -263,18 +264,17 @@ def meta_stats(logits, params, label, y, Beta, res_dir):
     :return: float: computed accuracy value.
     """
 
-    all_params = dict({name: value for name, value in params})
     with torch.no_grad():
         # -- modulatory signal
-        B = dict({k: v for k, v in all_params.items() if 'feedback' in k})
+        B = dict({k: v for k, v in params.items() if 'feedback' in k})
 
-        e = [functional.softmax(logits, dim=0) - functional.one_hot(label, num_classes=47)]
+        e = [functional.softmax(logits, dim=1) - functional.one_hot(label, num_classes=47)]
         for y_, i in zip(reversed(y), reversed(list(B))):
             e.insert(0, torch.matmul(e[0], B[i]) * (1 - torch.exp(-Beta * y_)))
 
         # -- orthonormality errors
         
-        W = [v for k, v in all_params.items() if 'linear' in k]
+        W = [v for k, v in params.items() if 'forward' in k]
         E1 = []
         activation = [*y, functional.softmax(logits, dim=0)]
         for i in range(len(activation)-1):
@@ -282,7 +282,7 @@ def meta_stats(logits, params, label, y, Beta, res_dir):
         log(E1, res_dir + '/E1_meta.txt')
 
         e_sym = [e[-1]]
-        W = dict({k: v for k, v in all_params.items() if 'linear' in k})
+        W = dict({k: v for k, v in params.items() if 'forward' in k})
         for y_, i in zip(reversed(y), reversed(list(W))):
             e_sym.insert(0, torch.matmul(e_sym[0], W[i]) * (1 - torch.exp(-Beta * y_)))
 
@@ -297,3 +297,15 @@ def meta_stats(logits, params, label, y, Beta, res_dir):
         log([acc], res_dir + '/acc_meta.txt')
 
     return acc
+
+if __name__ == '__main__':
+    # -- test code
+    directory = os.getcwd() + '/results/rosenbaum_updated'
+    plot = Plot(directory, 3)
+    plot.meta_accuracy()
+    plot.meta_parameters()
+    plot.meta_angles()
+    plot.meta_loss()
+    plot()
+    print('Done')
+    pass
