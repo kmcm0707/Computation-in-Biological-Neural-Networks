@@ -10,6 +10,7 @@ kanban-plugin: board
 - [ ] Recreate Rosenbalm
 - [ ] Cambridge admin - modules and dinner
 - [ ] Papers
+- [ ] https://cs330.stanford.edu/fall2022/index.html
 
 
 ## In Progress

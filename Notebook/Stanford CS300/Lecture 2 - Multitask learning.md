@@ -1,3 +1,4 @@
+#Stanford
 # Lecture 2 - Multitask Learning
 [[cs330_multitask_transfer_2022.pdf]]
 ## Notation
