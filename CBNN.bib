@@ -1,4 +1,37 @@
-@book{dayanTheoreticalNeuroscienceComputational2001,
+@inproceedings{bengio2006,
+  title = {Greedy {{Layer-Wise Training}} of {{Deep Networks}}},
+  booktitle = {Advances in {{Neural Information Processing Systems}}},
+  author = {Bengio, Yoshua and Lamblin, Pascal and Popovici, Dan and Larochelle, Hugo},
+  date = {2006},
+  volume = {19},
+  publisher = {MIT Press},
+  url = {https://proceedings.neurips.cc/paper_files/paper/2006/hash/5da713a690c067105aeb2fae32403405-Abstract.html},
+  urldate = {2024-10-10},
+  abstract = {Recent analyses (Bengio, Delalleau, \& Le Roux, 2006; Bengio \& Le Cun, 2007) of modern nonparametric machine learning algorithms that are kernel machines, such as Support Vector Machines (SVMs), graph-based manifold and semi-supervised learning algorithms suggest fundamental limitations of some learning algorithms. The problem is clear in kernel-based approaches when the kernel is "local" (e.g., the Gaussian kernel), i.e., K (x, y ) converges to a constant when ||x - y || increases. These analyses point to the difficulty of learning "highly-varying functions", i.e., functions that have a large number of "variations" in the domain of interest, e.g., they would require a large number of pieces to be well represented by a piecewise-linear approximation. Since the number of pieces can be made to grow exponentially with the number of factors of variations in the input, this is connected with the well-known curse of dimensionality for classical non-parametric learning algorithms (for regression, classification and density estimation). If the shapes of all these pieces are unrelated, one needs enough examples for each piece in order to generalize properly. However, if these shapes are related and can be predicted from each other, "non-local" learning algorithms have the potential to generalize to pieces not covered by the training set. Such ability would seem necessary for learning in complex domains such as Artificial Intelligence tasks (e.g., related to vision, language, speech, robotics). Kernel machines (not only those with a local kernel) have a shallow architecture, i.e., only two levels of data-dependent computational elements. This is also true of feedforward neural networks with a single hidden layer (which can become SVMs when the number of hidden units becomes large (Bengio, Le Roux, Vincent, Delalleau, \& Marcotte, 2006)). A serious problem with shallow architectures is that they can be very inefficient in terms of the number of computational units (e.g., bases, hidden units), and thus in terms of required examples (Bengio \& Le Cun, 2007). One way to represent a highly-varying function compactly (with few parameters) is through the composition of many non-linearities, i.e., with a deep architecture. For example, the parity function with d inputs requires O(2d ) examples and parameters to be represented by a Gaussian SVM (Bengio et al., 2006), O(d2 ) parameters for a one-hidden-layer neural network, O(d) parameters and units for a multi-layer network with O(log2 d) layers, and O(1) parameters with a recurrent neural network. More generally,},
+  file = {C:\Users\kmc07\Zotero\storage\RAEBBY6W\Bengio et al. - 2006 - Greedy Layer-Wise Training of Deep Networks.pdf}
+}
+
+@article{benna2016a,
+  title = {Computational Principles of Synaptic Memory Consolidation},
+  author = {Benna, Marcus K. and Fusi, Stefano},
+  date = {2016-12},
+  journaltitle = {Nature Neuroscience},
+  shortjournal = {Nat Neurosci},
+  volume = {19},
+  number = {12},
+  pages = {1697--1706},
+  publisher = {Nature Publishing Group},
+  issn = {1546-1726},
+  doi = {10.1038/nn.4401},
+  url = {https://www.nature.com/articles/nn.4401},
+  urldate = {2024-10-09},
+  abstract = {The biological mechanisms underlying memory are complex and typically involve multiple molecular processes operating on timescales ranging from fractions of a second to years. The authors show using a mathematical model of synaptic plasticity and consolidation that this complexity can help explain the formidable memory capacity of biological systems.},
+  langid = {english},
+  keywords = {Consolidation,Long-term memory},
+  file = {C:\Users\kmc07\Zotero\storage\DJIUDPI3\Benna and Fusi - 2016 - Computational principles of synaptic memory consolidation.pdf}
+}
+
+@book{dayan2001,
   title = {Theoretical Neuroscience: Computational and Mathematical Modeling of Neural Systems},
   shorttitle = {Theoretical Neuroscience},
   author = {Dayan, Peter and Abbott, L. F.},
@@ -9,10 +42,10 @@
   isbn = {978-0-262-04199-7},
   langid = {english},
   pagetotal = {460},
-  file = {C:\Users\Kyle\Zotero\storage\S6TW4RBW\Dayan and Abbott - 2001 - Theoretical neuroscience computational and mathematical modeling of neural systems.pdf}
+  file = {C:\Users\kmc07\Zotero\storage\S6TW4RBW\Dayan and Abbott - 2001 - Theoretical neuroscience computational and mathematical modeling of neural systems.pdf}
 }
 
-@article{shervani-tabarMetalearningBiologicallyPlausible2023,
+@article{shervani-tabar2023,
   title = {Meta-Learning Biologically Plausible Plasticity Rules with Random Feedback Pathways},
   author = {Shervani-Tabar, Navid and Rosenbaum, Robert},
   date = {2023-03-31},
@@ -29,5 +62,5 @@
   abstract = {Backpropagation is widely used to train artificial neural networks, but its relationship to synaptic plasticity in the brain is unknown. Some biological models of backpropagation rely on feedback projections that are symmetric with feedforward connections, but experiments do not corroborate the existence of such symmetric backward connectivity. Random feedback alignment offers an alternative model in which errors are propagated backward through fixed, random backward connections. This approach successfully trains shallow models, but learns slowly and does not perform well with deeper models or online learning. In this study, we develop a meta-learning approach to discover interpretable, biologically plausible plasticity rules that improve online learning performance with fixed random feedback connections. The resulting plasticity rules show improved online training of deep models in the low data regime. Our results highlight the potential of meta-learning to discover effective, interpretable learning rules satisfying biological constraints.},
   langid = {english},
   keywords = {Computational science,Learning algorithms},
-  file = {C:\Users\Kyle\Zotero\storage\E6MFRN9F\Shervani-Tabar and Rosenbaum - 2023 - Meta-learning biologically plausible plasticity rules with random feedback pathways.pdf}
+  file = {C:\Users\kmc07\Zotero\storage\E6MFRN9F\Shervani-Tabar and Rosenbaum - 2023 - Meta-learning biologically plausible plasticity rules with random feedback pathways.pdf}
 }
