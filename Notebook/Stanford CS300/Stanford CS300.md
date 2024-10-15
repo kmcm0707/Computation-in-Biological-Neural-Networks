@@ -8,3 +8,5 @@ type: folder_brief_live
 [[Lecture 2 - Multitask learning]]
 [[Lecture 3 - Transfer Learning + Start of Meta-Learning]]
 [[Lecture 4 - Black-box meta-learning & in-context learning]]
+[[Lecture 5 - Optimization-Based Meta-Learning]]
+[[Lecture 6 - Non-Parametric Few-Shot Learning]]

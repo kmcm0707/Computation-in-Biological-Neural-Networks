@@ -52,5 +52,5 @@ NTM and neural attentive are more relevant is neuroscience (@TODO).
 ![[Pasted image 20241011002438.png]]
 ![[Pasted image 20241011002526.png]]
 Source: https://github.com/shreyashankar/gpt3-sandbox/blob/master/docs/priming.md
-## What is needed for few-shot learning to emerge?
+## What is Needed for Few-shot Learning to Emerge?
 ![[Pasted image 20241011002625.png]]
