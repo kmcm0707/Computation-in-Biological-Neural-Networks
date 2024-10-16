@@ -13,6 +13,9 @@ from rosenbaum_optimizer import plasticity_rule, RosenbaumOptimizer
 
 from utils import log, meta_stats, Plot
 
+import shutil
+
+
 class RosenbaumNN(nn.Module):
     """
 
@@ -93,7 +96,7 @@ class RosenbaumMetaLearner:
         self.queryDataPerClass = 10
         self.database = "emnist"
         self.metatrain_dataset = metatrain_dataset
-        self.data_process = DataProcess(K=self.trainingDataPerClass, Q=self.queryDataPerClass, dim=28, device=self.device)
+        self.data_process = DataProcess(trainingDataPerClass=self.trainingDataPerClass, queryDataPerClass=self.queryDataPerClass, dimensionOfImage=28, device=self.device)
 
         # -- model params
         self.model = self.load_model().to(self.device)
@@ -106,6 +109,7 @@ class RosenbaumMetaLearner:
         self.UpdateMetaParameters = optim.Adam(params=self.model.thetas.parameters(), lr=1e-3)
 
         # -- log params
+        self.save_results = save_results
         if save_results:
             self.result_directory = os.getcwd() + "/results"
             os.makedirs(self.result_directory, exist_ok=True)
@@ -122,7 +126,7 @@ class RosenbaumMetaLearner:
                 if username.lower() == 'n':
                     exit()
                 else:
-                    os.rmdir(self.result_directory)
+                    shutil.rmtree(self.result_directory)
                     os.makedirs(self.result_directory, exist_ok=False)
 
             self.average_window = 10
@@ -144,11 +148,11 @@ class RosenbaumMetaLearner:
         # -- learning flags
         for key, val in model.named_parameters():
             if 'forward' in key:
-                val.adapt = False, True
+                val.adapt = True
             elif 'feedback' in key:
-                val.adapt, val.requires_grad = False, False, False
+                val.adapt, val.requires_grad = False, False
             elif 'theta' in key:
-                val.adapt = True, False
+                val.adapt = True
 
         return model
         
@@ -303,7 +307,7 @@ def main():
 
     # -- load data
     result_subdirectory = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    result_subdirectory = "rosenbaum_updated_2" # override
+    result_subdirectory = "rosenbaum_updated_3" # override
 
     dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=600 * 5)
