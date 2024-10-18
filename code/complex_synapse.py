@@ -2,8 +2,6 @@ import torch
 from torch import nn
 from torch.nn import functional
 
-from torch.utils.tensorboard import SummaryWriter
-
 class ComplexSynapse(nn.Module):
     """
         Complex synapse model.

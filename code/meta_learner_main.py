@@ -1,3 +1,5 @@
+import argparse
+from multiprocessing import Pool
 import os
 from typing import Literal
 import torch
@@ -25,9 +27,6 @@ class RosenbaumNN(nn.Module):
 
         # Initialize the parent class
         super(RosenbaumNN, self).__init__()
-
-        # Set the seed for reproducibility
-        torch.manual_seed(1)
 
         # Set the device
         self.device = device
@@ -72,11 +71,14 @@ class MetaLearner:
 
     """
 
-    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu', result_subdirectory: str = datetime.datetime.now().strftime("%Y%m%d-%H%M%S"), save_results: bool = True, model_type: str = "rosenbaum", metatrain_dataset = None):
+    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu', result_subdirectory: str = datetime.datetime.now().strftime("%Y%m%d-%H%M%S"), save_results: bool = True, model_type: str = "rosenbaum", metatrain_dataset = None, seed: int = 0, display: bool = True):
 
         # -- processor params
         self.device = torch.device(device)
         self.model_type = model_type
+        
+        # Set the seed for reproducibility
+        torch.manual_seed(seed)
 
         # -- data params
         self.trainingDataPerClass = 50
@@ -95,6 +97,7 @@ class MetaLearner:
 
         # -- log params
         self.save_results = save_results
+        self.display = display
         if self.save_results:
             self.result_directory = os.getcwd() + "/results"
             os.makedirs(self.result_directory, exist_ok=True)
@@ -257,7 +260,8 @@ class MetaLearner:
             for idx, param in enumerate(theta_temp):
                 line += '\tMetaParam_{}: {:.6f}'.format(idx + 1, param.clone().detach().cpu().numpy())
 
-            print(line)
+            if self.display:
+                print(line)
 
             if self.save_results:
                 self.summary_writer.add_scalar('Loss/meta', loss_meta.item(), eps)
@@ -275,7 +279,7 @@ class MetaLearner:
             self.summary_writer.close()
             self.plot()
 
-def main():
+def run(seed: int, display: bool = True):
     """
         Main function for Meta-learning the plasticity rule.
 
@@ -298,9 +302,37 @@ def main():
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- meta-train
-    metalearning_model = MetaLearner(device='cpu', result_subdirectory=result_subdirectory, save_results=True, model_type="rosenbaum", metatrain_dataset=metatrain_dataset)
+    metalearning_model = MetaLearner(device='cpu', result_subdirectory=result_subdirectory, save_results=True, model_type="rosenbaum", metatrain_dataset=metatrain_dataset, seed=seed, display=display)
     metalearning_model.train()
 
+def main():
+    """
+        Main function for Meta-learning the plasticity rule.
 
+    This function serves as the entry point for meta-learning model training
+    and performs the following operations:
+    1) Loads and parses command-line arguments,
+    2) Loads custom EMNIST dataset using meta-training arguments (K, Q),
+    3) Creates tasks for meta-training using `RandomSampler` with specified
+        number of classes (M) and episodes,
+    4) Initializes and trains a MetaLearner object with the set of tasks.
+
+    :return: None
+    """
+
+    # -- set up
+    Parser = argparse.ArgumentParser()
+    Parser.add_argument('--Pool', type=int, default=1, help='Number of processes to run in parallel')
+
+    Args = Parser.parse_args()
+    print(Args)
+
+    # -- run
+    if Args.Pool > 1:
+        with Pool(Args.Pool) as P:
+            P.starmap(run, zip(range(Args.Pool), [False]*Args.Pool))
+    else:
+        run(0)
+        
 if __name__ == '__main__':
     main()

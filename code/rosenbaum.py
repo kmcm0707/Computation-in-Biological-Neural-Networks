@@ -1,3 +1,5 @@
+import argparse
+from multiprocessing import Pool
 import os
 from typing import Literal
 import torch
@@ -15,6 +17,7 @@ from utils import log, meta_stats, Plot
 
 import shutil
 
+from torch.utils.tensorboard import SummaryWriter
 
 class RosenbaumNN(nn.Module):
     """
@@ -27,9 +30,6 @@ class RosenbaumNN(nn.Module):
 
         # Initialize the parent class
         super(RosenbaumNN, self).__init__()
-
-        # Set the seed for reproducibility
-        torch.manual_seed(1)
 
         # Set the device
         self.device = device
@@ -81,7 +81,7 @@ class RosenbaumMetaLearner:
 
     The MetaLearner class is used to define meta-learning algorithm.
     """
-    def __init__(self, metatrain_dataset, result_subdirectory: str, save_results: bool = True):
+    def __init__(self, metatrain_dataset, result_subdirectory: str, save_results: bool = True, seed: int = 1, display: bool = True):
         """
             Initialize the Meta-RosenbaumMetaLearner.
 
@@ -90,6 +90,10 @@ class RosenbaumMetaLearner:
         """
         # -- processor params
         self.device = torch.device('cpu') #torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.display = display
+
+        # Set the seed for reproducibility
+        torch.manual_seed(seed)
 
         # -- data params
         self.trainingDataPerClass = 50
@@ -113,7 +117,7 @@ class RosenbaumMetaLearner:
         if save_results:
             self.result_directory = os.getcwd() + "/results"
             os.makedirs(self.result_directory, exist_ok=True)
-            self.result_directory += "/" + result_subdirectory
+            self.result_directory += "/" + result_subdirectory + "/" + str(seed)
             try:
                 os.makedirs(self.result_directory, exist_ok=False)
             except FileExistsError:
@@ -131,6 +135,7 @@ class RosenbaumMetaLearner:
 
             self.average_window = 10
             self.plot = Plot(self.result_directory, len(self.model.thetas), self.average_window)
+            self.summary_writer = SummaryWriter(log_dir=self.result_directory)
 
     def load_model(self):
         """
@@ -280,9 +285,14 @@ class RosenbaumMetaLearner:
             line = 'Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}'.format(eps+1, loss_meta.item(), acc)
             for idx, param in enumerate(theta_temp):
                 line += '\tMetaParam_{}: {:.6f}'.format(idx + 1, param.clone().detach().cpu().numpy())
-            print(line)
+                self.summary_writer.add_scalar('MetaParam_{}'.format(idx + 1), param.clone().detach().cpu().numpy(), eps)
+            
+            if self.display:
+                print(line)
 
             if self.save_results:
+                self.summary_writer.add_scalar('Loss', loss_meta.item(), eps)
+                self.summary_writer.add_scalar('Accuracy', acc, eps)
                 with open(self.result_directory + '/params.txt', 'a') as f:
                     f.writelines(line+'\n')
 
@@ -305,16 +315,37 @@ def main():
     :return: None
     """
 
+    # -- set up
+    Parser = argparse.ArgumentParser()
+    Parser.add_argument('--Pool', type=int, default=1, help='Number of processes to run in parallel')
+
+    Args = Parser.parse_args()
+    print(Args)
+
+    # -- run
+    if Args.Pool > 1:
+        with Pool(Args.Pool) as P:
+            P.starmap(run, zip(range(Args.Pool), [False]*Args.Pool))
+    else:
+        run(0)
+
+def run(seed, display=True):
+    """
+        Run the meta-learning model.
+    """
+
+    print(seed)
+       
     # -- load data
     result_subdirectory = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    result_subdirectory = "rosenbaum_updated_3" # override
+    result_subdirectory = "rosenbaum_updated_5" # override
 
     dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=600 * 5)
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- meta-train
-    metalearning_model = RosenbaumMetaLearner(metatrain_dataset, result_subdirectory, save_results=True)
+    metalearning_model = RosenbaumMetaLearner(metatrain_dataset, result_subdirectory, save_results=True, seed=seed, display=display)
     metalearning_model.train()
 
 
