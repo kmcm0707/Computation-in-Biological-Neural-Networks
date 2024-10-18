@@ -179,7 +179,7 @@ class RosenbaumMetaLearner:
         :param modules: modules in the model.
         """
         classname = modules.__class__.__name__
-        if classname.find('forward') != -1:
+        if classname.find('Linear') != -1:
 
             # -- weights
             init_range = torch.sqrt(torch.tensor(6.0 / (modules.in_features + modules.out_features)))

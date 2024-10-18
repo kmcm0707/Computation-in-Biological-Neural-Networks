@@ -7,8 +7,6 @@ import matplotlib.pyplot as plt
 
 from torch.nn import functional
 
-## Haven't checked the code yet
-
 class Plot:
     """
         Plot object.
@@ -298,8 +296,36 @@ def meta_stats(logits, params, label, y, Beta, res_dir):
 
     return acc
 
+def multi_plot_accuracy(directories, window_size=11, save_dir=None): 
+    """
+        Plot the meta accuracy using a moving average.
+
+    The method first computes a moving average of the meta accuracy values
+    stored in a text file located in the results directory. It then plots
+    the moving average values against the meta-training episodes. Finally,
+    the plot is saved to a file in the results directory.
+
+    :return: None
+    """
+    # -- plot
+    plt.figure()
+    average = np.array([])
+    for directory in directories:
+        z = np.loadtxt(directory + '/acc_meta.txt')
+        z = Plot.comp_moving_avg(np.nan_to_num(z), window_size)
+        average = z if average.shape[0] == 0 else np.average([average, z], axis=0)
+
+    plt.plot(np.array(range(len(average))) + int((window_size - 1) / 2), average, label='Average')
+    plt.title('Meta Accuracy (Average)')
+    plt.ylim([0, 1])
+    plt.legend()
+    plt.savefig(save_dir + '/meta_accuracy_average', bbox_inches='tight')
+    plt.close()
+
+
 if __name__ == '__main__':
     # -- test code
+    """
     directory = os.getcwd() + '/results/rosenbaum_updated'
     plot = Plot(directory, 3)
     plot.meta_accuracy()
@@ -308,4 +334,9 @@ if __name__ == '__main__':
     plot.meta_loss()
     plot()
     print('Done')
-    pass
+    """
+
+    # -- test multi_plot_accuracy
+    directories = [os.curdir + '/results/rosenbaum_updated_5/{}'.format(i) for i in range(0, 6)]
+    save_dir = os.curdir + '/results/rosenbaum_updated_5'
+    multi_plot_accuracy(directories, window_size=3, save_dir=save_dir)

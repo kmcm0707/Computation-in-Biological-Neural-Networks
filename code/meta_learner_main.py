@@ -101,7 +101,7 @@ class MetaLearner:
         if self.save_results:
             self.result_directory = os.getcwd() + "/results"
             os.makedirs(self.result_directory, exist_ok=True)
-            self.result_directory += "/" + result_subdirectory + "/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+            self.result_directory += "/" + result_subdirectory + "/" + str(seed) + "/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
             try:
                 os.makedirs(self.result_directory, exist_ok=False)
             except FileExistsError:
@@ -162,7 +162,7 @@ class MetaLearner:
         :param modules: modules in the model.
         """
         classname = modules.__class__.__name__
-        if classname.find('forward') != -1:
+        if classname.find('Linear') != -1:
 
             # -- weights
             init_range = torch.sqrt(torch.tensor(6.0 / (modules.in_features + modules.out_features)))
@@ -295,14 +295,14 @@ def run(seed: int, display: bool = True):
     """
 
     # -- load data
-    result_subdirectory = "Generalization_rosenbaum" 
+    result_subdirectory = "Generalization_rosenbaum_2" 
 
     dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=600 * 5)
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- meta-train
-    metalearning_model = MetaLearner(device='cpu', result_subdirectory=result_subdirectory, save_results=True, model_type="rosenbaum", metatrain_dataset=metatrain_dataset, seed=seed, display=display)
+    metalearning_model = MetaLearner(device='cuda', result_subdirectory=result_subdirectory, save_results=True, model_type="rosenbaum", metatrain_dataset=metatrain_dataset, seed=seed, display=display)
     metalearning_model.train()
 
 def main():
@@ -331,6 +331,8 @@ def main():
     if Args.Pool > 1:
         with Pool(Args.Pool) as P:
             P.starmap(run, zip(range(Args.Pool), [False]*Args.Pool))
+            P.close()
+            P.join()
     else:
         run(0)
         
