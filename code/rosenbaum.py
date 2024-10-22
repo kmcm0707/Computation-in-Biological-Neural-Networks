@@ -338,7 +338,7 @@ def run(seed, display=True):
        
     # -- load data
     result_subdirectory = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    result_subdirectory = "rosenbaum_updated_5" # override
+    result_subdirectory = "testing" # override
 
     dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=600 * 5)
