@@ -1,6 +1,7 @@
 .obsidian
 .venv
 .trash
+.vscode
 
 code/__pycache__
 

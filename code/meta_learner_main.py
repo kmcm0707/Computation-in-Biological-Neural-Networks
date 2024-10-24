@@ -92,8 +92,8 @@ class MetaLearner:
         # -- optimization params
         self.metaLossRegularization = 0
         self.loss_func = nn.CrossEntropyLoss()
-        self.UpdateWeights = ComplexSynapse(device=self.device, mode='rosenbaum').to(self.device)
-        self.UpdateMetaParameters = optim.Adam(params=self.UpdateWeights.thetas.parameters(), lr=1e-3)
+        self.UpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type).to(self.device)
+        self.UpdateMetaParameters = optim.Adam(params=self.UpdateWeights.all_meta_parameters.parameters(), lr=1e-3)
 
         # -- log params
         self.save_results = save_results
@@ -118,7 +118,7 @@ class MetaLearner:
                     os.makedirs(self.result_directory, exist_ok=False)
 
             self.average_window = 10
-            self.plot = Plot(self.result_directory, len(self.UpdateWeights.thetas), self.average_window)
+            self.plot = Plot(self.result_directory, self.UpdateWeights.theta_matrix.shape[1], self.average_window)
             self.summary_writer = SummaryWriter(log_dir=self.result_directory)
 
     def load_model(self):
@@ -131,19 +131,19 @@ class MetaLearner:
         :param args: (argparse.Namespace) The command-line arguments.
         :return: model with flags , "adapt", set for its parameters
         """
-        if self.model_type == "rosenbaum":
-            model = RosenbaumNN(self.device)
+        #if self.model_type == "rosenbaum":
+        model = RosenbaumNN(self.device)
 
-            # -- learning flags
-            for key, val in model.named_parameters():
-                if 'forward' in key:
-                    val.adapt = True
-                elif 'feedback' in key:
-                    val.adapt, val.requires_grad = False, False
-                elif 'theta' in key:
-                    val.adapt = True
+        # -- learning flags
+        for key, val in model.named_parameters():
+            if 'forward' in key:
+                val.adapt = True
+            elif 'feedback' in key:
+                val.adapt, val.requires_grad = False, False
+            elif 'theta' in key:
+                val.adapt = True
 
-            return model
+        return model
 
     @staticmethod
     def weights_init(modules):
@@ -238,9 +238,7 @@ class MetaLearner:
             y, logits = torch.func.functional_call(self.model, parameters, x_qry)
 
             # -- L1 regularization
-            l1_reg = 0
-            for theta in self.UpdateWeights.thetas.parameters():
-                l1_reg += theta.norm(1)
+            l1_reg = torch.norm(self.UpdateWeights.theta_matrix, 1)
 
             loss_meta = self.loss_func(logits, y_qry.ravel()) + l1_reg * self.metaLossRegularization
 
@@ -248,7 +246,7 @@ class MetaLearner:
             acc = meta_stats(logits, parameters, y_qry.ravel(), y, self.model.beta, self.result_directory)
 
             # -- update params
-            theta_temp = [theta.detach().clone() for theta in self.UpdateWeights.thetas]
+            theta_temp = [theta.detach().clone() for theta in self.UpdateWeights.theta_matrix[0, :]]
             self.UpdateMetaParameters.zero_grad()
             loss_meta.backward()
             self.UpdateMetaParameters.step()
@@ -295,14 +293,14 @@ def run(seed: int, display: bool = True):
     """
 
     # -- load data
-    result_subdirectory = "Generalization_rosenbaum_2" 
+    result_subdirectory = "All_rosenbaum" 
 
     dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=600 * 5)
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- meta-train
-    metalearning_model = MetaLearner(device='cuda', result_subdirectory=result_subdirectory, save_results=True, model_type="rosenbaum", metatrain_dataset=metatrain_dataset, seed=seed, display=display)
+    metalearning_model = MetaLearner(device='cpu', result_subdirectory=result_subdirectory, save_results=True, model_type="all_rosenbaum", metatrain_dataset=metatrain_dataset, seed=seed, display=display)
     metalearning_model.train()
 
 def main():

@@ -26,6 +26,8 @@ def plasticity_rule(activation, e, params, feedback, Theta, feedbackType):
         if 'forward' in name:
             if parameter.adapt:
                 # -- pseudo-gradient
+                print(torch.matmul(e[i + 1].T, activation[i]))
+                
                 update = - Theta[0] * torch.matmul(e[i + 1].T, activation[i])
                 print(update.shape)
                 # -- eHebb rule
@@ -35,16 +37,11 @@ def plasticity_rule(activation, e, params, feedback, Theta, feedbackType):
                     torch.matmul(activation[i + 1].T, activation[i + 1]), parameter))
 
                 # -- weight update
-                print(name)
-                print(update.shape)
-                print(parameter.shape)
-            
-                exit()
                 params[name] = parameter + update
                 params[name].adapt = True
 
             i += 1
-
+    exit(0)
     """ enforce symmetric feedbacks for backprop training """
     if feedbackType == 'sym':
         # -- feedback update (symmetric)
