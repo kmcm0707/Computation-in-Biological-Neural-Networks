@@ -92,7 +92,7 @@ class ComplexSynapse(nn.Module):
                     params[name].adapt = True
                     i += 1
 
-    @torch.compile
+    #@torch.compile
     def calculate_update_vector(self, error, activations_and_output, parameter, i):
         update_vector = torch.zeros((10, parameter.shape[0], parameter.shape[1]), device=self.device)
         update_vector[0] = - torch.matmul(error[i + 1].T, activations_and_output[i]) # Pseudo-gradient
@@ -105,8 +105,8 @@ class ComplexSynapse(nn.Module):
         if self.mode != 'rosenbaum':
             update_vector[3] = - parameter
             update_vector[4] = - torch.matmul(torch.ones(size=(parameter.shape[0], 1), device=self.device), error[i])
-            update_vector[5] = - torch.matmul(torch.matmul(torch.matmul(error[i+1].T, torch.ones(size=(1, parameter.shape[0]), device=self.device)),
-                                                  activations_and_output[i+1].T), activations_and_output[i]) # = ERROR on high learning rate
+            # update_vector[5] = - torch.matmul(torch.matmul(torch.matmul(error[i+1].T, torch.ones(size=(1, parameter.shape[0]), device=self.device)),
+            #                                      activations_and_output[i+1].T), activations_and_output[i]) # = ERROR on high learning rate
            
             update_vector[6] = - torch.matmul(torch.matmul(torch.matmul(torch.matmul(activations_and_output[i+1].T, activations_and_output[i+1]),
                                                              parameter), error[i].T), error[i]) #- ERROR
@@ -118,12 +118,12 @@ class ComplexSynapse(nn.Module):
         update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) - torch.matmul( 
             torch.matmul(activations_and_output[i + 1].T, activations_and_output[i + 1]), parameter) # Oja's rule
         
-        for ii in range(10):
+        """for ii in range(10):
             if torch.isnan(update_vector[ii]).any():
                 print("Error in update vector")
                 print("index: ", ii)
                 print("update vector: ", update_vector[ii])
-                exit(0)
+                exit(0)"""
         
         return update_vector
 
