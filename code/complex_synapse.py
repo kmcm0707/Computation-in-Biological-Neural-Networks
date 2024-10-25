@@ -92,7 +92,6 @@ class ComplexSynapse(nn.Module):
                     params[name].adapt = True
                     i += 1
 
-    #@torch.compile
     def calculate_update_vector(self, error, activations_and_output, parameter, i):
         update_vector = torch.zeros((10, parameter.shape[0], parameter.shape[1]), device=self.device)
         update_vector[0] = - torch.matmul(error[i + 1].T, activations_and_output[i]) # Pseudo-gradient

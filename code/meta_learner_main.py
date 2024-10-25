@@ -92,7 +92,8 @@ class MetaLearner:
         # -- optimization params
         self.metaLossRegularization = 0
         self.loss_func = nn.CrossEntropyLoss()
-        self.UpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type).to(self.device)
+        self.UnoptimizedUpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type).to(self.device)
+        self.UpdateWeights = torch.compile(self.UnoptimizedUpdateWeights, mode='reduce-overhead')
         self.UpdateMetaParameters = optim.Adam(params=self.UpdateWeights.all_meta_parameters.parameters(), lr=1e-3)
 
         # -- log params
