@@ -93,7 +93,8 @@ class MetaLearner:
         # -- optimization params
         self.metaLossRegularization = 0
         self.loss_func = nn.CrossEntropyLoss()
-        self.UpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type).to(self.device)
+        self.UnoptimizedUpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type).to(self.device)
+        self.UpdateWeights = torch.compile(self.UnoptimizedUpdateWeights, mode='reduce-overhead')
         self.UpdateMetaParameters = optim.Adam(params=self.UpdateWeights.all_meta_parameters.parameters(), lr=1e-3)
 
         # -- log params
@@ -148,30 +149,15 @@ class MetaLearner:
 
     @staticmethod
     def weights_init(modules):
-        """
-            Initialize weight matrices.
-
-        The function initializes weight matrices by filling them with values based on
-        the Xavier initialization method proposed by Glorot et al. (2010). The method
-        scales the initial values of the weights based on the number of input and output
-        units to the layer.
-        * Glorot, Xavier, and Yoshua Bengio. "Understanding the difficulty of training
-        deep feedforward neural networks." In Proceedings of the thirteenth international
-        conference on artificial intelligence and statistics, pp. 249-256. JMLR Workshop
-        and Conference Proceedings, 2010.
-
-        :param modules: modules in the model.
-        """
         classname = modules.__class__.__name__
         if classname.find('Linear') != -1:
 
             # -- weights
-            init_range = torch.sqrt(torch.tensor(6.0 / (modules.in_features + modules.out_features)))
-            modules.weight.data.uniform_(-init_range, init_range)
+            nn.init.xavier_uniform_(modules.weight.data)
 
             # -- bias
             if modules.bias is not None:
-                modules.bias.data.uniform_(-init_range, init_range)
+                nn.init.xavier_uniform_(modules.bias.data)
     
     def reinitialize(self):
         """
@@ -240,7 +226,6 @@ class MetaLearner:
 
             # -- L1 regularization
             l1_reg = torch.norm(self.UpdateWeights.theta_matrix, 1)
-            # TODO: may be giving nan values for l1_reg
 
             loss_meta = self.loss_func(logits, y_qry.ravel()) + l1_reg * self.metaLossRegularization
 
@@ -295,7 +280,7 @@ def run(seed: int, display: bool = True):
     """
 
     # -- load data
-    result_subdirectory = "All_rosenbaum" 
+    result_subdirectory = "All_rosenbaum/No_5or6" 
 
     dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=600 * 5)
