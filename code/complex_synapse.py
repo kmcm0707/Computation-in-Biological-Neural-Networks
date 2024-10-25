@@ -92,7 +92,7 @@ class ComplexSynapse(nn.Module):
                     params[name].adapt = True
                     i += 1
 
-    @torch.compile
+    #@torch.compile
     def calculate_update_vector(self, error, activations_and_output, parameter, i):
         update_vector = torch.zeros((10, parameter.shape[0], parameter.shape[1]), device=self.device)
         update_vector[0] = - torch.matmul(error[i + 1].T, activations_and_output[i]) # Pseudo-gradient
@@ -105,11 +105,11 @@ class ComplexSynapse(nn.Module):
         if self.mode != 'rosenbaum':
             update_vector[3] = - parameter
             update_vector[4] = - torch.matmul(torch.ones(size=(parameter.shape[0], 1), device=self.device), error[i])
-            update_vector[5] = - torch.matmul(torch.matmul(torch.matmul(error[i+1].T, torch.ones(size=(1, parameter.shape[0]), device=self.device)),
+            """update_vector[5] = - torch.matmul(torch.matmul(torch.matmul(error[i+1].T, torch.ones(size=(1, parameter.shape[0]), device=self.device)),
                                                   activations_and_output[i+1].T), activations_and_output[i]) # = ERROR on high learning rate
            
             update_vector[6] = - torch.matmul(torch.matmul(torch.matmul(torch.matmul(activations_and_output[i+1].T, activations_and_output[i+1]),
-                                                             parameter), error[i].T), error[i]) #- ERROR
+                                                             parameter), error[i].T), error[i]) #- ERROR"""
             update_vector[7] = - torch.matmul(torch.matmul(torch.matmul(torch.matmul(error[i+1].T, activations_and_output[i+1]),
                                                                 parameter), error[i].T), activations_and_output[i]) # - Maybe be bad
             update_vector[8] = - torch.matmul(torch.matmul(torch.matmul(torch.matmul(activations_and_output[i+1].T, activations_and_output[i]),
