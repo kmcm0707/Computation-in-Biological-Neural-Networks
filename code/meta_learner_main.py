@@ -238,7 +238,9 @@ class MetaLearner:
             y, logits = torch.func.functional_call(self.model, parameters, x_qry)
 
             # -- L1 regularization
-            l1_reg = torch.norm(self.UpdateWeights.theta_matrix, 1)
+            l1_reg = torch.nn.L1Loss(self.UpdateWeights.theta_matrix) # TODO: Check if this is the correct way to calculate L1 regularization
+            # TODO: May be better to use torch.nn.L1Loss() instead of torch.norm() for L1 regularization
+            # TODO: may be giving nan values for l1_reg
 
             loss_meta = self.loss_func(logits, y_qry.ravel()) + l1_reg * self.metaLossRegularization
 
@@ -265,7 +267,7 @@ class MetaLearner:
                 self.summary_writer.add_scalar('Loss/meta', loss_meta.item(), eps)
                 self.summary_writer.add_scalar('Accuracy/meta', acc, eps)
                 
-                if self.model_type == "rosenbaum":
+                if self.model_type == "rosenbaum" or self.model_type == "all_rosenbaum":
                     for idx, param in enumerate(theta_temp):
                         self.summary_writer.add_scalar('MetaParam_{}'.format(idx + 1), param.clone().detach().cpu().numpy(), eps)
 
@@ -300,7 +302,9 @@ def run(seed: int, display: bool = True):
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- meta-train
-    metalearning_model = MetaLearner(device='cpu', result_subdirectory=result_subdirectory, save_results=True, model_type="all_rosenbaum", metatrain_dataset=metatrain_dataset, seed=seed, display=display)
+    #device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = 'cpu'
+    metalearning_model = MetaLearner(device=device, result_subdirectory=result_subdirectory, save_results=True, model_type="all_rosenbaum", metatrain_dataset=metatrain_dataset, seed=seed, display=display)
     metalearning_model.train()
 
 def main():
@@ -335,4 +339,5 @@ def main():
         run(0)
         
 if __name__ == '__main__':
+    torch.autograd.set_detect_anomaly(True)
     main()
