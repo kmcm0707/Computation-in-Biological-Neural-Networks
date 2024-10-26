@@ -9,7 +9,7 @@ class ComplexSynapse(nn.Module):
         Which is a biological plausible update rule.
     """
 
-    def __init__(self, device='cpu', mode='rosenbaum'):
+    def __init__(self, params, device='cpu', mode='rosenbaum', numberOfChemicals: int = 1):
         """
             Initialize the complex synapse model.
             :param params: (dict) model weights,
@@ -23,13 +23,16 @@ class ComplexSynapse(nn.Module):
 
         #h(s+1) = (1-z)h(s) + zf(Kh(s) + \theta * F(Parameter) + b)
         # y = 1-z, y_0 = 1, z_0 = 1
-        #w(s) = h(s) (if self.number_chemicals = 1)
+        #w(s) = v * h(s) (if self.number_chemicals = 1)
 
+        self.params = dict(params)
         self.K_matrix = nn.Parameter() # K - LxL
+        self.v_vector = nn.ParameterList([]) # v - L
+        self.h_dictionary == nn.ParameterDict() # h - LxW
         self.theta_matrix = nn.Parameter() # \theta - Lx10
         self.bias = nn.Parameter() # b ??
         self.all_meta_parameters = nn.ParameterList([])
-        self.number_chemicals = 1 # z - L
+        self.number_chemicals = numberOfChemicals # z - L
 
         self.init_parameters()
 
@@ -41,6 +44,7 @@ class ComplexSynapse(nn.Module):
             self.theta_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device)))
             self.theta_matrix[0,0] = 1e-3
 
+        self.v_vector = nn.ParameterList([nn.Parameter(torch.nn.init.ones_(torch.empty(size=(self.number_chemicals, 1), device=self.device))) for _ in range(self.number_chemicals)])
         self.all_meta_parameters.append(self.K_matrix)
         self.all_meta_parameters.append(self.theta_matrix)
        
@@ -51,13 +55,23 @@ class ComplexSynapse(nn.Module):
 
         if self.number_chemicals > 1:
             ## Initialize the chemical time constants
-            min_z = 1
-            max_z = 30
+            # z = 1 / \tau
+            min_tau = 1
+            max_tau = 30
             exponential = 1.5
-            self.z_vector = torch.tensor([min_z + (max_z - min_z) * (i / (self.number_chemicals - 1)) ** exponential for i in range(self.number_chemicals)], device=self.device)
+            self.tau_vector = torch.tensor([min_tau + (max_tau - min_tau) * (i / (self.number_chemicals - 1)) ** exponential for i in range(self.number_chemicals)], device=self.device).float()
+            self.z_vector = 1 / self.tau_vector
             self.y_vector = 1 - self.z_vector
             self.y_vector[0] = 1
+
+        for name, parameter in self.params.items():
+            if 'forward' in name:
+                self.h_dictionary[name] = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, parameter.shape[0], parameter.shape[1]), device=self.device)))
+                # TODO: initialize the h_dictionary to be the same as the parameter / number of chemicals
+                self.all_meta_parameters.append(self.h_dictionary[name])
             
+        self.v_vector = nn.ParameterList([nn.Parameter(torch.nn.init.ones_(torch.empty(size=(self.number_chemicals, 1), device=self.device))) for _ in range(self.number_chemicals)])
+        self.all_meta_parameters.extend(self.v_vector)
                 
     def __call__(self, activations: list, output, label, params, beta: int):
         """
@@ -84,14 +98,10 @@ class ComplexSynapse(nn.Module):
                     if self.mode == 'rosenbaum' or self.mode == 'all_rosenbaum':
                         unsqeezed_parameter = torch.unsqueeze(parameter, 0)
                         #print(self.y_vector.shape)
-                        new_value = torch.einsum('i,ijk->ijk',self.y_vector, unsqeezed_parameter) + \
-                                        torch.einsum('i,ijk->ijk', self.z_vector, torch.einsum('ic,ijk->cjk', self.K_matrix, unsqeezed_parameter) + \
-                                                     torch.einsum('ci,ijk->cjk', self.theta_matrix, update_vector))
-                        new_value = torch.squeeze(new_value, 0)
-                        #print( torch.einsum('ci,ijk->cjk', self.theta_matrix, update_vector).shape)
-                        #print(update)
-                                             
-                        
+                        self.h_dictionary[name] = torch.einsum('i,ijk->ijk',self.y_vector, self.h_dictionary[name]) + \
+                                        torch.einsum('i,ijk->ijk', self.z_vector, torch.einsum('ic,ijk->cjk', self.K_matrix, self.h_dictionary[name]) + \
+                                                     torch.einsum('ci,ijk->cjk', self.theta_matrix, update_vector)) #TODO: Add non-linearity
+                        new_value = torch.einsum('i,ijk->jk', self.v_vector, self.h_dictionary[name])
                         params[name] = new_value
 
                     params[name].adapt = True
