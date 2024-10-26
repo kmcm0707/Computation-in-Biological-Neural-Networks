@@ -51,8 +51,13 @@ class ComplexSynapse(nn.Module):
 
         if self.number_chemicals > 1:
             ## Initialize the chemical time constants
-            print("TODO: Implement the chemical time constants")
-            pass
+            min_z = 1
+            max_z = 30
+            exponential = 1.5
+            self.z_vector = torch.tensor([min_z + (max_z - min_z) * (i / (self.number_chemicals - 1)) ** exponential for i in range(self.number_chemicals)], device=self.device)
+            self.y_vector = 1 - self.z_vector
+            self.y_vector[0] = 1
+            
                 
     def __call__(self, activations: list, output, label, params, beta: int):
         """
@@ -93,6 +98,13 @@ class ComplexSynapse(nn.Module):
                     i += 1
 
     def calculate_update_vector(self, error, activations_and_output, parameter, i):
+        """
+        Calculate the update vector for the complex synapse model.
+        :param error: (list) model error,
+        :param activations_and_output: (list) model activations and output,
+        :param parameter: (tensor) model parameter,
+        :param i: (int) index of the parameter.
+        """
         update_vector = torch.zeros((10, parameter.shape[0], parameter.shape[1]), device=self.device)
         update_vector[0] = - torch.matmul(error[i + 1].T, activations_and_output[i]) # Pseudo-gradient
 
@@ -108,21 +120,21 @@ class ComplexSynapse(nn.Module):
                                                   activations_and_output[i+1].T), activations_and_output[i]) # = ERROR on high learning rate
            
             update_vector[6] = - torch.matmul(torch.matmul(torch.matmul(torch.matmul(activations_and_output[i+1].T, activations_and_output[i+1]),
-                                                             parameter), error[i].T), error[i]) #- ERROR"""
+                                                             parameter), error[i].T), error[i]) #- ERROR
             update_vector[7] = - torch.matmul(torch.matmul(torch.matmul(torch.matmul(error[i+1].T, activations_and_output[i+1]),
-                                                                parameter), error[i].T), activations_and_output[i]) # - Maybe be bad
+                                                                parameter), error[i].T), activations_and_output[i]) # - Maybe be bad"""
             update_vector[8] = - torch.matmul(torch.matmul(torch.matmul(torch.matmul(activations_and_output[i+1].T, activations_and_output[i]),
                                                                 parameter.T), error[i+1].T), error[i])
             
         update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) - torch.matmul( 
             torch.matmul(activations_and_output[i + 1].T, activations_and_output[i + 1]), parameter) # Oja's rule
         
-        for ii in range(10):
+        """for ii in range(10):
             if torch.isnan(update_vector[ii]).any():
                 print("Error in update vector")
                 print("index: ", ii)
                 print("update vector: ", update_vector[ii])
-                exit(0)
+                exit(0)"""
         
         return update_vector
 

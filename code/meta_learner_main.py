@@ -90,7 +90,7 @@ class MetaLearner:
         self.model = self.load_model().to(self.device)
 
         # -- optimization params
-        self.metaLossRegularization = 0
+        self.metaLossRegularization = 1e-3
         self.loss_func = nn.CrossEntropyLoss()
         self.UnoptimizedUpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type).to(self.device)
         self.UpdateWeights = torch.compile(self.UnoptimizedUpdateWeights, mode='reduce-overhead')
@@ -235,6 +235,9 @@ class MetaLearner:
             theta_temp = [theta.detach().clone() for theta in self.UpdateWeights.theta_matrix[0, :]]
             self.UpdateMetaParameters.zero_grad()
             loss_meta.backward()
+
+            # -- gradient clipping
+            #torch.nn.utils.clip_grad_norm_(self.UpdateWeights.all_meta_parameters.parameters(), 5000)
             self.UpdateMetaParameters.step()
 
             # -- log
@@ -279,8 +282,7 @@ def run(seed: int, display: bool = True):
     """
 
     # -- load data
-    result_subdirectory = "All_rosenbaum/No_5or6" 
-
+    result_subdirectory = "All_rosenbaum/L1R_1e-3" 
     dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=600 * 5)
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
