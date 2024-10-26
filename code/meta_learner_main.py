@@ -52,6 +52,7 @@ class RosenbaumNN(nn.Module):
         self.beta = 10
         self.activation = nn.Softplus(beta=self.beta)
 
+    #@torch.compile
     def forward(self, x):
         y0 = x.squeeze(1)
 
@@ -288,8 +289,8 @@ def run(seed: int, display: bool = True):
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- meta-train
-    #device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    device = 'cpu'
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    #device = 'cpu'
     metalearning_model = MetaLearner(device=device, result_subdirectory=result_subdirectory, save_results=True, model_type="all_rosenbaum", metatrain_dataset=metatrain_dataset, seed=seed, display=display)
     metalearning_model.train()
 
