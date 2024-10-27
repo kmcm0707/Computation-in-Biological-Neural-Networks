@@ -285,10 +285,11 @@ def run(seed: int, display: bool = True):
     """
 
     # -- load data
+    numWorkers = 6
     result_subdirectory = "testing" 
     dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=600 * 5)
-    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
+    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True, num_workers=numWorkers)
 
     # -- meta-train
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
