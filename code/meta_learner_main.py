@@ -1,6 +1,7 @@
 import argparse
 from multiprocessing import Pool
 import os
+import sys
 from typing import Literal
 import torch
 import warnings
@@ -331,4 +332,11 @@ def main():
         
 if __name__ == '__main__':
     #torch.autograd.set_detect_anomaly(True)
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('Interrupted')
+        try:
+            sys.exit(0)
+        except SystemExit:
+            os._exit(0)
