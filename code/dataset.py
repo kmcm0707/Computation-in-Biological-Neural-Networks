@@ -227,4 +227,7 @@ class DataProcess:
             x_trn = x_trn[perm]
             y_trn = y_trn[perm]
 
+        # -- normalize
+        
+
         return x_trn, y_trn, x_qry, y_qry

@@ -9,7 +9,7 @@ class ComplexSynapse(nn.Module):
         Which is a biological plausible update rule.
     """
 
-    def __init__(self, device='cpu', mode='rosenbaum'):
+    def __init__(self, params, device='cpu', mode='rosenbaum', numberOfChemicals: int = 1):
         """
             Initialize the complex synapse model.
             :param params: (dict) model weights,
@@ -23,13 +23,16 @@ class ComplexSynapse(nn.Module):
 
         #h(s+1) = (1-z)h(s) + zf(Kh(s) + \theta * F(Parameter) + b)
         # y = 1-z, y_0 = 1, z_0 = 1
-        #w(s) = h(s) (if self.number_chemicals = 1)
+        #w(s) = v * h(s) (if self.number_chemicals = 1)
 
+        self.params = dict(params)
         self.K_matrix = nn.Parameter() # K - LxL
+        self.v_vector = nn.Parameter() # v - L
+        self.h_dictionary = nn.ParameterDict() # h - LxW
         self.theta_matrix = nn.Parameter() # \theta - Lx10
         self.bias = nn.Parameter() # b ??
-        self.all_meta_parameters = nn.ParameterList([])
-        self.number_chemicals = 1 # z - L
+        self.all_meta_parameters = nn.ParameterList([]) # All updatable meta-parameters
+        self.number_chemicals = numberOfChemicals # z - L
 
         self.init_parameters()
 
@@ -40,8 +43,12 @@ class ComplexSynapse(nn.Module):
             self.K_matrix  = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)))
             self.theta_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device)))
             self.theta_matrix[0,0] = 1e-3
+        else:
+            self.K_matrix  = nn.Parameter(torch.nn.init.xavier_normal_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)))
+            self.theta_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device)))
+            self.theta_matrix[0,0] = 1e-3
+            self.all_meta_parameters.append(self.K_matrix)
 
-        self.all_meta_parameters.append(self.K_matrix)
         self.all_meta_parameters.append(self.theta_matrix)
        
         self.z_vector = torch.tensor([0] * self.number_chemicals, device=self.device)
@@ -51,8 +58,27 @@ class ComplexSynapse(nn.Module):
 
         if self.number_chemicals > 1:
             ## Initialize the chemical time constants
-            print("TODO: Implement the chemical time constants")
+            # z = 1 / \tau
+            min_tau = 1
+            max_tau = 30
+            exponential = 1.5
+            self.tau_vector = torch.tensor([min_tau + (max_tau - min_tau) * (i / (self.number_chemicals - 1)) ** exponential for i in range(self.number_chemicals)], device=self.device).float()
+            self.z_vector = 1 / self.tau_vector
+            self.y_vector = 1 - self.z_vector
+            self.y_vector[0] = 1
+
+        for name, parameter in self.params.items():
+            if 'forward' in name:
+                name = name.replace('.', '')
+                self.h_dictionary[name] = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, parameter.shape[0], parameter.shape[1]), device=self.device)))
+                # TODO: initialize the h_dictionary to be the same as the parameter / number of chemicals
+                self.all_meta_parameters.append(self.h_dictionary[name])
+        
+        self.v_vector = nn.Parameter(torch.nn.init.ones_(torch.empty(size=(self.number_chemicals), device=self.device)))
+        if self.mode == 'rosenbaum' or self.mode == 'all_rosenbaum':
             pass
+        else:
+            self.all_meta_parameters.extend(self.v_vector)
                 
     def __call__(self, activations: list, output, label, params, beta: int):
         """
@@ -75,24 +101,27 @@ class ComplexSynapse(nn.Module):
             if 'forward' in name:
                 if parameter.adapt and 'weight' in name:
                     update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i)
-                    
+                    h_name = name.replace('.', '')
                     if self.mode == 'rosenbaum' or self.mode == 'all_rosenbaum':
                         unsqeezed_parameter = torch.unsqueeze(parameter, 0)
                         #print(self.y_vector.shape)
-                        new_value = torch.einsum('i,ijk->ijk',self.y_vector, unsqeezed_parameter) + \
-                                        torch.einsum('i,ijk->ijk', self.z_vector, torch.einsum('ic,ijk->cjk', self.K_matrix, unsqeezed_parameter) + \
-                                                     torch.einsum('ci,ijk->cjk', self.theta_matrix, update_vector))
-                        new_value = torch.squeeze(new_value, 0)
-                        #print( torch.einsum('ci,ijk->cjk', self.theta_matrix, update_vector).shape)
-                        #print(update)
-                                             
-                        
+                        self.h_dictionary[h_name] = torch.einsum('i,ijk->ijk',self.y_vector, self.h_dictionary[h_name]) + \
+                                        torch.einsum('i,ijk->ijk', self.z_vector, torch.einsum('ic,ijk->cjk', self.K_matrix, self.h_dictionary[h_name]) + \
+                                                     torch.einsum('ci,ijk->cjk', self.theta_matrix, update_vector)) #TODO: Add non-linearity
+                        new_value = torch.einsum('i,ijk->jk', self.v_vector, self.h_dictionary[h_name])
                         params[name] = new_value
 
                     params[name].adapt = True
                     i += 1
 
     def calculate_update_vector(self, error, activations_and_output, parameter, i):
+        """
+        Calculate the update vector for the complex synapse model.
+        :param error: (list) model error,
+        :param activations_and_output: (list) model activations and output,
+        :param parameter: (tensor) model parameter,
+        :param i: (int) index of the parameter.
+        """
         update_vector = torch.zeros((10, parameter.shape[0], parameter.shape[1]), device=self.device)
         update_vector[0] = - torch.matmul(error[i + 1].T, activations_and_output[i]) # Pseudo-gradient
 
@@ -108,9 +137,9 @@ class ComplexSynapse(nn.Module):
                                                   activations_and_output[i+1].T), activations_and_output[i]) # = ERROR on high learning rate
            
             update_vector[6] = - torch.matmul(torch.matmul(torch.matmul(torch.matmul(activations_and_output[i+1].T, activations_and_output[i+1]),
-                                                             parameter), error[i].T), error[i]) #- ERROR"""
+                                                             parameter), error[i].T), error[i]) #- ERROR
             update_vector[7] = - torch.matmul(torch.matmul(torch.matmul(torch.matmul(error[i+1].T, activations_and_output[i+1]),
-                                                                parameter), error[i].T), activations_and_output[i]) # - Maybe be bad
+                                                                parameter), error[i].T), activations_and_output[i]) # - Maybe be bad"""
             update_vector[8] = - torch.matmul(torch.matmul(torch.matmul(torch.matmul(activations_and_output[i+1].T, activations_and_output[i]),
                                                                 parameter.T), error[i+1].T), error[i])
             

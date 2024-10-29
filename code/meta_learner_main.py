@@ -1,6 +1,7 @@
 import argparse
 from multiprocessing import Pool
 import os
+import sys
 from typing import Literal
 import torch
 import warnings
@@ -72,7 +73,7 @@ class MetaLearner:
 
     """
 
-    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu', result_subdirectory: str = datetime.datetime.now().strftime("%Y%m%d-%H%M%S"), save_results: bool = True, model_type: str = "rosenbaum", metatrain_dataset = None, seed: int = 0, display: bool = True):
+    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu', result_subdirectory: str = datetime.datetime.now().strftime("%Y%m%d-%H%M%S"), save_results: bool = True, model_type: str = "rosenbaum", metatrain_dataset = None, seed: int = 0, display: bool = True, numberOfChemicals: int = 1):
 
         # -- processor params
         self.device = torch.device(device)
@@ -95,13 +96,14 @@ class MetaLearner:
             self.model = self.load_model().to(self.device)
 
         # -- optimization params
-        self.metaLossRegularization = 0
+        self.metaLossRegularization = 1e-3
         self.loss_func = nn.CrossEntropyLoss()
-        if self.device == 'cpu': # Remove if using a newer GPU
+        self.numberOfChemicals = numberOfChemicals
+        if False: #Not working atm?
             self.UnoptimizedUpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type).to(self.device)
             self.UpdateWeights = torch.compile(self.UnoptimizedUpdateWeights, mode='reduce-overhead')
         else:
-            self.UpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type).to(self.device)
+            self.UpdateWeights = ComplexSynapse(params= self.model.named_parameters(), device=self.device, mode=self.model_type, numberOfChemicals=self.numberOfChemicals).to(self.device)
         self.UpdateMetaParameters = optim.Adam(params=self.UpdateWeights.all_meta_parameters.parameters(), lr=1e-3)
 
         # -- log params
@@ -149,8 +151,6 @@ class MetaLearner:
                 val.adapt = True
             elif 'feedback' in key:
                 val.adapt, val.requires_grad = False, False
-            elif 'theta' in key:
-                val.adapt = True
 
         return model
 
@@ -243,6 +243,9 @@ class MetaLearner:
             theta_temp = [theta.detach().clone() for theta in self.UpdateWeights.theta_matrix[0, :]]
             self.UpdateMetaParameters.zero_grad()
             loss_meta.backward()
+
+            # -- gradient clipping
+            #torch.nn.utils.clip_grad_norm_(self.UpdateWeights.all_meta_parameters.parameters(), 5000)
             self.UpdateMetaParameters.step()
 
             # -- log
@@ -287,16 +290,17 @@ def run(seed: int, display: bool = True):
     """
 
     # -- load data
-    result_subdirectory = "All_rosenbaum/No_5or6" 
-
+    numWorkers = 6
+    result_subdirectory = "testing" 
     dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=600 * 5)
-    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
+    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True, num_workers=numWorkers)
 
     # -- meta-train
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    numberOfChemicals = 2
     #device = 'cpu'
-    metalearning_model = MetaLearner(device=device, result_subdirectory=result_subdirectory, save_results=True, model_type="all_rosenbaum", metatrain_dataset=metatrain_dataset, seed=seed, display=display)
+    metalearning_model = MetaLearner(device=device, result_subdirectory=result_subdirectory, save_results=True, model_type="all_rosenbaum", metatrain_dataset=metatrain_dataset, seed=seed, display=display, numberOfChemicals=numberOfChemicals)
     metalearning_model.train()
 
 def main():
@@ -332,4 +336,11 @@ def main():
         
 if __name__ == '__main__':
     #torch.autograd.set_detect_anomaly(True)
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('Interrupted')
+        try:
+            sys.exit(0)
+        except SystemExit:
+            os._exit(0)
