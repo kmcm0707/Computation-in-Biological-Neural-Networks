@@ -88,13 +88,20 @@ class MetaLearner:
         self.data_process = DataProcess(trainingDataPerClass=self.trainingDataPerClass, queryDataPerClass=self.queryDataPerClass, dimensionOfImage=28, device=self.device)
 
         # -- model params
-        self.model = self.load_model().to(self.device)
+        if self.device == 'cpu': # Remove if using a newer GPU
+            self.UnOptimizedmodel = self.load_model().to(self.device)
+            self.model = torch.compile(self.UnOptimizedmodel, mode='reduce-overhead')
+        else:
+            self.model = self.load_model().to(self.device)
 
         # -- optimization params
         self.metaLossRegularization = 0
         self.loss_func = nn.CrossEntropyLoss()
-        self.UnoptimizedUpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type).to(self.device)
-        self.UpdateWeights = torch.compile(self.UnoptimizedUpdateWeights, mode='reduce-overhead')
+        if self.device == 'cpu': # Remove if using a newer GPU
+            self.UnoptimizedUpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type).to(self.device)
+            self.UpdateWeights = torch.compile(self.UnoptimizedUpdateWeights, mode='reduce-overhead')
+        else:
+            self.UpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type).to(self.device)
         self.UpdateMetaParameters = optim.Adam(params=self.UpdateWeights.all_meta_parameters.parameters(), lr=1e-3)
 
         # -- log params
