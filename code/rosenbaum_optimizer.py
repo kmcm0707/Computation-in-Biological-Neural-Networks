@@ -41,7 +41,7 @@ def plasticity_rule(activation, e, params, feedback, Theta, feedbackType):
                 params[name].adapt = True
 
             i += 1
-    exit(0)
+
     """ enforce symmetric feedbacks for backprop training """
     if feedbackType == 'sym':
         # -- feedback update (symmetric)

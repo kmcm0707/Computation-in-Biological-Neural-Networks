@@ -17,17 +17,17 @@ from complex_synapse import ComplexSynapse
 
 from utils import log, meta_stats, Plot
 
-class RosenbaumNN(nn.Module):
+class RosenbaumChemicalNN(nn.Module):
     """
 
     Rosenbaum Neural Network class.
     
     """
 
-    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu'):
+    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu', numberOfChemicals: int = 1):
 
         # Initialize the parent class
-        super(RosenbaumNN, self).__init__()
+        super(RosenbaumChemicalNN, self).__init__()
 
         # Set the device
         self.device = device
@@ -48,6 +48,14 @@ class RosenbaumNN(nn.Module):
         self.feedback3 = nn.Linear(130, 100, bias=False)
         self.feedback4 = nn.Linear(100, 70, bias=False)
         self.feedback5 = nn.Linear(70, dim_out, bias=False)
+
+        # h(s) - LxW
+        self.numberOfChemicals = numberOfChemicals
+        self.chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 170, 784), device=self.device))
+        self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 130, 170), device=self.device))
+        self.chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 100, 130), device=self.device))
+        self.chemical4 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 70, 100), device=self.device))
+        self.chemical5 = nn.Parameter(torch.zeros(size=(numberOfChemicals, dim_out, 70), device=self.device))
 
         # Activation function
         self.beta = 10
@@ -73,7 +81,7 @@ class MetaLearner:
 
     """
 
-    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu', result_subdirectory: str = datetime.datetime.now().strftime("%Y%m%d-%H%M%S"), save_results: bool = True, model_type: str = "rosenbaum", metatrain_dataset = None, seed: int = 0, display: bool = True, numberOfChemicals: int = 1):
+    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu', result_subdirectory: str = datetime.datetime.now().strftime("%Y%m%d-%H%M%S"), save_results: bool = True, model_type: str = "rosenbaum", metatrain_dataset = None, seed: int = 0, display: bool = True, numberOfChemicals: int = 1, non_linearity = torch.nn.functional.relu):
 
         # -- processor params
         self.device = torch.device(device)
@@ -96,15 +104,17 @@ class MetaLearner:
             self.model = self.load_model().to(self.device)
 
         # -- optimization params
-        self.metaLossRegularization = 1e-3
+        self.metaLossRegularization = 0
         self.loss_func = nn.CrossEntropyLoss()
         self.numberOfChemicals = numberOfChemicals
         if False: #Not working atm?
-            self.UnoptimizedUpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type).to(self.device)
+            self.UnoptimizedUpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type, numberOfChemicals=self.numberOfChemicals, non_linearity=non_linearity).to(self.device)
             self.UpdateWeights = torch.compile(self.UnoptimizedUpdateWeights, mode='reduce-overhead')
         else:
-            self.UpdateWeights = ComplexSynapse(params= self.model.named_parameters(), device=self.device, mode=self.model_type, numberOfChemicals=self.numberOfChemicals).to(self.device)
+            self.UpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type, numberOfChemicals=self.numberOfChemicals, non_linearity=non_linearity).to(self.device)
         self.UpdateMetaParameters = optim.Adam(params=self.UpdateWeights.all_meta_parameters.parameters(), lr=1e-3)
+        for param in self.UpdateWeights.all_meta_parameters.parameters():
+            print(param)
 
         # -- log params
         self.save_results = save_results
@@ -115,6 +125,14 @@ class MetaLearner:
             self.result_directory += "/" + result_subdirectory + "/" + str(seed) + "/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
             try:
                 os.makedirs(self.result_directory, exist_ok=False)
+                with open(self.result_directory + '/arguments.txt', 'w') as f:
+                    f.writelines("Seed: {}\n".format(seed))
+                    f.writelines("Model: {}\n".format(model_type))
+                    f.writelines("Number of chemicals: {}\n".format(numberOfChemicals))
+                    f.writelines("Meta loss regularization: {}\n".format(self.metaLossRegularization))
+                    f.writelines("Number of training data per class: {}\n".format(self.trainingDataPerClass))
+                    f.writelines("Number of query data per class: {}\n".format(self.queryDataPerClass))
+                    f.writelines("Non linearity: {}\n".format(non_linearity))
             except FileExistsError:
                 warnings.warn("The directory already exists. The results will be overwritten.")
 
@@ -127,6 +145,14 @@ class MetaLearner:
                 else:
                     os.rmdir(self.result_directory)
                     os.makedirs(self.result_directory, exist_ok=False)
+                    with open(self.result_directory + '/arguments.txt', 'w') as f:
+                        f.writelines("Seed: {}\n".format(seed))
+                        f.writelines("Model: {}\n".format(model_type))
+                        f.writelines("Number of chemicals: {}\n".format(numberOfChemicals))
+                        f.writelines("Meta loss regularization: {}\n".format(self.metaLossRegularization))
+                        f.writelines("Number of training data per class: {}\n".format(self.trainingDataPerClass))
+                        f.writelines("Number of query data per class: {}\n".format(self.queryDataPerClass))
+                        f.writelines("Non linearity: {}\n".format(non_linearity))
 
             self.average_window = 10
             self.plot = Plot(self.result_directory, self.UpdateWeights.theta_matrix.shape[1], self.average_window)
@@ -143,7 +169,7 @@ class MetaLearner:
         :return: model with flags , "adapt", set for its parameters
         """
         #if self.model_type == "rosenbaum":
-        model = RosenbaumNN(self.device)
+        model = RosenbaumChemicalNN(self.device)
 
         # -- learning flags
         for key, val in model.named_parameters():
@@ -182,13 +208,14 @@ class MetaLearner:
 
         #-- module parameters
         #-- parameters are not linked to the model even if .clone() is not used
-        params = {key: val.clone() for key, val in dict(self.model.named_parameters()).items() if '.' in key}
+        params = {key: val.clone() for key, val in dict(self.model.named_parameters()).items() if '.' in key and 'chemical' not in key}
+        h_params = {key: val.clone() for key, val in dict(self.model.named_parameters()).items() if 'chemical' in key}
 
         # -- set adaptation flags for cloned parameters
         for key in params:
             params[key].adapt = dict(self.model.named_parameters())[key].adapt
 
-        return params
+        return params, h_params
 
     def train(self):
         """
@@ -213,7 +240,7 @@ class MetaLearner:
             # -- initialize
             # Using a clone of the model parameters to allow for in-place operations
             # Maintains the computational graph for the model as .detach() is not used
-            parameters = self.reinitialize()
+            parameters, h_parameters = self.reinitialize()
 
             # -- training data
             x_trn, y_trn, x_qry, y_qry = self.data_process(data, 5)
@@ -241,11 +268,15 @@ class MetaLearner:
 
             # -- update params
             theta_temp = [theta.detach().clone() for theta in self.UpdateWeights.theta_matrix[0, :]]
+            K_norm = torch.norm(self.UpdateWeights.K_matrix.detach().clone(), 1)
+            v_values = self.UpdateWeights.v_vector.detach().clone()[0, :]
             self.UpdateMetaParameters.zero_grad()
             loss_meta.backward()
 
             # -- gradient clipping
             #torch.nn.utils.clip_grad_norm_(self.UpdateWeights.all_meta_parameters.parameters(), 5000)
+
+            # -- update
             self.UpdateMetaParameters.step()
 
             # -- log
@@ -254,17 +285,20 @@ class MetaLearner:
             line = 'Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}'.format(eps+1, loss_meta.item(), acc)
             for idx, param in enumerate(theta_temp):
                 line += '\tMetaParam_{}: {:.6f}'.format(idx + 1, param.clone().detach().cpu().numpy())
-
+            for idx, v in enumerate(v_values):
+                line += '\tV_{}: {:.6f}'.format(idx + 1, v.clone().detach().cpu().numpy())
+            line += '\tK_norm: {:.6f}'.format(K_norm.clone().detach().cpu().numpy())
             if self.display:
                 print(line)
 
             if self.save_results:
                 self.summary_writer.add_scalar('Loss/meta', loss_meta.item(), eps)
                 self.summary_writer.add_scalar('Accuracy/meta', acc, eps)
-                
-                if self.model_type == "rosenbaum" or self.model_type == "all_rosenbaum":
-                    for idx, param in enumerate(theta_temp):
-                        self.summary_writer.add_scalar('MetaParam_{}'.format(idx + 1), param.clone().detach().cpu().numpy(), eps)
+                for idx, param in enumerate(theta_temp):
+                    self.summary_writer.add_scalar('MetaParam_{}'.format(idx + 1), param.clone().detach().cpu().numpy(), eps)
+                for idx, v in enumerate(v_values):
+                    self.summary_writer.add_scalar('V_{}'.format(idx + 1), v.clone().detach().cpu().numpy(), eps)
+                self.summary_writer.add_scalar('K_norm', K_norm.clone().detach().cpu().numpy(), eps)            
 
                 with open(self.result_directory + '/params.txt', 'a') as f:
                     f.writelines(line+'\n')
@@ -274,7 +308,7 @@ class MetaLearner:
             self.summary_writer.close()
             self.plot()
 
-def run(seed: int, display: bool = True):
+def run(seed: int, display: bool = True, result_subdirectory: str = "testing",  non_linearity =  torch.nn.functional.tanh, numberOfChemicals: int = 1) -> None:
     """
         Main function for Meta-learning the plasticity rule.
 
@@ -291,16 +325,14 @@ def run(seed: int, display: bool = True):
 
     # -- load data
     numWorkers = 6
-    result_subdirectory = "testing" 
     dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=600 * 5)
-    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True, num_workers=numWorkers)
+    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- meta-train
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    numberOfChemicals = 2
     #device = 'cpu'
-    metalearning_model = MetaLearner(device=device, result_subdirectory=result_subdirectory, save_results=True, model_type="all_rosenbaum", metatrain_dataset=metatrain_dataset, seed=seed, display=display, numberOfChemicals=numberOfChemicals)
+    metalearning_model = MetaLearner(device=device, result_subdirectory=result_subdirectory, save_results=True, model_type="all", metatrain_dataset=metatrain_dataset, seed=seed, display=display, numberOfChemicals=numberOfChemicals, non_linearity=non_linearity)
     metalearning_model.train()
 
 def main():
@@ -321,14 +353,18 @@ def main():
     # -- set up
     Parser = argparse.ArgumentParser()
     Parser.add_argument('--Pool', type=int, default=1, help='Number of processes to run in parallel')
+    Parser.add_argument('--Num_chem', type=int, default=1, help='Number of chemicals in the complex synapse model')
 
     Args = Parser.parse_args()
     print(Args)
 
+    non_linearity = [torch.nn.functional.relu, torch.nn.functional.softplus, torch.nn.functional.sigmoid, torch.nn.functional.tanh]
+    results_directory = ['non_lin/results_relu', 'non_lin/results_softplus', 'non_lin/results_sigmoid', 'non_lin/results_tanh']
+
     # -- run
     if Args.Pool > 1:
         with Pool(Args.Pool) as P:
-            P.starmap(run, zip(range(Args.Pool), [False]*Args.Pool))
+            P.starmap(run, zip([0] * Args.Pool, [False]*Args.Pool, results_directory, non_linearity, [Args.Num_chem]*Args.Pool))
             P.close()
             P.join()
     else:

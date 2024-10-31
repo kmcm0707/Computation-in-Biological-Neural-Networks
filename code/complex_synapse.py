@@ -9,10 +9,9 @@ class ComplexSynapse(nn.Module):
         Which is a biological plausible update rule.
     """
 
-    def __init__(self, params, device='cpu', mode='rosenbaum', numberOfChemicals: int = 1):
+    def __init__(self, device='cpu', mode='rosenbaum', numberOfChemicals: int = 1, non_linearity=torch.nn.functional.relu):
         """
             Initialize the complex synapse model.
-            :param params: (dict) model weights,
             :param device: (str) The processing device to use. Default is 'cpu',
             :param mode: (str) The update rule to use. Default is 'rosenbaum'.
         """
@@ -24,15 +23,14 @@ class ComplexSynapse(nn.Module):
         #h(s+1) = (1-z)h(s) + zf(Kh(s) + \theta * F(Parameter) + b)
         # y = 1-z, y_0 = 1, z_0 = 1
         #w(s) = v * h(s) (if self.number_chemicals = 1)
-
-        self.params = dict(params)
         self.K_matrix = nn.Parameter() # K - LxL
         self.v_vector = nn.Parameter() # v - L
-        self.h_dictionary = nn.ParameterDict() # h - LxW
         self.theta_matrix = nn.Parameter() # \theta - Lx10
-        self.bias = nn.Parameter() # b ??
+        self.bias = nn.Parameter() # b #TODO: Add bias
         self.all_meta_parameters = nn.ParameterList([]) # All updatable meta-parameters
         self.number_chemicals = numberOfChemicals # z - L
+
+        self.non_linearity = non_linearity
 
         self.init_parameters()
 
@@ -40,11 +38,11 @@ class ComplexSynapse(nn.Module):
     def init_parameters(self):
         
         if self.mode == 'rosenbaum' or self.mode == 'all_rosenbaum':
-            self.K_matrix  = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)))
+            self.K_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)))
             self.theta_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device)))
             self.theta_matrix[0,0] = 1e-3
         else:
-            self.K_matrix  = nn.Parameter(torch.nn.init.xavier_normal_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)))
+            self.K_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)))
             self.theta_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device)))
             self.theta_matrix[0,0] = 1e-3
             self.all_meta_parameters.append(self.K_matrix)
@@ -66,19 +64,12 @@ class ComplexSynapse(nn.Module):
             self.z_vector = 1 / self.tau_vector
             self.y_vector = 1 - self.z_vector
             self.y_vector[0] = 1
-
-        for name, parameter in self.params.items():
-            if 'forward' in name:
-                name = name.replace('.', '')
-                self.h_dictionary[name] = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, parameter.shape[0], parameter.shape[1]), device=self.device)))
-                # TODO: initialize the h_dictionary to be the same as the parameter / number of chemicals
-                self.all_meta_parameters.append(self.h_dictionary[name])
         
-        self.v_vector = nn.Parameter(torch.nn.init.ones_(torch.empty(size=(self.number_chemicals), device=self.device)))
+        self.v_vector = nn.Parameter(torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device)))
         if self.mode == 'rosenbaum' or self.mode == 'all_rosenbaum':
             pass
         else:
-            self.all_meta_parameters.extend(self.v_vector)
+            self.all_meta_parameters.append(self.v_vector)
                 
     def __call__(self, activations: list, output, label, params, beta: int):
         """
@@ -101,18 +92,15 @@ class ComplexSynapse(nn.Module):
             if 'forward' in name:
                 if parameter.adapt and 'weight' in name:
                     update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i)
-                    h_name = name.replace('.', '')
-                    if self.mode == 'rosenbaum' or self.mode == 'all_rosenbaum':
-                        unsqeezed_parameter = torch.unsqueeze(parameter, 0)
-                        #print(self.y_vector.shape)
-                        self.h_dictionary[h_name] = torch.einsum('i,ijk->ijk',self.y_vector, self.h_dictionary[h_name]) + \
-                                        torch.einsum('i,ijk->ijk', self.z_vector, torch.einsum('ic,ijk->cjk', self.K_matrix, self.h_dictionary[h_name]) + \
-                                                     torch.einsum('ci,ijk->cjk', self.theta_matrix, update_vector)) #TODO: Add non-linearity
-                        new_value = torch.einsum('i,ijk->jk', self.v_vector, self.h_dictionary[h_name])
-                        params[name] = new_value
+                    unsquezzed_parameter = parameter.unsqueeze(0)
+                    l = torch.einsum('i,ijk->ijk',self.y_vector, unsquezzed_parameter) + \
+                                    self.non_linearity(torch.einsum('i,ijk->ijk', self.z_vector, torch.einsum('ic,ijk->cjk', self.K_matrix, unsquezzed_parameter) + \
+                                                    torch.einsum('ci,ijk->cjk', self.theta_matrix, update_vector)))
+                    new_value = torch.einsum('ci,ijk->cjk', self.v_vector,l).squeeze(0)
+                    params[name] = new_value
 
                     params[name].adapt = True
-                    i += 1
+                i += 1
 
     def calculate_update_vector(self, error, activations_and_output, parameter, i):
         """
@@ -145,13 +133,6 @@ class ComplexSynapse(nn.Module):
             
         update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) - torch.matmul( 
             torch.matmul(activations_and_output[i + 1].T, activations_and_output[i + 1]), parameter) # Oja's rule
-        
-        """for ii in range(10):
-            if torch.isnan(update_vector[ii]).any():
-                print("Error in update vector")
-                print("index: ", ii)
-                print("update vector: ", update_vector[ii])
-                exit(0)"""
         
         return update_vector
 
