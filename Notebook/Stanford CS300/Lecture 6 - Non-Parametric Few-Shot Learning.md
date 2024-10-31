@@ -42,5 +42,5 @@ Only update last layer
 ## Application: Few-Shot Human Motion Prediction
 ![[Pasted image 20241014181659.png]]
 @TODO
-## Closing note for today
+## Closing Note for Today
 ![[Pasted image 20241014181713.png]]
