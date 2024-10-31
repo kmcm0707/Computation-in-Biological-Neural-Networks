@@ -9,7 +9,7 @@ class ComplexSynapse(nn.Module):
         Which is a biological plausible update rule.
     """
 
-    def __init__(self, device='cpu', mode='rosenbaum', numberOfChemicals: int = 1, non_linearity=torch.nn.functional.relu):
+    def __init__(self, device='cpu', mode='rosenbaum', numberOfChemicals: int = 1, non_linearity=torch.nn.functional.tanh):
         """
             Initialize the complex synapse model.
             :param device: (str) The processing device to use. Default is 'cpu',
@@ -36,6 +36,14 @@ class ComplexSynapse(nn.Module):
 
     @torch.no_grad()
     def init_parameters(self):
+        """
+            Initialize the parameters of the complex synapse model.
+            K_matrix: (tensor) The K matrix - dimension (L, L),
+            v_vector: (tensor) The v vector - dimension (1, L),
+            theta_matrix: (tensor) The theta matrix - dimension (L, 10),
+            z_vector: (tensor) The z vector - dimension (1, L),
+            y_vector: (tensor) The y vector - dimension (1, L),
+        """
         
         if self.mode == 'rosenbaum' or self.mode == 'all_rosenbaum':
             self.K_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)))
@@ -71,12 +79,13 @@ class ComplexSynapse(nn.Module):
         else:
             self.all_meta_parameters.append(self.v_vector)
                 
-    def __call__(self, activations: list, output, label, params, beta: int):
+    def __call__(self, activations: list, output: torch.Tensor, label: torch.Tensor, params: dict, h_parameters: dict, beta: int):
         """
         :param activations: (list) model activations,
-        :param output: (tensor) model output,
-        :param label: (tensor) model label,
-        :param params: (dict) model weights,
+        :param output: (tensor) model output - dimension (W_1) (per layer),
+        :param label: (tensor) model label - dimension (W_1) (per layer),
+        :param params: (dict) model weights - dimension (W_1, W_2) (per parameter),
+        :param h_parameters: (dict) model chemicals - dimension L x (W_1, W_2) (per parameter),
         :param beta: (int) smoothness coefficient for non-linearity,
         """
 
@@ -90,24 +99,29 @@ class ComplexSynapse(nn.Module):
         i = 0
         for name, parameter in params.items():
             if 'forward' in name:
+                h_name = name.replace('forward', 'chemical').split('.')[0]
+                chemical = h_parameters[h_name]
                 if parameter.adapt and 'weight' in name:
+                    # Equation 1: h(s+1) = (1-z)h(s) + zf(Kh(s) + \theta * F(Parameter))
+                    # Equation 2: w(s) = v * h(s)
                     update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i)
-                    unsquezzed_parameter = parameter.unsqueeze(0)
-                    l = torch.einsum('i,ijk->ijk',self.y_vector, unsquezzed_parameter) + \
-                                    self.non_linearity(torch.einsum('i,ijk->ijk', self.z_vector, torch.einsum('ic,ijk->cjk', self.K_matrix, unsquezzed_parameter) + \
+                    #unsquezzed_parameter = parameter.unsqueeze(0)
+                    new_chemical = torch.einsum('i,ijk->ijk',self.y_vector, chemical) + \
+                                    self.non_linearity(torch.einsum('i,ijk->ijk', self.z_vector, torch.einsum('ic,ijk->cjk', self.K_matrix, chemical) + \
                                                     torch.einsum('ci,ijk->cjk', self.theta_matrix, update_vector)))
-                    new_value = torch.einsum('ci,ijk->cjk', self.v_vector,l).squeeze(0)
+                    h_parameters[h_name] = new_chemical
+                    new_value = torch.einsum('ci,ijk->cjk', self.v_vector, h_parameters[h_name]).squeeze(0)
                     params[name] = new_value
 
                     params[name].adapt = True
                 i += 1
 
-    def calculate_update_vector(self, error, activations_and_output, parameter, i):
+    def calculate_update_vector(self, error, activations_and_output, parameter, i) -> torch.Tensor:
         """
         Calculate the update vector for the complex synapse model.
         :param error: (list) model error,
         :param activations_and_output: (list) model activations and output,
-        :param parameter: (tensor) model parameter,
+        :param parameter: (tensor) model parameter - dimension (W_1, W_2),
         :param i: (int) index of the parameter.
         """
         update_vector = torch.zeros((10, parameter.shape[0], parameter.shape[1]), device=self.device)

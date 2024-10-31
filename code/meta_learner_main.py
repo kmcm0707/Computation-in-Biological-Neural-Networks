@@ -56,6 +56,7 @@ class RosenbaumChemicalNN(nn.Module):
         self.chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 100, 130), device=self.device))
         self.chemical4 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 70, 100), device=self.device))
         self.chemical5 = nn.Parameter(torch.zeros(size=(numberOfChemicals, dim_out, 70), device=self.device))
+        self.chemicals = nn.ParameterList([self.chemical1, self.chemical2, self.chemical3, self.chemical4, self.chemical5])
 
         # Activation function
         self.beta = 10
@@ -81,7 +82,7 @@ class MetaLearner:
 
     """
 
-    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu', result_subdirectory: str = datetime.datetime.now().strftime("%Y%m%d-%H%M%S"), save_results: bool = True, model_type: str = "rosenbaum", metatrain_dataset = None, seed: int = 0, display: bool = True, numberOfChemicals: int = 1, non_linearity = torch.nn.functional.relu):
+    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu', result_subdirectory: str = datetime.datetime.now().strftime("%Y%m%d-%H%M%S"), save_results: bool = True, model_type: str = "rosenbaum", metatrain_dataset = None, seed: int = 0, display: bool = True, numberOfChemicals: int = 1, non_linearity = torch.nn.functional.tanh):
 
         # -- processor params
         self.device = torch.device(device)
@@ -97,6 +98,7 @@ class MetaLearner:
         self.data_process = DataProcess(trainingDataPerClass=self.trainingDataPerClass, queryDataPerClass=self.queryDataPerClass, dimensionOfImage=28, device=self.device)
 
         # -- model params
+        self.numberOfChemicals = numberOfChemicals
         if self.device == 'cpu': # Remove if using a newer GPU
             self.UnOptimizedmodel = self.load_model().to(self.device)
             self.model = torch.compile(self.UnOptimizedmodel, mode='reduce-overhead')
@@ -106,7 +108,6 @@ class MetaLearner:
         # -- optimization params
         self.metaLossRegularization = 0
         self.loss_func = nn.CrossEntropyLoss()
-        self.numberOfChemicals = numberOfChemicals
         if False: #Not working atm?
             self.UnoptimizedUpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type, numberOfChemicals=self.numberOfChemicals, non_linearity=non_linearity).to(self.device)
             self.UpdateWeights = torch.compile(self.UnoptimizedUpdateWeights, mode='reduce-overhead')
@@ -169,7 +170,7 @@ class MetaLearner:
         :return: model with flags , "adapt", set for its parameters
         """
         #if self.model_type == "rosenbaum":
-        model = RosenbaumChemicalNN(self.device)
+        model = RosenbaumChemicalNN(self.device, self.numberOfChemicals)
 
         # -- learning flags
         for key, val in model.named_parameters():
@@ -192,6 +193,12 @@ class MetaLearner:
             if modules.bias is not None:
                 nn.init.xavier_uniform_(modules.bias.data)
     
+    @staticmethod
+    @torch.no_grad()
+    def chemical_init(chemicals):
+        for chemical in chemicals:
+            nn.init.xavier_uniform_(chemical)
+
     def reinitialize(self):
         """
             Initialize module parameters.
@@ -205,12 +212,12 @@ class MetaLearner:
         """
         # -- initialize weights
         self.model.apply(self.weights_init)
+        self.chemical_init(self.model.chemicals)
 
         #-- module parameters
         #-- parameters are not linked to the model even if .clone() is not used
         params = {key: val.clone() for key, val in dict(self.model.named_parameters()).items() if '.' in key and 'chemical' not in key}
         h_params = {key: val.clone() for key, val in dict(self.model.named_parameters()).items() if 'chemical' in key}
-
         # -- set adaptation flags for cloned parameters
         for key in params:
             params[key].adapt = dict(self.model.named_parameters())[key].adapt
@@ -249,14 +256,14 @@ class MetaLearner:
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
 
                 # -- predict
-                y, logits = torch.func.functional_call(self.model, parameters, x.unsqueeze(0).unsqueeze(0))
+                y, logits = torch.func.functional_call(self.model, (parameters, h_parameters), x.unsqueeze(0).unsqueeze(0))
 
                 # -- update network params
-                self.UpdateWeights(activations=y, output=logits, label=label, params=parameters, beta=self.model.beta)
+                self.UpdateWeights(activations=y, output=logits, label=label, params=parameters, h_parameters= h_parameters, beta=self.model.beta)
 
             """ meta update """
             # -- predict
-            y, logits = torch.func.functional_call(self.model, parameters, x_qry)
+            y, logits = torch.func.functional_call(self.model, (parameters, h_parameters), x_qry)
 
             # -- L1 regularization
             l1_reg = torch.norm(self.UpdateWeights.theta_matrix, 1)
