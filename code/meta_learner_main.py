@@ -365,13 +365,14 @@ def main():
     Args = Parser.parse_args()
     print(Args)
 
-    non_linearity = [torch.nn.functional.relu, torch.nn.functional.softplus, torch.nn.functional.sigmoid, torch.nn.functional.tanh]
-    results_directory = ['non_lin/results_relu', 'non_lin/results_softplus', 'non_lin/results_sigmoid', 'non_lin/results_tanh']
+    non_linearity = [torch.nn.functional.tanh] * Args.Pool
+    results_directory = ['full_attempt/1', 'full_attempt/3', 'full_attempt/5'] * Args.Pool
+    chemicals = [1,3,5] 
 
     # -- run
     if Args.Pool > 1:
         with Pool(Args.Pool) as P:
-            P.starmap(run, zip([0] * Args.Pool, [False]*Args.Pool, results_directory, non_linearity, [Args.Num_chem]*Args.Pool))
+            P.starmap(run, zip([0] * Args.Pool, [False]*Args.Pool, results_directory, non_linearity, chemicals))
             P.close()
             P.join()
     else:
