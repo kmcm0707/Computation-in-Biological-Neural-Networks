@@ -90,8 +90,6 @@ class MetaLearner:
         self.device = torch.device(device)
         self.model_type = model_type
         
-        
-
         # -- data params
         self.trainingDataPerClass = 50
         self.queryDataPerClass = 10
@@ -249,6 +247,7 @@ class MetaLearner:
             # Using a clone of the model parameters to allow for in-place operations
             # Maintains the computational graph for the model as .detach() is not used
             parameters, h_parameters = self.reinitialize()
+            self.UpdateWeights.inital_update(parameters, h_parameters)
 
             # -- training data
             x_trn, y_trn, x_qry, y_qry = self.data_process(data, 5)
@@ -331,16 +330,6 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing",  
     :return: None
     """
 
-    # -- load data
-    numWorkers = 6
-    dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
-    sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=600 * 5)
-    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
-
-    # -- meta-train
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    #device = 'cpu'
-
     # Set the seed for reproducibility
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
@@ -348,7 +337,18 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing",  
     np.random.seed(seed)
     random.seed(seed)
 
-    metalearning_model = MetaLearner(device=device, result_subdirectory=result_subdirectory, save_results=True, model_type="rosenbaum", metatrain_dataset=metatrain_dataset, seed=seed, display=display, numberOfChemicals=numberOfChemicals, non_linearity=non_linearity)
+    # -- load data
+    numWorkers = 6
+    epochs = 200
+    dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
+    sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * 5)
+    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
+
+    # -- meta-train
+    #device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = 'cpu'
+
+    metalearning_model = MetaLearner(device=device, result_subdirectory=result_subdirectory, save_results=True, model_type="all", metatrain_dataset=metatrain_dataset, seed=seed, display=display, numberOfChemicals=numberOfChemicals, non_linearity=non_linearity)
     metalearning_model.train()
 
 def main():
@@ -374,19 +374,23 @@ def main():
     Args = Parser.parse_args()
     print(Args)
 
-    non_linearity = [torch.nn.functional.tanh] * Args.Pool
+    """non_linearity = [torch.nn.functional.tanh] * Args.Pool
     results_directory = ['full_attempt/1', 'full_attempt/3', 'full_attempt/5'] * Args.Pool
-    chemicals = [1,3,5] 
+    chemicals = [1,3,5] """
 
     # -- run
-    if Args.Pool > 1:
+    run(0, True, "full_attempt_2", torch.nn.functional.tanh, 5)
+    """if Args.Pool > 1:
         with Pool(Args.Pool) as P:
             P.starmap(run, zip([0] * Args.Pool, [False]*Args.Pool, results_directory, non_linearity, chemicals))
             P.close()
             P.join()
     else:
-        run(0)
-        
+        run(0)"""
+
+def pass_through(input):
+    return input
+
 if __name__ == '__main__':
     #torch.autograd.set_detect_anomaly(True)
     try:

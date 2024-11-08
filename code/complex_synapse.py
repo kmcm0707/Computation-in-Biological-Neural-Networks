@@ -73,7 +73,7 @@ class ComplexSynapse(nn.Module):
             self.y_vector = 1 - self.z_vector
             self.y_vector[0] = 1
         
-        self.v_vector = nn.Parameter(torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device)))
+        self.v_vector = nn.Parameter(torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device)) / self.number_chemicals)
         if self.mode == 'rosenbaum' or self.mode == 'all_rosenbaum':
             pass
         else:
@@ -115,6 +115,25 @@ class ComplexSynapse(nn.Module):
 
                     params[name].adapt = True
                 i += 1
+    
+    @torch.no_grad()
+    def inital_update(self, params: dict, h_parameters: dict):
+        """
+        :param params: (dict) model weights - dimension (W_1, W_2) (per parameter),
+        :param h_parameters: (dict) model chemicals - dimension L x (W_1, W_2) (per parameter),
+        
+        To connect the forward and chemical parameters.
+        """
+        for name, parameter in params.items():
+            if 'forward' in name:
+                h_name = name.replace('forward', 'chemical').split('.')[0]
+                chemical = h_parameters[h_name]
+                if parameter.adapt and 'weight' in name:
+                    # Equation 2: w(s) = v * h(s)
+                    new_value = torch.einsum('ci,ijk->cjk', self.v_vector, h_parameters[h_name]).squeeze(0)
+                    params[name] = new_value
+
+                    params[name].adapt = True
 
     def calculate_update_vector(self, error, activations_and_output, parameter, i) -> torch.Tensor:
         """
@@ -128,23 +147,25 @@ class ComplexSynapse(nn.Module):
         update_vector[0] = - torch.matmul(error[i + 1].T, activations_and_output[i]) # Pseudo-gradient
 
         if self.mode != 'rosenbaum':
-            update_vector[1] = - torch.matmul(activations_and_output[i+1].T, error[i])
+            pass
+            #update_vector[1] = - torch.matmul(activations_and_output[i+1].T, error[i])
 
         update_vector[2] = - torch.matmul(error[i + 1].T, error[i]) # eHebb rule
 
         if self.mode != 'rosenbaum':
-            update_vector[3] = - parameter
+            """update_vector[3] = - parameter
             update_vector[4] = - torch.matmul(torch.ones(size=(parameter.shape[0], 1), device=self.device), error[i])
-            """update_vector[5] = - torch.matmul(torch.matmul(torch.matmul(error[i+1].T, torch.ones(size=(1, parameter.shape[0]), device=self.device)),
+            update_vector[5] = - torch.matmul(torch.matmul(torch.matmul(error[i+1].T, torch.ones(size=(1, parameter.shape[0]), device=self.device)),
                                                   activations_and_output[i+1].T), activations_and_output[i]) # = ERROR on high learning rate
            
             update_vector[6] = - torch.matmul(torch.matmul(torch.matmul(torch.matmul(activations_and_output[i+1].T, activations_and_output[i+1]),
                                                              parameter), error[i].T), error[i]) #- ERROR
             update_vector[7] = - torch.matmul(torch.matmul(torch.matmul(torch.matmul(error[i+1].T, activations_and_output[i+1]),
-                                                                parameter), error[i].T), activations_and_output[i]) # - Maybe be bad"""
+                                                                parameter), error[i].T), activations_and_output[i]) # - Maybe be bad
             update_vector[8] = - torch.matmul(torch.matmul(torch.matmul(torch.matmul(activations_and_output[i+1].T, activations_and_output[i]),
-                                                                parameter.T), error[i+1].T), error[i])
-            
+                                                                parameter.T), error[i+1].T), error[i])"""
+            pass
+
         update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) - torch.matmul( 
             torch.matmul(activations_and_output[i + 1].T, activations_and_output[i + 1]), parameter) # Oja's rule
         

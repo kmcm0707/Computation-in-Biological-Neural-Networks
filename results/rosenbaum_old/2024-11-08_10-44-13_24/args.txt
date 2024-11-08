@@ -1,0 +1,19 @@
+gpu_mode : 1
+seed : 1
+database : emnist
+dim : 28
+test_name : HELP
+episodes : 300
+K : 50
+Q : 10
+M : 5
+lamb : 0.0
+lr_meta : 0.001
+a : 0.001
+res : results
+avg_window : 10
+vec : ['1', '2']
+fbk : fix
+res_dir : C:\Users\Kyle\Desktop\MetaLearning-Plasticity\results\HELP\2024-11-08_10-44-13_24
+device : cpu
+evl : False

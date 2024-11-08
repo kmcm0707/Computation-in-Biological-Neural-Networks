@@ -76,6 +76,8 @@ class Plot:
         plt.plot(np.array(range(len(z))) + int((self.period - 1) / 2), z)
 
         plt.title('Meta Accuracy')
+        plt.xlabel('Meta-training episodes')
+        plt.ylabel('Meta Accuracy')
         plt.ylim([0, 1])
         plt.savefig(self.res_dir + '/meta_accuracy', bbox_inches='tight')
         plt.close()
@@ -170,6 +172,8 @@ class Plot:
         plt.plot(np.array(range(len(z))) + int((self.period - 1) / 2), z)#, label=label, color=self.color)
 
         plt.title('Meta Loss')
+        plt.xlabel('Meta-training episodes')
+        plt.ylabel('Meta Loss')
         plt.ylim([0, 5])
         plt.savefig(self.res_dir + '/meta_loss', bbox_inches='tight')
         plt.close()
@@ -186,8 +190,8 @@ class Plot:
         :return: None
         """
         self.meta_accuracy()
-        self.meta_parameters()
-        self.meta_angles()
+        """self.meta_parameters()
+        self.meta_angles()"""
         self.meta_loss()
 
 
