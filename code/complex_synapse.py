@@ -25,10 +25,10 @@ class ComplexSynapse(nn.Module):
         #w(s) = v * h(s) (if self.number_chemicals = 1)
         self.K_matrix = nn.Parameter() # K - LxL
         self.v_vector = nn.Parameter() # v - L
-        self.theta_matrix = nn.Parameter() # \theta - Lx10
+        self.P_matrix = nn.Parameter() # \theta - Lx10
         self.bias = nn.Parameter() # b #TODO: Add bias
         self.all_meta_parameters = nn.ParameterList([]) # All updatable meta-parameters
-        self.number_chemicals = numberOfChemicals # z - L
+        self.number_chemicals = numberOfChemicals # L
 
         self.non_linearity = non_linearity
 
@@ -40,22 +40,22 @@ class ComplexSynapse(nn.Module):
             Initialize the parameters of the complex synapse model.
             K_matrix: (tensor) The K matrix - dimension (L, L),
             v_vector: (tensor) The v vector - dimension (1, L),
-            theta_matrix: (tensor) The theta matrix - dimension (L, 10),
+            P_matrix: (tensor) The theta matrix - dimension (L, 10),
             z_vector: (tensor) The z vector - dimension (1, L),
             y_vector: (tensor) The y vector - dimension (1, L),
         """
         
         if self.mode == 'rosenbaum' or self.mode == 'all_rosenbaum':
             self.K_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)))
-            self.theta_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device)))
-            self.theta_matrix[0,0] = 1e-3
+            self.P_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device)))
+            self.P_matrix[0,0] = 1e-3
         else:
             self.K_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)))
-            self.theta_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device)))
-            self.theta_matrix[0,0] = 1e-3
+            self.P_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device)))
+            self.P_matrix[0,0] = 1e-3
             self.all_meta_parameters.append(self.K_matrix)
 
-        self.all_meta_parameters.append(self.theta_matrix)
+        self.all_meta_parameters.append(self.P_matrix)
        
         self.z_vector = torch.tensor([0] * self.number_chemicals, device=self.device)
         self.y_vector = torch.tensor([0] * self.number_chemicals, device=self.device)
@@ -107,8 +107,8 @@ class ComplexSynapse(nn.Module):
                     update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i)
                     #unsquezzed_parameter = parameter.unsqueeze(0)
                     new_chemical = torch.einsum('i,ijk->ijk',self.y_vector, chemical) + \
-                                    self.non_linearity(torch.einsum('i,ijk->ijk', self.z_vector, torch.einsum('ic,ijk->cjk', self.K_matrix, chemical) + \
-                                                    torch.einsum('ci,ijk->cjk', self.theta_matrix, update_vector)))
+                                    torch.einsum('i,ijk->ijk', self.z_vector, self.non_linearity(torch.einsum('ic,ijk->cjk', self.K_matrix, chemical) + \
+                                                    torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector)))
                     h_parameters[h_name] = new_chemical
                     new_value = torch.einsum('ci,ijk->cjk', self.v_vector, h_parameters[h_name]).squeeze(0)
                     params[name] = new_value

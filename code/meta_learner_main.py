@@ -1,8 +1,10 @@
 import argparse
 from multiprocessing import Pool
 import os
+import random
 import sys
 from typing import Literal
+import numpy as np
 import torch
 import warnings
 import datetime
@@ -88,8 +90,7 @@ class MetaLearner:
         self.device = torch.device(device)
         self.model_type = model_type
         
-        # Set the seed for reproducibility
-        torch.manual_seed(seed)
+        
 
         # -- data params
         self.trainingDataPerClass = 50
@@ -156,7 +157,7 @@ class MetaLearner:
                         f.writelines("Non linearity: {}\n".format(non_linearity))
 
             self.average_window = 10
-            self.plot = Plot(self.result_directory, self.UpdateWeights.theta_matrix.shape[1], self.average_window)
+            self.plot = Plot(self.result_directory, self.UpdateWeights.P_matrix.shape[1], self.average_window)
             self.summary_writer = SummaryWriter(log_dir=self.result_directory)
 
     def load_model(self):
@@ -266,7 +267,7 @@ class MetaLearner:
             y, logits = torch.func.functional_call(self.model, (parameters, h_parameters), x_qry)
 
             # -- L1 regularization
-            l1_reg = torch.norm(self.UpdateWeights.theta_matrix, 1)
+            l1_reg = torch.norm(self.UpdateWeights.P_matrix, 1)
 
             loss_meta = self.loss_func(logits, y_qry.ravel()) + l1_reg * self.metaLossRegularization
 
@@ -274,7 +275,7 @@ class MetaLearner:
             acc = meta_stats(logits, parameters, y_qry.ravel(), y, self.model.beta, self.result_directory)
 
             # -- update params
-            theta_temp = [theta.detach().clone() for theta in self.UpdateWeights.theta_matrix[0, :]]
+            theta_temp = [theta.detach().clone() for theta in self.UpdateWeights.P_matrix[0, :]]
             K_norm = torch.norm(self.UpdateWeights.K_matrix.detach().clone(), 1)
             v_values = self.UpdateWeights.v_vector.detach().clone()[0, :]
             self.UpdateMetaParameters.zero_grad()
@@ -339,7 +340,15 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing",  
     # -- meta-train
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     #device = 'cpu'
-    metalearning_model = MetaLearner(device=device, result_subdirectory=result_subdirectory, save_results=True, model_type="all", metatrain_dataset=metatrain_dataset, seed=seed, display=display, numberOfChemicals=numberOfChemicals, non_linearity=non_linearity)
+
+    # Set the seed for reproducibility
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+
+    metalearning_model = MetaLearner(device=device, result_subdirectory=result_subdirectory, save_results=True, model_type="rosenbaum", metatrain_dataset=metatrain_dataset, seed=seed, display=display, numberOfChemicals=numberOfChemicals, non_linearity=non_linearity)
     metalearning_model.train()
 
 def main():
