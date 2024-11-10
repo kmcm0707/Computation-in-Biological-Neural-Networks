@@ -1,3 +1,4 @@
+import math
 import torch
 from torch import nn
 from torch.nn import functional
@@ -9,16 +10,20 @@ class ComplexSynapse(nn.Module):
         Which is a biological plausible update rule.
     """
 
-    def __init__(self, device='cpu', mode='rosenbaum', numberOfChemicals: int = 1, non_linearity=torch.nn.functional.tanh):
+    def __init__(self, device='cpu', mode='rosenbaum', numberOfChemicals: int = 1, non_linearity=torch.nn.functional.tanh, options = {}):
         """
             Initialize the complex synapse model.
             :param device: (str) The processing device to use. Default is 'cpu',
             :param mode: (str) The update rule to use. Default is 'rosenbaum'.
+            :param numberOfChemicals: (int) The number of chemicals to use. Default is 1,
+            :param non_linearity: (function) The non-linearity to use. Default is torch.nn.functional.tanh,
+            :param options: (dict) The options to use. Default is {}.
         """
         super(ComplexSynapse, self).__init__()
 
         self.device = device
         self.mode = mode
+        self.options = options
 
         #h(s+1) = (1-z)h(s) + zf(Kh(s) + \theta * F(Parameter) + b)
         # y = 1-z, y_0 = 1, z_0 = 1
@@ -32,6 +37,20 @@ class ComplexSynapse(nn.Module):
 
         self.non_linearity = non_linearity
 
+        self.update_rules = [False] * 10
+        if self.mode == 'rosenbaum':
+            self.update_rules[0] = True
+            self.update_rules[2] = True
+            self.update_rules[9] = True
+        elif self.mode == 'all_rosenbaum':
+            self.update_rules = [True] * 10
+        else:
+            if self.options['update_rules'] is not None:
+                for i in self.options['update_rules']:
+                    self.update_rules[i] = True
+            else:
+                self.update_rules = [True] * 10
+
         self.init_parameters()
 
     @torch.no_grad()
@@ -44,35 +63,42 @@ class ComplexSynapse(nn.Module):
             z_vector: (tensor) The z vector - dimension (1, L),
             y_vector: (tensor) The y vector - dimension (1, L),
         """
-        
+        self.K_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)))
+        self.P_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device)))
+        self.P_matrix[0,0] = 1e-3
+
         if self.mode == 'rosenbaum' or self.mode == 'all_rosenbaum':
-            self.K_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)))
-            self.P_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device)))
-            self.P_matrix[0,0] = 1e-3
+            pass
         else:
-            self.K_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)))
-            self.P_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device)))
-            self.P_matrix[0,0] = 1e-3
+            if self.options['P_matrix'] is not None:
+                if self.options['P_matrix'] == 'random':
+                    self.P_matrix = nn.Parameter(torch.nn.init.trunc_normal_(torch.empty(size=(self.number_chemicals, 10), device=self.device), mean=0, std=1, a=-1, b=1))
+
+            if self.options['K_matrix'] is not None:
+                if self.options['K_matrix'] == 'random':
+                    self.K_matrix = nn.Parameter(torch.nn.init.normal_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)))
+                    self.K_matrix = self.K_matrix / math.sqrt(self.number_chemicals)
+
             self.all_meta_parameters.append(self.K_matrix)
 
         self.all_meta_parameters.append(self.P_matrix)
        
         self.z_vector = torch.tensor([0] * self.number_chemicals, device=self.device)
         self.y_vector = torch.tensor([0] * self.number_chemicals, device=self.device)
-        self.z_vector[0] = 1
-        self.y_vector[0] = 1
 
-        if self.number_chemicals > 1:
-            ## Initialize the chemical time constants
-            # z = 1 / \tau
-            min_tau = 1
-            max_tau = 30
-            exponential = 1.5
-            self.tau_vector = torch.tensor([min_tau + (max_tau - min_tau) * (i / (self.number_chemicals - 1)) ** exponential for i in range(self.number_chemicals)], device=self.device).float()
-            self.z_vector = 1 / self.tau_vector
-            self.y_vector = 1 - self.z_vector
+        ## Initialize the chemical time constants
+        # z = 1 / \tau
+        min_tau = 1
+        max_tau = 30
+        base = max_tau / min_tau
+
+        self.tau_vector = min_tau * (base ** torch.linspace(0, 1, self.number_chemicals))
+        self.z_vector = 1 / self.tau_vector
+        self.y_vector = 1 - self.z_vector
+
+        if self.number_chemicals == 1:
             self.y_vector[0] = 1
-        
+    
         self.v_vector = nn.Parameter(torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device)) / self.number_chemicals)
         if self.mode == 'rosenbaum' or self.mode == 'all_rosenbaum':
             pass
@@ -144,30 +170,41 @@ class ComplexSynapse(nn.Module):
         :param i: (int) index of the parameter.
         """
         update_vector = torch.zeros((10, parameter.shape[0], parameter.shape[1]), device=self.device)
-        update_vector[0] = - torch.matmul(error[i + 1].T, activations_and_output[i]) # Pseudo-gradient
 
-        if self.mode != 'rosenbaum':
-            pass
-            #update_vector[1] = - torch.matmul(activations_and_output[i+1].T, error[i])
+        if self.update_rules[0]:
+            update_vector[0] = - torch.matmul(error[i + 1].T, activations_and_output[i]) # Pseudo-gradient
 
-        update_vector[2] = - torch.matmul(error[i + 1].T, error[i]) # eHebb rule
+        if self.update_rules[1]:
+            update_vector[1] = - torch.matmul(activations_and_output[i+1].T, error[i])
 
-        if self.mode != 'rosenbaum':
-            """update_vector[3] = - parameter
+        if self.update_rules[2]:
+            update_vector[2] = - torch.matmul(error[i + 1].T, error[i]) # eHebb rule
+
+        if self.update_rules[3]:
+            update_vector[3] = - parameter
+        
+        if self.update_rules[4]:
             update_vector[4] = - torch.matmul(torch.ones(size=(parameter.shape[0], 1), device=self.device), error[i])
+
+        if self.update_rules[5]:
             update_vector[5] = - torch.matmul(torch.matmul(torch.matmul(error[i+1].T, torch.ones(size=(1, parameter.shape[0]), device=self.device)),
                                                   activations_and_output[i+1].T), activations_and_output[i]) # = ERROR on high learning rate
            
+        if self.update_rules[6]:
             update_vector[6] = - torch.matmul(torch.matmul(torch.matmul(torch.matmul(activations_and_output[i+1].T, activations_and_output[i+1]),
                                                              parameter), error[i].T), error[i]) #- ERROR
+        
+        if self.update_rules[7]:
             update_vector[7] = - torch.matmul(torch.matmul(torch.matmul(torch.matmul(error[i+1].T, activations_and_output[i+1]),
                                                                 parameter), error[i].T), activations_and_output[i]) # - Maybe be bad
+        
+        if self.update_rules[8]:
             update_vector[8] = - torch.matmul(torch.matmul(torch.matmul(torch.matmul(activations_and_output[i+1].T, activations_and_output[i]),
-                                                                parameter.T), error[i+1].T), error[i])"""
-            pass
-
-        update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) - torch.matmul( 
-            torch.matmul(activations_and_output[i + 1].T, activations_and_output[i + 1]), parameter) # Oja's rule
+                                                                parameter.T), error[i+1].T), error[i])
+        
+        if self.update_rules[9]:
+            update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) - torch.matmul( 
+                torch.matmul(activations_and_output[i + 1].T, activations_and_output[i + 1]), parameter) # Oja's rule
         
         return update_vector
 

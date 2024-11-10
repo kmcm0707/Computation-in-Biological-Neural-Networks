@@ -13,6 +13,8 @@ from torch import nn, optim
 from torch.utils.data import DataLoader, RandomSampler
 from torch.utils.tensorboard import SummaryWriter
 
+from ray import train
+
 from dataset import EmnistDataset, DataProcess
 
 from complex_synapse import ComplexSynapse
@@ -84,12 +86,16 @@ class MetaLearner:
 
     """
 
-    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu', result_subdirectory: str = datetime.datetime.now().strftime("%Y%m%d-%H%M%S"), save_results: bool = True, model_type: str = "rosenbaum", metatrain_dataset = None, seed: int = 0, display: bool = True, numberOfChemicals: int = 1, non_linearity = torch.nn.functional.tanh):
+    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu', result_subdirectory: str = datetime.datetime.now().strftime("%Y%m%d-%H%M%S"), save_results: bool = True, model_type: str = "rosenbaum", metatrain_dataset = None, seed: int = 0, display: bool = True, numberOfChemicals: int = 1, non_linearity = torch.nn.functional.tanh, options = {}, raytune = False):
 
         # -- processor params
         self.device = torch.device(device)
         self.model_type = model_type
+        self.options = options
         
+        # -- raytune 
+        self.raytune = raytune
+
         # -- data params
         self.trainingDataPerClass = 50
         self.queryDataPerClass = 10
@@ -111,11 +117,17 @@ class MetaLearner:
             self.UnoptimizedUpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type, numberOfChemicals=self.numberOfChemicals, non_linearity=non_linearity).to(self.device)
             self.UpdateWeights = torch.compile(self.UnoptimizedUpdateWeights, mode='reduce-overhead')
         else:
-            self.UpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type, numberOfChemicals=self.numberOfChemicals, non_linearity=non_linearity).to(self.device)
-        self.UpdateMetaParameters = optim.Adam(params=self.UpdateWeights.all_meta_parameters.parameters(), lr=1e-3)
-        for param in self.UpdateWeights.all_meta_parameters.parameters():
-            print(param)
+            self.UpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type, numberOfChemicals=self.numberOfChemicals, non_linearity=non_linearity, options=self.options).to(self.device)
+        
+        lr = 1e-3
+        if options['lr'] != None:
+            lr = options['lr']
 
+        if options['optimizer'] == 'sgd':
+            self.UpdateMetaParameters = optim.SGD(params=self.UpdateWeights.all_meta_parameters.parameters(), lr=lr)
+        else:
+            self.UpdateMetaParameters = optim.Adam(params=self.UpdateWeights.all_meta_parameters.parameters(), lr=lr)
+        
         # -- log params
         self.save_results = save_results
         self.display = display
@@ -133,6 +145,7 @@ class MetaLearner:
                     f.writelines("Number of training data per class: {}\n".format(self.trainingDataPerClass))
                     f.writelines("Number of query data per class: {}\n".format(self.queryDataPerClass))
                     f.writelines("Non linearity: {}\n".format(non_linearity))
+                    f.writelines("Options: {}\n".format(options))
             except FileExistsError:
                 warnings.warn("The directory already exists. The results will be overwritten.")
 
@@ -241,6 +254,10 @@ class MetaLearner:
         """
         self.model.train()
         self.UpdateWeights.train()
+
+        x_qry = None
+        y_qry = None
+        
         for eps, data in enumerate(self.metatrain_dataset):
 
             # -- initialize
@@ -310,10 +327,15 @@ class MetaLearner:
                 with open(self.result_directory + '/params.txt', 'a') as f:
                     f.writelines(line+'\n')
 
+            # -- raytune
+            if self.raytune:
+                train.report({'loss': loss_meta.item(), 'accuracy': acc})
+
         # -- plot
         if self.save_results:
             self.summary_writer.close()
             self.plot()
+        print('Meta-training complete.')
 
 def run(seed: int, display: bool = True, result_subdirectory: str = "testing",  non_linearity =  torch.nn.functional.tanh, numberOfChemicals: int = 1) -> None:
     """
