@@ -13,7 +13,7 @@ from torch import nn, optim
 from torch.utils.data import DataLoader, RandomSampler
 from torch.utils.tensorboard import SummaryWriter
 
-from ray import train
+from ray import tune, train
 
 from dataset import EmnistDataset, DataProcess
 
@@ -111,7 +111,10 @@ class MetaLearner:
             self.model = self.load_model().to(self.device)
 
         # -- optimization params
-        self.metaLossRegularization = 0
+        self.metaLossRegularization = 0.01
+        if 'metaLossRegularization' in options:
+            self.metaLossRegularization = options['metaLossRegularization']
+        
         self.loss_func = nn.CrossEntropyLoss()
         if False: #Not working atm?
             self.UnoptimizedUpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type, numberOfChemicals=self.numberOfChemicals, non_linearity=non_linearity).to(self.device)
@@ -131,6 +134,7 @@ class MetaLearner:
         # -- log params
         self.save_results = save_results
         self.display = display
+        self.result_directory = os.getcwd() + "/results"
         if self.save_results:
             self.result_directory = os.getcwd() + "/results"
             os.makedirs(self.result_directory, exist_ok=True)
@@ -209,7 +213,7 @@ class MetaLearner:
     @torch.no_grad()
     def chemical_init(chemicals):
         for chemical in chemicals:
-            nn.init.xavier_uniform_(chemical)
+            nn.init.xavier_uniform_(chemical, gain=torch.nn.init.calculate_gain('relu'))
 
     def reinitialize(self):
         """
@@ -288,7 +292,7 @@ class MetaLearner:
             loss_meta = self.loss_func(logits, y_qry.ravel()) + l1_reg * self.metaLossRegularization
 
             # -- compute and store meta stats
-            acc = meta_stats(logits, parameters, y_qry.ravel(), y, self.model.beta, self.result_directory)
+            acc = meta_stats(logits, parameters, y_qry.ravel(), y, self.model.beta, self.result_directory, self.save_results)
 
             # -- update params
             theta_temp = [theta.detach().clone() for theta in self.UpdateWeights.P_matrix[0, :]]
@@ -304,7 +308,8 @@ class MetaLearner:
             self.UpdateMetaParameters.step()
 
             # -- log
-            log([loss_meta.item()], self.result_directory + '/loss_meta.txt')
+            if self.save_results:
+                log([loss_meta.item()], self.result_directory + '/loss_meta.txt')
 
             line = 'Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}'.format(eps+1, loss_meta.item(), acc)
             for idx, param in enumerate(theta_temp):
@@ -329,6 +334,8 @@ class MetaLearner:
 
             # -- raytune
             if self.raytune:
+                if torch.isnan(loss_meta):
+                    return train.report({'loss': loss_meta.item(), 'accuracy': acc})
                 train.report({'loss': loss_meta.item(), 'accuracy': acc})
 
         # -- plot
@@ -366,11 +373,20 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing",  
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * 5)
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
+    # -- options
+    options = {}
+    options['lr'] = 0.001
+    options['optimizer'] = 'adam'
+    options['K_Matrix'] = 'n_random'
+    options['P_Matrix'] = 'n_random'
+    options['metaLossRegularization'] = 0.01
+    options['update_rules'] = [0, 1, 2, 3, 4, 8, 9]
+
     # -- meta-train
     #device = 'cuda' if torch.cuda.is_available() else 'cpu'
     device = 'cpu'
 
-    metalearning_model = MetaLearner(device=device, result_subdirectory=result_subdirectory, save_results=True, model_type="all", metatrain_dataset=metatrain_dataset, seed=seed, display=display, numberOfChemicals=numberOfChemicals, non_linearity=non_linearity)
+    metalearning_model = MetaLearner(device=device, result_subdirectory=result_subdirectory, save_results=True, model_type="all", metatrain_dataset=metatrain_dataset, seed=seed, display=display, numberOfChemicals=numberOfChemicals, non_linearity=non_linearity, options=options, raytune=False)
     metalearning_model.train()
 
 def main():
@@ -401,7 +417,7 @@ def main():
     chemicals = [1,3,5] """
 
     # -- run
-    run(0, True, "full_attempt_2", torch.nn.functional.tanh, 5)
+    run(1, True, "relu", torch.nn.functional.tanh, 5)
     """if Args.Pool > 1:
         with Pool(Args.Pool) as P:
             P.starmap(run, zip([0] * Args.Pool, [False]*Args.Pool, results_directory, non_linearity, chemicals))

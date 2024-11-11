@@ -1,4 +1,6 @@
 import os
+import random
+import numpy as np
 from ray import tune
 from ray import train
 from ray.train import Checkpoint, get_checkpoint
@@ -25,18 +27,19 @@ def ray_tune_main():
         'chemicals': tune.grid_search([1, 3 , 5, 8]),
         'P_Matrix': tune.grid_search(['random', 'non-random']),
         'K_Matrix': tune.grid_search(['random', 'non-random']),
-        'Update_rules': tune.grid_search([[0, 1, 2, 3], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 1, 2, 3, 4, 5, 9]]),
+        'Update_rules': tune.grid_search([[0, 2, 9], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 1, 2, 3, 4, 5, 9]]),
     }
 
     scheduler = ASHAScheduler(
         metric="accuracy",
         mode="max",
         max_t=200,
-        grace_period=50,
-        reduction_factor=2)
+        grace_period=20,
+        reduction_factor=3,
+    )
     
     currentDir = os.getcwd()
-    saveDir = os.path.join(currentDir, '../raytune')
+    saveDir = os.path.join(currentDir, 'raytune_results')
     
     result = tune.run(
         trainable,
@@ -44,8 +47,9 @@ def ray_tune_main():
         config=config,
         num_samples=10,
         scheduler=scheduler,
-        local_dir=saveDir,
+        storage_path=saveDir,
         fail_fast=True,
+        trial_dirname_creator=lambda trial: f"{trial.trainable_name}_{trial.trial_id}",
     )
     
     best_trial = result.get_best_trial("accuracy", "max", "last-10-avg")
@@ -56,9 +60,8 @@ def ray_tune_main():
 def trainable(config):
     metatrain_dataset = data_loader(epochs=200)
     args = {}
-    args['p_matrix'] = config['P_Matrix']
-    args['k_matrix'] = config['K_Matrix']
-    args['update_rules'] = config['Update_rules']
+    args['P_matrix'] = config['P_Matrix']
+    args['K_matrix'] = config['K_Matrix']
     args['lr'] = config['lr']
     args['optimizer'] = config['optimizer']
     args['update_rules'] = config['Update_rules']
@@ -73,5 +76,13 @@ def trainable(config):
     elif config['non_linearity'] == 'tanh':
         non_linearity = torch.nn.functional.tanh
     
-    MetaLearner_instance = MetaLearner(model_type='all', device="cpu", numberOfChemicals=num_chemicals, save_results='false', non_linearity=non_linearity, options=args, display=False, save_results=False, metatrain_dataset=metatrain_dataset)
-    print(MetaLearner_instance)
+    MetaLearner_instance = MetaLearner(model_type='all', device="cpu", numberOfChemicals=num_chemicals, non_linearity=non_linearity, options=args, display=True, save_results=False, metatrain_dataset=metatrain_dataset, raytune=True)
+    MetaLearner_instance.train()
+
+if __name__ == "__main__":
+    torch.manual_seed(2)
+    torch.cuda.manual_seed(2)
+    torch.cuda.manual_seed_all(2)
+    np.random.seed(2)
+    random.seed(2)
+    ray_tune_main()
