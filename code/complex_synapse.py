@@ -104,6 +104,13 @@ class ComplexSynapse(nn.Module):
             pass
         else:
             self.all_meta_parameters.append(self.v_vector)
+
+        self.operator = torch.add
+        if 'operator' in self.options:
+            if self.options['operator'] == 'sub':
+                self.operator = torch.sub
+
+
                 
     def __call__(self, activations: list, output: torch.Tensor, label: torch.Tensor, params: dict, h_parameters: dict, beta: int):
         """
@@ -132,9 +139,10 @@ class ComplexSynapse(nn.Module):
                     # Equation 2: w(s) = v * h(s)
                     update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i)
                     #unsquezzed_parameter = parameter.unsqueeze(0)
-                    new_chemical = torch.einsum('i,ijk->ijk',self.y_vector, chemical) + \
+                    # self.operator = torch.add or torch.sub
+                    new_chemical = self.operator(torch.einsum('i,ijk->ijk',self.y_vector, chemical),  \
                                     torch.einsum('i,ijk->ijk', self.z_vector, self.non_linearity(torch.einsum('ic,ijk->cjk', self.K_matrix, chemical) + \
-                                                    torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector)))
+                                                    torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector))))
                     h_parameters[h_name] = new_chemical
                     new_value = torch.einsum('ci,ijk->cjk', self.v_vector, h_parameters[h_name]).squeeze(0)
                     params[name] = new_value
