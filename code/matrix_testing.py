@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 
 if __name__ == '__main__':
     # -- test matrix
@@ -25,9 +26,16 @@ if __name__ == '__main__':
     z_vector = 1 / tau_vector
     y_vector = 1 - z_vector
 
+    v_vector = nn.Parameter(torch.nn.init.ones_(torch.empty(size=(1, 5), device="cpu")))
+    test_matrix = nn.Parameter(torch.nn.init.ones_(torch.empty(size=(5, 2, 4), device="cpu")))
+
+    product = torch.einsum('ci,ijk->cjk', v_vector, test_matrix).squeeze_(0)
+    print(product.shape)
+    print(product)
+
     print(tau_vector)
     print(z_vector)
     print(y_vector)
-    print(torch.sqrt(10))
+    
 
     #print((a_vector * b[:, None, None]).shape)

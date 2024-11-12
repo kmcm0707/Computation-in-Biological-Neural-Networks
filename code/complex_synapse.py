@@ -1,4 +1,5 @@
 import math
+import numpy as np
 import torch
 from torch import nn
 from torch.nn import functional
@@ -45,7 +46,7 @@ class ComplexSynapse(nn.Module):
         elif self.mode == 'all_rosenbaum':
             self.update_rules = [True] * 10
         else:
-            if self.options['update_rules'] is not None:
+            if 'update_rules' in self.options:
                 for i in self.options['update_rules']:
                     self.update_rules[i] = True
             else:
@@ -65,20 +66,19 @@ class ComplexSynapse(nn.Module):
         """
         self.K_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)))
         self.P_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device)))
-        self.P_matrix[0,0] = 1e-3
+        self.P_matrix[:,0] = 1e-3
 
         if self.mode == 'rosenbaum' or self.mode == 'all_rosenbaum':
             pass
         else:
-            if self.options['P_matrix'] is not None:
+            if "P_matrix" in self.options:
                 if self.options['P_matrix'] == 'random':
-                    self.P_matrix = nn.Parameter(torch.nn.init.trunc_normal_(torch.empty(size=(self.number_chemicals, 10), device=self.device), mean=0, std=1, a=-1, b=1))
+                    self.P_matrix = nn.Parameter(torch.nn.init.normal_(torch.empty(size=(self.number_chemicals, 10), device=self.device), mean=0, std=1))
 
-            if self.options['K_matrix'] is not None:
+            if "K_matrix" in self.options:
                 if self.options['K_matrix'] == 'random':
-                    self.K_matrix = nn.Parameter(torch.nn.init.normal_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)))
-                    self.K_matrix = self.K_matrix / math.sqrt(self.number_chemicals)
-
+                    self.K_matrix = nn.Parameter(torch.nn.init.normal_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device), mean=0, std=1/np.sqrt(self.number_chemicals)))
+                    
             self.all_meta_parameters.append(self.K_matrix)
 
         self.all_meta_parameters.append(self.P_matrix)
@@ -89,13 +89,14 @@ class ComplexSynapse(nn.Module):
         ## Initialize the chemical time constants
         # z = 1 / \tau
         min_tau = 1
-        max_tau = 30
+        max_tau = 50
         base = max_tau / min_tau
 
         self.tau_vector = min_tau * (base ** torch.linspace(0, 1, self.number_chemicals))
         self.z_vector = 1 / self.tau_vector
         self.y_vector = 1 - self.z_vector
 
+        self.y_vector[0] = 1
         if self.number_chemicals == 1:
             self.y_vector[0] = 1
     

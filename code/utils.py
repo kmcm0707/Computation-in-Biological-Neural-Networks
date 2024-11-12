@@ -249,7 +249,7 @@ def accuracy(logits, label):
     return torch.eq(pred, label).sum().item() / len(label)
 
 
-def meta_stats(logits, params, label, y, Beta, res_dir):
+def meta_stats(logits, params, label, y, Beta, res_dir, save=True):
     """
         Compute meta statistics.
 
@@ -281,7 +281,9 @@ def meta_stats(logits, params, label, y, Beta, res_dir):
         activation = [*y, functional.softmax(logits, dim=0)]
         for i in range(len(activation)-1):
             E1.append((torch.norm(torch.matmul(activation[i], W[i].T)-torch.matmul(torch.matmul(activation[i+1], W[i]), W[i].T)) ** 2).item())
-        log(E1, res_dir + '/E1_meta.txt')
+
+        if save:
+            log(E1, res_dir + '/E1_meta.txt')
 
         e_sym = [e[-1]]
         W = dict({k: v for k, v in params.items() if 'forward' in k})
@@ -292,11 +294,15 @@ def meta_stats(logits, params, label, y, Beta, res_dir):
         e_angl = []
         for e_fix_, e_sym_ in zip(e, e_sym):
             e_angl.append(measure_angle(e_fix_.mean(dim=0), e_sym_.mean(dim=0)))
-        log(e_angl, res_dir + '/e_ang_meta.txt')
+        
+        if save:
+            log(e_angl, res_dir + '/e_ang_meta.txt')
 
         # -- accuracy
         acc = accuracy(logits, label)
-        log([acc], res_dir + '/acc_meta.txt')
+
+        if save:
+            log([acc], res_dir + '/acc_meta.txt')
 
     return acc
 
