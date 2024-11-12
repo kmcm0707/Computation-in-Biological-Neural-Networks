@@ -36,6 +36,12 @@ if __name__ == '__main__':
     print(tau_vector)
     print(z_vector)
     print(y_vector)
+
+    # -- test matrix
+    A = torch.randn((2, 3, 4))
+    signed = torch.sign(A)
+    pos = signed * A
+    print(type(A))
     
 
     #print((a_vector * b[:, None, None]).shape)

@@ -211,9 +211,10 @@ class MetaLearner:
     
     @staticmethod
     @torch.no_grad()
-    def chemical_init(chemicals):
+    def chemical_init(self, chemicals):
         for chemical in chemicals:
             nn.init.xavier_uniform_(chemical, gain=torch.nn.init.calculate_gain('relu'))
+            chemical = chemical / self.numberOfChemicals # TODO: Check if this is correct
 
     def reinitialize(self):
         """
@@ -287,7 +288,9 @@ class MetaLearner:
             y, logits = torch.func.functional_call(self.model, (parameters, h_parameters), x_qry)
 
             # -- L1 regularization
-            l1_reg = torch.norm(self.UpdateWeights.P_matrix, 1)
+            l1_reg = 0
+            for name, param in self.model.UpdateWeights.all_meta_parameters:
+                l1_reg += torch.norm(param, 1)
 
             loss_meta = self.loss_func(logits, y_qry.ravel()) + l1_reg * self.metaLossRegularization
 
@@ -296,8 +299,13 @@ class MetaLearner:
 
             # -- update params
             theta_temp = [theta.detach().clone() for theta in self.UpdateWeights.P_matrix[0, :]]
+            theta_matrix = self.UpdateWeights.P_matrix.detach().clone()
+            K_matrix = self.UpdateWeights.K_matrix.detach().clone()
             K_norm = torch.norm(self.UpdateWeights.K_matrix.detach().clone(), 1)
+            v_matrix = self.UpdateWeights.v_matrix.detach().clone()
             v_values = self.UpdateWeights.v_vector.detach().clone()[0, :]
+
+            # -- backprop
             self.UpdateMetaParameters.zero_grad()
             loss_meta.backward()
 
@@ -331,6 +339,15 @@ class MetaLearner:
 
                 with open(self.result_directory + '/params.txt', 'a') as f:
                     f.writelines(line+'\n')
+
+                with open(self.result_directory + '/K_matrix.text', 'a') as f:
+                    f.writelines('Episode: {}, K_Matrix: {} \n'.format(eps+1, K_matrix))
+                
+                with open(self.result_directory + '/theta_matrix.text', 'a') as f:
+                    f.writelines('Episode: {}, Theta_Matrix: {} \n'.format(eps+1, theta_matrix))
+                
+                with open(self.result_directory + '/v_matrix.text', 'a') as f:
+                    f.writelines('Episode: {}, V_Matrix: {} \n'.format(eps+1, v_matrix))
 
             # -- raytune
             if self.raytune:
@@ -379,8 +396,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing",  
     options['optimizer'] = 'adam'
     options['K_Matrix'] = 'n_random'
     options['P_Matrix'] = 'n_random'
-    options['metaLossRegularization'] = 0.01
+    options['metaLossRegularization'] = 0.0
     options['update_rules'] = [0, 1, 2, 3, 4, 8, 9]
+    options['operator'] = 'sub'
 
     # -- meta-train
     #device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -417,7 +435,7 @@ def main():
     chemicals = [1,3,5] """
 
     # -- run
-    run(1, True, "relu", torch.nn.functional.tanh, 5)
+    run(1, True, "testing", torch.nn.functional.relu, 5)
     """if Args.Pool > 1:
         with Pool(Args.Pool) as P:
             P.starmap(run, zip([0] * Args.Pool, [False]*Args.Pool, results_directory, non_linearity, chemicals))

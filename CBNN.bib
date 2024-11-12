@@ -1,3 +1,18 @@
+@online{ahmad2020,
+  title = {{{GAIT-prop}}: {{A}} Biologically Plausible Learning Rule Derived from Backpropagation of Error},
+  shorttitle = {{{GAIT-prop}}},
+  author = {Ahmad, Nasir and family=Gerven, given=Marcel A. J., prefix=van, useprefix=false and Ambrogioni, Luca},
+  date = {2020-11-05},
+  eprint = {2006.06438},
+  eprinttype = {arXiv},
+  url = {http://arxiv.org/abs/2006.06438},
+  urldate = {2024-11-12},
+  abstract = {Traditional backpropagation of error, though a highly successful algorithm for learning in artificial neural network models, includes features which are biologically implausible for learning in real neural circuits. An alternative called target propagation proposes to solve this implausibility by using a top-down model of neural activity to convert an error at the output of a neural network into layer-wise and plausible 'targets' for every unit. These targets can then be used to produce weight updates for network training. However, thus far, target propagation has been heuristically proposed without demonstrable equivalence to backpropagation. Here, we derive an exact correspondence between backpropagation and a modified form of target propagation (GAIT-prop) where the target is a small perturbation of the forward pass. Specifically, backpropagation and GAIT-prop give identical updates when synaptic weight matrices are orthogonal. In a series of simple computer vision experiments, we show near-identical performance between backpropagation and GAIT-prop with a soft orthogonality-inducing regularizer.},
+  pubstate = {prepublished},
+  keywords = {Computer Science - Machine Learning,Computer Science - Neural and Evolutionary Computing,Statistics - Machine Learning},
+  file = {C\:\\Users\\kmc07\\Zotero\\storage\\8EXS5WIW\\Ahmad et al. - 2020 - GAIT-prop A biologically plausible learning rule derived from backpropagation of error.pdf;C\:\\Users\\kmc07\\Zotero\\storage\\6ZKLIF72\\2006.html}
+}
+
 @article{bengio,
   title = {On the {{Optimization}} of a {{Synaptic Learning Rule}}},
   author = {Bengio, Samy and Bengio, Yoshua and Cloutier, Jocelyn and Gecsei, Jan},
@@ -115,6 +130,23 @@
   file = {C:\Users\kmc07\Zotero\storage\S6TW4RBW\Dayan and Abbott - 2001 - Theoretical neuroscience computational and mathematical modeling of neural systems.pdf}
 }
 
+@inproceedings{hochreiter2001,
+  title = {Learning to {{Learn Using Gradient Descent}}},
+  booktitle = {Artificial {{Neural Networks}} — {{ICANN}} 2001},
+  author = {Hochreiter, Sepp and Younger, A. Steven and Conwell, Peter R.},
+  editor = {Dorffner, Georg and Bischof, Horst and Hornik, Kurt},
+  date = {2001},
+  pages = {87--94},
+  publisher = {Springer},
+  location = {Berlin, Heidelberg},
+  doi = {10.1007/3-540-44668-0_13},
+  abstract = {This paper introduces the application of gradient descent methods to meta-learning. The concept of “meta-learning”, i.e. of a system that improves or discovers a learning algorithm, has been of interest in machine learning for decades because of its appealing applications. Previous meta-learning approaches have been based on evolutionary methods and, therefore, have been restricted to small models with few free parameters. We make meta-learning in large systems feasible by using recurrent neural networks with their attendant learning routines as meta-learning systems. Our system derived complex well performing learning algorithms from scratch. In this paper we also show that our approach performs non-stationary time series prediction.},
+  isbn = {978-3-540-44668-2},
+  langid = {english},
+  keywords = {Boolean Function,Gradient Descent,Hide Layer,Learning Algorithm,Turing Machine},
+  file = {C:\Users\kmc07\Zotero\storage\YAE6ZWU7\Hochreiter et al. - 2001 - Learning to Learn Using Gradient Descent.pdf}
+}
+
 @article{metz2019,
   title = {{{META-LEARNING UPDATE RULES FOR UNSUPER- VISED REPRESENTATION LEARNING}}},
   author = {Metz, Luke and Maheswaranathan, Niru and Cheung, Brian and Sohl-Dickstein, Jascha},
@@ -122,6 +154,20 @@
   abstract = {A major goal of unsupervised learning is to discover data representations that are useful for subsequent tasks, without access to supervised labels during training. Typically, this involves minimizing a surrogate objective, such as the negative log likelihood of a generative model, with the hope that representations useful for subsequent tasks will arise as a side effect. In this work, we propose instead to directly target later desired tasks by meta-learning an unsupervised learning rule which leads to representations useful for those tasks. Specifically, we target semi-supervised classification performance, and we meta-learn an algorithm –an unsupervised weight update rule – that produces representations useful for this task. Additionally, we constrain our unsupervised update rule to a be a biologically-motivated, neuron-local function, which enables it to generalize to different neural network architectures, datasets, and data modalities. We show that the meta-learned update rule produces useful features and sometimes outperforms existing unsupervised learning techniques. We further show that the meta-learned unsupervised update rule generalizes to train networks with different widths, depths, and nonlinearities. It also generalizes to train on data with randomly permuted input dimensions and even generalizes from image datasets to a text task.},
   langid = {english},
   file = {C:\Users\kmc07\Zotero\storage\L86ZJU64\Metz et al. - 2019 - META-LEARNING UPDATE RULES FOR UNSUPER- VISED REPRESENTATION LEARNING.pdf}
+}
+
+@online{sandler2021,
+  title = {Meta-{{Learning Bidirectional Update Rules}}},
+  author = {Sandler, Mark and Vladymyrov, Max and Zhmoginov, Andrey and Miller, Nolan and Jackson, Andrew and Madams, Tom and family=Arcas, given=Blaise Aguera, prefix=y, useprefix=false},
+  date = {2021-06-11},
+  eprint = {2104.04657},
+  eprinttype = {arXiv},
+  url = {http://arxiv.org/abs/2104.04657},
+  urldate = {2024-11-12},
+  abstract = {In this paper, we introduce a new type of generalized neural network where neurons and synapses maintain multiple states. We show that classical gradient-based backpropagation in neural networks can be seen as a special case of a two-state network where one state is used for activations and another for gradients, with update rules derived from the chain rule. In our generalized framework, networks have neither explicit notion of nor ever receive gradients. The synapses and neurons are updated using a bidirectional Hebb-style update rule parameterized by a shared low-dimensional "genome". We show that such genomes can be meta-learned from scratch, using either conventional optimization techniques, or evolutionary strategies, such as CMA-ES. Resulting update rules generalize to unseen tasks and train faster than gradient descent based optimizers for several standard computer vision and synthetic tasks.},
+  pubstate = {prepublished},
+  keywords = {Computer Science - Machine Learning,Computer Science - Neural and Evolutionary Computing},
+  file = {C\:\\Users\\kmc07\\Zotero\\storage\\5DLI3HPT\\Sandler et al. - 2021 - Meta-Learning Bidirectional Update Rules.pdf;C\:\\Users\\kmc07\\Zotero\\storage\\TQ5WGHBF\\2104.html}
 }
 
 @article{shervani-tabar2023,
