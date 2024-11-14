@@ -145,22 +145,21 @@ class ComplexSynapse(nn.Module):
                 chemical = h_parameters[h_name]
                 if parameter.adapt and 'weight' in name:
                     # Equation 1: h(s+1) = yh(s) + zf(Kh(s) + \theta * F(Parameter))
-                    # Equation 1 - operator = sub: h(s+1) = yh(s) + sign(h(s)) * z( f( sign(h(s)) * (Kh(s) + \theta * F(Parameter)) ))
                     # Equation 2: w(s) = v * h(s)
                     update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i)
-                    #unsquezzed_parameter = parameter.unsqueeeze(0)
-                    # self.operator = torch.add or torch.sub
                     new_chemical = None
                     if self.operator == "add":
                         new_chemical = torch.einsum('i,ijk->ijk',self.y_vector, chemical) + \
                                         torch.einsum('i,ijk->ijk', self.z_vector, self.non_linearity(torch.einsum('ic,ijk->cjk', self.K_matrix, chemical) + \
                                                         torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector)))
                     elif self.operator == "sub":
+                        # Equation 1 - operator = sub: h(s+1) = yh(s) + sign(h(s)) * z( f( sign(h(s)) * (Kh(s) + \theta * F(Parameter)) ))
                         new_chemical = torch.einsum('i,ijk->ijk',self.y_vector, chemical) + \
                                         torch.sign(chemical) * torch.einsum('i,ijk->ijk', self.z_vector, self.non_linearity(torch.sign(chemical) * (\
                                                     torch.einsum('ic,ijk->cjk', self.K_matrix, chemical) + \
                                                         torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector))))
                     elif self.operator == "mode_2":
+                        # Equation 1: h(s+1) = yh(s) + zf(K(z(*)h(s)) + \theta * F(Parameter))
                         new_chemical = torch.einsum('i,ijk->ijk',self.y_vector, chemical) + \
                                         torch.einsum('i,ijk->ijk', self.z_vector, self.non_linearity(torch.einsum('ci,ijk->cjk', self.K_matrix, self.z_vector * chemical) + \
                                                         torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector)))
