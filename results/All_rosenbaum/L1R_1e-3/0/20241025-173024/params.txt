@@ -1,2 +1,0 @@
-Train Episode: 1	Loss: 3.824850	Accuracy: 0.000	MetaParam_1: 0.001000	MetaParam_2: 0.000000	MetaParam_3: 0.000000	MetaParam_4: 0.000000	MetaParam_5: 0.000000	MetaParam_6: 0.000000	MetaParam_7: 0.000000	MetaParam_8: 0.000000	MetaParam_9: 0.000000	MetaParam_10: 0.000000
-Train Episode: 2	Loss: 1.804902	Accuracy: 0.280	MetaParam_1: 0.002000	MetaParam_2: 0.001000	MetaParam_3: -0.001000	MetaParam_4: -0.001000	MetaParam_5: 0.001000	MetaParam_6: 0.000000	MetaParam_7: 0.000000	MetaParam_8: 0.000000	MetaParam_9: 0.001000	MetaParam_10: 0.001000

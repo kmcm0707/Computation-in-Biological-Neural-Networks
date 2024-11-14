@@ -71,13 +71,14 @@ class ComplexSynapse(nn.Module):
         if self.mode == 'rosenbaum' or self.mode == 'all_rosenbaum':
             pass
         else:
-            if "P_matrix" in self.options:
-                if self.options['P_matrix'] == 'random':
-                    self.P_matrix = nn.Parameter(torch.nn.init.normal_(torch.empty(size=(self.number_chemicals, 10), device=self.device), mean=0, std=1))
+            if "P_Matrix" in self.options:
+                if self.options['P_Matrix'] == 'random':
+                    self.P_matrix = nn.Parameter(torch.nn.init.normal_(torch.empty(size=(self.number_chemicals, 10), device=self.device), mean=0, std=0.01))
+                    self.P_matrix[:,0] = torch.abs_(self.P_matrix[:,0])
 
-            if "K_matrix" in self.options:
-                if self.options['K_matrix'] == 'random':
-                    self.K_matrix = nn.Parameter(torch.nn.init.normal_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device), mean=0, std=1/np.sqrt(self.number_chemicals)))
+            if "K_Matrix" in self.options:
+                if self.options['K_Matrix'] == 'random':
+                    self.K_matrix = nn.Parameter(torch.nn.init.normal_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device), mean=0, std=0.01/np.sqrt(self.number_chemicals)))
                     
             self.all_meta_parameters.append(self.K_matrix)
 
@@ -111,12 +112,11 @@ class ComplexSynapse(nn.Module):
             if self.options['operator'] == "sub":
                 self.operator = "sub"
 
-        self.oja_minus_parameter = nn.Parameter(torch.ones(size=1, device=self.device))
+        self.oja_minus_parameter = nn.Parameter(torch.tensor(1, device=self.device).float())
         if 'oja_minus_parameter' in self.options:
-            self.all_meta_parameters.append(self.oja_minus_parameter)
+            if self.options['oja_minus_parameter'] == True:
+                self.all_meta_parameters.append(self.oja_minus_parameter)
 
-
-                
     def __call__(self, activations: list, output: torch.Tensor, label: torch.Tensor, params: dict, h_parameters: dict, beta: int):
         """
         :param activations: (list) model activations,
@@ -127,12 +127,16 @@ class ComplexSynapse(nn.Module):
         :param beta: (int) smoothness coefficient for non-linearity,
         """
 
+
         feedback = {name: value for name, value in params.items() if 'feedback' in name}
         error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=47)]
         # add the error for all the layers
         for y, i in zip(reversed(activations), reversed(list(feedback))):
             error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-beta * y)))
         activations_and_output = [*activations, functional.softmax(output, dim=1)]
+
+        """for i in range(len(activations_and_output)):
+            activations_and_output[i] = activations_and_output[i] / torch.norm(activations_and_output[i], p=2)"""
 
         i = 0
         for name, parameter in params.items():
@@ -151,11 +155,17 @@ class ComplexSynapse(nn.Module):
                         new_chemical = torch.einsum('i,ijk->ijk',self.y_vector, chemical) + \
                                         torch.einsum('i,ijk->ijk', self.z_vector, self.non_linearity(torch.einsum('ic,ijk->cjk', self.K_matrix, chemical) + \
                                                         torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector)))
-                    else:
+                    elif self.operator == "sub":
                         new_chemical = torch.einsum('i,ijk->ijk',self.y_vector, chemical) + \
                                         torch.sign(chemical) * torch.einsum('i,ijk->ijk', self.z_vector, self.non_linearity(torch.sign(chemical) * (\
                                                     torch.einsum('ic,ijk->cjk', self.K_matrix, chemical) + \
                                                         torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector))))
+                    elif self.operator == "mode_2":
+                        new_chemical = torch.einsum('i,ijk->ijk',self.y_vector, chemical) + \
+                                        torch.einsum('i,ijk->ijk', self.z_vector, self.non_linearity(torch.einsum('ci,ijk->cjk', self.K_matrix, self.z_vector * chemical) + \
+                                                        torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector)))
+                    else:
+                        raise ValueError("Invalid operator")
 
                     h_parameters[h_name] = new_chemical
                     new_value = torch.einsum('ci,ijk->cjk', self.v_vector, h_parameters[h_name]).squeeze(0)

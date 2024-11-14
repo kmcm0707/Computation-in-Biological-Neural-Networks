@@ -1,0 +1,1 @@
+Results where non-linearity was outside the weight update function. 
