@@ -158,6 +158,7 @@ class ComplexSynapse(nn.Module):
                                         torch.sign(chemical) * torch.einsum('i,ijk->ijk', self.z_vector, self.non_linearity(torch.sign(chemical) * (\
                                                     torch.einsum('ic,ijk->cjk', self.K_matrix, chemical) + \
                                                         torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector))))
+                        # TODO: Change h(s) in sign to parameter
                     elif self.operator == "mode_2":
                         # Equation 1: h(s+1) = yh(s) + zf(K(z(*)h(s)) + \theta * F(Parameter))
                         new_chemical = torch.einsum('i,ijk->ijk',self.y_vector, chemical) + \
