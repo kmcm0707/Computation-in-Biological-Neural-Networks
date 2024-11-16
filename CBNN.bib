@@ -1,4 +1,4 @@
-@online{ahmad2020,
+@online{ahmadGAITpropBiologicallyPlausible2020,
   title = {{{GAIT-prop}}: {{A}} Biologically Plausible Learning Rule Derived from Backpropagation of Error},
   shorttitle = {{{GAIT-prop}}},
   author = {Ahmad, Nasir and family=Gerven, given=Marcel A. J., prefix=van, useprefix=false and Ambrogioni, Luca},
@@ -10,17 +10,39 @@
   abstract = {Traditional backpropagation of error, though a highly successful algorithm for learning in artificial neural network models, includes features which are biologically implausible for learning in real neural circuits. An alternative called target propagation proposes to solve this implausibility by using a top-down model of neural activity to convert an error at the output of a neural network into layer-wise and plausible 'targets' for every unit. These targets can then be used to produce weight updates for network training. However, thus far, target propagation has been heuristically proposed without demonstrable equivalence to backpropagation. Here, we derive an exact correspondence between backpropagation and a modified form of target propagation (GAIT-prop) where the target is a small perturbation of the forward pass. Specifically, backpropagation and GAIT-prop give identical updates when synaptic weight matrices are orthogonal. In a series of simple computer vision experiments, we show near-identical performance between backpropagation and GAIT-prop with a soft orthogonality-inducing regularizer.},
   pubstate = {prepublished},
   keywords = {Computer Science - Machine Learning,Computer Science - Neural and Evolutionary Computing,Statistics - Machine Learning},
-  file = {C\:\\Users\\kmc07\\Zotero\\storage\\8EXS5WIW\\Ahmad et al. - 2020 - GAIT-prop A biologically plausible learning rule derived from backpropagation of error.pdf;C\:\\Users\\kmc07\\Zotero\\storage\\6ZKLIF72\\2006.html}
+  file = {C\:\\Users\\Kyle\\Zotero\\storage\\8EXS5WIW\\Ahmad et al. - 2020 - GAIT-prop A biologically plausible learning rule derived from backpropagation of error.pdf;C\:\\Users\\Kyle\\Zotero\\storage\\6ZKLIF72\\2006.html}
 }
 
-@article{bengio,
-  title = {On the {{Optimization}} of a {{Synaptic Learning Rule}}},
-  author = {Bengio, Samy and Bengio, Yoshua and Cloutier, Jocelyn and Gecsei, Jan},
-  langid = {english},
-  file = {C:\Users\kmc07\Zotero\storage\4SMDED63\Bengio et al. - On the Optimization of a Synaptic Learning Rule.pdf}
+@inproceedings{bengioGreedyLayerWiseTraining2006,
+  title = {Greedy {{Layer-Wise Training}} of {{Deep Networks}}},
+  booktitle = {Advances in {{Neural Information Processing Systems}}},
+  author = {Bengio, Yoshua and Lamblin, Pascal and Popovici, Dan and Larochelle, Hugo},
+  date = {2006},
+  volume = {19},
+  publisher = {MIT Press},
+  url = {https://proceedings.neurips.cc/paper_files/paper/2006/hash/5da713a690c067105aeb2fae32403405-Abstract.html},
+  urldate = {2024-10-10},
+  abstract = {Recent analyses (Bengio, Delalleau, \& Le Roux, 2006; Bengio \& Le Cun, 2007) of modern nonparametric machine learning algorithms that are kernel machines, such as Support Vector Machines (SVMs), graph-based manifold and semi-supervised learning algorithms suggest fundamental limitations of some learning algorithms. The problem is clear in kernel-based approaches when the kernel is "local" (e.g., the Gaussian kernel), i.e., K (x, y ) converges to a constant when ||x - y || increases. These analyses point to the difficulty of learning "highly-varying functions", i.e., functions that have a large number of "variations" in the domain of interest, e.g., they would require a large number of pieces to be well represented by a piecewise-linear approximation. Since the number of pieces can be made to grow exponentially with the number of factors of variations in the input, this is connected with the well-known curse of dimensionality for classical non-parametric learning algorithms (for regression, classification and density estimation). If the shapes of all these pieces are unrelated, one needs enough examples for each piece in order to generalize properly. However, if these shapes are related and can be predicted from each other, "non-local" learning algorithms have the potential to generalize to pieces not covered by the training set. Such ability would seem necessary for learning in complex domains such as Artificial Intelligence tasks (e.g., related to vision, language, speech, robotics). Kernel machines (not only those with a local kernel) have a shallow architecture, i.e., only two levels of data-dependent computational elements. This is also true of feedforward neural networks with a single hidden layer (which can become SVMs when the number of hidden units becomes large (Bengio, Le Roux, Vincent, Delalleau, \& Marcotte, 2006)). A serious problem with shallow architectures is that they can be very inefficient in terms of the number of computational units (e.g., bases, hidden units), and thus in terms of required examples (Bengio \& Le Cun, 2007). One way to represent a highly-varying function compactly (with few parameters) is through the composition of many non-linearities, i.e., with a deep architecture. For example, the parity function with d inputs requires O(2d ) examples and parameters to be represented by a Gaussian SVM (Bengio et al., 2006), O(d2 ) parameters for a one-hidden-layer neural network, O(d) parameters and units for a multi-layer network with O(log2 d) layers, and O(1) parameters with a recurrent neural network. More generally,},
+  file = {C:\Users\Kyle\Zotero\storage\RAEBBY6W\Bengio et al. - 2006 - Greedy Layer-Wise Training of Deep Networks.pdf}
 }
 
-@inproceedings{bengio1991,
+@inproceedings{bengioLearningSynapticLearning1991,
+  title = {Learning a Synaptic Learning Rule},
+  booktitle = {{{IJCNN-91-Seattle International Joint Conference}} on {{Neural Networks}}},
+  author = {Bengio, Y. and Bengio, S. and Cloutier, J.},
+  date = {1991-07},
+  volume = {ii},
+  pages = {969 vol.2-},
+  doi = {10.1109/IJCNN.1991.155621},
+  url = {https://ieeexplore.ieee.org/document/155621},
+  urldate = {2024-10-18},
+  abstract = {Summary form only given, as follows. The authors discuss an original approach to neural modeling based on the idea of searching, with learning methods, for a synaptic learning rule which is biologically plausible and yields networks that are able to learn to perform difficult tasks. The proposed method of automatically finding the learning rule relies on the idea of considering the synaptic modification rule as a parametric function. This function has local inputs and is the same in many neurons. The parameters that define this function can be estimated with known learning methods. For this optimization, particular attention is given to gradient descent and genetic algorithms. In both cases, estimation of this function consists of a joint global optimization of the synaptic modification function and the networks that are learning to perform some tasks. Both network architecture and the learning function can be designed within constraints derived from biological knowledge.{$<>$}},
+  eventtitle = {{{IJCNN-91-Seattle International Joint Conference}} on {{Neural Networks}}},
+  keywords = {Biological system modeling,Biology,Computer science,Genetic algorithms,Learning systems,Neurons},
+  file = {C\:\\Users\\Kyle\\Zotero\\storage\\JZ6EYSBC\\Bengio et al. - 1991 - Learning a synaptic learning rule.pdf;C\:\\Users\\Kyle\\Zotero\\storage\\JLDA4IE5\\155621.html}
+}
+
+@inproceedings{bengioLearningSynapticLearning1991a,
   title = {Learning a Synaptic Learning Rule},
   booktitle = {{{IJCNN-91-Seattle International Joint Conference}} on {{Neural Networks}}},
   author = {Bengio, Y. and Bengio, S. and Cloutier, J.},
@@ -35,26 +57,17 @@
   eventtitle = {1991-{{Seattle International Joint Conference}} on {{Neural Networks}}},
   isbn = {978-0-7803-0164-1},
   langid = {english},
-  file = {C:\Users\kmc07\Zotero\storage\AXCLBLYX\Bengio et al. - 1991 - Learning a synaptic learning rule.pdf}
+  file = {C:\Users\Kyle\Zotero\storage\AXCLBLYX\Bengio et al. - 1991 - Learning a synaptic learning rule.pdf}
 }
 
-@inproceedings{bengio1991a,
-  title = {Learning a Synaptic Learning Rule},
-  booktitle = {{{IJCNN-91-Seattle International Joint Conference}} on {{Neural Networks}}},
-  author = {Bengio, Y. and Bengio, S. and Cloutier, J.},
-  date = {1991-07},
-  volume = {ii},
-  pages = {969 vol.2-},
-  doi = {10.1109/IJCNN.1991.155621},
-  url = {https://ieeexplore.ieee.org/document/155621},
-  urldate = {2024-10-18},
-  abstract = {Summary form only given, as follows. The authors discuss an original approach to neural modeling based on the idea of searching, with learning methods, for a synaptic learning rule which is biologically plausible and yields networks that are able to learn to perform difficult tasks. The proposed method of automatically finding the learning rule relies on the idea of considering the synaptic modification rule as a parametric function. This function has local inputs and is the same in many neurons. The parameters that define this function can be estimated with known learning methods. For this optimization, particular attention is given to gradient descent and genetic algorithms. In both cases, estimation of this function consists of a joint global optimization of the synaptic modification function and the networks that are learning to perform some tasks. Both network architecture and the learning function can be designed within constraints derived from biological knowledge.{$<>$}},
-  eventtitle = {{{IJCNN-91-Seattle International Joint Conference}} on {{Neural Networks}}},
-  keywords = {Biological system modeling,Biology,Computer science,Genetic algorithms,Learning systems,Neurons},
-  file = {C\:\\Users\\kmc07\\Zotero\\storage\\JZ6EYSBC\\Bengio et al. - 1991 - Learning a synaptic learning rule.pdf;C\:\\Users\\kmc07\\Zotero\\storage\\JLDA4IE5\\155621.html}
+@article{bengioOptimizationSynapticLearning,
+  title = {On the {{Optimization}} of a {{Synaptic Learning Rule}}},
+  author = {Bengio, Samy and Bengio, Yoshua and Cloutier, Jocelyn and Gecsei, Jan},
+  langid = {english},
+  file = {C:\Users\Kyle\Zotero\storage\4SMDED63\Bengio et al. - On the Optimization of a Synaptic Learning Rule.pdf}
 }
 
-@inproceedings{bengio1994,
+@inproceedings{bengioUseGeneticProgramming1994,
   title = {Use of Genetic Programming for the Search of a New Learning Rule for Neural Networks},
   booktitle = {Proceedings of the {{First IEEE Conference}} on {{Evolutionary Computation}}. {{IEEE World Congress}} on {{Computational Intelligence}}},
   author = {Bengio, S. and Bengio, Y. and Cloutier, J.},
@@ -66,23 +79,10 @@
   abstract = {In previous work we explained how to use standard optimization methods such as simulated annealing, gradient descent and genetic algorithms to optimize a parametric function which could be used as a learning rule for neural networks. To use these methods, we had to choose a fixed number of parameters and a rigid form for the learning rule. In this article, we propose to use genetic programming to find not only the values of rule parameters but also the optimal number of parameters and the form of the rule. Experiments on classification tasks suggest genetic programming finds better learning rules than other optimization methods. Furthermore, the best rule found with genetic programming outperformed the well-known backpropagation algorithm for a given set of tasks.{$<>$}},
   eventtitle = {Proceedings of the {{First IEEE Conference}} on {{Evolutionary Computation}}. {{IEEE World Congress}} on {{Computational Intelligence}}},
   keywords = {Backpropagation algorithms,Biological system modeling,Design optimization,Genetic algorithms,Genetic programming,Learning systems,Neural networks,Neurons,Optimization methods,Simulated annealing},
-  file = {C\:\\Users\\kmc07\\Zotero\\storage\\Y83VM8RA\\Bengio et al. - 1994 - Use of genetic programming for the search of a new learning rule for neural networks.pdf;C\:\\Users\\kmc07\\Zotero\\storage\\48L99IW7\\349932.html}
+  file = {C\:\\Users\\Kyle\\Zotero\\storage\\Y83VM8RA\\Bengio et al. - 1994 - Use of genetic programming for the search of a new learning rule for neural networks.pdf;C\:\\Users\\Kyle\\Zotero\\storage\\48L99IW7\\349932.html}
 }
 
-@inproceedings{bengio2006,
-  title = {Greedy {{Layer-Wise Training}} of {{Deep Networks}}},
-  booktitle = {Advances in {{Neural Information Processing Systems}}},
-  author = {Bengio, Yoshua and Lamblin, Pascal and Popovici, Dan and Larochelle, Hugo},
-  date = {2006},
-  volume = {19},
-  publisher = {MIT Press},
-  url = {https://proceedings.neurips.cc/paper_files/paper/2006/hash/5da713a690c067105aeb2fae32403405-Abstract.html},
-  urldate = {2024-10-10},
-  abstract = {Recent analyses (Bengio, Delalleau, \& Le Roux, 2006; Bengio \& Le Cun, 2007) of modern nonparametric machine learning algorithms that are kernel machines, such as Support Vector Machines (SVMs), graph-based manifold and semi-supervised learning algorithms suggest fundamental limitations of some learning algorithms. The problem is clear in kernel-based approaches when the kernel is "local" (e.g., the Gaussian kernel), i.e., K (x, y ) converges to a constant when ||x - y || increases. These analyses point to the difficulty of learning "highly-varying functions", i.e., functions that have a large number of "variations" in the domain of interest, e.g., they would require a large number of pieces to be well represented by a piecewise-linear approximation. Since the number of pieces can be made to grow exponentially with the number of factors of variations in the input, this is connected with the well-known curse of dimensionality for classical non-parametric learning algorithms (for regression, classification and density estimation). If the shapes of all these pieces are unrelated, one needs enough examples for each piece in order to generalize properly. However, if these shapes are related and can be predicted from each other, "non-local" learning algorithms have the potential to generalize to pieces not covered by the training set. Such ability would seem necessary for learning in complex domains such as Artificial Intelligence tasks (e.g., related to vision, language, speech, robotics). Kernel machines (not only those with a local kernel) have a shallow architecture, i.e., only two levels of data-dependent computational elements. This is also true of feedforward neural networks with a single hidden layer (which can become SVMs when the number of hidden units becomes large (Bengio, Le Roux, Vincent, Delalleau, \& Marcotte, 2006)). A serious problem with shallow architectures is that they can be very inefficient in terms of the number of computational units (e.g., bases, hidden units), and thus in terms of required examples (Bengio \& Le Cun, 2007). One way to represent a highly-varying function compactly (with few parameters) is through the composition of many non-linearities, i.e., with a deep architecture. For example, the parity function with d inputs requires O(2d ) examples and parameters to be represented by a Gaussian SVM (Bengio et al., 2006), O(d2 ) parameters for a one-hidden-layer neural network, O(d) parameters and units for a multi-layer network with O(log2 d) layers, and O(1) parameters with a recurrent neural network. More generally,},
-  file = {C:\Users\kmc07\Zotero\storage\RAEBBY6W\Bengio et al. - 2006 - Greedy Layer-Wise Training of Deep Networks.pdf}
-}
-
-@article{benna2016a,
+@article{bennaComputationalPrinciplesSynaptic2016,
   title = {Computational Principles of Synaptic Memory Consolidation},
   author = {Benna, Marcus K. and Fusi, Stefano},
   date = {2016-12},
@@ -99,10 +99,10 @@
   abstract = {The biological mechanisms underlying memory are complex and typically involve multiple molecular processes operating on timescales ranging from fractions of a second to years. The authors show using a mathematical model of synaptic plasticity and consolidation that this complexity can help explain the formidable memory capacity of biological systems.},
   langid = {english},
   keywords = {Consolidation,Long-term memory},
-  file = {C:\Users\kmc07\Zotero\storage\DJIUDPI3\Benna and Fusi - 2016 - Computational principles of synaptic memory consolidation.pdf}
+  file = {C:\Users\Kyle\Zotero\storage\DJIUDPI3\Benna and Fusi - 2016 - Computational principles of synaptic memory consolidation.pdf}
 }
 
-@online{brannvall2023,
+@online{brannvallReLUAdditionbasedGated2023,
   title = {{{ReLU}} and {{Addition-based Gated RNN}}},
   author = {Brännvall, Rickard and Forsgren, Henrik and Sandin, Fredrik and Liwicki, Marcus},
   date = {2023-08-10},
@@ -113,10 +113,10 @@
   abstract = {We replace the multiplication and sigmoid function of the conventional recurrent gate with addition and ReLU activation. This mechanism is designed to maintain long-term memory for sequence processing but at a reduced computational cost, thereby opening up for more efficient execution or larger models on restricted hardware. Recurrent Neural Networks (RNNs) with gating mechanisms such as LSTM and GRU have been widely successful in learning from sequential data due to their ability to capture long-term dependencies. Conventionally, the update based on current inputs and the previous state history is each multiplied with dynamic weights and combined to compute the next state. However, multiplication can be computationally expensive, especially for certain hardware architectures or alternative arithmetic systems such as homomorphic encryption. It is demonstrated that the novel gating mechanism can capture long-term dependencies for a standard synthetic sequence learning task while significantly reducing computational costs such that execution time is reduced by half on CPU and by one-third under encryption. Experimental results on handwritten text recognition tasks furthermore show that the proposed architecture can be trained to achieve comparable accuracy to conventional GRU and LSTM baselines. The gating mechanism introduced in this paper may enable privacy-preserving AI applications operating under homomorphic encryption by avoiding the multiplication of encrypted variables. It can also support quantization in (unencrypted) plaintext applications, with the potential for substantial performance gains since the addition-based formulation can avoid the expansion to double precision often required for multiplication.},
   pubstate = {prepublished},
   keywords = {Computer Science - Machine Learning},
-  file = {C\:\\Users\\kmc07\\Zotero\\storage\\VEAWR2GX\\Brännvall et al. - 2023 - ReLU and Addition-based Gated RNN.pdf;C\:\\Users\\kmc07\\Zotero\\storage\\3XP4LZN6\\2308.html}
+  file = {C\:\\Users\\Kyle\\Zotero\\storage\\VEAWR2GX\\Brännvall et al. - 2023 - ReLU and Addition-based Gated RNN.pdf;C\:\\Users\\Kyle\\Zotero\\storage\\3XP4LZN6\\2308.html}
 }
 
-@inproceedings{confavreux2020,
+@inproceedings{confavreuxMetalearningApproachRediscover2020,
   title = {A Meta-Learning Approach to (Re)Discover Plasticity Rules That Carve a Desired Function into a Neural Network},
   booktitle = {Advances in {{Neural Information Processing Systems}}},
   author = {Confavreux, Basile and Zenke, Friedemann and Agnes, Everton and Lillicrap, Timothy and Vogels, Tim},
@@ -127,10 +127,10 @@
   url = {https://proceedings.neurips.cc/paper/2020/hash/bdbd5ebfde4934142c8a88e7a3796cd5-Abstract.html},
   urldate = {2024-10-18},
   abstract = {The search for biologically faithful synaptic plasticity rules has resulted in a large body of models. They are usually inspired by -- and fitted to -- experimental data, but they rarely produce neural dynamics that serve complex functions. These failures suggest that current plasticity models are still under-constrained by existing data. Here, we present an alternative approach that uses meta-learning to discover plausible synaptic plasticity rules. Instead of experimental data, the rules are constrained by the functions they implement and the structure they are meant to produce. Briefly, we parameterize synaptic plasticity rules by a Volterra expansion and then use supervised learning methods (gradient descent or evolutionary strategies) to minimize a problem-dependent loss function that quantifies how effectively a candidate plasticity rule transforms an initially random network into one with the desired function. We first validate our approach by re-discovering previously described plasticity rules, starting at the single-neuron level and Oja’s rule'', a simple Hebbian plasticity rule that captures the direction of most variability of inputs to a neuron (i.e., the first principal component). We expand the problem to the network level and ask the framework to find Oja’s rule together with an anti-Hebbian rule such that an initially random two-layer firing-rate network will recover several principal components of the input space after learning. Next, we move to networks of integrate-and-fire neurons with plastic inhibitory afferents. We train for rules that achieve a target firing rate by countering tuned excitation. Our algorithm discovers a specific subset of the manifold of rules that can solve this task. Our work is a proof of principle of an automated and unbiased approach to unveil synaptic plasticity rules that obey biological constraints and can solve complex functions.},
-  file = {C:\Users\kmc07\Zotero\storage\7H328YRP\Confavreux et al. - 2020 - A meta-learning approach to (re)discover plasticity rules that carve a desired function into a neura.pdf}
+  file = {C:\Users\Kyle\Zotero\storage\7H328YRP\Confavreux et al. - 2020 - A meta-learning approach to (re)discover plasticity rules that carve a desired function into a neura.pdf}
 }
 
-@book{dayan2001,
+@book{dayanTheoreticalNeuroscienceComputational2001,
   title = {Theoretical Neuroscience: Computational and Mathematical Modeling of Neural Systems},
   shorttitle = {Theoretical Neuroscience},
   author = {Dayan, Peter and Abbott, L. F.},
@@ -141,10 +141,10 @@
   isbn = {978-0-262-04199-7},
   langid = {english},
   pagetotal = {460},
-  file = {C:\Users\kmc07\Zotero\storage\S6TW4RBW\Dayan and Abbott - 2001 - Theoretical neuroscience computational and mathematical modeling of neural systems.pdf}
+  file = {C:\Users\Kyle\Zotero\storage\S6TW4RBW\Dayan and Abbott - 2001 - Theoretical neuroscience computational and mathematical modeling of neural systems.pdf}
 }
 
-@inproceedings{hochreiter2001,
+@inproceedings{hochreiterLearningLearnUsing2001,
   title = {Learning to {{Learn Using Gradient Descent}}},
   booktitle = {Artificial {{Neural Networks}} — {{ICANN}} 2001},
   author = {Hochreiter, Sepp and Younger, A. Steven and Conwell, Peter R.},
@@ -158,19 +158,19 @@
   isbn = {978-3-540-44668-2},
   langid = {english},
   keywords = {Boolean Function,Gradient Descent,Hide Layer,Learning Algorithm,Turing Machine},
-  file = {C:\Users\kmc07\Zotero\storage\YAE6ZWU7\Hochreiter et al. - 2001 - Learning to Learn Using Gradient Descent.pdf}
+  file = {C:\Users\Kyle\Zotero\storage\YAE6ZWU7\Hochreiter et al. - 2001 - Learning to Learn Using Gradient Descent.pdf}
 }
 
-@article{metz2019,
+@article{metzMETALEARNINGUPDATERULES2019,
   title = {{{META-LEARNING UPDATE RULES FOR UNSUPER- VISED REPRESENTATION LEARNING}}},
   author = {Metz, Luke and Maheswaranathan, Niru and Cheung, Brian and Sohl-Dickstein, Jascha},
   date = {2019},
   abstract = {A major goal of unsupervised learning is to discover data representations that are useful for subsequent tasks, without access to supervised labels during training. Typically, this involves minimizing a surrogate objective, such as the negative log likelihood of a generative model, with the hope that representations useful for subsequent tasks will arise as a side effect. In this work, we propose instead to directly target later desired tasks by meta-learning an unsupervised learning rule which leads to representations useful for those tasks. Specifically, we target semi-supervised classification performance, and we meta-learn an algorithm –an unsupervised weight update rule – that produces representations useful for this task. Additionally, we constrain our unsupervised update rule to a be a biologically-motivated, neuron-local function, which enables it to generalize to different neural network architectures, datasets, and data modalities. We show that the meta-learned update rule produces useful features and sometimes outperforms existing unsupervised learning techniques. We further show that the meta-learned unsupervised update rule generalizes to train networks with different widths, depths, and nonlinearities. It also generalizes to train on data with randomly permuted input dimensions and even generalizes from image datasets to a text task.},
   langid = {english},
-  file = {C:\Users\kmc07\Zotero\storage\L86ZJU64\Metz et al. - 2019 - META-LEARNING UPDATE RULES FOR UNSUPER- VISED REPRESENTATION LEARNING.pdf}
+  file = {C:\Users\Kyle\Zotero\storage\L86ZJU64\Metz et al. - 2019 - META-LEARNING UPDATE RULES FOR UNSUPER- VISED REPRESENTATION LEARNING.pdf}
 }
 
-@online{sandler2021,
+@online{sandlerMetaLearningBidirectionalUpdate2021,
   title = {Meta-{{Learning Bidirectional Update Rules}}},
   author = {Sandler, Mark and Vladymyrov, Max and Zhmoginov, Andrey and Miller, Nolan and Jackson, Andrew and Madams, Tom and family=Arcas, given=Blaise Aguera, prefix=y, useprefix=false},
   date = {2021-06-11},
@@ -181,10 +181,10 @@
   abstract = {In this paper, we introduce a new type of generalized neural network where neurons and synapses maintain multiple states. We show that classical gradient-based backpropagation in neural networks can be seen as a special case of a two-state network where one state is used for activations and another for gradients, with update rules derived from the chain rule. In our generalized framework, networks have neither explicit notion of nor ever receive gradients. The synapses and neurons are updated using a bidirectional Hebb-style update rule parameterized by a shared low-dimensional "genome". We show that such genomes can be meta-learned from scratch, using either conventional optimization techniques, or evolutionary strategies, such as CMA-ES. Resulting update rules generalize to unseen tasks and train faster than gradient descent based optimizers for several standard computer vision and synthetic tasks.},
   pubstate = {prepublished},
   keywords = {Computer Science - Machine Learning,Computer Science - Neural and Evolutionary Computing},
-  file = {C\:\\Users\\kmc07\\Zotero\\storage\\5DLI3HPT\\Sandler et al. - 2021 - Meta-Learning Bidirectional Update Rules.pdf;C\:\\Users\\kmc07\\Zotero\\storage\\TQ5WGHBF\\2104.html}
+  file = {C\:\\Users\\Kyle\\Zotero\\storage\\5DLI3HPT\\Sandler et al. - 2021 - Meta-Learning Bidirectional Update Rules.pdf;C\:\\Users\\Kyle\\Zotero\\storage\\TQ5WGHBF\\2104.html}
 }
 
-@article{shervani-tabar2023,
+@article{shervani-tabarMetalearningBiologicallyPlausible2023,
   title = {Meta-Learning Biologically Plausible Plasticity Rules with Random Feedback Pathways},
   author = {Shervani-Tabar, Navid and Rosenbaum, Robert},
   date = {2023-03-31},
@@ -201,5 +201,5 @@
   abstract = {Backpropagation is widely used to train artificial neural networks, but its relationship to synaptic plasticity in the brain is unknown. Some biological models of backpropagation rely on feedback projections that are symmetric with feedforward connections, but experiments do not corroborate the existence of such symmetric backward connectivity. Random feedback alignment offers an alternative model in which errors are propagated backward through fixed, random backward connections. This approach successfully trains shallow models, but learns slowly and does not perform well with deeper models or online learning. In this study, we develop a meta-learning approach to discover interpretable, biologically plausible plasticity rules that improve online learning performance with fixed random feedback connections. The resulting plasticity rules show improved online training of deep models in the low data regime. Our results highlight the potential of meta-learning to discover effective, interpretable learning rules satisfying biological constraints.},
   langid = {english},
   keywords = {Computational science,Learning algorithms},
-  file = {C:\Users\kmc07\Zotero\storage\E6MFRN9F\Shervani-Tabar and Rosenbaum - 2023 - Meta-learning biologically plausible plasticity rules with random feedback pathways.pdf}
+  file = {C:\Users\Kyle\Zotero\storage\E6MFRN9F\Shervani-Tabar and Rosenbaum - 2023 - Meta-learning biologically plausible plasticity rules with random feedback pathways.pdf}
 }

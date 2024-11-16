@@ -316,7 +316,7 @@ class MetaLearner:
             theta_temp = [theta.detach().clone() for theta in self.UpdateWeights.P_matrix[0, :]]
             theta_matrix = self.UpdateWeights.P_matrix.detach().clone()
             K_matrix = self.UpdateWeights.K_matrix.detach().clone()
-            K_norm = torch.norm(self.UpdateWeights.K_matrix.detach().clone(), 1)
+            K_norm = torch.linalg.matrix_norm(K_matrix.detach().clone(), ord=2)
             v_vector = self.UpdateWeights.v_vector.detach().clone()
             v_values = self.UpdateWeights.v_vector.detach().clone()[0, :]
             oja_minus = self.UpdateWeights.oja_minus_parameter.detach().clone()
@@ -413,7 +413,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing",  
     options['lr'] = 4e-3
     options['optimizer'] = 'adam'
     options['K_Matrix'] = 'n_random'
-    options['P_Matrix'] = 'n_random'
+    options['P_Matrix'] = 'rosenbaum'
     options['metaLossRegularization'] = 0.0
     options['update_rules'] = [0, 1, 2, 3, 4, 8, 9]
     options['operator'] = 'mode_2'

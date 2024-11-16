@@ -75,6 +75,11 @@ class ComplexSynapse(nn.Module):
                 if self.options['P_Matrix'] == 'random':
                     self.P_matrix = nn.Parameter(torch.nn.init.normal_(torch.empty(size=(self.number_chemicals, 10), device=self.device), mean=0, std=0.01))
                     self.P_matrix[:,0] = torch.abs_(self.P_matrix[:,0])
+                elif self.options['P_Matrix'] == 'rosenbaum':
+                    self.P_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device)))
+                    self.P_matrix[:,0] = 0.01
+                    self.P_matrix[:,2] = -0.01
+                    self.P_matrix[:,9] = 0.001
 
             if "K_Matrix" in self.options:
                 if self.options['K_Matrix'] == 'random':
@@ -126,7 +131,6 @@ class ComplexSynapse(nn.Module):
         :param h_parameters: (dict) model chemicals - dimension L x (W_1, W_2) (per parameter),
         :param beta: (int) smoothness coefficient for non-linearity,
         """
-
 
         feedback = {name: value for name, value in params.items() if 'feedback' in name}
         error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=47)]
