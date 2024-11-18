@@ -1,0 +1,7 @@
+Seed: 0
+Model: all
+Number of chemicals: 3
+Meta loss regularization: 0
+Number of training data per class: 50
+Number of query data per class: 10
+Non linearity: <function tanh at 0x00000237A2EDA7A0>

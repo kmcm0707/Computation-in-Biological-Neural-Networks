@@ -1,0 +1,7 @@
+Seed: 0
+Model: rosenbaum
+Number of chemicals: 1
+Meta loss regularization: 0
+Number of training data per class: 50
+Number of query data per class: 10
+Non linearity: <function pass_through at 0x00000249259DC220>
