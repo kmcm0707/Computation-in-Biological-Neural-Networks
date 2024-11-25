@@ -95,7 +95,7 @@ class ComplexSynapse(nn.Module):
                     self.P_matrix[-1,9] = 0.005
                 elif self.options['P_Matrix'] == 'rosenbaum_first':
                     self.P_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device)))
-                    self.P_matrix[:,0] = 0
+                    self.P_matrix[:,0] = 0.01
                     self.P_matrix[0,0] = 0.01
                     self.P_matrix[0,2] = -0.03
                     self.P_matrix[0,9] = 0.005
@@ -138,7 +138,9 @@ class ComplexSynapse(nn.Module):
                 self.y_vector[0] = self.z_vector[-1]       
         else:
             self.y_vector[0] = 1
-
+        
+        self.y_vector = self.y_vector.to(self.device)
+        self.z_vector = self.z_vector.to(self.device)
 
         ## Initialize the v vector
         self.v_vector = nn.Parameter(torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device)) / self.number_chemicals)

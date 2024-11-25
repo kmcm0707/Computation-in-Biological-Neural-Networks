@@ -108,7 +108,7 @@ class MetaLearner:
     def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu', result_subdirectory: str = datetime.datetime.now().strftime("%Y%m%d-%H%M%S"), save_results: bool = True, model_type: str = "rosenbaum", metatrain_dataset = None, seed: int = 0, display: bool = True, numberOfChemicals: int = 1, non_linearity = torch.nn.functional.tanh, options = {}, raytune = False):
 
         # -- processor params
-        self.device = torch.device(device)
+        self.device = torch.device(device)    
         self.model_type = model_type
         self.options = options
         
@@ -448,7 +448,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -
     options['lr'] = 5e-5
     options['optimizer'] = 'adam'
     options['K_Matrix'] = 'n'
-    options['P_Matrix'] = 'n'
+    options['P_Matrix'] = 'rosenbaum_first'
     options['metaLossRegularization'] = 0
     options['update_rules'] = [0, 1, 2, 3, 4, 8, 9]
     options['operator'] = 'mode_2'
@@ -464,10 +464,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -
     non_linearity = torch.nn.functional.tanh
     
     #   -- number of chemicals
-    numberOfChemicals = 1
+    numberOfChemicals = 10
     # -- meta-train
-    #device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    device = 'cpu'
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    #device = 'cpu'
 
     metalearning_model = MetaLearner(device=device, result_subdirectory=result_subdirectory, save_results=True, model_type="all", metatrain_dataset=metatrain_dataset, seed=seed, display=display, numberOfChemicals=numberOfChemicals, non_linearity=non_linearity, options=options, raytune=False)
     metalearning_model.train()
