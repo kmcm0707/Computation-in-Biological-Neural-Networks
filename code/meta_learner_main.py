@@ -445,10 +445,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -
 
     # -- options
     options = {}
-    options['lr'] = 4e-3
+    options['lr'] = 4e-4
     options['optimizer'] = 'adam'
-    options['K_Matrix'] = 'n'
-    options['P_Matrix'] = 'rosenbaum_first'
+    options['K_Matrix'] = 'random'
+    options['P_Matrix'] = 'n'
     options['metaLossRegularization'] = 0
     options['update_rules'] = [0, 1, 2, 3, 4, 8, 9]
     options['operator'] = 'mode_1'
