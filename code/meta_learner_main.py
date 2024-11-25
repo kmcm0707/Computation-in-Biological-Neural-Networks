@@ -445,15 +445,15 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -
 
     # -- options
     options = {}
-    options['lr'] = 5e-5
+    options['lr'] = 4e-3
     options['optimizer'] = 'adam'
     options['K_Matrix'] = 'n'
     options['P_Matrix'] = 'rosenbaum_first'
     options['metaLossRegularization'] = 0
     options['update_rules'] = [0, 1, 2, 3, 4, 8, 9]
-    options['operator'] = 'mode_2'
+    options['operator'] = 'mode_1'
     options['chemicals'] = 'n'
-    options['bias'] = True
+    options['bias'] = False
     options['y_vector'] = "first_one"
     options['v_vector'] = "none"
     options['biasLossRegularization'] = 0
@@ -464,7 +464,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -
     non_linearity = torch.nn.functional.tanh
     
     #   -- number of chemicals
-    numberOfChemicals = 10
+    numberOfChemicals = 5
     # -- meta-train
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     #device = 'cpu'
