@@ -146,6 +146,13 @@ class ComplexSynapse(nn.Module):
         self.y_vector = self.y_vector.to(self.device)
         self.z_vector = self.z_vector.to(self.device)
 
+        if "y_z_train" in self.options:
+            if self.options['y_z_train'] == True:
+                self.y_vector = nn.Parameter(self.y_vector)
+                self.z_vector = nn.Parameter(self.z_vector)
+                self.all_meta_parameters.append(self.y_vector)
+                self.all_meta_parameters.append(self.z_vector)
+
         ## Initialize the v vector
         self.v_vector = nn.Parameter(torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device)) / self.number_chemicals)
         if self.mode == 'rosenbaum' or self.mode == 'all_rosenbaum':
