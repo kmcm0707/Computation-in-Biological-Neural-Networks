@@ -28,30 +28,46 @@ class RosenbaumChemicalNN(nn.Module):
     
     """
 
-    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu', numberOfChemicals: int = 1):
+    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu', numberOfChemicals: int = 1, small: bool = False):
 
         # Initialize the parent class
         super(RosenbaumChemicalNN, self).__init__()
 
         # Set the device
         self.device = device
+        self.small = small # Small model for testing
 
         # Model
         dim_out = 47
-        self.forward1 = nn.Linear(784, 170, bias=False)
-        self.forward2 = nn.Linear(170, 130, bias=False)
-        self.forward3 = nn.Linear(130, 100, bias=False)
-        self.forward4 = nn.Linear(100, 70, bias=False)
-        self.forward5 = nn.Linear(70, dim_out, bias=False)
+
+        if self.small:
+            self.forward1 = nn.Linear(784, 15, bias=False)
+            self.forward2 = nn.Linear(15, 10, bias=False)
+            self.forward3 = nn.Linear(10, 5, bias=False)
+            self.forward4 = nn.Linear(5, dim_out, bias=False)
+            """self.forward_layers = nn.ModuleList([self.forward1, self.forward2, self.forward3, self.forward4])"""
+        else:
+            self.forward1 = nn.Linear(784, 170, bias=False)
+            self.forward2 = nn.Linear(170, 130, bias=False)
+            self.forward3 = nn.Linear(130, 100, bias=False)
+            self.forward4 = nn.Linear(100, 70, bias=False)
+            self.forward5 = nn.Linear(70, dim_out, bias=False)
+            """self.forward_layers = nn.ModuleList([self.forward1, self.forward2, self.forward3, self.forward4, self.forward5])"""
 
         # Feedback pathway (fixed or symmetric) for plasticity
         # Symmetric feedback is used for backpropagation training
         # Fixed feedback is used for feedback alignment meta-learning
-        self.feedback1 = nn.Linear(784, 170, bias=False)
-        self.feedback2 = nn.Linear(170, 130, bias=False)
-        self.feedback3 = nn.Linear(130, 100, bias=False)
-        self.feedback4 = nn.Linear(100, 70, bias=False)
-        self.feedback5 = nn.Linear(70, dim_out, bias=False)
+        if self.small:
+            self.feedback1 = nn.Linear(784, 15, bias=False)
+            self.feedback2 = nn.Linear(15, 10, bias=False)
+            self.feedback3 = nn.Linear(10, 5, bias=False)
+            self.feedback4 = nn.Linear(5, dim_out, bias=False)
+        else:
+            self.feedback1 = nn.Linear(784, 170, bias=False)
+            self.feedback2 = nn.Linear(170, 130, bias=False)
+            self.feedback3 = nn.Linear(130, 100, bias=False)
+            self.feedback4 = nn.Linear(100, 70, bias=False)
+            self.feedback5 = nn.Linear(70, dim_out, bias=False)
 
         # Layer normalization
         """self.layer_norm1 = nn.LayerNorm(170)
@@ -62,12 +78,19 @@ class RosenbaumChemicalNN(nn.Module):
 
         # h(s) - LxW
         self.numberOfChemicals = numberOfChemicals
-        self.chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 170, 784), device=self.device))
-        self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 130, 170), device=self.device))
-        self.chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 100, 130), device=self.device))
-        self.chemical4 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 70, 100), device=self.device))
-        self.chemical5 = nn.Parameter(torch.zeros(size=(numberOfChemicals, dim_out, 70), device=self.device))
-        self.chemicals = nn.ParameterList([self.chemical1, self.chemical2, self.chemical3, self.chemical4, self.chemical5])
+        if self.small:
+            self.chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 15, 784), device=self.device))
+            self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 10, 15), device=self.device))
+            self.chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 5, 10), device=self.device))
+            self.chemical4 = nn.Parameter(torch.zeros(size=(numberOfChemicals, dim_out, 5), device=self.device))
+            self.chemicals = nn.ParameterList([self.chemical1, self.chemical2, self.chemical3, self.chemical4])
+        else:
+            self.chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 170, 784), device=self.device))
+            self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 130, 170), device=self.device))
+            self.chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 100, 130), device=self.device))
+            self.chemical4 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 70, 100), device=self.device))
+            self.chemical5 = nn.Parameter(torch.zeros(size=(numberOfChemicals, dim_out, 70), device=self.device))
+            self.chemicals = nn.ParameterList([self.chemical1, self.chemical2, self.chemical3, self.chemical4, self.chemical5])
 
         # Activation function
         self.beta = 10
@@ -90,12 +113,16 @@ class RosenbaumChemicalNN(nn.Module):
         #y3 = self.layer_norm3(y3)
 
         y4 = self.forward4(y3)
-        y4 = self.activation(y4)
-        #y4 = self.layer_norm4(y4)
 
-        y5 = self.forward5(y4)
+        if not self.small:
+            y4 = self.activation(y4)
+            #y4 = self.layer_norm4(y4)
+            y5 = self.forward5(y4)
 
-        return (y0, y1, y2, y3, y4), y5
+        if self.small:
+            return (y0, y1, y2, y3), y4
+        else:
+            return (y0, y1, y2, y3, y4), y5
 
 
 class MetaLearner:
@@ -111,6 +138,7 @@ class MetaLearner:
         self.device = torch.device(device)    
         self.model_type = model_type
         self.options = options
+        self.small = options['small'] # Small model for testing
         
         # -- raytune 
         self.raytune = raytune
@@ -217,7 +245,7 @@ class MetaLearner:
         :return: model with flags , "adapt", set for its parameters
         """
         #if self.model_type == "rosenbaum":
-        model = RosenbaumChemicalNN(self.device, self.numberOfChemicals)
+        model = RosenbaumChemicalNN(self.device, self.numberOfChemicals, small=self.small)
 
         # -- learning flags
         for key, val in model.named_parameters():
@@ -447,7 +475,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -
     options = {}
     options['lr'] = 4e-4
     options['optimizer'] = 'adam'
-    options['K_Matrix'] = 'random'
+    options['K_Matrix'] = 'n'
     options['P_Matrix'] = 'n'
     options['metaLossRegularization'] = 0
     options['update_rules'] = [0, 1, 2, 3, 4, 8, 9]
@@ -455,16 +483,18 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -
     options['chemicals'] = 'n'
     options['bias'] = False
     options['y_vector'] = "first_one"
-    options['v_vector'] = "none"
+    options['v_vector'] = "n"
     options['biasLossRegularization'] = 0
+    options['small'] = True
     #options['oja_minus_parameter'] = True   
     #options['scheduler'] = 'exponential'
 
     # -- non-linearity
     non_linearity = torch.nn.functional.tanh
+    #non_linearity = pass_through
     
     #   -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 3
     # -- meta-train
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     #device = 'cpu'

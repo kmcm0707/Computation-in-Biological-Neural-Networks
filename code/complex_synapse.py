@@ -10,7 +10,7 @@ class ComplexSynapse(nn.Module):
         The class implements a complex synapse model.
         Which is a biological plausible update rule.
     """
-
+ 
     def __init__(self, device='cpu', mode='rosenbaum', numberOfChemicals: int = 1, non_linearity=torch.nn.functional.tanh, options: dict = {}, params: dict = {}):
         """
             Initialize the complex synapse model.
@@ -131,11 +131,13 @@ class ComplexSynapse(nn.Module):
                 self.y_vector[-1] = 1
             elif self.options['y_vector'] == "none":
                 pass
-            elif self.options['y_vector'] == "first_one":
+            elif self.options['y_vector'] == "first_one": ## rosenbaum
                 self.y_vector[0] = 1
             elif self.options['y_vector'] == "last_one_and_small_first":
                 self.y_vector[-1] = 1
                 self.y_vector[0] = self.z_vector[-1]       
+            elif self.options['y_vector'] == "all_ones":
+                self.y_vector = torch.ones(self.number_chemicals, device=self.device)
         else:
             self.y_vector[0] = 1
         
@@ -154,6 +156,8 @@ class ComplexSynapse(nn.Module):
                 elif self.options['v_vector'] == 'last_one':
                     self.v_vector = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(1, self.number_chemicals), device=self.device)))
                     self.v_vector[0, -1] = 1
+                elif self.options['v_vector'] == 'random_small':
+                    self.v_vector = nn.Parameter(torch.nn.init.normal_(torch.empty(size=(1, self.number_chemicals), device=self.device), mean=0, std=0.01))
             self.all_meta_parameters.append(self.v_vector)
 
         ## Initialize the mode
@@ -195,7 +199,7 @@ class ComplexSynapse(nn.Module):
                     # Equation 2: w(s) = v * h(s)
                     update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i)
                     new_chemical = None
-                    if self.operator == "mode_1": # mode 1 - was also called add in results
+                    if self.operator == "mode_1" or self.operator == "mode_3": # mode 1 - was also called add in results
                         new_chemical = torch.einsum('i,ijk->ijk',self.y_vector, chemical) + \
                                         torch.einsum('i,ijk->ijk', self.z_vector, self.non_linearity(torch.einsum('ic,ijk->cjk', self.K_matrix, chemical) + \
                                                         torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector) + self.bias_dictonary[h_name]))
@@ -214,7 +218,10 @@ class ComplexSynapse(nn.Module):
                         raise ValueError("Invalid operator")
 
                     h_parameters[h_name] = new_chemical
-                    new_value = torch.einsum('ci,ijk->cjk', self.v_vector, h_parameters[h_name]).squeeze(0)
+                    if self.operator == "mode_3":
+                        new_value = parameter + torch.nn.functional.tanh(torch.einsum('ci,ijk->cjk', self.v_vector, h_parameters[h_name]).squeeze(0))
+                    else:
+                        new_value = torch.einsum('ci,ijk->cjk', self.v_vector, h_parameters[h_name]).squeeze(0)
                     params[name] = new_value
 
                     params[name].adapt = True

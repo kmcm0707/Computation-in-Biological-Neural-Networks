@@ -19,12 +19,13 @@ if __name__ == '__main__':
     print(torch.einsum('ic,ijk->cjk',b, a_vector)[1,4, 60])"""
 
     min_tau = 1
-    max_tau = 30
+    max_tau = 50
     base = max_tau / min_tau
 
-    tau_vector = min_tau * (base ** torch.linspace(0, 1, 5))
+    tau_vector = min_tau * (base ** torch.linspace(0, 1, 2))
     z_vector = 1 / tau_vector
     y_vector = 1 - z_vector
+    y_vector[0] = 1
 
     v_vector = nn.Parameter(torch.nn.init.ones_(torch.empty(size=(1, 5), device="cpu")))
     test_matrix = nn.Parameter(torch.nn.init.ones_(torch.empty(size=(5, 2, 4), device="cpu")))
