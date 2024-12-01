@@ -1,4 +1,4 @@
-@online{ahmadGAITpropBiologicallyPlausible2020,
+@online{ahmad2020,
   title = {{{GAIT-prop}}: {{A}} Biologically Plausible Learning Rule Derived from Backpropagation of Error},
   shorttitle = {{{GAIT-prop}}},
   author = {Ahmad, Nasir and family=Gerven, given=Marcel A. J., prefix=van, useprefix=false and Ambrogioni, Luca},
@@ -10,23 +10,35 @@
   abstract = {Traditional backpropagation of error, though a highly successful algorithm for learning in artificial neural network models, includes features which are biologically implausible for learning in real neural circuits. An alternative called target propagation proposes to solve this implausibility by using a top-down model of neural activity to convert an error at the output of a neural network into layer-wise and plausible 'targets' for every unit. These targets can then be used to produce weight updates for network training. However, thus far, target propagation has been heuristically proposed without demonstrable equivalence to backpropagation. Here, we derive an exact correspondence between backpropagation and a modified form of target propagation (GAIT-prop) where the target is a small perturbation of the forward pass. Specifically, backpropagation and GAIT-prop give identical updates when synaptic weight matrices are orthogonal. In a series of simple computer vision experiments, we show near-identical performance between backpropagation and GAIT-prop with a soft orthogonality-inducing regularizer.},
   pubstate = {prepublished},
   keywords = {Computer Science - Machine Learning,Computer Science - Neural and Evolutionary Computing,Statistics - Machine Learning},
-  file = {C\:\\Users\\Kyle\\Zotero\\storage\\8EXS5WIW\\Ahmad et al. - 2020 - GAIT-prop A biologically plausible learning rule derived from backpropagation of error.pdf;C\:\\Users\\Kyle\\Zotero\\storage\\6ZKLIF72\\2006.html}
+  file = {C\:\\Users\\kmc07\\Zotero\\storage\\8EXS5WIW\\Ahmad et al. - 2020 - GAIT-prop A biologically plausible learning rule derived from backpropagation of error.pdf;C\:\\Users\\kmc07\\Zotero\\storage\\6ZKLIF72\\2006.html}
 }
 
-@inproceedings{bengioGreedyLayerWiseTraining2006,
-  title = {Greedy {{Layer-Wise Training}} of {{Deep Networks}}},
-  booktitle = {Advances in {{Neural Information Processing Systems}}},
-  author = {Bengio, Yoshua and Lamblin, Pascal and Popovici, Dan and Larochelle, Hugo},
-  date = {2006},
-  volume = {19},
-  publisher = {MIT Press},
-  url = {https://proceedings.neurips.cc/paper_files/paper/2006/hash/5da713a690c067105aeb2fae32403405-Abstract.html},
-  urldate = {2024-10-10},
-  abstract = {Recent analyses (Bengio, Delalleau, \& Le Roux, 2006; Bengio \& Le Cun, 2007) of modern nonparametric machine learning algorithms that are kernel machines, such as Support Vector Machines (SVMs), graph-based manifold and semi-supervised learning algorithms suggest fundamental limitations of some learning algorithms. The problem is clear in kernel-based approaches when the kernel is "local" (e.g., the Gaussian kernel), i.e., K (x, y ) converges to a constant when ||x - y || increases. These analyses point to the difficulty of learning "highly-varying functions", i.e., functions that have a large number of "variations" in the domain of interest, e.g., they would require a large number of pieces to be well represented by a piecewise-linear approximation. Since the number of pieces can be made to grow exponentially with the number of factors of variations in the input, this is connected with the well-known curse of dimensionality for classical non-parametric learning algorithms (for regression, classification and density estimation). If the shapes of all these pieces are unrelated, one needs enough examples for each piece in order to generalize properly. However, if these shapes are related and can be predicted from each other, "non-local" learning algorithms have the potential to generalize to pieces not covered by the training set. Such ability would seem necessary for learning in complex domains such as Artificial Intelligence tasks (e.g., related to vision, language, speech, robotics). Kernel machines (not only those with a local kernel) have a shallow architecture, i.e., only two levels of data-dependent computational elements. This is also true of feedforward neural networks with a single hidden layer (which can become SVMs when the number of hidden units becomes large (Bengio, Le Roux, Vincent, Delalleau, \& Marcotte, 2006)). A serious problem with shallow architectures is that they can be very inefficient in terms of the number of computational units (e.g., bases, hidden units), and thus in terms of required examples (Bengio \& Le Cun, 2007). One way to represent a highly-varying function compactly (with few parameters) is through the composition of many non-linearities, i.e., with a deep architecture. For example, the parity function with d inputs requires O(2d ) examples and parameters to be represented by a Gaussian SVM (Bengio et al., 2006), O(d2 ) parameters for a one-hidden-layer neural network, O(d) parameters and units for a multi-layer network with O(log2 d) layers, and O(1) parameters with a recurrent neural network. More generally,},
-  file = {C:\Users\Kyle\Zotero\storage\RAEBBY6W\Bengio et al. - 2006 - Greedy Layer-Wise Training of Deep Networks.pdf}
+@article{bendayanrubin2007,
+  title = {Long Memory Lifetimes Require Complex Synapses and Limited Sparseness},
+  author = {Ben Dayan Rubin, Daniel D. and Fusi, Stefano},
+  date = {2007-11-30},
+  journaltitle = {Frontiers in Computational Neuroscience},
+  shortjournal = {Front. Comput. Neurosci.},
+  volume = {1},
+  publisher = {Frontiers},
+  issn = {1662-5188},
+  doi = {10.3389/neuro.10.007.2007},
+  url = {https://www.frontiersin.org/journals/computational-neuroscience/articles/10.3389/neuro.10.007.2007/full},
+  urldate = {2024-11-28},
+  abstract = {{$<$}p{$>$}Theoretical studies have shown that memories last longer if the neural representations are sparse, that is, when each neuron is selective for a small fraction of the events creating the memories. Sparseness reduces both the interference between stored memories and the number of synaptic modifications which are necessary for memory storage. Paradoxically, in cortical areas like the inferotemporal cortex, where presumably memory lifetimes are longer than in the medial temporal lobe, neural representations are less sparse. We resolve this paradox by analyzing the effects of sparseness on complex models of synaptic dynamics in which there are metaplastic states with different degrees of plasticity. For these models, memory retention in a large number of synapses across multiple neurons is significantly more efficient in case of many metaplastic states, that is, for an elevated degree of complexity. In other words, larger brain regions allow to retain memories for significantly longer times only if the synaptic complexity increases with the total number of synapses. However, the initial memory trace, the one experienced immediately after memory storage, becomes weaker both when the number of metaplastic states increases and when the neural representations become sparser. Such a memory trace must be above a given threshold in order to permit every single neuron to retrieve the information stored in its synapses. As a consequence, if the initial memory trace is reduced because of the increased synaptic complexity, then the neural representations must be less sparse. We conclude that long memory lifetimes allowed by a larger number of synapses require more complex synapses, and hence, less sparse representations, which is what is observed in the brain.{$<$}/p{$>$}},
+  langid = {english},
+  keywords = {Learning,sparseness,synaptic plasticity},
+  file = {C:\Users\kmc07\Zotero\storage\BJYWGE8F\Ben Dayan Rubin and Fusi - 2007 - Long memory lifetimes require complex synapses and limited sparseness.pdf}
 }
 
-@inproceedings{bengioLearningSynapticLearning1991,
+@article{bengio,
+  title = {On the {{Optimization}} of a {{Synaptic Learning Rule}}},
+  author = {Bengio, Samy and Bengio, Yoshua and Cloutier, Jocelyn and Gecsei, Jan},
+  langid = {english},
+  file = {C:\Users\kmc07\Zotero\storage\4SMDED63\Bengio et al. - On the Optimization of a Synaptic Learning Rule.pdf}
+}
+
+@inproceedings{bengio1991,
   title = {Learning a Synaptic Learning Rule},
   booktitle = {{{IJCNN-91-Seattle International Joint Conference}} on {{Neural Networks}}},
   author = {Bengio, Y. and Bengio, S. and Cloutier, J.},
@@ -39,35 +51,10 @@
   abstract = {Summary form only given, as follows. The authors discuss an original approach to neural modeling based on the idea of searching, with learning methods, for a synaptic learning rule which is biologically plausible and yields networks that are able to learn to perform difficult tasks. The proposed method of automatically finding the learning rule relies on the idea of considering the synaptic modification rule as a parametric function. This function has local inputs and is the same in many neurons. The parameters that define this function can be estimated with known learning methods. For this optimization, particular attention is given to gradient descent and genetic algorithms. In both cases, estimation of this function consists of a joint global optimization of the synaptic modification function and the networks that are learning to perform some tasks. Both network architecture and the learning function can be designed within constraints derived from biological knowledge.{$<>$}},
   eventtitle = {{{IJCNN-91-Seattle International Joint Conference}} on {{Neural Networks}}},
   keywords = {Biological system modeling,Biology,Computer science,Genetic algorithms,Learning systems,Neurons},
-  file = {C\:\\Users\\Kyle\\Zotero\\storage\\JZ6EYSBC\\Bengio et al. - 1991 - Learning a synaptic learning rule.pdf;C\:\\Users\\Kyle\\Zotero\\storage\\JLDA4IE5\\155621.html}
+  file = {C\:\\Users\\kmc07\\Zotero\\storage\\AXCLBLYX\\Bengio et al. - 1991 - Learning a synaptic learning rule.pdf;C\:\\Users\\kmc07\\Zotero\\storage\\JZ6EYSBC\\Bengio et al. - 1991 - Learning a synaptic learning rule.pdf;C\:\\Users\\kmc07\\Zotero\\storage\\JLDA4IE5\\155621.html}
 }
 
-@inproceedings{bengioLearningSynapticLearning1991a,
-  title = {Learning a Synaptic Learning Rule},
-  booktitle = {{{IJCNN-91-Seattle International Joint Conference}} on {{Neural Networks}}},
-  author = {Bengio, Y. and Bengio, S. and Cloutier, J.},
-  date = {1991},
-  pages = {969 vol.2},
-  publisher = {IEEE},
-  location = {Seattle, WA, USA},
-  doi = {10.1109/IJCNN.1991.155621},
-  url = {https://ieeexplore.ieee.org/document/155621/},
-  urldate = {2024-10-18},
-  abstract = {This paper presents an original approach to neural modeling based on the idea of searching, with learning methods, for a synaptic learning rule which is biologically plausible, and yields networks that are able to learn to perform di cult tasks. The proposed method of automatically nding the learning rule relies on the idea of considering the synaptic modi cation rule as a parametric function. This function has local inputs and is the same in many neurons. The parameters that de ne this function can be estimated with known learning methods. For this optimization, we give particular attention to gradient descent and genetic algorithms. In both cases, estimation of this function consists of a joint global optimization of (a) the synaptic modi cation function, and (b) the networks that are learning to perform some tasks. The proposed methodology can be used as a tool to explore the missing pieces of the puzzle of neural networks learning. Both network architecture, and the learning function can be designed within constraints derived from biological knowledge.},
-  eventtitle = {1991-{{Seattle International Joint Conference}} on {{Neural Networks}}},
-  isbn = {978-0-7803-0164-1},
-  langid = {english},
-  file = {C:\Users\Kyle\Zotero\storage\AXCLBLYX\Bengio et al. - 1991 - Learning a synaptic learning rule.pdf}
-}
-
-@article{bengioOptimizationSynapticLearning,
-  title = {On the {{Optimization}} of a {{Synaptic Learning Rule}}},
-  author = {Bengio, Samy and Bengio, Yoshua and Cloutier, Jocelyn and Gecsei, Jan},
-  langid = {english},
-  file = {C:\Users\Kyle\Zotero\storage\4SMDED63\Bengio et al. - On the Optimization of a Synaptic Learning Rule.pdf}
-}
-
-@inproceedings{bengioUseGeneticProgramming1994,
+@inproceedings{bengio1994,
   title = {Use of Genetic Programming for the Search of a New Learning Rule for Neural Networks},
   booktitle = {Proceedings of the {{First IEEE Conference}} on {{Evolutionary Computation}}. {{IEEE World Congress}} on {{Computational Intelligence}}},
   author = {Bengio, S. and Bengio, Y. and Cloutier, J.},
@@ -79,10 +66,23 @@
   abstract = {In previous work we explained how to use standard optimization methods such as simulated annealing, gradient descent and genetic algorithms to optimize a parametric function which could be used as a learning rule for neural networks. To use these methods, we had to choose a fixed number of parameters and a rigid form for the learning rule. In this article, we propose to use genetic programming to find not only the values of rule parameters but also the optimal number of parameters and the form of the rule. Experiments on classification tasks suggest genetic programming finds better learning rules than other optimization methods. Furthermore, the best rule found with genetic programming outperformed the well-known backpropagation algorithm for a given set of tasks.{$<>$}},
   eventtitle = {Proceedings of the {{First IEEE Conference}} on {{Evolutionary Computation}}. {{IEEE World Congress}} on {{Computational Intelligence}}},
   keywords = {Backpropagation algorithms,Biological system modeling,Design optimization,Genetic algorithms,Genetic programming,Learning systems,Neural networks,Neurons,Optimization methods,Simulated annealing},
-  file = {C\:\\Users\\Kyle\\Zotero\\storage\\Y83VM8RA\\Bengio et al. - 1994 - Use of genetic programming for the search of a new learning rule for neural networks.pdf;C\:\\Users\\Kyle\\Zotero\\storage\\48L99IW7\\349932.html}
+  file = {C\:\\Users\\kmc07\\Zotero\\storage\\Y83VM8RA\\Bengio et al. - 1994 - Use of genetic programming for the search of a new learning rule for neural networks.pdf;C\:\\Users\\kmc07\\Zotero\\storage\\48L99IW7\\349932.html}
 }
 
-@article{bennaComputationalPrinciplesSynaptic2016,
+@inproceedings{bengio2006,
+  title = {Greedy {{Layer-Wise Training}} of {{Deep Networks}}},
+  booktitle = {Advances in {{Neural Information Processing Systems}}},
+  author = {Bengio, Yoshua and Lamblin, Pascal and Popovici, Dan and Larochelle, Hugo},
+  date = {2006},
+  volume = {19},
+  publisher = {MIT Press},
+  url = {https://proceedings.neurips.cc/paper_files/paper/2006/hash/5da713a690c067105aeb2fae32403405-Abstract.html},
+  urldate = {2024-10-10},
+  abstract = {Recent analyses (Bengio, Delalleau, \& Le Roux, 2006; Bengio \& Le Cun, 2007) of modern nonparametric machine learning algorithms that are kernel machines, such as Support Vector Machines (SVMs), graph-based manifold and semi-supervised learning algorithms suggest fundamental limitations of some learning algorithms. The problem is clear in kernel-based approaches when the kernel is "local" (e.g., the Gaussian kernel), i.e., K (x, y ) converges to a constant when ||x - y || increases. These analyses point to the difficulty of learning "highly-varying functions", i.e., functions that have a large number of "variations" in the domain of interest, e.g., they would require a large number of pieces to be well represented by a piecewise-linear approximation. Since the number of pieces can be made to grow exponentially with the number of factors of variations in the input, this is connected with the well-known curse of dimensionality for classical non-parametric learning algorithms (for regression, classification and density estimation). If the shapes of all these pieces are unrelated, one needs enough examples for each piece in order to generalize properly. However, if these shapes are related and can be predicted from each other, "non-local" learning algorithms have the potential to generalize to pieces not covered by the training set. Such ability would seem necessary for learning in complex domains such as Artificial Intelligence tasks (e.g., related to vision, language, speech, robotics). Kernel machines (not only those with a local kernel) have a shallow architecture, i.e., only two levels of data-dependent computational elements. This is also true of feedforward neural networks with a single hidden layer (which can become SVMs when the number of hidden units becomes large (Bengio, Le Roux, Vincent, Delalleau, \& Marcotte, 2006)). A serious problem with shallow architectures is that they can be very inefficient in terms of the number of computational units (e.g., bases, hidden units), and thus in terms of required examples (Bengio \& Le Cun, 2007). One way to represent a highly-varying function compactly (with few parameters) is through the composition of many non-linearities, i.e., with a deep architecture. For example, the parity function with d inputs requires O(2d ) examples and parameters to be represented by a Gaussian SVM (Bengio et al., 2006), O(d2 ) parameters for a one-hidden-layer neural network, O(d) parameters and units for a multi-layer network with O(log2 d) layers, and O(1) parameters with a recurrent neural network. More generally,},
+  file = {C:\Users\kmc07\Zotero\storage\RAEBBY6W\Bengio et al. - 2006 - Greedy Layer-Wise Training of Deep Networks.pdf}
+}
+
+@article{benna2016,
   title = {Computational Principles of Synaptic Memory Consolidation},
   author = {Benna, Marcus K. and Fusi, Stefano},
   date = {2016-12},
@@ -90,19 +90,18 @@
   shortjournal = {Nat Neurosci},
   volume = {19},
   number = {12},
+  eprint = {27694992},
+  eprinttype = {pmid},
   pages = {1697--1706},
-  publisher = {Nature Publishing Group},
   issn = {1546-1726},
   doi = {10.1038/nn.4401},
-  url = {https://www.nature.com/articles/nn.4401},
-  urldate = {2024-10-09},
-  abstract = {The biological mechanisms underlying memory are complex and typically involve multiple molecular processes operating on timescales ranging from fractions of a second to years. The authors show using a mathematical model of synaptic plasticity and consolidation that this complexity can help explain the formidable memory capacity of biological systems.},
+  abstract = {Memories are stored and retained through complex, coupled processes operating on multiple timescales. To understand the computational principles behind these intricate networks of interactions, we construct a broad class of synaptic models that efficiently harness biological complexity to preserve numerous memories by protecting them against the adverse effects of overwriting. The memory capacity scales almost linearly with the number of synapses, which is a substantial improvement over the square root scaling of previous models. This was achieved by combining multiple dynamical processes that initially store memories in fast variables and then progressively transfer them to slower variables. Notably, the interactions between fast and slow variables are bidirectional. The proposed models are robust to parameter perturbations and can explain several properties of biological memory, including delayed expression of synaptic modifications, metaplasticity, and spacing effects.},
   langid = {english},
-  keywords = {Consolidation,Long-term memory},
-  file = {C:\Users\Kyle\Zotero\storage\DJIUDPI3\Benna and Fusi - 2016 - Computational principles of synaptic memory consolidation.pdf}
+  keywords = {Animals,Computer Simulation,Consolidation,Long-term memory,Memory,Memory Consolidation,Models Neurological,Nerve Net,Neuronal Plasticity,Neurons,Synapses},
+  file = {C:\Users\kmc07\Zotero\storage\DJIUDPI3\Benna and Fusi - 2016 - Computational principles of synaptic memory consolidation.pdf}
 }
 
-@online{brannvallReLUAdditionbasedGated2023,
+@online{brannvall2023,
   title = {{{ReLU}} and {{Addition-based Gated RNN}}},
   author = {Brännvall, Rickard and Forsgren, Henrik and Sandin, Fredrik and Liwicki, Marcus},
   date = {2023-08-10},
@@ -113,10 +112,10 @@
   abstract = {We replace the multiplication and sigmoid function of the conventional recurrent gate with addition and ReLU activation. This mechanism is designed to maintain long-term memory for sequence processing but at a reduced computational cost, thereby opening up for more efficient execution or larger models on restricted hardware. Recurrent Neural Networks (RNNs) with gating mechanisms such as LSTM and GRU have been widely successful in learning from sequential data due to their ability to capture long-term dependencies. Conventionally, the update based on current inputs and the previous state history is each multiplied with dynamic weights and combined to compute the next state. However, multiplication can be computationally expensive, especially for certain hardware architectures or alternative arithmetic systems such as homomorphic encryption. It is demonstrated that the novel gating mechanism can capture long-term dependencies for a standard synthetic sequence learning task while significantly reducing computational costs such that execution time is reduced by half on CPU and by one-third under encryption. Experimental results on handwritten text recognition tasks furthermore show that the proposed architecture can be trained to achieve comparable accuracy to conventional GRU and LSTM baselines. The gating mechanism introduced in this paper may enable privacy-preserving AI applications operating under homomorphic encryption by avoiding the multiplication of encrypted variables. It can also support quantization in (unencrypted) plaintext applications, with the potential for substantial performance gains since the addition-based formulation can avoid the expansion to double precision often required for multiplication.},
   pubstate = {prepublished},
   keywords = {Computer Science - Machine Learning},
-  file = {C\:\\Users\\Kyle\\Zotero\\storage\\VEAWR2GX\\Brännvall et al. - 2023 - ReLU and Addition-based Gated RNN.pdf;C\:\\Users\\Kyle\\Zotero\\storage\\3XP4LZN6\\2308.html}
+  file = {C\:\\Users\\kmc07\\Zotero\\storage\\VEAWR2GX\\Brännvall et al. - 2023 - ReLU and Addition-based Gated RNN.pdf;C\:\\Users\\kmc07\\Zotero\\storage\\3XP4LZN6\\2308.html}
 }
 
-@inproceedings{confavreuxMetalearningApproachRediscover2020,
+@inproceedings{confavreux2020,
   title = {A Meta-Learning Approach to (Re)Discover Plasticity Rules That Carve a Desired Function into a Neural Network},
   booktitle = {Advances in {{Neural Information Processing Systems}}},
   author = {Confavreux, Basile and Zenke, Friedemann and Agnes, Everton and Lillicrap, Timothy and Vogels, Tim},
@@ -127,10 +126,10 @@
   url = {https://proceedings.neurips.cc/paper/2020/hash/bdbd5ebfde4934142c8a88e7a3796cd5-Abstract.html},
   urldate = {2024-10-18},
   abstract = {The search for biologically faithful synaptic plasticity rules has resulted in a large body of models. They are usually inspired by -- and fitted to -- experimental data, but they rarely produce neural dynamics that serve complex functions. These failures suggest that current plasticity models are still under-constrained by existing data. Here, we present an alternative approach that uses meta-learning to discover plausible synaptic plasticity rules. Instead of experimental data, the rules are constrained by the functions they implement and the structure they are meant to produce. Briefly, we parameterize synaptic plasticity rules by a Volterra expansion and then use supervised learning methods (gradient descent or evolutionary strategies) to minimize a problem-dependent loss function that quantifies how effectively a candidate plasticity rule transforms an initially random network into one with the desired function. We first validate our approach by re-discovering previously described plasticity rules, starting at the single-neuron level and Oja’s rule'', a simple Hebbian plasticity rule that captures the direction of most variability of inputs to a neuron (i.e., the first principal component). We expand the problem to the network level and ask the framework to find Oja’s rule together with an anti-Hebbian rule such that an initially random two-layer firing-rate network will recover several principal components of the input space after learning. Next, we move to networks of integrate-and-fire neurons with plastic inhibitory afferents. We train for rules that achieve a target firing rate by countering tuned excitation. Our algorithm discovers a specific subset of the manifold of rules that can solve this task. Our work is a proof of principle of an automated and unbiased approach to unveil synaptic plasticity rules that obey biological constraints and can solve complex functions.},
-  file = {C:\Users\Kyle\Zotero\storage\7H328YRP\Confavreux et al. - 2020 - A meta-learning approach to (re)discover plasticity rules that carve a desired function into a neura.pdf}
+  file = {C:\Users\kmc07\Zotero\storage\7H328YRP\Confavreux et al. - 2020 - A meta-learning approach to (re)discover plasticity rules that carve a desired function into a neura.pdf}
 }
 
-@book{dayanTheoreticalNeuroscienceComputational2001,
+@book{dayan2001,
   title = {Theoretical Neuroscience: Computational and Mathematical Modeling of Neural Systems},
   shorttitle = {Theoretical Neuroscience},
   author = {Dayan, Peter and Abbott, L. F.},
@@ -141,10 +140,107 @@
   isbn = {978-0-262-04199-7},
   langid = {english},
   pagetotal = {460},
-  file = {C:\Users\Kyle\Zotero\storage\S6TW4RBW\Dayan and Abbott - 2001 - Theoretical neuroscience computational and mathematical modeling of neural systems.pdf}
+  file = {C:\Users\kmc07\Zotero\storage\S6TW4RBW\Dayan and Abbott - 2001 - Theoretical neuroscience computational and mathematical modeling of neural systems.pdf}
 }
 
-@article{hintonUsingFastWeights1987,
+@inproceedings{faraji2015,
+  title = {A Biologically Plausible 3-Factor Learning Rule for Expectation Maximization in Reinforcement Learning and Decision Making},
+  author = {Faraji, Mohammad Javad and Preuschoff, K. and Gerstner, W.},
+  date = {2015},
+  url = {https://www.semanticscholar.org/paper/A-biologically-plausible-3-factor-learning-rule-for-Faraji-Preuschoff/a273093eae4e6c0c05ccffcbb3f61199388ad205},
+  urldate = {2024-11-25},
+  abstract = {One of the most frequent problems in both decision making and reinforcement learning (RL) is expectation maximization involving functionals such as reward or utility. Generally, these problems consist of computing the optimal solution of a density function. Instead of trying to find this exact solution, a common approach is to approximate it through a learning process. In this work we propose a functional gradient rule for the maximization of a general form of density-dependent functionals using a stochastic gradient ascent algorithm. If a neural network is used for parametrization of the desired density function, the proposed learning rule can be viewed as a modulated Hebbian rule. Such a learning rule is biologically plausible, because it consists of both local and global factors corresponding to the coactivity of pre/post-synaptic neurons and the effect of neuromodulation, respectively. We first apply our technique to standard reward maximization in RL. As expected, this yields the standard policy gradient rule in which parameters of the model are updated proportional to the amount of reward. Next, we use variational free energy as a functional and find that the estimated change in parameters is modulated by a measure of surprise signal. Finally, we propose an information theoretical equivalent of existing models in expected utility maximization, as a standard model of decision making, to incorporate both individual preferences and choice variability. We show that our technique can also be applied into such novel framework.},
+  file = {C:\Users\kmc07\Zotero\storage\UZHRDBNL\Faraji et al. - 2015 - A biologically plausible 3-factor learning rule for expectation maximization in reinforcement learni.pdf}
+}
+
+@article{fusi2005,
+  title = {Cascade Models of Synaptically Stored Memories},
+  author = {Fusi, Stefano and Drew, Patrick J. and Abbott, L. F.},
+  date = {2005-02-17},
+  journaltitle = {Neuron},
+  shortjournal = {Neuron},
+  volume = {45},
+  number = {4},
+  eprint = {15721245},
+  eprinttype = {pmid},
+  pages = {599--611},
+  issn = {0896-6273},
+  doi = {10.1016/j.neuron.2005.02.001},
+  abstract = {Storing memories of ongoing, everyday experiences requires a high degree of plasticity, but retaining these memories demands protection against changes induced by further activity and experience. Models in which memories are stored through switch-like transitions in synaptic efficacy are good at storing but bad at retaining memories if these transitions are likely, and they are poor at storage but good at retention if they are unlikely. We construct and study a model in which each synapse has a cascade of states with different levels of plasticity, connected by metaplastic transitions. This cascade model combines high levels of memory storage with long retention times and significantly outperforms alternative models. As a result, we suggest that memory storage requires synapses with multiple states exhibiting dynamics over a wide range of timescales, and we suggest experimental tests of this hypothesis.},
+  langid = {english},
+  keywords = {Animals,Humans,Memory,Models Neurological,Neuronal Plasticity,Synapses,Time Factors}
+}
+
+@article{fusi2005a,
+  title = {Cascade {{Models}} of {{Synaptically Stored Memories}}},
+  author = {Fusi, Stefano and Drew, Patrick J. and Abbott, L. F.},
+  date = {2005-02-17},
+  journaltitle = {Neuron},
+  shortjournal = {Neuron},
+  volume = {45},
+  number = {4},
+  pages = {599--611},
+  issn = {0896-6273},
+  doi = {10.1016/j.neuron.2005.02.001},
+  url = {https://www.sciencedirect.com/science/article/pii/S0896627305001170},
+  urldate = {2024-11-28},
+  abstract = {Storing memories of ongoing, everyday experiences requires a high degree of plasticity, but retaining these memories demands protection against changes induced by further activity and experience. Models in which memories are stored through switch-like transitions in synaptic efficacy are good at storing but bad at retaining memories if these transitions are likely, and they are poor at storage but good at retention if they are unlikely. We construct and study a model in which each synapse has a cascade of states with different levels of plasticity, connected by metaplastic transitions. This cascade model combines high levels of memory storage with long retention times and significantly outperforms alternative models. As a result, we suggest that memory storage requires synapses with multiple states exhibiting dynamics over a wide range of timescales, and we suggest experimental tests of this hypothesis.}
+}
+
+@article{fusi2007,
+  title = {Limits on the Memory Storage Capacity of Bounded Synapses},
+  author = {Fusi, Stefano and Abbott, L. F.},
+  date = {2007-04},
+  journaltitle = {Nature Neuroscience},
+  shortjournal = {Nat Neurosci},
+  volume = {10},
+  number = {4},
+  eprint = {17351638},
+  eprinttype = {pmid},
+  pages = {485--493},
+  issn = {1097-6256},
+  doi = {10.1038/nn1859},
+  abstract = {Memories maintained in patterns of synaptic connectivity are rapidly overwritten and destroyed by ongoing plasticity related to the storage of new memories. Short memory lifetimes arise from the bounds that must be imposed on synaptic efficacy in any realistic model. We explored whether memory performance can be improved by allowing synapses to traverse a large number of states before reaching their bounds, or by changing the way these bounds are imposed. In the case of hard bounds, memory lifetimes grow proportional to the square of the number of synaptic states, but only if potentiation and depression are precisely balanced. Improved performance can be obtained without fine tuning by imposing soft bounds, but this improvement is only linear with respect to the number of synaptic states. We explored several other possibilities and conclude that improving memory performance requires a more radical modification of the standard model of memory storage.},
+  langid = {english},
+  keywords = {Animals,Humans,Memory,Models Neurological,Neuronal Plasticity,Synapses}
+}
+
+@article{fusi2007a,
+  title = {Limits on the Memory Storage Capacity of Bounded Synapses},
+  author = {Fusi, Stefano and Abbott, L F},
+  date = {2007-04},
+  journaltitle = {Nature Neuroscience},
+  shortjournal = {Nat Neurosci},
+  volume = {10},
+  number = {4},
+  pages = {485--493},
+  issn = {1097-6256, 1546-1726},
+  doi = {10.1038/nn1859},
+  url = {https://www.nature.com/articles/nn1859},
+  urldate = {2024-11-24},
+  langid = {english},
+  file = {C:\Users\kmc07\Zotero\storage\G2SIPD84\Fusi and Abbott - 2007 - Limits on the memory storage capacity of bounded synapses.pdf}
+}
+
+@article{grant2010,
+  title = {Computing Behaviour in Complex Synapses: {{Synapse}} Proteome Complexity and the Evolution of Behaviour and Disease},
+  shorttitle = {Computing Behaviour in Complex Synapses},
+  author = {Grant, Seth G.N.},
+  date = {2010-04-01},
+  journaltitle = {The Biochemist},
+  volume = {32},
+  number = {2},
+  pages = {6--9},
+  issn = {0954-982X, 1740-1194},
+  doi = {10.1042/BIO03202006},
+  url = {https://portlandpress.com/biochemist/article/32/2/6/942/Computing-behaviour-in-complex-synapses-Synapse},
+  urldate = {2024-11-28},
+  abstract = {Synapses are the defining feature of the cellular organization of the brain, connecting each neuron with thousands of others. The great morphological diversity of neurons was recognized in the 19th Century, but only in the last 10 years has the remarkable degree of molecular complexity within synapses become apparent. Over 1000 proteins are found in the proteome of the postsynaptic terminal of mammalian synapses. This complexity is organized into networks providing combinatorial signalling for physiological processes, diversity of synapse types and disease susceptibility, as well as providing a new paradigm for the evolution of the brain.},
+  langid = {english},
+  file = {C:\Users\kmc07\Zotero\storage\QNQE9DZJ\Grant - 2010 - Computing behaviour in complex synapses Synapse proteome complexity and the evolution of behaviour.pdf}
+}
+
+@article{hinton1987,
   title = {Using {{Fast Weights}} to {{Deblur Old Memories}}},
   author = {Hinton, Geoffrey E. and Plaut, David C.},
   date = {1987},
@@ -155,10 +251,10 @@
   urldate = {2024-11-16},
   abstract = {Connectionist models usually have a single weight on each connection. Some interesting newproperties emerge if each connection has two weights: A slowly changing, plastic weight which stores long-term knowledge and a fast-changing, elastic weight which stores temporary knowledge and spontaneously decays towards zero. If a network learns a set of associations and then these associationsare "blurred" by subsequent learning, all the original associations can be "deblurred" by rehearsing on just a few of them. The rehearsal allows the fast weights to take on values that temporarily cancel outthe changes in the slow weights caused by the subsequent learning.},
   langid = {english},
-  file = {C:\Users\Kyle\Zotero\storage\8CVBYZCV\Hinton and Plaut - 1987 - Using Fast Weights to Deblur Old Memories.pdf}
+  file = {C:\Users\kmc07\Zotero\storage\8CVBYZCV\Hinton and Plaut - 1987 - Using Fast Weights to Deblur Old Memories.pdf}
 }
 
-@inproceedings{hochreiterLearningLearnUsing2001,
+@inproceedings{hochreiter2001,
   title = {Learning to {{Learn Using Gradient Descent}}},
   booktitle = {Artificial {{Neural Networks}} — {{ICANN}} 2001},
   author = {Hochreiter, Sepp and Younger, A. Steven and Conwell, Peter R.},
@@ -172,25 +268,28 @@
   isbn = {978-3-540-44668-2},
   langid = {english},
   keywords = {Boolean Function,Gradient Descent,Hide Layer,Learning Algorithm,Turing Machine},
-  file = {C:\Users\Kyle\Zotero\storage\YAE6ZWU7\Hochreiter et al. - 2001 - Learning to Learn Using Gradient Descent.pdf}
+  file = {C:\Users\kmc07\Zotero\storage\YAE6ZWU7\Hochreiter et al. - 2001 - Learning to Learn Using Gradient Descent.pdf}
 }
 
-@inproceedings{kaplanisContinualReinforcementLearning2018,
-  title = {Continual {{Reinforcement Learning}} with {{Complex Synapses}}},
-  booktitle = {Proceedings of the 35th {{International Conference}} on {{Machine Learning}}},
-  author = {Kaplanis, Christos and Shanahan, Murray and Clopath, Claudia},
-  date = {2018-07-03},
-  pages = {2497--2506},
-  publisher = {PMLR},
-  issn = {2640-3498},
-  url = {https://proceedings.mlr.press/v80/kaplanis18a.html},
-  urldate = {2024-11-16},
-  abstract = {Unlike humans, who are capable of continual learning over their lifetimes, artificial neural networks have long been known to suffer from a phenomenon known as catastrophic forgetting, whereby new learning can lead to abrupt erasure of previously acquired knowledge. Whereas in a neural network the parameters are typically modelled as scalar values, an individual synapse in the brain comprises a complex network of interacting biochemical components that evolve at different timescales. In this paper, we show that by equipping tabular and deep reinforcement learning agents with a synaptic model that incorporates this biological complexity (Benna \& Fusi, 2016), catastrophic forgetting can be mitigated at multiple timescales. In particular, we find that as well as enabling continual learning across sequential training of two simple tasks, it can also be used to overcome within-task forgetting by reducing the need for an experience replay database.},
-  eventtitle = {International {{Conference}} on {{Machine Learning}}},
-  langid = {english}
+@article{ji-an2023,
+  title = {Face Familiarity Detection with Complex Synapses},
+  author = {Ji-An, Li and Stefanini, Fabio and Benna, Marcus K. and Fusi, Stefano},
+  date = {2023-01-20},
+  journaltitle = {iScience},
+  shortjournal = {iScience},
+  volume = {26},
+  number = {1},
+  pages = {105856},
+  issn = {2589-0042},
+  doi = {10.1016/j.isci.2022.105856},
+  url = {https://www.sciencedirect.com/science/article/pii/S2589004222021290},
+  urldate = {2024-11-24},
+  abstract = {Synaptic plasticity is a complex phenomenon involving multiple biochemical processes that operate on different timescales. Complexity can greatly increase memory capacity when the variables characterizing the synaptic dynamics have limited precision, as shown in simple memory retrieval problems involving random patterns. Here we turn to a real-world problem, face familiarity detection, and we show that synaptic complexity can be harnessed to store in memory a large number of faces that can be recognized at a later time. The number of recognizable faces grows almost linearly with the number of synapses and quadratically with the number of neurons. Complex synapses outperform simple ones characterized by a single variable, even when the total number of dynamical variables is matched. Complex and simple synapses have distinct signatures that are testable in experiments. Our results indicate that a system with complex synapses can be used in real-world tasks such as face familiarity detection.},
+  keywords = {Applied computing,Artificial intelligence,Neuroscience},
+  file = {C\:\\Users\\kmc07\\Zotero\\storage\\6VCHZD3M\\Ji-An et al. - 2023 - Face familiarity detection with complex synapses.pdf;C\:\\Users\\kmc07\\Zotero\\storage\\JYNIVLV7\\S2589004222021290.html}
 }
 
-@online{kaplanisContinualReinforcementLearning2018a,
+@online{kaplanis2018c,
   title = {Continual {{Reinforcement Learning}} with {{Complex Synapses}}},
   author = {Kaplanis, Christos and Shanahan, Murray and Clopath, Claudia},
   date = {2018-06-19},
@@ -198,38 +297,23 @@
   eprinttype = {arXiv},
   doi = {10.48550/arXiv.1802.07239},
   url = {http://arxiv.org/abs/1802.07239},
-  urldate = {2024-11-16},
+  urldate = {2024-11-24},
   abstract = {Unlike humans, who are capable of continual learning over their lifetimes, artificial neural networks have long been known to suffer from a phenomenon known as catastrophic forgetting, whereby new learning can lead to abrupt erasure of previously acquired knowledge. Whereas in a neural network the parameters are typically modelled as scalar values, an individual synapse in the brain comprises a complex network of interacting biochemical components that evolve at different timescales. In this paper, we show that by equipping tabular and deep reinforcement learning agents with a synaptic model that incorporates this biological complexity (Benna \& Fusi, 2016), catastrophic forgetting can be mitigated at multiple timescales. In particular, we find that as well as enabling continual learning across sequential training of two simple tasks, it can also be used to overcome within-task forgetting by reducing the need for an experience replay database.},
   pubstate = {prepublished},
-  keywords = {Computer Science - Artificial Intelligence,Computer Science - Machine Learning,Computer Science - Neural and Evolutionary Computing}
+  keywords = {Computer Science - Artificial Intelligence,Computer Science - Machine Learning,Computer Science - Neural and Evolutionary Computing},
+  file = {C\:\\Users\\kmc07\\Zotero\\storage\\IUJ5YR56\\Kaplanis et al. - 2018 - Continual Reinforcement Learning with Complex Synapses.pdf;C\:\\Users\\kmc07\\Zotero\\storage\\7PXRAJMH\\1802.html}
 }
 
-@inproceedings{kaplanisContinualReinforcementLearning2018b,
-  title = {Continual {{Reinforcement Learning}} with {{Complex Synapses}}},
-  booktitle = {Proceedings of the 35th {{International Conference}} on {{Machine Learning}}},
-  author = {Kaplanis, Christos and Shanahan, Murray and Clopath, Claudia},
-  date = {2018-07-03},
-  pages = {2497--2506},
-  publisher = {PMLR},
-  issn = {2640-3498},
-  url = {https://proceedings.mlr.press/v80/kaplanis18a.html},
-  urldate = {2024-11-16},
-  abstract = {Unlike humans, who are capable of continual learning over their lifetimes, artificial neural networks have long been known to suffer from a phenomenon known as catastrophic forgetting, whereby new learning can lead to abrupt erasure of previously acquired knowledge. Whereas in a neural network the parameters are typically modelled as scalar values, an individual synapse in the brain comprises a complex network of interacting biochemical components that evolve at different timescales. In this paper, we show that by equipping tabular and deep reinforcement learning agents with a synaptic model that incorporates this biological complexity (Benna \& Fusi, 2016), catastrophic forgetting can be mitigated at multiple timescales. In particular, we find that as well as enabling continual learning across sequential training of two simple tasks, it can also be used to overcome within-task forgetting by reducing the need for an experience replay database.},
-  eventtitle = {International {{Conference}} on {{Machine Learning}}},
-  langid = {english},
-  file = {C:\Users\Kyle\Zotero\storage\3HX278U3\Kaplanis et al. - 2018 - Continual Reinforcement Learning with Complex Synapses.pdf}
-}
-
-@article{metzMETALEARNINGUPDATERULES2019,
+@article{metz2019,
   title = {{{META-LEARNING UPDATE RULES FOR UNSUPER- VISED REPRESENTATION LEARNING}}},
   author = {Metz, Luke and Maheswaranathan, Niru and Cheung, Brian and Sohl-Dickstein, Jascha},
   date = {2019},
   abstract = {A major goal of unsupervised learning is to discover data representations that are useful for subsequent tasks, without access to supervised labels during training. Typically, this involves minimizing a surrogate objective, such as the negative log likelihood of a generative model, with the hope that representations useful for subsequent tasks will arise as a side effect. In this work, we propose instead to directly target later desired tasks by meta-learning an unsupervised learning rule which leads to representations useful for those tasks. Specifically, we target semi-supervised classification performance, and we meta-learn an algorithm –an unsupervised weight update rule – that produces representations useful for this task. Additionally, we constrain our unsupervised update rule to a be a biologically-motivated, neuron-local function, which enables it to generalize to different neural network architectures, datasets, and data modalities. We show that the meta-learned update rule produces useful features and sometimes outperforms existing unsupervised learning techniques. We further show that the meta-learned unsupervised update rule generalizes to train networks with different widths, depths, and nonlinearities. It also generalizes to train on data with randomly permuted input dimensions and even generalizes from image datasets to a text task.},
   langid = {english},
-  file = {C:\Users\Kyle\Zotero\storage\L86ZJU64\Metz et al. - 2019 - META-LEARNING UPDATE RULES FOR UNSUPER- VISED REPRESENTATION LEARNING.pdf}
+  file = {C:\Users\kmc07\Zotero\storage\L86ZJU64\Metz et al. - 2019 - META-LEARNING UPDATE RULES FOR UNSUPER- VISED REPRESENTATION LEARNING.pdf}
 }
 
-@online{sandlerMetaLearningBidirectionalUpdate2021,
+@online{sandler2021,
   title = {Meta-{{Learning Bidirectional Update Rules}}},
   author = {Sandler, Mark and Vladymyrov, Max and Zhmoginov, Andrey and Miller, Nolan and Jackson, Andrew and Madams, Tom and family=Arcas, given=Blaise Aguera, prefix=y, useprefix=false},
   date = {2021-06-11},
@@ -240,10 +324,10 @@
   abstract = {In this paper, we introduce a new type of generalized neural network where neurons and synapses maintain multiple states. We show that classical gradient-based backpropagation in neural networks can be seen as a special case of a two-state network where one state is used for activations and another for gradients, with update rules derived from the chain rule. In our generalized framework, networks have neither explicit notion of nor ever receive gradients. The synapses and neurons are updated using a bidirectional Hebb-style update rule parameterized by a shared low-dimensional "genome". We show that such genomes can be meta-learned from scratch, using either conventional optimization techniques, or evolutionary strategies, such as CMA-ES. Resulting update rules generalize to unseen tasks and train faster than gradient descent based optimizers for several standard computer vision and synthetic tasks.},
   pubstate = {prepublished},
   keywords = {Computer Science - Machine Learning,Computer Science - Neural and Evolutionary Computing},
-  file = {C\:\\Users\\Kyle\\Zotero\\storage\\5DLI3HPT\\Sandler et al. - 2021 - Meta-Learning Bidirectional Update Rules.pdf;C\:\\Users\\Kyle\\Zotero\\storage\\TQ5WGHBF\\2104.html}
+  file = {C\:\\Users\\kmc07\\Zotero\\storage\\5DLI3HPT\\Sandler et al. - 2021 - Meta-Learning Bidirectional Update Rules.pdf;C\:\\Users\\kmc07\\Zotero\\storage\\TQ5WGHBF\\2104.html}
 }
 
-@article{shervani-tabarMetalearningBiologicallyPlausible2023,
+@article{shervani-tabar2023,
   title = {Meta-Learning Biologically Plausible Plasticity Rules with Random Feedback Pathways},
   author = {Shervani-Tabar, Navid and Rosenbaum, Robert},
   date = {2023-03-31},
@@ -260,5 +344,12 @@
   abstract = {Backpropagation is widely used to train artificial neural networks, but its relationship to synaptic plasticity in the brain is unknown. Some biological models of backpropagation rely on feedback projections that are symmetric with feedforward connections, but experiments do not corroborate the existence of such symmetric backward connectivity. Random feedback alignment offers an alternative model in which errors are propagated backward through fixed, random backward connections. This approach successfully trains shallow models, but learns slowly and does not perform well with deeper models or online learning. In this study, we develop a meta-learning approach to discover interpretable, biologically plausible plasticity rules that improve online learning performance with fixed random feedback connections. The resulting plasticity rules show improved online training of deep models in the low data regime. Our results highlight the potential of meta-learning to discover effective, interpretable learning rules satisfying biological constraints.},
   langid = {english},
   keywords = {Computational science,Learning algorithms},
-  file = {C:\Users\Kyle\Zotero\storage\E6MFRN9F\Shervani-Tabar and Rosenbaum - 2023 - Meta-learning biologically plausible plasticity rules with random feedback pathways.pdf}
+  file = {C:\Users\kmc07\Zotero\storage\E6MFRN9F\Shervani-Tabar and Rosenbaum - 2023 - Meta-learning biologically plausible plasticity rules with random feedback pathways.pdf}
+}
+
+@online{zotero-512,
+  title = {Cascade {{Models}} of {{Synaptically Stored Memories}} - {{ScienceDirect}}},
+  url = {https://www.sciencedirect.com/science/article/pii/S0896627305001170},
+  urldate = {2024-11-28},
+  file = {C:\Users\kmc07\Zotero\storage\CV6YNLRM\S0896627305001170.html}
 }

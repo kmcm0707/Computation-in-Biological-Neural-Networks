@@ -343,6 +343,8 @@ class MetaLearner:
             v_values = self.UpdateWeights.v_vector.detach().clone()[0, :]
             oja_minus = self.UpdateWeights.oja_minus_parameter.detach().clone()
             bias_dict = self.UpdateWeights.bias_dictonary
+            z_vector = self.UpdateWeights.z_vector.detach().clone()
+            y_vector = self.UpdateWeights.y_vector.detach().clone()
 
             # -- backprop
             self.UpdateMetaParameters.zero_grad()
@@ -396,6 +398,12 @@ class MetaLearner:
                 
                 with open(self.result_directory + '/v_vector.txt', 'a') as f:
                     f.writelines('Episode: {}, v_vector: {} \n'.format(eps+1, v_vector))
+
+                with open(self.result_directory + '/z_vector.txt', 'a') as f:
+                    f.writelines('Episode: {}, z_vector: {} \n'.format(eps+1, z_vector))
+                
+                with open(self.result_directory + '/y_vector.txt', 'a') as f:
+                    f.writelines('Episode: {}, y_vector: {} \n'.format(eps+1, y_vector))
 
             # -- raytune
             if self.raytune:
