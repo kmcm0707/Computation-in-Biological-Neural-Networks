@@ -124,6 +124,10 @@ class ComplexSynapse(nn.Module):
         self.z_vector = 1 / self.tau_vector
         self.y_vector = 1 - self.z_vector
 
+        if "z_vector" in self.options:
+            if self.options['z_vector'] == "all_ones":
+                self.z_vector = torch.ones(self.number_chemicals, device=self.device)
+
         if self.number_chemicals == 1:
             self.y_vector[0] = 1
         elif "y_vector" in self.options:
@@ -143,6 +147,13 @@ class ComplexSynapse(nn.Module):
         
         self.y_vector = self.y_vector.to(self.device)
         self.z_vector = self.z_vector.to(self.device)
+
+        if "y_z_train" in self.options:
+            if self.options['y_z_train'] == True:
+                self.y_vector = nn.Parameter(self.y_vector)
+                self.z_vector = nn.Parameter(self.z_vector)
+                self.all_meta_parameters.append(self.y_vector)
+                self.all_meta_parameters.append(self.z_vector)
 
         ## Initialize the v vector
         self.v_vector = nn.Parameter(torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device)) / self.number_chemicals)
