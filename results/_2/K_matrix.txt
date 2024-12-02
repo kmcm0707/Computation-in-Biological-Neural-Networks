@@ -1,0 +1,400 @@
+Episode: 1, K_Matrix: tensor([[0., 0.],
+        [0., 0.]], device='cuda:0') 
+Episode: 2, K_Matrix: tensor([[-0.0004, -0.0004],
+        [ 0.0004,  0.0004]], device='cuda:0') 
+Episode: 3, K_Matrix: tensor([[-0.0006, -0.0006],
+        [ 0.0007,  0.0007]], device='cuda:0') 
+Episode: 4, K_Matrix: tensor([[-0.0008, -0.0008],
+        [ 0.0009,  0.0008]], device='cuda:0') 
+Episode: 5, K_Matrix: tensor([[-0.0009, -0.0008],
+        [ 0.0011,  0.0010]], device='cuda:0') 
+Episode: 6, K_Matrix: tensor([[-0.0009, -0.0008],
+        [ 0.0013,  0.0011]], device='cuda:0') 
+Episode: 7, K_Matrix: tensor([[-0.0010, -0.0008],
+        [ 0.0015,  0.0012]], device='cuda:0') 
+Episode: 8, K_Matrix: tensor([[-0.0010, -0.0007],
+        [ 0.0017,  0.0014]], device='cuda:0') 
+Episode: 9, K_Matrix: tensor([[-0.0009, -0.0006],
+        [ 0.0018,  0.0016]], device='cuda:0') 
+Episode: 10, K_Matrix: tensor([[-0.0009, -0.0005],
+        [ 0.0020,  0.0018]], device='cuda:0') 
+Episode: 11, K_Matrix: tensor([[-0.0008, -0.0003],
+        [ 0.0022,  0.0020]], device='cuda:0') 
+Episode: 12, K_Matrix: tensor([[-0.0007, -0.0002],
+        [ 0.0024,  0.0022]], device='cuda:0') 
+Episode: 13, K_Matrix: tensor([[-0.0007, -0.0001],
+        [ 0.0025,  0.0023]], device='cuda:0') 
+Episode: 14, K_Matrix: tensor([[-6.9814e-04, -4.9370e-05],
+        [ 2.6068e-03,  2.5019e-03]], device='cuda:0') 
+Episode: 15, K_Matrix: tensor([[-6.6288e-04,  4.1165e-05],
+        [ 2.7433e-03,  2.6682e-03]], device='cuda:0') 
+Episode: 16, K_Matrix: tensor([[-6.5822e-04,  7.2874e-05],
+        [ 2.8617e-03,  2.7845e-03]], device='cuda:0') 
+Episode: 17, K_Matrix: tensor([[-0.0006,  0.0002],
+        [ 0.0030,  0.0029]], device='cuda:0') 
+Episode: 18, K_Matrix: tensor([[-0.0006,  0.0002],
+        [ 0.0031,  0.0031]], device='cuda:0') 
+Episode: 19, K_Matrix: tensor([[-0.0005,  0.0003],
+        [ 0.0034,  0.0034]], device='cuda:0') 
+Episode: 20, K_Matrix: tensor([[-0.0005,  0.0005],
+        [ 0.0036,  0.0036]], device='cuda:0') 
+Episode: 21, K_Matrix: tensor([[-0.0004,  0.0007],
+        [ 0.0038,  0.0039]], device='cuda:0') 
+Episode: 22, K_Matrix: tensor([[-0.0003,  0.0009],
+        [ 0.0041,  0.0042]], device='cuda:0') 
+Episode: 23, K_Matrix: tensor([[-0.0001,  0.0011],
+        [ 0.0044,  0.0046]], device='cuda:0') 
+Episode: 24, K_Matrix: tensor([[-2.6547e-05,  1.3012e-03],
+        [ 4.6241e-03,  4.8778e-03]], device='cuda:0') 
+Episode: 25, K_Matrix: tensor([[8.8716e-05, 1.5115e-03],
+        [4.8527e-03, 5.1702e-03]], device='cuda:0') 
+Episode: 26, K_Matrix: tensor([[0.0002, 0.0018],
+        [0.0051, 0.0055]], device='cuda:0') 
+Episode: 27, K_Matrix: tensor([[0.0004, 0.0020],
+        [0.0053, 0.0058]], device='cuda:0') 
+Episode: 28, K_Matrix: tensor([[0.0005, 0.0022],
+        [0.0056, 0.0061]], device='cuda:0') 
+Episode: 29, K_Matrix: tensor([[0.0006, 0.0024],
+        [0.0057, 0.0064]], device='cuda:0') 
+Episode: 30, K_Matrix: tensor([[0.0007, 0.0026],
+        [0.0060, 0.0067]], device='cuda:0') 
+Episode: 31, K_Matrix: tensor([[0.0009, 0.0029],
+        [0.0062, 0.0070]], device='cuda:0') 
+Episode: 32, K_Matrix: tensor([[0.0011, 0.0031],
+        [0.0065, 0.0073]], device='cuda:0') 
+Episode: 33, K_Matrix: tensor([[0.0011, 0.0032],
+        [0.0066, 0.0075]], device='cuda:0') 
+Episode: 34, K_Matrix: tensor([[0.0013, 0.0035],
+        [0.0068, 0.0077]], device='cuda:0') 
+Episode: 35, K_Matrix: tensor([[0.0015, 0.0037],
+        [0.0070, 0.0080]], device='cuda:0') 
+Episode: 36, K_Matrix: tensor([[0.0016, 0.0039],
+        [0.0072, 0.0083]], device='cuda:0') 
+Episode: 37, K_Matrix: tensor([[0.0017, 0.0041],
+        [0.0074, 0.0085]], device='cuda:0') 
+Episode: 38, K_Matrix: tensor([[0.0019, 0.0044],
+        [0.0076, 0.0088]], device='cuda:0') 
+Episode: 39, K_Matrix: tensor([[0.0021, 0.0045],
+        [0.0078, 0.0090]], device='cuda:0') 
+Episode: 40, K_Matrix: tensor([[0.0023, 0.0048],
+        [0.0081, 0.0093]], device='cuda:0') 
+Episode: 41, K_Matrix: tensor([[0.0026, 0.0051],
+        [0.0085, 0.0097]], device='cuda:0') 
+Episode: 42, K_Matrix: tensor([[0.0029, 0.0055],
+        [0.0088, 0.0101]], device='cuda:0') 
+Episode: 43, K_Matrix: tensor([[0.0032, 0.0058],
+        [0.0092, 0.0105]], device='cuda:0') 
+Episode: 44, K_Matrix: tensor([[0.0034, 0.0061],
+        [0.0095, 0.0109]], device='cuda:0') 
+Episode: 45, K_Matrix: tensor([[0.0037, 0.0064],
+        [0.0098, 0.0113]], device='cuda:0') 
+Episode: 46, K_Matrix: tensor([[0.0040, 0.0068],
+        [0.0102, 0.0117]], device='cuda:0') 
+Episode: 47, K_Matrix: tensor([[0.0043, 0.0072],
+        [0.0107, 0.0122]], device='cuda:0') 
+Episode: 48, K_Matrix: tensor([[0.0048, 0.0077],
+        [0.0111, 0.0127]], device='cuda:0') 
+Episode: 49, K_Matrix: tensor([[0.0052, 0.0082],
+        [0.0116, 0.0131]], device='cuda:0') 
+Episode: 50, K_Matrix: tensor([[0.0053, 0.0083],
+        [0.0117, 0.0132]], device='cuda:0') 
+Episode: 51, K_Matrix: tensor([[0.0055, 0.0084],
+        [0.0119, 0.0134]], device='cuda:0') 
+Episode: 52, K_Matrix: tensor([[0.0055, 0.0084],
+        [0.0118, 0.0134]], device='cuda:0') 
+Episode: 53, K_Matrix: tensor([[0.0055, 0.0085],
+        [0.0120, 0.0135]], device='cuda:0') 
+Episode: 54, K_Matrix: tensor([[0.0054, 0.0084],
+        [0.0121, 0.0136]], device='cuda:0') 
+Episode: 55, K_Matrix: tensor([[0.0054, 0.0084],
+        [0.0123, 0.0139]], device='cuda:0') 
+Episode: 56, K_Matrix: tensor([[0.0051, 0.0081],
+        [0.0121, 0.0136]], device='cuda:0') 
+Episode: 57, K_Matrix: tensor([[0.0049, 0.0078],
+        [0.0118, 0.0134]], device='cuda:0') 
+Episode: 58, K_Matrix: tensor([[0.0045, 0.0075],
+        [0.0115, 0.0131]], device='cuda:0') 
+Episode: 59, K_Matrix: tensor([[0.0041, 0.0071],
+        [0.0111, 0.0127]], device='cuda:0') 
+Episode: 60, K_Matrix: tensor([[0.0038, 0.0068],
+        [0.0108, 0.0124]], device='cuda:0') 
+Episode: 61, K_Matrix: tensor([[0.0035, 0.0064],
+        [0.0105, 0.0121]], device='cuda:0') 
+Episode: 62, K_Matrix: tensor([[0.0032, 0.0062],
+        [0.0103, 0.0118]], device='cuda:0') 
+Episode: 63, K_Matrix: tensor([[0.0029, 0.0059],
+        [0.0100, 0.0116]], device='cuda:0') 
+Episode: 64, K_Matrix: tensor([[0.0027, 0.0057],
+        [0.0098, 0.0114]], device='cuda:0') 
+Episode: 65, K_Matrix: tensor([[0.0025, 0.0055],
+        [0.0096, 0.0112]], device='cuda:0') 
+Episode: 66, K_Matrix: tensor([[0.0023, 0.0053],
+        [0.0095, 0.0111]], device='cuda:0') 
+Episode: 67, K_Matrix: tensor([[0.0021, 0.0051],
+        [0.0093, 0.0109]], device='cuda:0') 
+Episode: 68, K_Matrix: tensor([[0.0020, 0.0050],
+        [0.0092, 0.0108]], device='cuda:0') 
+Episode: 69, K_Matrix: tensor([[0.0019, 0.0049],
+        [0.0091, 0.0107]], device='cuda:0') 
+Episode: 70, K_Matrix: tensor([[0.0018, 0.0048],
+        [0.0090, 0.0106]], device='cuda:0') 
+Episode: 71, K_Matrix: tensor([[0.0017, 0.0046],
+        [0.0089, 0.0105]], device='cuda:0') 
+Episode: 72, K_Matrix: tensor([[0.0016, 0.0046],
+        [0.0088, 0.0104]], device='cuda:0') 
+Episode: 73, K_Matrix: tensor([[0.0015, 0.0045],
+        [0.0087, 0.0103]], device='cuda:0') 
+Episode: 74, K_Matrix: tensor([[0.0014, 0.0044],
+        [0.0087, 0.0102]], device='cuda:0') 
+Episode: 75, K_Matrix: tensor([[0.0013, 0.0043],
+        [0.0086, 0.0102]], device='cuda:0') 
+Episode: 76, K_Matrix: tensor([[0.0013, 0.0043],
+        [0.0086, 0.0101]], device='cuda:0') 
+Episode: 77, K_Matrix: tensor([[0.0012, 0.0042],
+        [0.0085, 0.0101]], device='cuda:0') 
+Episode: 78, K_Matrix: tensor([[0.0012, 0.0042],
+        [0.0085, 0.0100]], device='cuda:0') 
+Episode: 79, K_Matrix: tensor([[0.0011, 0.0041],
+        [0.0084, 0.0100]], device='cuda:0') 
+Episode: 80, K_Matrix: tensor([[0.0011, 0.0041],
+        [0.0084, 0.0100]], device='cuda:0') 
+Episode: 81, K_Matrix: tensor([[0.0011, 0.0041],
+        [0.0084, 0.0100]], device='cuda:0') 
+Episode: 82, K_Matrix: tensor([[0.0011, 0.0040],
+        [0.0084, 0.0100]], device='cuda:0') 
+Episode: 83, K_Matrix: tensor([[0.0010, 0.0040],
+        [0.0084, 0.0099]], device='cuda:0') 
+Episode: 84, K_Matrix: tensor([[0.0010, 0.0040],
+        [0.0084, 0.0099]], device='cuda:0') 
+Episode: 85, K_Matrix: tensor([[0.0010, 0.0040],
+        [0.0084, 0.0099]], device='cuda:0') 
+Episode: 86, K_Matrix: tensor([[0.0010, 0.0040],
+        [0.0083, 0.0099]], device='cuda:0') 
+Episode: 87, K_Matrix: tensor([[0.0010, 0.0040],
+        [0.0083, 0.0099]], device='cuda:0') 
+Episode: 88, K_Matrix: tensor([[0.0010, 0.0040],
+        [0.0083, 0.0099]], device='cuda:0') 
+Episode: 89, K_Matrix: tensor([[0.0010, 0.0040],
+        [0.0083, 0.0099]], device='cuda:0') 
+Episode: 90, K_Matrix: tensor([[0.0010, 0.0040],
+        [0.0083, 0.0099]], device='cuda:0') 
+Episode: 91, K_Matrix: tensor([[0.0010, 0.0040],
+        [0.0084, 0.0099]], device='cuda:0') 
+Episode: 92, K_Matrix: tensor([[0.0010, 0.0040],
+        [0.0084, 0.0099]], device='cuda:0') 
+Episode: 93, K_Matrix: tensor([[0.0010, 0.0040],
+        [0.0084, 0.0099]], device='cuda:0') 
+Episode: 94, K_Matrix: tensor([[0.0010, 0.0040],
+        [0.0084, 0.0099]], device='cuda:0') 
+Episode: 95, K_Matrix: tensor([[0.0010, 0.0040],
+        [0.0084, 0.0099]], device='cuda:0') 
+Episode: 96, K_Matrix: tensor([[0.0010, 0.0040],
+        [0.0084, 0.0099]], device='cuda:0') 
+Episode: 97, K_Matrix: tensor([[0.0010, 0.0040],
+        [0.0084, 0.0100]], device='cuda:0') 
+Episode: 98, K_Matrix: tensor([[0.0010, 0.0040],
+        [0.0084, 0.0100]], device='cuda:0') 
+Episode: 99, K_Matrix: tensor([[0.0010, 0.0040],
+        [0.0084, 0.0100]], device='cuda:0') 
+Episode: 100, K_Matrix: tensor([[0.0010, 0.0040],
+        [0.0085, 0.0100]], device='cuda:0') 
+Episode: 101, K_Matrix: tensor([[0.0011, 0.0041],
+        [0.0085, 0.0101]], device='cuda:0') 
+Episode: 102, K_Matrix: tensor([[0.0011, 0.0041],
+        [0.0086, 0.0102]], device='cuda:0') 
+Episode: 103, K_Matrix: tensor([[0.0012, 0.0042],
+        [0.0086, 0.0102]], device='cuda:0') 
+Episode: 104, K_Matrix: tensor([[0.0012, 0.0042],
+        [0.0087, 0.0103]], device='cuda:0') 
+Episode: 105, K_Matrix: tensor([[0.0012, 0.0042],
+        [0.0088, 0.0103]], device='cuda:0') 
+Episode: 106, K_Matrix: tensor([[0.0013, 0.0043],
+        [0.0088, 0.0104]], device='cuda:0') 
+Episode: 107, K_Matrix: tensor([[0.0013, 0.0043],
+        [0.0089, 0.0105]], device='cuda:0') 
+Episode: 108, K_Matrix: tensor([[0.0013, 0.0043],
+        [0.0090, 0.0106]], device='cuda:0') 
+Episode: 109, K_Matrix: tensor([[0.0014, 0.0044],
+        [0.0086, 0.0102]], device='cuda:0') 
+Episode: 110, K_Matrix: tensor([[0.0014, 0.0044],
+        [0.0083, 0.0099]], device='cuda:0') 
+Episode: 111, K_Matrix: tensor([[0.0014, 0.0045],
+        [0.0080, 0.0096]], device='cuda:0') 
+Episode: 112, K_Matrix: tensor([[0.0015, 0.0045],
+        [0.0077, 0.0093]], device='cuda:0') 
+Episode: 113, K_Matrix: tensor([[0.0015, 0.0046],
+        [0.0075, 0.0091]], device='cuda:0') 
+Episode: 114, K_Matrix: tensor([[0.0016, 0.0046],
+        [0.0073, 0.0089]], device='cuda:0') 
+Episode: 115, K_Matrix: tensor([[0.0016, 0.0047],
+        [0.0071, 0.0087]], device='cuda:0') 
+Episode: 116, K_Matrix: tensor([[0.0017, 0.0047],
+        [0.0069, 0.0085]], device='cuda:0') 
+Episode: 117, K_Matrix: tensor([[0.0017, 0.0048],
+        [0.0068, 0.0083]], device='cuda:0') 
+Episode: 118, K_Matrix: tensor([[0.0018, 0.0049],
+        [0.0067, 0.0082]], device='cuda:0') 
+Episode: 119, K_Matrix: tensor([[0.0019, 0.0049],
+        [0.0066, 0.0081]], device='cuda:0') 
+Episode: 120, K_Matrix: tensor([[0.0020, 0.0050],
+        [0.0065, 0.0080]], device='cuda:0') 
+Episode: 121, K_Matrix: tensor([[0.0021, 0.0051],
+        [0.0064, 0.0079]], device='cuda:0') 
+Episode: 122, K_Matrix: tensor([[0.0022, 0.0052],
+        [0.0063, 0.0078]], device='cuda:0') 
+Episode: 123, K_Matrix: tensor([[0.0022, 0.0052],
+        [0.0063, 0.0078]], device='cuda:0') 
+Episode: 124, K_Matrix: tensor([[0.0023, 0.0053],
+        [0.0062, 0.0077]], device='cuda:0') 
+Episode: 125, K_Matrix: tensor([[0.0023, 0.0053],
+        [0.0061, 0.0077]], device='cuda:0') 
+Episode: 126, K_Matrix: tensor([[0.0024, 0.0054],
+        [0.0061, 0.0076]], device='cuda:0') 
+Episode: 127, K_Matrix: tensor([[0.0024, 0.0054],
+        [0.0061, 0.0076]], device='cuda:0') 
+Episode: 128, K_Matrix: tensor([[0.0024, 0.0054],
+        [0.0060, 0.0075]], device='cuda:0') 
+Episode: 129, K_Matrix: tensor([[0.0025, 0.0055],
+        [0.0060, 0.0075]], device='cuda:0') 
+Episode: 130, K_Matrix: tensor([[0.0025, 0.0055],
+        [0.0060, 0.0074]], device='cuda:0') 
+Episode: 131, K_Matrix: tensor([[0.0025, 0.0055],
+        [0.0059, 0.0074]], device='cuda:0') 
+Episode: 132, K_Matrix: tensor([[0.0026, 0.0055],
+        [0.0059, 0.0074]], device='cuda:0') 
+Episode: 133, K_Matrix: tensor([[0.0026, 0.0055],
+        [0.0059, 0.0074]], device='cuda:0') 
+Episode: 134, K_Matrix: tensor([[0.0026, 0.0056],
+        [0.0059, 0.0073]], device='cuda:0') 
+Episode: 135, K_Matrix: tensor([[0.0026, 0.0056],
+        [0.0059, 0.0073]], device='cuda:0') 
+Episode: 136, K_Matrix: tensor([[0.0027, 0.0056],
+        [0.0058, 0.0073]], device='cuda:0') 
+Episode: 137, K_Matrix: tensor([[0.0027, 0.0056],
+        [0.0058, 0.0073]], device='cuda:0') 
+Episode: 138, K_Matrix: tensor([[0.0027, 0.0057],
+        [0.0058, 0.0073]], device='cuda:0') 
+Episode: 139, K_Matrix: tensor([[0.0027, 0.0057],
+        [0.0058, 0.0073]], device='cuda:0') 
+Episode: 140, K_Matrix: tensor([[0.0028, 0.0057],
+        [0.0058, 0.0073]], device='cuda:0') 
+Episode: 141, K_Matrix: tensor([[0.0028, 0.0057],
+        [0.0058, 0.0073]], device='cuda:0') 
+Episode: 142, K_Matrix: tensor([[0.0028, 0.0057],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 143, K_Matrix: tensor([[0.0028, 0.0057],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 144, K_Matrix: tensor([[0.0029, 0.0058],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 145, K_Matrix: tensor([[0.0029, 0.0058],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 146, K_Matrix: tensor([[0.0029, 0.0058],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 147, K_Matrix: tensor([[0.0029, 0.0058],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 148, K_Matrix: tensor([[0.0030, 0.0058],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 149, K_Matrix: tensor([[0.0030, 0.0059],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 150, K_Matrix: tensor([[0.0030, 0.0059],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 151, K_Matrix: tensor([[0.0030, 0.0059],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 152, K_Matrix: tensor([[0.0030, 0.0059],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 153, K_Matrix: tensor([[0.0031, 0.0059],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 154, K_Matrix: tensor([[0.0031, 0.0059],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 155, K_Matrix: tensor([[0.0031, 0.0059],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 156, K_Matrix: tensor([[0.0031, 0.0060],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 157, K_Matrix: tensor([[0.0032, 0.0060],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 158, K_Matrix: tensor([[0.0032, 0.0060],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 159, K_Matrix: tensor([[0.0032, 0.0060],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 160, K_Matrix: tensor([[0.0032, 0.0060],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 161, K_Matrix: tensor([[0.0033, 0.0060],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 162, K_Matrix: tensor([[0.0033, 0.0061],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 163, K_Matrix: tensor([[0.0033, 0.0061],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 164, K_Matrix: tensor([[0.0033, 0.0061],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 165, K_Matrix: tensor([[0.0034, 0.0061],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 166, K_Matrix: tensor([[0.0034, 0.0061],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 167, K_Matrix: tensor([[0.0034, 0.0061],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 168, K_Matrix: tensor([[0.0035, 0.0062],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 169, K_Matrix: tensor([[0.0035, 0.0062],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 170, K_Matrix: tensor([[0.0035, 0.0062],
+        [0.0058, 0.0072]], device='cuda:0') 
+Episode: 171, K_Matrix: tensor([[0.0036, 0.0062],
+        [0.0059, 0.0072]], device='cuda:0') 
+Episode: 172, K_Matrix: tensor([[0.0036, 0.0062],
+        [0.0059, 0.0072]], device='cuda:0') 
+Episode: 173, K_Matrix: tensor([[0.0036, 0.0063],
+        [0.0059, 0.0072]], device='cuda:0') 
+Episode: 174, K_Matrix: tensor([[0.0037, 0.0063],
+        [0.0059, 0.0072]], device='cuda:0') 
+Episode: 175, K_Matrix: tensor([[0.0037, 0.0063],
+        [0.0059, 0.0073]], device='cuda:0') 
+Episode: 176, K_Matrix: tensor([[0.0037, 0.0063],
+        [0.0059, 0.0073]], device='cuda:0') 
+Episode: 177, K_Matrix: tensor([[0.0038, 0.0063],
+        [0.0059, 0.0073]], device='cuda:0') 
+Episode: 178, K_Matrix: tensor([[0.0038, 0.0064],
+        [0.0059, 0.0073]], device='cuda:0') 
+Episode: 179, K_Matrix: tensor([[0.0038, 0.0064],
+        [0.0059, 0.0073]], device='cuda:0') 
+Episode: 180, K_Matrix: tensor([[0.0039, 0.0064],
+        [0.0059, 0.0073]], device='cuda:0') 
+Episode: 181, K_Matrix: tensor([[0.0039, 0.0064],
+        [0.0059, 0.0073]], device='cuda:0') 
+Episode: 182, K_Matrix: tensor([[0.0039, 0.0064],
+        [0.0059, 0.0073]], device='cuda:0') 
+Episode: 183, K_Matrix: tensor([[0.0040, 0.0065],
+        [0.0059, 0.0073]], device='cuda:0') 
+Episode: 184, K_Matrix: tensor([[0.0040, 0.0065],
+        [0.0059, 0.0073]], device='cuda:0') 
+Episode: 185, K_Matrix: tensor([[0.0040, 0.0065],
+        [0.0059, 0.0073]], device='cuda:0') 
+Episode: 186, K_Matrix: tensor([[0.0041, 0.0065],
+        [0.0060, 0.0073]], device='cuda:0') 
+Episode: 187, K_Matrix: tensor([[0.0041, 0.0065],
+        [0.0060, 0.0073]], device='cuda:0') 
+Episode: 188, K_Matrix: tensor([[0.0041, 0.0066],
+        [0.0060, 0.0073]], device='cuda:0') 
+Episode: 189, K_Matrix: tensor([[0.0041, 0.0066],
+        [0.0060, 0.0073]], device='cuda:0') 
+Episode: 190, K_Matrix: tensor([[0.0042, 0.0066],
+        [0.0060, 0.0073]], device='cuda:0') 
+Episode: 191, K_Matrix: tensor([[0.0042, 0.0066],
+        [0.0060, 0.0073]], device='cuda:0') 
+Episode: 192, K_Matrix: tensor([[0.0042, 0.0066],
+        [0.0060, 0.0073]], device='cuda:0') 
+Episode: 193, K_Matrix: tensor([[0.0042, 0.0066],
+        [0.0060, 0.0073]], device='cuda:0') 
+Episode: 194, K_Matrix: tensor([[0.0043, 0.0067],
+        [0.0060, 0.0073]], device='cuda:0') 
+Episode: 195, K_Matrix: tensor([[0.0043, 0.0067],
+        [0.0060, 0.0073]], device='cuda:0') 
+Episode: 196, K_Matrix: tensor([[0.0043, 0.0067],
+        [0.0060, 0.0073]], device='cuda:0') 
+Episode: 197, K_Matrix: tensor([[0.0044, 0.0067],
+        [0.0060, 0.0073]], device='cuda:0') 
+Episode: 198, K_Matrix: tensor([[0.0044, 0.0067],
+        [0.0060, 0.0073]], device='cuda:0') 
+Episode: 199, K_Matrix: tensor([[0.0045, 0.0068],
+        [0.0061, 0.0073]], device='cuda:0') 
+Episode: 200, K_Matrix: tensor([[0.0045, 0.0068],
+        [0.0061, 0.0074]], device='cuda:0') 

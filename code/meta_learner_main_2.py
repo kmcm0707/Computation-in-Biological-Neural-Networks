@@ -17,7 +17,7 @@ from ray import tune, train
 
 from dataset import EmnistDataset, DataProcess
 
-from complex_synapse import ComplexSynapse
+from complex_synapse_2 import ComplexSynapse_2
 
 from utils import log, meta_stats, Plot
 
@@ -132,7 +132,7 @@ class MetaLearner:
 
     """
 
-    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu', result_subdirectory: str = datetime.datetime.now().strftime("%Y%m%d-%H%M%S"), save_results: bool = True, model_type: str = "rosenbaum", metatrain_dataset = None, seed: int = 0, display: bool = True, numberOfChemicals: int = 1, non_linearity = torch.nn.functional.tanh, options = {}, raytune = False):
+    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu', result_subdirectory: str = datetime.datetime.now().strftime("%Y%m%d-%H%M%S"), save_results: bool = True, model_type: str = "rosenbaum", metatrain_dataset = None, seed: int = 0, display: bool = True, numberOfChemicals: int = 1, number_learner_chemicals = 1, non_linearity = torch.nn.functional.tanh, options = {}, raytune = False):
 
         # -- processor params
         self.device = torch.device(device)    
@@ -151,6 +151,9 @@ class MetaLearner:
 
         # -- model params
         self.numberOfChemicals = numberOfChemicals
+        self.number_learner_chemicals = number_learner_chemicals
+        self.total_chemicals = self.numberOfChemicals + self.number_learner_chemicals
+
         if self.device == 'cpu': # Remove if using a newer GPU
             self.UnOptimizedmodel = self.load_model().to(self.device)
             self.model = torch.compile(self.UnOptimizedmodel, mode='reduce-overhead')
@@ -162,11 +165,7 @@ class MetaLearner:
         self.biasLossRegularization = options['biasLossRegularization']
         
         self.loss_func = nn.CrossEntropyLoss()
-        if False: #Not working atm?
-            self.UnoptimizedUpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type, numberOfChemicals=self.numberOfChemicals, non_linearity=non_linearity).to(self.device)
-            self.UpdateWeights = torch.compile(self.UnoptimizedUpdateWeights, mode='reduce-overhead')
-        else:
-            self.UpdateWeights = ComplexSynapse(device=self.device, mode=self.model_type, numberOfChemicals=self.numberOfChemicals, non_linearity=non_linearity, options=self.options, 
+        self.UpdateWeights = ComplexSynapse_2(device=self.device, mode=self.model_type, numberOfChemicals=self.numberOfChemicals, numberOfLearnerCehmicals=self.number_learner_chemicals, non_linearity=non_linearity, options=self.options, 
                                                 params=self.model.named_parameters()).to(self.device)
         
         lr = 1e-3
@@ -245,7 +244,7 @@ class MetaLearner:
         :return: model with flags , "adapt", set for its parameters
         """
         #if self.model_type == "rosenbaum":
-        model = RosenbaumChemicalNN(self.device, self.numberOfChemicals, small=self.small)
+        model = RosenbaumChemicalNN(self.device, self.total_chemicals, small=self.small)
 
         # -- learning flags
         for key, val in model.named_parameters():
@@ -335,8 +334,7 @@ class MetaLearner:
             # Using a clone of the model parameters to allow for in-place operations
             # Maintains the computational graph for the model as .detach() is not used
             parameters, h_parameters = self.reinitialize()
-            if self.options['chemicals'] != 'zeros':
-                self.UpdateWeights.inital_update(parameters, h_parameters)
+            self.UpdateWeights.inital_update(parameters)
 
             # -- training data
             x_trn, y_trn, x_qry, y_qry = self.data_process(data, 5)
@@ -348,7 +346,7 @@ class MetaLearner:
                 y, logits = torch.func.functional_call(self.model, (parameters, h_parameters), x.unsqueeze(0).unsqueeze(0))
 
                 # -- update network params
-                self.UpdateWeights(activations=y, output=logits, label=label, params=parameters, h_parameters= h_parameters, beta=self.model.beta)
+                self.UpdateWeights(activations=y, output=logits, label=label, params=parameters, h_parameters=h_parameters, beta=self.model.beta)
 
             """ meta update """
             # -- predict
@@ -365,14 +363,20 @@ class MetaLearner:
             # -- record params
             theta_temp = [theta.detach().clone() for theta in self.UpdateWeights.P_matrix[0, :]]
             theta_matrix = self.UpdateWeights.P_matrix.detach().clone()
+            theta_learned_matrix = self.UpdateWeights.P_learner_matrix.detach().clone()
             K_matrix = self.UpdateWeights.K_matrix.detach().clone()
+            K_learner_matrix = self.UpdateWeights.K_learner_matrix.detach().clone()
             K_norm = torch.linalg.matrix_norm(K_matrix.detach().clone(), ord=2)
+            K_learner_norm = torch.linalg.matrix_norm(K_learner_matrix.detach().clone(), ord=2)
             v_vector = self.UpdateWeights.v_vector.detach().clone()
+            v_learner_vector = self.UpdateWeights.v_learner_vector.detach().clone()
             v_values = self.UpdateWeights.v_vector.detach().clone()[0, :]
             oja_minus = self.UpdateWeights.oja_minus_parameter.detach().clone()
             bias_dict = self.UpdateWeights.bias_dictonary
             z_vector = self.UpdateWeights.z_vector.detach().clone()
+            z_learner_vector = self.UpdateWeights.z_learner_vector.detach().clone()
             y_vector = self.UpdateWeights.y_vector.detach().clone()
+            y_learner_vector = self.UpdateWeights.y_learner_vector.detach().clone()
 
             # -- backprop
             self.UpdateMetaParameters.zero_grad()
@@ -421,8 +425,14 @@ class MetaLearner:
                 with open(self.result_directory + '/K_matrix.txt', 'a') as f:
                     f.writelines('Episode: {}, K_Matrix: {} \n'.format(eps+1, K_matrix))
                 
+                with open(self.result_directory + '/K_learner_matrix.txt', 'a') as f:
+                    f.writelines('Episode: {}, K_learner_matrix: {} \n'.format(eps+1, K_learner_matrix))
+                
                 with open(self.result_directory + '/theta_matrix.txt', 'a') as f:
                     f.writelines('Episode: {}, Theta_Matrix: {} \n'.format(eps+1, theta_matrix))
+
+                with open(self.result_directory + '/theta_learned_matrix.txt', 'a') as f:   
+                    f.writelines('Episode: {}, Theta_learned_matrix: {} \n'.format(eps+1, theta_learned_matrix))
                 
                 with open(self.result_directory + '/v_vector.txt', 'a') as f:
                     f.writelines('Episode: {}, v_vector: {} \n'.format(eps+1, v_vector))
@@ -432,6 +442,15 @@ class MetaLearner:
                 
                 with open(self.result_directory + '/y_vector.txt', 'a') as f:
                     f.writelines('Episode: {}, y_vector: {} \n'.format(eps+1, y_vector))
+
+                with open(self.result_directory + '/v_learner_vector.txt', 'a') as f:
+                    f.writelines('Episode: {}, v_learner_vector: {} \n'.format(eps+1, v_learner_vector))
+                
+                with open(self.result_directory + '/z_learner_vector.txt', 'a') as f:
+                    f.writelines('Episode: {}, z_learner_vector: {} \n'.format(eps+1, z_learner_vector))
+                
+                with open(self.result_directory + '/y_learner_vector.txt', 'a') as f:
+                    f.writelines('Episode: {}, y_learner_vector: {} \n'.format(eps+1, y_learner_vector))    
 
             # -- raytune
             if self.raytune:
@@ -492,7 +511,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -
     options['bias'] = False
     options['y_vector'] = "half"
     options['z_vector'] = "all_ones"
-    options['train_z_vector'] = False
+    options['train_z_vector'] = True
     options['v_vector'] = "none"
     options['biasLossRegularization'] = 0
     options['small'] = True
@@ -504,12 +523,13 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -
     #non_linearity = pass_through
     
     #   -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 2
+    numberLearnerChemicals = 2
     # -- meta-train
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     #device = 'cpu'
 
-    metalearning_model = MetaLearner(device=device, result_subdirectory=result_subdirectory, save_results=True, model_type="all", metatrain_dataset=metatrain_dataset, seed=seed, display=display, numberOfChemicals=numberOfChemicals, non_linearity=non_linearity, options=options, raytune=False)
+    metalearning_model = MetaLearner(device=device, result_subdirectory=result_subdirectory, save_results=True, model_type="all", metatrain_dataset=metatrain_dataset, seed=seed, display=display, numberOfChemicals=numberOfChemicals, non_linearity=non_linearity, options=options, raytune=False, number_learner_chemicals=numberLearnerChemicals)
     metalearning_model.train()
 
 def main():

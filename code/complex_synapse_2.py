@@ -4,14 +4,14 @@ import torch
 from torch import nn
 from torch.nn import functional
 
-class ComplexSynapse(nn.Module):
+class ComplexSynapse_2(nn.Module):
     """
         Complex synapse model.
         The class implements a complex synapse model.
         Which is a biological plausible update rule.
     """
  
-    def __init__(self, device='cpu', mode='rosenbaum', numberOfChemicals: int = 1, non_linearity=torch.nn.functional.tanh, options: dict = {}, params: dict = {}):
+    def __init__(self, device='cpu', mode='rosenbaum', numberOfChemicals: int = 1, numberOfLearnerCehmicals = 1, non_linearity=torch.nn.functional.tanh, options: dict = {}, params: dict = {}):
         """
             Initialize the complex synapse model.
             :param device: (str) The processing device to use. Default is 'cpu',
@@ -21,7 +21,7 @@ class ComplexSynapse(nn.Module):
             :param options: (dict) The options to use. Default is {}.
             :param params: (dict) The parameters of the normal NN. Default is {}.
         """
-        super(ComplexSynapse, self).__init__()
+        super(ComplexSynapse_2, self).__init__()
 
         self.device = device
         self.mode = mode
@@ -31,28 +31,25 @@ class ComplexSynapse(nn.Module):
         # y = 1-z, y_0 = 1, z_0 = 1
         #w(s) = v * h(s) (if self.number_chemicals = 1)
         self.K_matrix = nn.Parameter() # K - LxL
+        self.K_learner_matrix = nn.Parameter() # K' - L'xL' 
         self.v_vector = nn.Parameter() # v - L
+        self.v_learner_vector = nn.Parameter() # v' - L'
         self.P_matrix = nn.Parameter() # \theta - Lx10
+        self.P_learner_matrix = nn.Parameter() # \theta' - L'x10
+
         self.all_meta_parameters = nn.ParameterList([]) # All updatable meta-parameters except bias
         self.bias_dictonary = torch.nn.ParameterDict() # All bias parameters
         self.all_bias_parameters = nn.ParameterList([]) # All bias parameters if they are used
+        self.all_saved_parameters = dict(([])) # All initial parameters
         self.number_chemicals = numberOfChemicals # L
+        self.number_learner_chemicals = numberOfLearnerCehmicals # L'
 
         self.non_linearity = non_linearity
 
         self.update_rules = [False] * 10
-        if self.mode == 'rosenbaum':
-            self.update_rules[0] = True
-            self.update_rules[2] = True
-            self.update_rules[9] = True
-        elif self.mode == 'all_rosenbaum':
-            self.update_rules = [True] * 10
-        else:
-            if 'update_rules' in self.options:
-                for i in self.options['update_rules']:
-                    self.update_rules[i] = True
-            else:
-                self.update_rules = [True] * 10
+          
+        for i in self.options['update_rules']:
+            self.update_rules[i] = True
 
         self.init_parameters(params=params)
 
@@ -70,7 +67,7 @@ class ComplexSynapse(nn.Module):
         for name, parameter in params:
             if 'forward' in name:
                 h_name = name.replace('forward', 'chemical').split('.')[0]
-                self.bias_dictonary[h_name] = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, parameter.shape[0], parameter.shape[1]), device=self.device, requires_grad=True)))
+                self.bias_dictonary[h_name] = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals + self.number_learner_chemicals, parameter.shape[0], parameter.shape[1]), device=self.device, requires_grad=True)))
             
         if "bias" in self.options:
             if self.options['bias'] == True:
@@ -78,41 +75,46 @@ class ComplexSynapse(nn.Module):
 
         ## Initialize the P and K matrices
         self.K_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)))
+        self.K_learner_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_learner_chemicals, self.number_learner_chemicals), device=self.device)))
+
         self.P_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device)))
+        self.P_learner_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_learner_chemicals, 10), device=self.device)))
+
         self.P_matrix[:,0] = 1e-3
-        if self.mode == 'rosenbaum' or self.mode == 'all_rosenbaum':
-            pass
-        else:
-            if "P_Matrix" in self.options:
-                if self.options['P_Matrix'] == 'random':
-                    self.P_matrix = nn.Parameter(torch.nn.init.normal_(torch.empty(size=(self.number_chemicals, 10), device=self.device), mean=0, std=0.01))
-                    self.P_matrix[:,0] = torch.abs_(self.P_matrix[:,0])
-                elif self.options['P_Matrix'] == 'rosenbaum_last':
-                    self.P_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device)))
-                    self.P_matrix[:,0] = 0.01
-                    self.P_matrix[-1,0] = 0.01
-                    self.P_matrix[-1,2] = -0.03
-                    self.P_matrix[-1,9] = 0.005
-                elif self.options['P_Matrix'] == 'rosenbaum_first':
-                    self.P_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device)))
-                    self.P_matrix[:,0] = 0.01
-                    self.P_matrix[0,0] = 0.01
-                    self.P_matrix[0,2] = -0.03
-                    self.P_matrix[0,9] = 0.005
+        self.P_learner_matrix[:,0] = 1e-3
 
-            if "K_Matrix" in self.options:
-                if self.options['K_Matrix'] == 'random':
-                    self.K_matrix = nn.Parameter(torch.nn.init.normal_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device), mean=0, std=0.01/np.sqrt(self.number_chemicals)))
-                elif self.options['K_Matrix'] == 'rosenbaum':
-                    self.K_matrix = nn.Parameter(torch.nn.init.normal_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device), mean=0, std=0.2/np.sqrt(self.number_chemicals)))
-                elif self.options['K_Matrix'] == 'xavier':
-                    self.K_matrix = nn.Parameter(0.1*torch.nn.init.xavier_normal_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)))
-            self.all_meta_parameters.append(self.K_matrix)
+        if "P_Matrix" in self.options:
+            if self.options['P_Matrix'] == 'random':
+                self.P_matrix = nn.Parameter(torch.nn.init.normal_(torch.empty(size=(self.number_chemicals, 10), device=self.device), mean=0, std=0.01))
+                self.P_matrix[:,0] = torch.abs_(self.P_matrix[:,0])
+            elif self.options['P_Matrix'] == 'rosenbaum_last':
+                self.P_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device)))
+                self.P_matrix[:,0] = 0.01
+                self.P_matrix[-1,0] = 0.01
+                self.P_matrix[-1,2] = -0.03
+                self.P_matrix[-1,9] = 0.005
+            elif self.options['P_Matrix'] == 'rosenbaum_first':
+                self.P_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device)))
+                self.P_matrix[:,0] = 0.01
+                self.P_matrix[0,0] = 0.01
+                self.P_matrix[0,2] = -0.03
+                self.P_matrix[0,9] = 0.005
 
-        self.all_meta_parameters.append(self.P_matrix)
-       
+        if "K_Matrix" in self.options:
+            if self.options['K_Matrix'] == 'random':
+                self.K_matrix = nn.Parameter(torch.nn.init.normal_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device), mean=0, std=0.01/np.sqrt(self.number_chemicals)))
+            elif self.options['K_Matrix'] == 'rosenbaum':
+                self.K_matrix = nn.Parameter(torch.nn.init.normal_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device), mean=0, std=0.2/np.sqrt(self.number_chemicals)))
+            elif self.options['K_Matrix'] == 'xavier':
+                self.K_matrix = nn.Parameter(0.1*torch.nn.init.xavier_normal_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)))
+
+        self.all_meta_parameters.extend([self.K_matrix, self.P_matrix])
+        self.all_meta_parameters.extend([self.K_learner_matrix, self.P_learner_matrix])
+
         self.z_vector = torch.tensor([0] * self.number_chemicals, device=self.device)
+        self.z_learner_vector = torch.tensor([0] * self.number_learner_chemicals, device=self.device)   
         self.y_vector = torch.tensor([0] * self.number_chemicals, device=self.device)
+        self.y_learner_vector = torch.tensor([0] * self.number_learner_chemicals, device=self.device)
 
         ## Initialize the chemical time constants
         # z = 1 / \tau
@@ -121,58 +123,46 @@ class ComplexSynapse(nn.Module):
         base = max_tau / min_tau
 
         self.tau_vector = min_tau * (base ** torch.linspace(0, 1, self.number_chemicals))
+        self.tau_learner_vector = min_tau * (base ** torch.linspace(0, 1, self.number_learner_chemicals))
+
         self.z_vector = 1 / self.tau_vector
+        self.z_learner_vector = 1 / self.tau_learner_vector
+
         self.y_vector = 1 - self.z_vector
+        self.y_learner_vector = 1 - self.z_learner_vector
 
         if "z_vector" in self.options:
             if self.options['z_vector'] == "all_ones":
                 self.z_vector = torch.ones(self.number_chemicals, device=self.device)
+                #self.z_learner_vector = torch.ones(self.number_learner_chemicals, device=self.device)
 
-        if self.number_chemicals == 1:
-            self.y_vector[0] = 1
-        elif "y_vector" in self.options:
-            if self.options['y_vector'] == "last_one":
-                self.y_vector[-1] = 1
-            elif self.options['y_vector'] == "none":
-                pass
-            elif self.options['y_vector'] == "first_one": ## rosenbaum
-                self.y_vector[0] = 1
-            elif self.options['y_vector'] == "last_one_and_small_first":
-                self.y_vector[-1] = 1
-                self.y_vector[0] = self.z_vector[-1]       
-            elif self.options['y_vector'] == "all_ones":
-                self.y_vector = torch.ones(self.number_chemicals, device=self.device)
-            elif self.options['y_vector'] == "half":
-                self.y_vector[-1] = 0.5
-        else:
-            self.y_vector[0] = 1
+        self.y_vector[0] = 1 # y_0 = 1
+        self.y_learner_vector[0] = 0.001 # y'_0 = 0.001
+
         
         self.y_vector = self.y_vector.to(self.device)
+        self.y_learner_vector = self.y_learner_vector.to(self.device)
+
         self.z_vector = self.z_vector.to(self.device)
+        self.z_learner_vector = self.z_learner_vector.to(self.device)
 
         if "train_z_vector" in self.options:
             if self.options['train_z_vector'] == True:
                 self.z_vector = nn.Parameter(self.z_vector)
+                self.z_learner_vector = nn.Parameter(self.z_learner_vector)
+
                 self.all_meta_parameters.append(self.z_vector)
+                self.all_meta_parameters.append(self.z_learner_vector)
 
         ## Initialize the v vector
-        self.v_vector = nn.Parameter(torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device)) / self.number_chemicals)
-        if self.mode == 'rosenbaum' or self.mode == 'all_rosenbaum':
-            pass
-        else:
-            if "v_vector" in self.options:
-                if self.options['v_vector'] == 'random':
-                    self.v_vector = nn.Parameter(torch.nn.init.normal_(torch.empty(size=(1, self.number_chemicals), device=self.device), mean=0, std=1))
-                    self.v_vector = self.v_vector / torch.norm(self.v_vector, p=2)
-                elif self.options['v_vector'] == 'last_one':
-                    self.v_vector = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(1, self.number_chemicals), device=self.device)))
-                    self.v_vector[0, -1] = 1
-                elif self.options['v_vector'] == 'random_small':
-                    self.v_vector = nn.Parameter(torch.nn.init.normal_(torch.empty(size=(1, self.number_chemicals), device=self.device), mean=0, std=0.01))
-            self.all_meta_parameters.append(self.v_vector)
+        self.v_vector = nn.Parameter(torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device)) / (self.number_chemicals + 1))
+        self.v_learner_vector = nn.Parameter(torch.nn.init.normal_(torch.empty(size=(1, self.number_learner_chemicals), device=self.device), mean=0, std=0.01))
+
+        self.all_meta_parameters.append(self.v_vector)
+        self.all_meta_parameters.append(self.v_learner_vector)
 
         ## Initialize the mode
-        self.operator = self.options['operator'] if 'operator' in self.options else "mode_1"
+        self.operator = self.options['operator']
 
         ## Initialize the oja minus parameter is trainable
         self.oja_minus_parameter = nn.Parameter(torch.tensor(1, device=self.device).float())
@@ -207,55 +197,41 @@ class ComplexSynapse(nn.Module):
                 chemical = h_parameters[h_name]
                 if parameter.adapt and 'weight' in name:
                     # Equation 1: h(s+1) = yh(s) + zf(Kh(s) + \theta * F(Parameter) + b)
-                    # Equation 2: w(s) = v * h(s)
-                    update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i)
-                    new_chemical = None
-                    if self.operator == "mode_1" or self.operator == "mode_3": # mode 1 - was also called add in results
-                        new_chemical = torch.einsum('i,ijk->ijk',self.y_vector, chemical) + \
-                                        torch.einsum('i,ijk->ijk', self.z_vector, self.non_linearity(torch.einsum('ic,ijk->cjk', self.K_matrix, chemical) + \
-                                                        torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector) + self.bias_dictonary[h_name]))
-                    elif self.operator == "sub":
-                        # Equation 1 - operator = sub: h(s+1) = yh(s) + sign(h(s)) * z( f( sign(h(s)) * (Kh(s) + \theta * F(Parameter) + b) ))
-                        new_chemical = torch.einsum('i,ijk->ijk',self.y_vector, chemical) + \
-                                        torch.sign(chemical) * torch.einsum('i,ijk->ijk', self.z_vector, self.non_linearity(torch.sign(chemical) * (\
-                                                    torch.einsum('ic,ijk->cjk', self.K_matrix, chemical) + \
-                                                        torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector) + self.bias_dictonary[h_name])))
-                    elif self.operator == "mode_2":
-                        # Equation 1: h(s+1) = yh(s) + zf(K(zh(s)) + P * F(Parameter) + b)
-                        new_chemical = torch.einsum('i,ijk->ijk',self.y_vector, chemical) + \
-                                        torch.einsum('i,ijk->ijk', self.z_vector, self.non_linearity(torch.einsum('ci,ijk->cjk', self.K_matrix, torch.einsum('i,ijk->ijk', self.z_vector, chemical)) + \
-                                                        torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector) + self.bias_dictonary[h_name]))
-                    else:
-                        raise ValueError("Invalid operator")
+                    # Equation 2: m(s+1) = ym(s) + zf(Km(s) + \theta * F(Parameter) + b)
+                    # Equation 3: w'(s+1) = w'(s) + f(v' * m(s))
+                    # Equation 4: w(s+1) = w'(s) + v * h(s) 
 
-                    h_parameters[h_name] = new_chemical
-                    if self.operator == "mode_3":
-                        # Equation 2: w(s) = w(s) + f(v * h(s))
-                        new_value = parameter + torch.nn.functional.tanh(torch.einsum('ci,ijk->cjk', self.v_vector, h_parameters[h_name]).squeeze(0))
-                    else:
-                        new_value = torch.einsum('ci,ijk->cjk', self.v_vector, h_parameters[h_name]).squeeze(0)
-                    params[name] = new_value
+                    update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i)
+                    new_chemical = torch.einsum('i,ijk->ijk',self.y_vector, chemical[:self.number_chemicals, :, :]) + \
+                                    torch.einsum('i,ijk->ijk', self.z_vector, self.non_linearity(torch.einsum('ic,ijk->cjk', self.K_matrix, chemical[:self.number_chemicals, :, :]) + \
+                                                    torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector) + self.bias_dictonary[h_name][:self.number_chemicals, :, :]))
+                    
+                    new_learning_chemical = torch.einsum('i,ijk->ijk',self.y_learner_vector, chemical[self.number_chemicals:, :, :]) + \
+                                    torch.einsum('i,ijk->ijk', self.z_learner_vector, self.non_linearity(torch.einsum('ic,ijk->cjk', self.K_learner_matrix, chemical[self.number_chemicals:, :, :]) + \
+                                                    torch.einsum('ci,ijk->cjk', self.P_learner_matrix, update_vector) + self.bias_dictonary[h_name][self.number_chemicals:, :, :]))
+                    
+                    h_parameters[h_name] = torch.cat((new_chemical, new_learning_chemical), dim=0)
+
+                    self.all_saved_parameters[name] = self.all_saved_parameters[name] + torch.nn.functional.tanh(torch.einsum('ci,ijk->cjk', self.v_learner_vector, h_parameters[h_name][self.number_chemicals:, :, :]).squeeze(0))
+                    
+                    params[name] = torch.einsum('ci,ijk->cjk', self.v_vector, h_parameters[h_name][:self.number_chemicals, :, :]).squeeze(0) + self.all_saved_parameters[name]
 
                     params[name].adapt = True
                 i += 1
     
     @torch.no_grad()
-    def inital_update(self, params: dict, h_parameters: dict):
+    def inital_update(self, params: dict):
         """
         :param params: (dict) model weights - dimension (W_1, W_2) (per parameter),
         :param h_parameters: (dict) model chemicals - dimension L x (W_1, W_2) (per parameter),
         
-        To connect the forward and chemical parameters.
+        To give saved parameters to the model
         """
         for name, parameter in params.items():
             if 'forward' in name:
-                h_name = name.replace('forward', 'chemical').split('.')[0]
                 if parameter.adapt and 'weight' in name:
                     # Equation 2: w(s) = v * h(s)
-                    new_value = torch.einsum('ci,ijk->cjk', self.v_vector, h_parameters[h_name]).squeeze(0)
-                    params[name] = new_value
-
-                    params[name].adapt = True
+                    self.all_saved_parameters[name] = parameter
 
     def calculate_update_vector(self, error, activations_and_output, parameter, i) -> torch.Tensor:
         """

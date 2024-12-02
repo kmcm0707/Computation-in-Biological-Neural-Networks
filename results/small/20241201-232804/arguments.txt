@@ -1,0 +1,8 @@
+Seed: 1
+Model: all
+Number of chemicals: 5
+Meta loss regularization: 0
+Number of training data per class: 50
+Number of query data per class: 10
+Non linearity: <function tanh at 0x000002244C556840>
+Options: {'lr': 0.0004, 'optimizer': 'adam', 'K_Matrix': 'n', 'P_Matrix': 'n', 'metaLossRegularization': 0, 'update_rules': [0, 1, 2, 3, 4, 8, 9], 'operator': 'mode_1', 'chemicals': 'n', 'bias': False, 'y_vector': 'first_one', 'z_vector': 'all_ones', 'v_vector': 'n', 'biasLossRegularization': 0, 'small': True}
