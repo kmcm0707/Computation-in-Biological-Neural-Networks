@@ -1,3 +1,5 @@
+## A complex synapse model where each layer has different parameters.
+
 import math
 import numpy as np
 import torch
