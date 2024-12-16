@@ -34,7 +34,7 @@ class ComplexSynapse(nn.Module):
         self.v_vector = nn.Parameter() # v - L
         self.P_matrix = nn.Parameter() # \theta - Lx10
         self.all_meta_parameters = nn.ParameterList([]) # All updatable meta-parameters except bias
-        self.bias_dictonary = torch.nn.ParameterDict() # All bias parameters
+        self.bias_dictionary = torch.nn.ParameterDict() # All bias parameters
         self.all_bias_parameters = nn.ParameterList([]) # All bias parameters if they are used
         self.number_chemicals = numberOfChemicals # L
 
@@ -70,11 +70,11 @@ class ComplexSynapse(nn.Module):
         for name, parameter in params:
             if 'forward' in name:
                 h_name = name.replace('forward', 'chemical').split('.')[0]
-                self.bias_dictonary[h_name] = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, parameter.shape[0], parameter.shape[1]), device=self.device, requires_grad=True)))
+                self.bias_dictionary[h_name] = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, parameter.shape[0], parameter.shape[1]), device=self.device, requires_grad=True)))
             
         if "bias" in self.options:
             if self.options['bias'] == True:
-                self.all_bias_parameters.extend(self.bias_dictonary.values())
+                self.all_bias_parameters.extend(self.bias_dictionary.values())
 
         ## Initialize the P and K matrices
         self.K_matrix = nn.Parameter(torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)))
@@ -107,6 +107,8 @@ class ComplexSynapse(nn.Module):
                     self.K_matrix = nn.Parameter(torch.nn.init.normal_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device), mean=0, std=0.2/np.sqrt(self.number_chemicals)))
                 elif self.options['K_Matrix'] == 'xavier':
                     self.K_matrix = nn.Parameter(0.1*torch.nn.init.xavier_normal_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)))
+                elif self.options['K_Matrix'] == 'uniform':
+                    self.K_matrix = nn.Parameter(torch.nn.init.uniform_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device), -0.01, 0.01))
             self.all_meta_parameters.append(self.K_matrix)
 
         self.all_meta_parameters.append(self.P_matrix)
@@ -117,6 +119,8 @@ class ComplexSynapse(nn.Module):
         ## Initialize the chemical time constants
         # z = 1 / \tau
         min_tau = 1
+        if "min_tau" in self.options:
+            min_tau = self.options['min_tau']
         max_tau = 50
         base = max_tau / min_tau
 
@@ -213,18 +217,18 @@ class ComplexSynapse(nn.Module):
                     if self.operator == "mode_1" or self.operator == "mode_3": # mode 1 - was also called add in results
                         new_chemical = torch.einsum('i,ijk->ijk',self.y_vector, chemical) + \
                                         torch.einsum('i,ijk->ijk', self.z_vector, self.non_linearity(torch.einsum('ic,ijk->cjk', self.K_matrix, chemical) + \
-                                                        torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector) + self.bias_dictonary[h_name]))
+                                                        torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector) + self.bias_dictionary[h_name]))
                     elif self.operator == "sub":
                         # Equation 1 - operator = sub: h(s+1) = yh(s) + sign(h(s)) * z( f( sign(h(s)) * (Kh(s) + \theta * F(Parameter) + b) ))
                         new_chemical = torch.einsum('i,ijk->ijk',self.y_vector, chemical) + \
                                         torch.sign(chemical) * torch.einsum('i,ijk->ijk', self.z_vector, self.non_linearity(torch.sign(chemical) * (\
                                                     torch.einsum('ic,ijk->cjk', self.K_matrix, chemical) + \
-                                                        torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector) + self.bias_dictonary[h_name])))
+                                                        torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector) + self.bias_dictionary[h_name])))
                     elif self.operator == "mode_2":
                         # Equation 1: h(s+1) = yh(s) + zf(K(zh(s)) + P * F(Parameter) + b)
                         new_chemical = torch.einsum('i,ijk->ijk',self.y_vector, chemical) + \
                                         torch.einsum('i,ijk->ijk', self.z_vector, self.non_linearity(torch.einsum('ci,ijk->cjk', self.K_matrix, torch.einsum('i,ijk->ijk', self.z_vector, chemical)) + \
-                                                        torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector) + self.bias_dictonary[h_name]))
+                                                        torch.einsum('ci,ijk->cjk', self.P_matrix, update_vector) + self.bias_dictionary[h_name]))
                     else:
                         raise ValueError("Invalid operator")
 
@@ -240,7 +244,7 @@ class ComplexSynapse(nn.Module):
                 i += 1
     
     @torch.no_grad()
-    def inital_update(self, params: dict, h_parameters: dict):
+    def initial_update(self, params: dict, h_parameters: dict):
         """
         :param params: (dict) model weights - dimension (W_1, W_2) (per parameter),
         :param h_parameters: (dict) model chemicals - dimension L x (W_1, W_2) (per parameter),

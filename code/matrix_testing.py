@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import numpy as np
 
 if __name__ == '__main__':
     # -- test matrix
@@ -43,6 +44,8 @@ if __name__ == '__main__':
     signed = torch.sign(A)
     pos = signed * A
     print(type(A))
-    
 
-    #print((a_vector * b[:, None, None]).shape)
+    K_matrix = torch.nn.init.uniform_(torch.empty(size=(5, 5), device="cpu"), -0.01, 0.01).numpy()
+    eigenvalues, eigenvectors = np.linalg.eig(K_matrix)
+    print(np.max(np.abs(eigenvalues)))
+    
