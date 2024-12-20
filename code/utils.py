@@ -14,7 +14,7 @@ class Plot:
     This class contains functions for reading, processing, and plotting
     results of the meta-training.
     """
-    def __init__(self, res_dir, meta_param_size, window_size=11):
+    def __init__(self, res_dir, window_size=11):
         """
             Initialize an instance of the Plot class.
 
@@ -33,7 +33,7 @@ class Plot:
         """
         self.res_dir = res_dir
         self.period = window_size
-        self.param_len = meta_param_size + 2
+        self.param_len = 12
 
     @staticmethod
     def comp_moving_avg(vector, period):

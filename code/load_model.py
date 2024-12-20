@@ -2,11 +2,10 @@ import os
 
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader, RandomSampler
-
-from dataset import DataProcess, EmnistDataset
 from complex_synapse import ComplexSynapse
+from dataset import DataProcess, EmnistDataset
 from meta_learner_main import RosenbaumChemicalNN
+from torch.utils.data import DataLoader, RandomSampler
 
 if __name__ == '__main__':
     device = "cpu"

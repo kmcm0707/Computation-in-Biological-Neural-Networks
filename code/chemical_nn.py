@@ -1,22 +1,29 @@
+from typing import Literal
+
 import torch
 import torch.nn as nn
-from typing import Literal
+
 
 class ChemicalNN(nn.Module):
     """
 
     Rosenbaum Neural Network class.
-    
+
     """
 
-    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu', numberOfChemicals: int = 1, small: bool = False):
+    def __init__(
+        self,
+        device: Literal["cpu", "cuda"] = "cpu",
+        numberOfChemicals: int = 1,
+        small: bool = False,
+    ):
 
         # Initialize the parent class
         super(ChemicalNN, self).__init__()
 
         # Set the device
         self.device = device
-        self.small = small # Small model for testing
+        self.small = small  # Small model for testing
 
         # Model
         dim_out = 47
@@ -56,7 +63,6 @@ class ChemicalNN(nn.Module):
         self.layer_norm3 = nn.LayerNorm(100)
         self.layer_norm4 = nn.LayerNorm(70)"""
 
-
         # h(s) - LxW
         self.numberOfChemicals = numberOfChemicals
         if self.small:
@@ -71,33 +77,41 @@ class ChemicalNN(nn.Module):
             self.chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 100, 130), device=self.device))
             self.chemical4 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 70, 100), device=self.device))
             self.chemical5 = nn.Parameter(torch.zeros(size=(numberOfChemicals, dim_out, 70), device=self.device))
-            self.chemicals = nn.ParameterList([self.chemical1, self.chemical2, self.chemical3, self.chemical4, self.chemical5])
+            self.chemicals = nn.ParameterList(
+                [
+                    self.chemical1,
+                    self.chemical2,
+                    self.chemical3,
+                    self.chemical4,
+                    self.chemical5,
+                ]
+            )
 
         # Activation function
         self.beta = 10
         self.activation = nn.Softplus(beta=self.beta)
 
-    #@torch.compile
+    # @torch.compile
     def forward(self, x):
         y0 = x.squeeze(1)
 
         y1 = self.forward1(y0)
         y1 = self.activation(y1)
-        #y1 = self.layer_norm1(y1)
-                
+        # y1 = self.layer_norm1(y1)
+
         y2 = self.forward2(y1)
         y2 = self.activation(y2)
-        #y2 = self.layer_norm2(y2)
+        # y2 = self.layer_norm2(y2)
 
         y3 = self.forward3(y2)
         y3 = self.activation(y3)
-        #y3 = self.layer_norm3(y3)
+        # y3 = self.layer_norm3(y3)
 
         y4 = self.forward4(y3)
 
         if not self.small:
             y4 = self.activation(y4)
-            #y4 = self.layer_norm4(y4)
+            # y4 = self.layer_norm4(y4)
             y5 = self.forward5(y4)
 
         if self.small:

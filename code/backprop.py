@@ -1,33 +1,31 @@
 import argparse
 import copy
-from multiprocessing import Pool
+import datetime
 import os
 import random
 import sys
+import warnings
+from multiprocessing import Pool
 from typing import Literal
+
 import numpy as np
 import torch
-import warnings
-import datetime
-
+from dataset import DataProcess, EmnistDataset
+from ray import train, tune
 from torch import nn, optim
 from torch.utils.data import DataLoader, RandomSampler
 from torch.utils.tensorboard import SummaryWriter
+from utils import Plot, log, meta_stats
 
-from ray import tune, train
-
-from dataset import EmnistDataset, DataProcess
-
-from utils import log, meta_stats, Plot
 
 class RosenbaumNN(nn.Module):
     """
 
     Rosenbaum Neural Network class.
-    
+
     """
 
-    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu'):
+    def __init__(self, device: Literal["cpu", "cuda"] = "cpu"):
 
         # Initialize the parent class
         super(RosenbaumNN, self).__init__()
@@ -47,25 +45,25 @@ class RosenbaumNN(nn.Module):
         self.beta = 10
         self.activation = nn.Softplus(beta=self.beta)
 
-    #@torch.compile
+    # @torch.compile
     def forward(self, x):
         y0 = x.squeeze(1)
 
         y1 = self.forward1(y0)
         y1 = self.activation(y1)
-        #y1 = self.layer_norm1(y1)
-                
+        # y1 = self.layer_norm1(y1)
+
         y2 = self.forward2(y1)
         y2 = self.activation(y2)
-        #y2 = self.layer_norm2(y2)
+        # y2 = self.layer_norm2(y2)
 
         y3 = self.forward3(y2)
         y3 = self.activation(y3)
-        #y3 = self.layer_norm3(y3)
+        # y3 = self.layer_norm3(y3)
 
         y4 = self.forward4(y3)
         y4 = self.activation(y4)
-        #y4 = self.layer_norm4(y4)
+        # y4 = self.layer_norm4(y4)
 
         y5 = self.forward5(y4)
 
@@ -79,29 +77,41 @@ class MetaLearner:
 
     """
 
-    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu', result_subdirectory: str = datetime.datetime.now().strftime("%Y%m%d-%H%M%S"), save_results: bool = True, metatrain_dataset = None, seed: int = 0):
+    def __init__(
+        self,
+        device: Literal["cpu", "cuda"] = "cpu",
+        result_subdirectory: str = datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),
+        save_results: bool = True,
+        metatrain_dataset=None,
+        seed: int = 0,
+    ):
 
         # -- processor params
-        self.device = torch.device(device)    
+        self.device = torch.device(device)
 
         # -- data params
         self.trainingDataPerClass = 50
         self.queryDataPerClass = 10
         self.metatrain_dataset = metatrain_dataset
-        self.data_process = DataProcess(trainingDataPerClass=self.trainingDataPerClass, queryDataPerClass=self.queryDataPerClass, dimensionOfImage=28, device=self.device)
+        self.data_process = DataProcess(
+            trainingDataPerClass=self.trainingDataPerClass,
+            queryDataPerClass=self.queryDataPerClass,
+            dimensionOfImage=28,
+            device=self.device,
+        )
 
         # -- model params
-        if self.device == 'cpu': # Remove if using a newer GPU
+        if self.device == "cpu":  # Remove if using a newer GPU
             self.UnOptimizedmodel = self.load_model().to(self.device)
-            self.model = torch.compile(self.UnOptimizedmodel, mode='reduce-overhead')
+            self.model = torch.compile(self.UnOptimizedmodel, mode="reduce-overhead")
         else:
             self.model = self.load_model().to(self.device)
-        
+
         self.loss_func = nn.CrossEntropyLoss()
-        
+
         lr = 1e-3
         self.UpdateParameters = optim.Adam(self.model.parameters(), lr=lr)
-        
+
         # -- log params
         self.save_results = save_results
         self.display = True
@@ -109,27 +119,44 @@ class MetaLearner:
         if self.save_results:
             self.result_directory = os.getcwd() + "/results"
             os.makedirs(self.result_directory, exist_ok=True)
-            self.result_directory += "/" + result_subdirectory + "/" + str(seed) + "/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+            self.result_directory += (
+                "/"
+                + result_subdirectory
+                + "/"
+                + str(seed)
+                + "/"
+                + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+            )
             try:
                 os.makedirs(self.result_directory, exist_ok=False)
-                with open(self.result_directory + '/arguments.txt', 'w') as f:
+                with open(self.result_directory + "/arguments.txt", "w") as f:
                     f.writelines("Seed: {}\n".format(seed))
                     f.writelines("Model: {}\n".format("backprop"))
-                    f.writelines("Number of training data per class: {}\n".format(self.trainingDataPerClass))
-                    f.writelines("Number of query data per class: {}\n".format(self.queryDataPerClass))
+                    f.writelines(
+                        "Number of training data per class: {}\n".format(
+                            self.trainingDataPerClass
+                        )
+                    )
+                    f.writelines(
+                        "Number of query data per class: {}\n".format(
+                            self.queryDataPerClass
+                        )
+                    )
             except FileExistsError:
-                warnings.warn("The directory already exists. The results will be overwritten.")
+                warnings.warn(
+                    "The directory already exists. The results will be overwritten."
+                )
 
                 answer = input("Proceed? (y/n): ")
-                while answer.lower() not in ['y', 'n']:
+                while answer.lower() not in ["y", "n"]:
                     answer = input("Please enter 'y' or 'n': ")
 
-                if answer.lower() == 'n':
+                if answer.lower() == "n":
                     exit()
                 else:
                     os.rmdir(self.result_directory)
                     os.makedirs(self.result_directory, exist_ok=False)
-                    with open(self.result_directory + '/arguments.txt', 'w') as f:
+                    with open(self.result_directory + "/arguments.txt", "w") as f:
                         f.writelines("Seed: {}\n".format(seed))
 
             self.average_window = 10
@@ -154,7 +181,7 @@ class MetaLearner:
     @staticmethod
     def weights_init(modules):
         classname = modules.__class__.__name__
-        if classname.find('Linear') != -1:
+        if classname.find("Linear") != -1:
 
             # -- weights
             nn.init.xavier_uniform_(modules.weight)
@@ -162,7 +189,7 @@ class MetaLearner:
             # -- bias
             if modules.bias is not None:
                 nn.init.xavier_uniform_(modules.bias)
-    
+
     def train(self):
         """
             Perform meta-training.
@@ -183,15 +210,16 @@ class MetaLearner:
 
         x_qry = None
         y_qry = None
-        
+
         for eps, data in enumerate(self.metatrain_dataset):
 
             # -- re initialize model
             self.model.train()
-            self.model.load_state_dict(copy.deepcopy(self.UnOptimizedmodelStateDict), strict=True)
+            self.model.load_state_dict(
+                copy.deepcopy(self.UnOptimizedmodelStateDict), strict=True
+            )
             self.UpdateParameters = optim.Adam(self.model.parameters(), lr=1e-3)
-            
-            
+
             # -- training data
             x_trn, y_trn, x_qry, y_qry = self.data_process(data, 5)
 
@@ -209,14 +237,12 @@ class MetaLearner:
                 loss_meta = loss_adapt
                 loss_meta.backward()
                 self.UpdateParameters.step()
-                
 
             """ meta update """
             # -- predict
             self.model.eval()
             print(x_qry.shape)
             y, logits = self.model(x_qry)
-
 
             # -- compute and store meta stats
             pred = torch.argmax(logits, dim=1)
@@ -225,22 +251,24 @@ class MetaLearner:
             print(acc)
 
             # -- gradient clipping
-            #torch.nn.utils.clip_grad_norm_(self.UpdateWeights.parameters(), 0.5)
+            # torch.nn.utils.clip_grad_norm_(self.UpdateWeights.parameters(), 0.5)
 
             # -- log
             if self.save_results:
-                log([loss_meta.item()], self.result_directory + '/loss_meta.txt')
+                log([loss_meta.item()], self.result_directory + "/loss_meta.txt")
 
-            line = 'Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}'.format(eps+1, loss_meta.item(), acc)
+            line = "Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}".format(
+                eps + 1, loss_meta.item(), acc
+            )
             if self.display:
                 print(line)
 
             if self.save_results:
-                self.summary_writer.add_scalar('Loss/meta', loss_meta.item(), eps)
-                self.summary_writer.add_scalar('Accuracy/meta', acc, eps)
+                self.summary_writer.add_scalar("Loss/meta", loss_meta.item(), eps)
+                self.summary_writer.add_scalar("Accuracy/meta", acc, eps)
 
-                with open(self.result_directory + '/params.txt', 'a') as f:
-                    f.writelines(line+'\n')
+                with open(self.result_directory + "/params.txt", "a") as f:
+                    f.writelines(line + "\n")
 
         # -- plot
         if self.save_results:
@@ -249,9 +277,13 @@ class MetaLearner:
 
         # -- save
         if self.save_results:
-            torch.save(self.UpdateWeights.state_dict(), self.result_directory + '/UpdateWeights.pth')
-            torch.save(self.model.state_dict(), self.result_directory + '/model.pth')
-        print('Meta-training complete.')
+            torch.save(
+                self.UpdateWeights.state_dict(),
+                self.result_directory + "/UpdateWeights.pth",
+            )
+            torch.save(self.model.state_dict(), self.result_directory + "/model.pth")
+        print("Meta-training complete.")
+
 
 def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -> None:
     """
@@ -278,12 +310,24 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -
     # -- load data
     numWorkers = 6
     epochs = 200
-    dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
-    sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * 5)
-    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
+    dataset = EmnistDataset(
+        trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28
+    )
+    sampler = RandomSampler(
+        data_source=dataset, replacement=True, num_samples=epochs * 5
+    )
+    metatrain_dataset = DataLoader(
+        dataset=dataset, sampler=sampler, batch_size=5, drop_last=True
+    )
 
-    metalearning_model = MetaLearner(device="cpu", result_subdirectory=result_subdirectory, save_results=True, metatrain_dataset=metatrain_dataset)
+    metalearning_model = MetaLearner(
+        device="cpu",
+        result_subdirectory=result_subdirectory,
+        save_results=True,
+        metatrain_dataset=metatrain_dataset,
+    )
     metalearning_model.train()
+
 
 def main():
     """
@@ -309,15 +353,17 @@ def main():
     else:
         run(0)"""
 
+
 def pass_through(input):
     return input
 
-if __name__ == '__main__':
-    #torch.autograd.set_detect_anomaly(True)
+
+if __name__ == "__main__":
+    # torch.autograd.set_detect_anomaly(True)
     try:
         main()
     except KeyboardInterrupt:
-        print('Interrupted')
+        print("Interrupted")
         try:
             sys.exit(0)
         except SystemExit:
