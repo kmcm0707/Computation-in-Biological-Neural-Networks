@@ -1,41 +1,38 @@
 import argparse
-from multiprocessing import Pool
+import datetime
 import os
 import random
 import sys
+import warnings
+from multiprocessing import Pool
 from typing import Literal
+
 import numpy as np
 import torch
-import warnings
-import datetime
-
+from complex_synapse_2 import ComplexSynapse_2
+from dataset import DataProcess, EmnistDataset
+from ray import train, tune
 from torch import nn, optim
 from torch.utils.data import DataLoader, RandomSampler
 from torch.utils.tensorboard import SummaryWriter
+from utils import Plot, log, meta_stats
 
-from ray import tune, train
-
-from dataset import EmnistDataset, DataProcess
-
-from complex_synapse_2 import ComplexSynapse_2
-
-from utils import log, meta_stats, Plot
 
 class RosenbaumChemicalNN(nn.Module):
     """
 
     Rosenbaum Neural Network class.
-    
+
     """
 
-    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu', numberOfChemicals: int = 1, small: bool = False):
+    def __init__(self, device: Literal["cpu", "cuda"] = "cpu", numberOfChemicals: int = 1, small: bool = False):
 
         # Initialize the parent class
         super(RosenbaumChemicalNN, self).__init__()
 
         # Set the device
         self.device = device
-        self.small = small # Small model for testing
+        self.small = small  # Small model for testing
 
         # Model
         dim_out = 47
@@ -75,7 +72,6 @@ class RosenbaumChemicalNN(nn.Module):
         self.layer_norm3 = nn.LayerNorm(100)
         self.layer_norm4 = nn.LayerNorm(70)"""
 
-
         # h(s) - LxW
         self.numberOfChemicals = numberOfChemicals
         if self.small:
@@ -90,33 +86,35 @@ class RosenbaumChemicalNN(nn.Module):
             self.chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 100, 130), device=self.device))
             self.chemical4 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 70, 100), device=self.device))
             self.chemical5 = nn.Parameter(torch.zeros(size=(numberOfChemicals, dim_out, 70), device=self.device))
-            self.chemicals = nn.ParameterList([self.chemical1, self.chemical2, self.chemical3, self.chemical4, self.chemical5])
+            self.chemicals = nn.ParameterList(
+                [self.chemical1, self.chemical2, self.chemical3, self.chemical4, self.chemical5]
+            )
 
         # Activation function
         self.beta = 10
         self.activation = nn.Softplus(beta=self.beta)
 
-    #@torch.compile
+    # @torch.compile
     def forward(self, x):
         y0 = x.squeeze(1)
 
         y1 = self.forward1(y0)
         y1 = self.activation(y1)
-        #y1 = self.layer_norm1(y1)
-                
+        # y1 = self.layer_norm1(y1)
+
         y2 = self.forward2(y1)
         y2 = self.activation(y2)
-        #y2 = self.layer_norm2(y2)
+        # y2 = self.layer_norm2(y2)
 
         y3 = self.forward3(y2)
         y3 = self.activation(y3)
-        #y3 = self.layer_norm3(y3)
+        # y3 = self.layer_norm3(y3)
 
         y4 = self.forward4(y3)
 
         if not self.small:
             y4 = self.activation(y4)
-            #y4 = self.layer_norm4(y4)
+            # y4 = self.layer_norm4(y4)
             y5 = self.forward5(y4)
 
         if self.small:
@@ -132,63 +130,124 @@ class MetaLearner:
 
     """
 
-    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu', result_subdirectory: str = datetime.datetime.now().strftime("%Y%m%d-%H%M%S"), save_results: bool = True, model_type: str = "rosenbaum", metatrain_dataset = None, seed: int = 0, display: bool = True, numberOfChemicals: int = 1, number_learner_chemicals = 1, non_linearity = torch.nn.functional.tanh, options = {}, raytune = False):
+    def __init__(
+        self,
+        device: Literal["cpu", "cuda"] = "cpu",
+        result_subdirectory: str = datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),
+        save_results: bool = True,
+        model_type: str = "rosenbaum",
+        metatrain_dataset=None,
+        seed: int = 0,
+        display: bool = True,
+        numberOfChemicals: int = 1,
+        number_learner_chemicals=1,
+        non_linearity=torch.nn.functional.tanh,
+        options={},
+        raytune=False,
+    ):
 
         # -- processor params
-        self.device = torch.device(device)    
+        self.device = torch.device(device)
         self.model_type = model_type
         self.options = options
-        self.small = options['small'] # Small model for testing
-        
-        # -- raytune 
+        self.small = options["small"]  # Small model for testing
+
+        # -- raytune
         self.raytune = raytune
 
         # -- data params
         self.trainingDataPerClass = 50
         self.queryDataPerClass = 10
         self.metatrain_dataset = metatrain_dataset
-        self.data_process = DataProcess(trainingDataPerClass=self.trainingDataPerClass, queryDataPerClass=self.queryDataPerClass, dimensionOfImage=28, device=self.device)
+        self.data_process = DataProcess(
+            trainingDataPerClass=self.trainingDataPerClass,
+            queryDataPerClass=self.queryDataPerClass,
+            dimensionOfImage=28,
+            device=self.device,
+        )
 
         # -- model params
         self.numberOfChemicals = numberOfChemicals
         self.number_learner_chemicals = number_learner_chemicals
         self.total_chemicals = self.numberOfChemicals + self.number_learner_chemicals
 
-        if self.device == 'cpu': # Remove if using a newer GPU
+        if self.device == "cpu":  # Remove if using a newer GPU
             self.UnOptimizedmodel = self.load_model().to(self.device)
-            self.model = torch.compile(self.UnOptimizedmodel, mode='reduce-overhead')
+            self.model = torch.compile(self.UnOptimizedmodel, mode="reduce-overhead")
         else:
             self.model = self.load_model().to(self.device)
 
         # -- optimization params
-        self.metaLossRegularization = options['metaLossRegularization']
-        self.biasLossRegularization = options['biasLossRegularization']
-        
-        self.loss_func = nn.CrossEntropyLoss()
-        self.UpdateWeights = ComplexSynapse_2(device=self.device, mode=self.model_type, numberOfChemicals=self.numberOfChemicals, numberOfLearnerCehmicals=self.number_learner_chemicals, non_linearity=non_linearity, options=self.options, 
-                                                params=self.model.named_parameters()).to(self.device)
-        
-        lr = 1e-3
-        if 'lr' in options:
-            lr = options['lr']
+        self.metaLossRegularization = options["metaLossRegularization"]
+        self.biasLossRegularization = options["biasLossRegularization"]
 
-        if options['optimizer'] == 'sgd':
-            self.UpdateMetaParameters = optim.SGD([{"params":self.UpdateWeights.all_meta_parameters.parameters(), "weight_decay":self.metaLossRegularization},
-                                                    {"params":self.UpdateWeights.all_bias_parameters.parameters(), "weight_decay":self.biasLossRegularization}], lr=lr, momentum=0.8, nesterov=True)
-        elif options['optimizer'] == 'adam':
-            self.UpdateMetaParameters = optim.Adam([{"params":self.UpdateWeights.all_meta_parameters.parameters(), "weight_decay":self.metaLossRegularization},
-                                                    {"params":self.UpdateWeights.all_bias_parameters.parameters(), "weight_decay":self.biasLossRegularization}], lr=lr)
-        elif options['optimizer'] == 'adamw':
-            self.UpdateMetaParameters = optim.AdamW([{"params":self.UpdateWeights.all_meta_parameters.parameters(), "weight_decay":self.metaLossRegularization},
-                                                    {"params":self.UpdateWeights.all_bias_parameters.parameters(), "weight_decay":self.biasLossRegularization}], lr=lr)
+        self.loss_func = nn.CrossEntropyLoss()
+        self.UpdateWeights = ComplexSynapse_2(
+            device=self.device,
+            mode=self.model_type,
+            numberOfChemicals=self.numberOfChemicals,
+            numberOfLearnerCehmicals=self.number_learner_chemicals,
+            non_linearity=non_linearity,
+            options=self.options,
+            params=self.model.named_parameters(),
+        ).to(self.device)
+
+        lr = 1e-3
+        if "lr" in options:
+            lr = options["lr"]
+
+        if options["optimizer"] == "sgd":
+            self.UpdateMetaParameters = optim.SGD(
+                [
+                    {
+                        "params": self.UpdateWeights.all_meta_parameters.parameters(),
+                        "weight_decay": self.metaLossRegularization,
+                    },
+                    {
+                        "params": self.UpdateWeights.all_bias_parameters.parameters(),
+                        "weight_decay": self.biasLossRegularization,
+                    },
+                ],
+                lr=lr,
+                momentum=0.8,
+                nesterov=True,
+            )
+        elif options["optimizer"] == "adam":
+            self.UpdateMetaParameters = optim.Adam(
+                [
+                    {
+                        "params": self.UpdateWeights.all_meta_parameters.parameters(),
+                        "weight_decay": self.metaLossRegularization,
+                    },
+                    {
+                        "params": self.UpdateWeights.all_bias_parameters.parameters(),
+                        "weight_decay": self.biasLossRegularization,
+                    },
+                ],
+                lr=lr,
+            )
+        elif options["optimizer"] == "adamw":
+            self.UpdateMetaParameters = optim.AdamW(
+                [
+                    {
+                        "params": self.UpdateWeights.all_meta_parameters.parameters(),
+                        "weight_decay": self.metaLossRegularization,
+                    },
+                    {
+                        "params": self.UpdateWeights.all_bias_parameters.parameters(),
+                        "weight_decay": self.biasLossRegularization,
+                    },
+                ],
+                lr=lr,
+            )
         else:
             raise ValueError("Optimizer not recognized.")
-        
+
         # -- scheduler
-        if 'scheduler' in options:
-            if options['scheduler'] == "exponential":
+        if "scheduler" in options:
+            if options["scheduler"] == "exponential":
                 self.scheduler = optim.lr_scheduler.ExponentialLR(optimizer=self.UpdateMetaParameters, gamma=0.95)
-        
+
         # -- log params
         self.save_results = save_results
         self.display = display
@@ -196,10 +255,12 @@ class MetaLearner:
         if self.save_results:
             self.result_directory = os.getcwd() + "/results"
             os.makedirs(self.result_directory, exist_ok=True)
-            self.result_directory += "/" + result_subdirectory + "/" + str(seed) + "/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+            self.result_directory += (
+                "/" + result_subdirectory + "/" + str(seed) + "/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+            )
             try:
                 os.makedirs(self.result_directory, exist_ok=False)
-                with open(self.result_directory + '/arguments.txt', 'w') as f:
+                with open(self.result_directory + "/arguments.txt", "w") as f:
                     f.writelines("Seed: {}\n".format(seed))
                     f.writelines("Model: {}\n".format(model_type))
                     f.writelines("Number of chemicals: {}\n".format(numberOfChemicals))
@@ -212,15 +273,15 @@ class MetaLearner:
                 warnings.warn("The directory already exists. The results will be overwritten.")
 
                 answer = input("Proceed? (y/n): ")
-                while answer.lower() not in ['y', 'n']:
+                while answer.lower() not in ["y", "n"]:
                     answer = input("Please enter 'y' or 'n': ")
 
-                if answer.lower() == 'n':
+                if answer.lower() == "n":
                     exit()
                 else:
                     os.rmdir(self.result_directory)
                     os.makedirs(self.result_directory, exist_ok=False)
-                    with open(self.result_directory + '/arguments.txt', 'w') as f:
+                    with open(self.result_directory + "/arguments.txt", "w") as f:
                         f.writelines("Seed: {}\n".format(seed))
                         f.writelines("Model: {}\n".format(model_type))
                         f.writelines("Number of chemicals: {}\n".format(numberOfChemicals))
@@ -243,14 +304,14 @@ class MetaLearner:
         :param args: (argparse.Namespace) The command-line arguments.
         :return: model with flags , "adapt", set for its parameters
         """
-        #if self.model_type == "rosenbaum":
+        # if self.model_type == "rosenbaum":
         model = RosenbaumChemicalNN(self.device, self.total_chemicals, small=self.small)
 
         # -- learning flags
         for key, val in model.named_parameters():
-            if 'forward' in key:
+            if "forward" in key:
                 val.adapt = True
-            elif 'feedback' in key:
+            elif "feedback" in key:
                 val.adapt, val.requires_grad = False, False
 
         return model
@@ -258,7 +319,7 @@ class MetaLearner:
     @staticmethod
     def weights_init(modules):
         classname = modules.__class__.__name__
-        if classname.find('Linear') != -1:
+        if classname.find("Linear") != -1:
 
             # -- weights
             nn.init.xavier_uniform_(modules.weight)
@@ -266,13 +327,13 @@ class MetaLearner:
             # -- bias
             if modules.bias is not None:
                 nn.init.xavier_uniform_(modules.bias)
-    
+
     @torch.no_grad()
     def chemical_init(self, chemicals):
-        if self.options['chemicals'] == 'zeros':
+        if self.options["chemicals"] == "zeros":
             for chemical in chemicals:
                 nn.init.zeros_(chemical)
-        elif self.options['chemicals'] == 'same':
+        elif self.options["chemicals"] == "same":
             for chemical in chemicals:
                 nn.init.xavier_uniform_(chemical[0])
                 for idx in range(chemical.shape[0] - 1):
@@ -296,10 +357,14 @@ class MetaLearner:
         self.model.apply(self.weights_init)
         self.chemical_init(self.model.chemicals)
 
-        #-- module parameters
-        #-- parameters are not linked to the model even if .clone() is not used
-        params = {key: val.clone() for key, val in dict(self.model.named_parameters()).items() if '.' in key and 'chemical' not in key and 'layer_norm' not in key}
-        h_params = {key: val.clone() for key, val in dict(self.model.named_parameters()).items() if 'chemical' in key}
+        # -- module parameters
+        # -- parameters are not linked to the model even if .clone() is not used
+        params = {
+            key: val.clone()
+            for key, val in dict(self.model.named_parameters()).items()
+            if "." in key and "chemical" not in key and "layer_norm" not in key
+        }
+        h_params = {key: val.clone() for key, val in dict(self.model.named_parameters()).items() if "chemical" in key}
         # -- set adaptation flags for cloned parameters
         for key in params:
             params[key].adapt = dict(self.model.named_parameters())[key].adapt
@@ -327,7 +392,7 @@ class MetaLearner:
 
         x_qry = None
         y_qry = None
-        
+
         for eps, data in enumerate(self.metatrain_dataset):
 
             # -- initialize
@@ -343,10 +408,19 @@ class MetaLearner:
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
 
                 # -- predict
-                y, logits = torch.func.functional_call(self.model, (parameters, h_parameters), x.unsqueeze(0).unsqueeze(0))
+                y, logits = torch.func.functional_call(
+                    self.model, (parameters, h_parameters), x.unsqueeze(0).unsqueeze(0)
+                )
 
                 # -- update network params
-                self.UpdateWeights(activations=y, output=logits, label=label, params=parameters, h_parameters=h_parameters, beta=self.model.beta)
+                self.UpdateWeights(
+                    activations=y,
+                    output=logits,
+                    label=label,
+                    params=parameters,
+                    h_parameters=h_parameters,
+                    beta=self.model.beta,
+                )
 
             """ meta update """
             # -- predict
@@ -358,7 +432,9 @@ class MetaLearner:
                 print(logits)
 
             # -- compute and store meta stats
-            acc = meta_stats(logits, parameters, y_qry.ravel(), y, self.model.beta, self.result_directory, self.save_results)
+            acc = meta_stats(
+                logits, parameters, y_qry.ravel(), y, self.model.beta, self.result_directory, self.save_results
+            )
 
             # -- record params
             theta_temp = [theta.detach().clone() for theta in self.UpdateWeights.P_matrix[0, :]]
@@ -383,80 +459,82 @@ class MetaLearner:
             loss_meta.backward()
 
             # -- gradient clipping
-            #torch.nn.utils.clip_grad_norm_(self.UpdateWeights.all_meta_parameters.parameters(), 5000)
+            # torch.nn.utils.clip_grad_norm_(self.UpdateWeights.all_meta_parameters.parameters(), 5000)
 
             # -- update
             self.UpdateMetaParameters.step()
-            if 'scheduler' in self.options:
-                if self.options['scheduler'] != "none":
+            if "scheduler" in self.options:
+                if self.options["scheduler"] != "none":
                     self.scheduler.step()
 
             # -- log
             if self.save_results:
-                log([loss_meta.item()], self.result_directory + '/loss_meta.txt')
+                log([loss_meta.item()], self.result_directory + "/loss_meta.txt")
 
-            line = 'Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}'.format(eps+1, loss_meta.item(), acc)
+            line = "Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}".format(eps + 1, loss_meta.item(), acc)
             for idx, param in enumerate(theta_temp):
-                line += '\tMetaParam_{}: {:.6f}'.format(idx + 1, param.clone().detach().cpu().numpy())
+                line += "\tMetaParam_{}: {:.6f}".format(idx + 1, param.clone().detach().cpu().numpy())
             for idx, v in enumerate(v_values):
-                line += '\tV_{}: {:.6f}'.format(idx + 1, v.clone().detach().cpu().numpy())
-            line += '\tK_norm: {:.6f}'.format(K_norm.clone().detach().cpu().numpy())
-            line += '\tOja_minus: {:.6f}'.format(oja_minus.clone().detach().cpu().numpy())
+                line += "\tV_{}: {:.6f}".format(idx + 1, v.clone().detach().cpu().numpy())
+            line += "\tK_norm: {:.6f}".format(K_norm.clone().detach().cpu().numpy())
+            line += "\tOja_minus: {:.6f}".format(oja_minus.clone().detach().cpu().numpy())
             for key, val in bias_dict.items():
                 val_norm = torch.linalg.matrix_norm(val.clone().detach().cpu(), ord=2)
                 val_norm = torch.linalg.vector_norm(val_norm.clone().detach().cpu(), ord=2)
-                line += '\tBias_norm_{}: {:.6f}'.format(key, val_norm.numpy())
+                line += "\tBias_norm_{}: {:.6f}".format(key, val_norm.numpy())
             if self.display:
                 print(line)
 
             if self.save_results:
-                self.summary_writer.add_scalar('Loss/meta', loss_meta.item(), eps)
-                self.summary_writer.add_scalar('Accuracy/meta', acc, eps)
+                self.summary_writer.add_scalar("Loss/meta", loss_meta.item(), eps)
+                self.summary_writer.add_scalar("Accuracy/meta", acc, eps)
                 for idx, param in enumerate(theta_temp):
-                    self.summary_writer.add_scalar('MetaParam_{}'.format(idx + 1), param.clone().detach().cpu().numpy(), eps)
+                    self.summary_writer.add_scalar(
+                        "MetaParam_{}".format(idx + 1), param.clone().detach().cpu().numpy(), eps
+                    )
                 for idx, v in enumerate(v_values):
-                    self.summary_writer.add_scalar('V_{}'.format(idx + 1), v.clone().detach().cpu().numpy(), eps)
-                self.summary_writer.add_scalar('K_norm', K_norm.clone().detach().cpu().numpy(), eps)        
-                self.summary_writer.add_scalar('Oja_minus', oja_minus.clone().detach().cpu().numpy(), eps)
+                    self.summary_writer.add_scalar("V_{}".format(idx + 1), v.clone().detach().cpu().numpy(), eps)
+                self.summary_writer.add_scalar("K_norm", K_norm.clone().detach().cpu().numpy(), eps)
+                self.summary_writer.add_scalar("Oja_minus", oja_minus.clone().detach().cpu().numpy(), eps)
 
-                with open(self.result_directory + '/params.txt', 'a') as f:
-                    f.writelines(line+'\n')
+                with open(self.result_directory + "/params.txt", "a") as f:
+                    f.writelines(line + "\n")
 
-                with open(self.result_directory + '/K_matrix.txt', 'a') as f:
-                    f.writelines('Episode: {}, K_Matrix: {} \n'.format(eps+1, K_matrix))
-                
-                with open(self.result_directory + '/K_learner_matrix.txt', 'a') as f:
-                    f.writelines('Episode: {}, K_learner_matrix: {} \n'.format(eps+1, K_learner_matrix))
-                
-                with open(self.result_directory + '/theta_matrix.txt', 'a') as f:
-                    f.writelines('Episode: {}, Theta_Matrix: {} \n'.format(eps+1, theta_matrix))
+                with open(self.result_directory + "/K_matrix.txt", "a") as f:
+                    f.writelines("Episode: {}, K_Matrix: {} \n".format(eps + 1, K_matrix))
 
-                with open(self.result_directory + '/theta_learned_matrix.txt', 'a') as f:   
-                    f.writelines('Episode: {}, Theta_learned_matrix: {} \n'.format(eps+1, theta_learned_matrix))
-                
-                with open(self.result_directory + '/v_vector.txt', 'a') as f:
-                    f.writelines('Episode: {}, v_vector: {} \n'.format(eps+1, v_vector))
+                with open(self.result_directory + "/K_learner_matrix.txt", "a") as f:
+                    f.writelines("Episode: {}, K_learner_matrix: {} \n".format(eps + 1, K_learner_matrix))
 
-                with open(self.result_directory + '/z_vector.txt', 'a') as f:
-                    f.writelines('Episode: {}, z_vector: {} \n'.format(eps+1, z_vector))
-                
-                with open(self.result_directory + '/y_vector.txt', 'a') as f:
-                    f.writelines('Episode: {}, y_vector: {} \n'.format(eps+1, y_vector))
+                with open(self.result_directory + "/theta_matrix.txt", "a") as f:
+                    f.writelines("Episode: {}, Theta_Matrix: {} \n".format(eps + 1, theta_matrix))
 
-                with open(self.result_directory + '/v_learner_vector.txt', 'a') as f:
-                    f.writelines('Episode: {}, v_learner_vector: {} \n'.format(eps+1, v_learner_vector))
-                
-                with open(self.result_directory + '/z_learner_vector.txt', 'a') as f:
-                    f.writelines('Episode: {}, z_learner_vector: {} \n'.format(eps+1, z_learner_vector))
-                
-                with open(self.result_directory + '/y_learner_vector.txt', 'a') as f:
-                    f.writelines('Episode: {}, y_learner_vector: {} \n'.format(eps+1, y_learner_vector))    
+                with open(self.result_directory + "/theta_learned_matrix.txt", "a") as f:
+                    f.writelines("Episode: {}, Theta_learned_matrix: {} \n".format(eps + 1, theta_learned_matrix))
+
+                with open(self.result_directory + "/v_vector.txt", "a") as f:
+                    f.writelines("Episode: {}, v_vector: {} \n".format(eps + 1, v_vector))
+
+                with open(self.result_directory + "/z_vector.txt", "a") as f:
+                    f.writelines("Episode: {}, z_vector: {} \n".format(eps + 1, z_vector))
+
+                with open(self.result_directory + "/y_vector.txt", "a") as f:
+                    f.writelines("Episode: {}, y_vector: {} \n".format(eps + 1, y_vector))
+
+                with open(self.result_directory + "/v_learner_vector.txt", "a") as f:
+                    f.writelines("Episode: {}, v_learner_vector: {} \n".format(eps + 1, v_learner_vector))
+
+                with open(self.result_directory + "/z_learner_vector.txt", "a") as f:
+                    f.writelines("Episode: {}, z_learner_vector: {} \n".format(eps + 1, z_learner_vector))
+
+                with open(self.result_directory + "/y_learner_vector.txt", "a") as f:
+                    f.writelines("Episode: {}, y_learner_vector: {} \n".format(eps + 1, y_learner_vector))
 
             # -- raytune
             if self.raytune:
                 if torch.isnan(loss_meta):
-                    return train.report({'loss': loss_meta.item(), 'accuracy': acc})
-                train.report({'loss': loss_meta.item(), 'accuracy': acc})
+                    return train.report({"loss": loss_meta.item(), "accuracy": acc})
+                train.report({"loss": loss_meta.item(), "accuracy": acc})
 
         # -- plot
         if self.save_results:
@@ -465,9 +543,10 @@ class MetaLearner:
 
         # -- save
         if self.save_results:
-            torch.save(self.UpdateWeights.state_dict(), self.result_directory + '/UpdateWeights.pth')
-            torch.save(self.model.state_dict(), self.result_directory + '/model.pth')
-        print('Meta-training complete.')
+            torch.save(self.UpdateWeights.state_dict(), self.result_directory + "/UpdateWeights.pth")
+            torch.save(self.model.state_dict(), self.result_directory + "/model.pth")
+        print("Meta-training complete.")
+
 
 def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -> None:
     """
@@ -500,37 +579,51 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -
 
     # -- options
     options = {}
-    options['lr'] = 4e-4
-    options['optimizer'] = 'adam'
-    options['K_Matrix'] = 'n'
-    options['P_Matrix'] = 'n'
-    options['metaLossRegularization'] = 0
-    options['update_rules'] = [0, 1, 2, 3, 4, 8, 9]
-    options['operator'] = 'sub'
-    options['chemicals'] = 'n'
-    options['bias'] = False
-    options['y_vector'] = "half"
-    options['z_vector'] = "all_ones"
-    options['train_z_vector'] = True
-    options['v_vector'] = "none"
-    options['biasLossRegularization'] = 0
-    options['small'] = True
-    #options['oja_minus_parameter'] = True   
-    #options['scheduler'] = 'exponential'
+    options["lr"] = 4e-4
+    options["optimizer"] = "adam"
+    options["K_Matrix"] = "n"
+    options["P_Matrix"] = "n"
+    options["metaLossRegularization"] = 0
+    options["update_rules"] = [0, 1, 2, 3, 4, 8, 9]
+    options["operator"] = "sub"
+    options["chemicals"] = "n"
+    options["bias"] = False
+    options["y_vector"] = "half"
+    options["z_vector"] = "all_ones"
+    options["train_z_vector"] = True
+    options["v_vector"] = "none"
+    options["biasLossRegularization"] = 0
+    options["small"] = True
+    # options['oja_minus_parameter'] = True
+    # options['scheduler'] = 'exponential'
 
     # -- non-linearity
     non_linearity = torch.nn.functional.tanh
-    #non_linearity = pass_through
-    
+    # non_linearity = pass_through
+
     #   -- number of chemicals
     numberOfChemicals = 2
     numberLearnerChemicals = 2
     # -- meta-train
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    #device = 'cpu'
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    # device = 'cpu'
 
-    metalearning_model = MetaLearner(device=device, result_subdirectory=result_subdirectory, save_results=True, model_type="all", metatrain_dataset=metatrain_dataset, seed=seed, display=display, numberOfChemicals=numberOfChemicals, non_linearity=non_linearity, options=options, raytune=False, number_learner_chemicals=numberLearnerChemicals)
+    metalearning_model = MetaLearner(
+        device=device,
+        result_subdirectory=result_subdirectory,
+        save_results=True,
+        model_type="all",
+        metatrain_dataset=metatrain_dataset,
+        seed=seed,
+        display=display,
+        numberOfChemicals=numberOfChemicals,
+        non_linearity=non_linearity,
+        options=options,
+        raytune=False,
+        number_learner_chemicals=numberLearnerChemicals,
+    )
     metalearning_model.train()
+
 
 def main():
     """
@@ -549,8 +642,8 @@ def main():
 
     # -- set up
     Parser = argparse.ArgumentParser()
-    Parser.add_argument('--Pool', type=int, default=1, help='Number of processes to run in parallel')
-    Parser.add_argument('--Num_chem', type=int, default=1, help='Number of chemicals in the complex synapse model')
+    Parser.add_argument("--Pool", type=int, default=1, help="Number of processes to run in parallel")
+    Parser.add_argument("--Num_chem", type=int, default=1, help="Number of chemicals in the complex synapse model")
 
     Args = Parser.parse_args()
 
@@ -568,15 +661,17 @@ def main():
     else:
         run(0)"""
 
+
 def pass_through(input):
     return input
 
-if __name__ == '__main__':
-    #torch.autograd.set_detect_anomaly(True)
+
+if __name__ == "__main__":
+    # torch.autograd.set_detect_anomaly(True)
     try:
         main()
     except KeyboardInterrupt:
-        print('Interrupted')
+        print("Interrupted")
         try:
             sys.exit(0)
         except SystemExit:
