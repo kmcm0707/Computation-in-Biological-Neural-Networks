@@ -1,4 +1,5 @@
 import argparse
+import copy
 from multiprocessing import Pool
 import os
 import random
@@ -19,6 +20,7 @@ from dataset import EmnistDataset, DataProcess
 
 from complex_synapse import ComplexSynapse
 from reservoir_synapse import ReservoirSynapse
+from individual_synapse import IndividualSynapse
 
 from utils import log, meta_stats, Plot
 
@@ -70,7 +72,12 @@ class MetaLearner:
                                                             params=self.model.named_parameters())
             elif options['model'] == 'reservoir': 
                 self.UpdateWeights = ReservoirSynapse(device=self.device, mode=self.model_type, numberOfChemicals=self.numberOfChemicals, non_linearity=non_linearity, options=self.options, 
-                                                            params=self.model.named_parameters(), spectral_radius=options['spectral_radius'], reservoir_size=options['reservoir_size'])       
+                                                            params=self.model.named_parameters(), spectral_radius=options['spectral_radius'], reservoir_size=options['reservoir_size'])   
+            elif options['model'] == 'individual':
+                self.UpdateWeights = IndividualSynapse(device=self.device, mode=self.model_type, numberOfChemicals=self.numberOfChemicals, non_linearity=non_linearity, options=self.options, 
+                                                            params=self.model.named_parameters())
+            else:
+                raise ValueError("Model not recognized.")    
         lr = 1e-3
         if 'lr' in options:
             lr = options['lr']
@@ -265,16 +272,7 @@ class MetaLearner:
             acc = meta_stats(logits, parameters, y_qry.ravel(), y, self.model.beta, self.result_directory, self.save_results)
 
             # -- record params
-            theta_temp = [theta.detach().clone() for theta in self.UpdateWeights.P_matrix[0, :]]
-            theta_matrix = self.UpdateWeights.P_matrix.detach().clone()
-            K_matrix = self.UpdateWeights.K_matrix.detach().clone()
-            K_norm = torch.linalg.matrix_norm(K_matrix.detach().clone(), ord=2)
-            v_vector = self.UpdateWeights.v_vector.detach().clone()
-            v_values = self.UpdateWeights.v_vector.detach().clone()[0, :]
-            oja_minus = self.UpdateWeights.oja_minus_parameter.detach().clone()
-            bias_dict = self.UpdateWeights.bias_dictionary
-            z_vector = self.UpdateWeights.z_vector.detach().clone()
-            y_vector = self.UpdateWeights.y_vector.detach().clone()
+            UpdateWeights_state_dict = copy.deepcopy(self.UpdateWeights.state_dict())
 
             # -- backprop
             self.UpdateMetaParameters.zero_grad()
@@ -294,46 +292,17 @@ class MetaLearner:
                 log([loss_meta.item()], self.result_directory + '/loss_meta.txt')
 
             line = 'Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}'.format(eps+1, loss_meta.item(), acc)
-            for idx, param in enumerate(theta_temp):
-                line += '\tMetaParam_{}: {:.6f}'.format(idx + 1, param.clone().detach().cpu().numpy())
-            for idx, v in enumerate(v_values):
-                line += '\tV_{}: {:.6f}'.format(idx + 1, v.clone().detach().cpu().numpy())
-            line += '\tK_norm: {:.6f}'.format(K_norm.clone().detach().cpu().numpy())
-            line += '\tOja_minus: {:.6f}'.format(oja_minus.clone().detach().cpu().numpy())
-            for key, val in bias_dict.items():
-                val_norm = torch.linalg.matrix_norm(val.clone().detach().cpu(), ord=2)
-                val_norm = torch.linalg.vector_norm(val_norm.clone().detach().cpu(), ord=2)
-                line += '\tBias_norm_{}: {:.6f}'.format(key, val_norm.numpy())
             if self.display:
                 print(line)
 
             if self.save_results:
                 self.summary_writer.add_scalar('Loss/meta', loss_meta.item(), eps)
                 self.summary_writer.add_scalar('Accuracy/meta', acc, eps)
-                for idx, param in enumerate(theta_temp):
-                    self.summary_writer.add_scalar('MetaParam_{}'.format(idx + 1), param.clone().detach().cpu().numpy(), eps)
-                for idx, v in enumerate(v_values):
-                    self.summary_writer.add_scalar('V_{}'.format(idx + 1), v.clone().detach().cpu().numpy(), eps)
-                self.summary_writer.add_scalar('K_norm', K_norm.clone().detach().cpu().numpy(), eps)        
-                self.summary_writer.add_scalar('Oja_minus', oja_minus.clone().detach().cpu().numpy(), eps)
-
+                for key, val in UpdateWeights_state_dict.items():
+                    self.summary_writer.add_tensor(key, val.clone().detach(), eps)
+                
                 with open(self.result_directory + '/params.txt', 'a') as f:
                     f.writelines(line+'\n')
-
-                with open(self.result_directory + '/K_matrix.txt', 'a') as f:
-                    f.writelines('Episode: {}, K_Matrix: {} \n'.format(eps+1, K_matrix))
-                
-                with open(self.result_directory + '/theta_matrix.txt', 'a') as f:
-                    f.writelines('Episode: {}, Theta_Matrix: {} \n'.format(eps+1, theta_matrix))
-                
-                with open(self.result_directory + '/v_vector.txt', 'a') as f:
-                    f.writelines('Episode: {}, v_vector: {} \n'.format(eps+1, v_vector))
-
-                with open(self.result_directory + '/z_vector.txt', 'a') as f:
-                    f.writelines('Episode: {}, z_vector: {} \n'.format(eps+1, z_vector))
-                
-                with open(self.result_directory + '/y_vector.txt', 'a') as f:
-                    f.writelines('Episode: {}, y_vector: {} \n'.format(eps+1, y_vector))
 
             # -- raytune
             if self.raytune:

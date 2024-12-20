@@ -6,9 +6,9 @@ import torch
 from torch import nn
 from torch.nn import functional
 
-class ComplexSynapse(nn.Module):
+class IndividualSynapse(nn.Module):
     """
-        Complex synapse model.
+        Complex synapse model where each layer has different parameters.
         The class implements a complex synapse model.
         Which is a biological plausible update rule.
     """
@@ -23,14 +23,13 @@ class ComplexSynapse(nn.Module):
             :param options: (dict) The options to use. Default is {}.
             :param params: (dict) The parameters of the normal NN. Default is {}.
         """
-        super(ComplexSynapse, self).__init__()
+        super(IndividualSynapse, self).__init__()
 
         self.device = device
         self.mode = mode
         self.options = options
 
         #h(s+1) = (1-z)h(s) + zf(Kh(s) + \theta * F(Parameter) + b)
-        # y = 1-z, y_0 = 1, z_0 = 1
         #w(s) = v * h(s) (if self.number_chemicals = 1)
         self.K_dictionary = torch.nn.ParameterDict() # All K parameters
         self.v_dictionary = torch.nn.ParameterDict() # All v parameters

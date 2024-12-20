@@ -37,6 +37,7 @@ class ComplexSynapse(nn.Module):
         self.bias_dictionary = torch.nn.ParameterDict() # All bias parameters
         self.all_bias_parameters = nn.ParameterList([]) # All bias parameters if they are used
         self.number_chemicals = numberOfChemicals # L
+        self.recording_parameters = ["P_matrix", "v_vector", "K_matrix", "z_vector", "y_vector"] # Parameters to record
 
         self.non_linearity = non_linearity
 
