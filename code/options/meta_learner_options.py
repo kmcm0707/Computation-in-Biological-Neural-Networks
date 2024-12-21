@@ -1,9 +1,9 @@
 import datetime
 from typing import Literal
 from enum import Enum
-from complex_synapse import ComplexSynapse
-from reservoir_synapse import ReservoirSynapse
-from individual_synapse import IndividualSynapse
+from code.synapses.complex_synapse import ComplexSynapse
+from code.synapses.reservoir_synapse import ReservoirSynapse
+from code.synapses.individual_synapse import IndividualSynapse
 
 class schedulerEnum(Enum):
     exponential = 'exponential'

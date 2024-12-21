@@ -9,11 +9,11 @@ import datetime
 from torch import nn, optim
 from torch.utils.data import DataLoader, RandomSampler
 
-from dataset import EmnistDataset, DataProcess
+from code.misc.dataset import EmnistDataset, DataProcess
 
-from rosenbaum_optimizer import plasticity_rule, RosenbaumOptimizer
+from code.rosenbaum.rosenbaum_optimizer import plasticity_rule, RosenbaumOptimizer
 
-from utils import log, meta_stats, Plot
+from code.misc.utils import log, meta_stats, Plot
 
 import shutil
 

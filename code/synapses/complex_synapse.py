@@ -1,10 +1,8 @@
-# A complex synapse model where each layer has different parameters.
-
 import math
 
 import numpy as np
 import torch
-from complex_options import (
+from code.options.complex_options import (
     complexOptions,
     kMatrixEnum,
     nonLinearEnum,
@@ -17,9 +15,9 @@ from torch import nn
 from torch.nn import functional
 
 
-class IndividualSynapse(nn.Module):
+class ComplexSynapse(nn.Module):
     """
-    Complex synapse model where each layer has different parameters.
+    Complex synapse model.
     The class implements a complex synapse model.
     Which is a biological plausible update rule.
     """
@@ -30,8 +28,8 @@ class IndividualSynapse(nn.Module):
         mode="rosenbaum",
         numberOfChemicals: int = 1,
         non_linearity: nonLinearEnum = nonLinearEnum.tanh,
-        complexOptions: complexOptions = None,
         params: dict = {},
+        complexOptions: complexOptions = None,
     ):
         """
         Initialize the complex synapse model.
@@ -42,17 +40,18 @@ class IndividualSynapse(nn.Module):
         :param options: (dict) The options to use. Default is {}.
         :param params: (dict) The parameters of the normal NN. Default is {}.
         """
-        super(IndividualSynapse, self).__init__()
+        super(ComplexSynapse, self).__init__()
 
         self.device = device
         self.mode = mode
         self.options = complexOptions
 
         # h(s+1) = (1-z)h(s) + zf(Kh(s) + \theta * F(Parameter) + b)
+        # y = 1-z, y_0 = 1, z_0 = 1
         # w(s) = v * h(s) (if self.number_chemicals = 1)
-        self.K_dictionary = torch.nn.ParameterDict()  # All K parameters
-        self.v_dictionary = torch.nn.ParameterDict()  # All v parameters
-        self.P_dictionary = torch.nn.ParameterDict()  # All P parameters
+        self.K_matrix = nn.Parameter()  # K - LxL
+        self.v_vector = nn.Parameter()  # v - L
+        self.P_matrix = nn.Parameter()  # \theta - Lx10
         self.all_meta_parameters = nn.ParameterList([])  # All updatable meta-parameters except bias
         self.bias_dictionary = torch.nn.ParameterDict()  # All bias parameters
         self.all_bias_parameters = nn.ParameterList([])  # All bias parameters if they are used
@@ -89,7 +88,11 @@ class IndividualSynapse(nn.Module):
                 self.bias_dictionary[h_name] = nn.Parameter(
                     torch.nn.init.zeros_(
                         torch.empty(
-                            size=(self.number_chemicals, parameter.shape[0], parameter.shape[1]),
+                            size=(
+                                self.number_chemicals,
+                                parameter.shape[0],
+                                parameter.shape[1],
+                            ),
                             device=self.device,
                             requires_grad=True,
                         )
@@ -100,86 +103,88 @@ class IndividualSynapse(nn.Module):
             self.all_bias_parameters.extend(self.bias_dictionary.values())
 
         ## Initialize the P and K matrices
-        for name, parameter in params:
-            if "forward" in name:
-                h_name = name.replace("forward", "chemical").split(".")[0]
+        if self.mode == "rosenbaum" or self.mode == "all_rosenbaum":
+            self.P_matrix = nn.Parameter(
+                torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device))
+            )
+            self.P_matrix[:, 0] = 1e-3
 
-                ## Initialize the P and K matrices
-                if self.mode == "rosenbaum" or self.mode == "all_rosenbaum":
-                    self.P_dictionary[h_name] = nn.Parameter(
-                        torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device))
+            self.K_matrix = nn.Parameter(
+                torch.nn.init.zeros_(
+                    torch.empty(
+                        size=(self.number_chemicals, self.number_chemicals),
+                        device=self.device,
                     )
-                    self.P_dictionary[h_name][:, 0] = 1e-3
+                )
+            )
 
-                    self.K_dictionary[h_name] = nn.Parameter(
-                        torch.nn.init.zeros_(
-                            torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)
+        else:
+            if self.options.pMatrix == pMatrixEnum.random:
+                self.P_matrix = nn.Parameter(
+                    torch.nn.init.normal_(
+                        torch.empty(size=(self.number_chemicals, 10), device=self.device),
+                        mean=0,
+                        std=0.01,
+                    )
+                )
+                self.P_matrix[:, 0] = torch.abs_(self.P_matrix[:, 0])
+            elif self.options.pMatrix == pMatrixEnum.rosenbaum_last:
+                self.P_matrix = nn.Parameter(
+                    torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device))
+                )
+                self.P_matrix[:, 0] = 0.01
+                self.P_matrix[-1, 0] = 0.01
+                self.P_matrix[-1, 2] = -0.03
+                self.P_matrix[-1, 9] = 0.005
+            elif self.options.pMatrix == pMatrixEnum.rosenbaum_first:
+                self.P_matrix = nn.Parameter(
+                    torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device))
+                )
+                self.P_matrix[:, 0] = 0.01
+                self.P_matrix[0, 0] = 0.01
+                self.P_matrix[0, 2] = -0.03
+                self.P_matrix[0, 9] = 0.005
+            elif self.options.pMatrix == pMatrixEnum.first_col:
+                self.P_matrix = nn.Parameter(
+                    torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device))
+                )
+                self.P_matrix[:, 0] = 0.01
+
+            if self.options.kMatrix == kMatrixEnum.random:
+                self.K_matrix = nn.Parameter(
+                    torch.nn.init.normal_(
+                        torch.empty(
+                            size=(self.number_chemicals, self.number_chemicals),
+                            device=self.device,
+                        ),
+                        mean=0,
+                        std=0.01 / np.sqrt(self.number_chemicals),
+                    )
+                )
+            elif self.options.kMatrix == kMatrixEnum.xavier:
+                self.K_matrix = nn.Parameter(
+                    0.1
+                    * torch.nn.init.xavier_normal_(
+                        torch.empty(
+                            size=(self.number_chemicals, self.number_chemicals),
+                            device=self.device,
                         )
                     )
-                else:
-                    if self.options.pMatrix == pMatrixEnum.random:
-                        self.P_dictionary[h_name] = nn.Parameter(
-                            torch.nn.init.normal_(
-                                torch.empty(size=(self.number_chemicals, 10), device=self.device), mean=0, std=0.01
-                            )
-                        )
-                        self.P_dictionary[h_name][:, 0] = torch.abs_(self.P_matrix[:, 0])
-                    elif self.options.pMatrix == pMatrixEnum.rosenbaum_last:
-                        self.P_dictionary[h_name] = nn.Parameter(
-                            torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device))
-                        )
-                        self.P_dictionary[h_name][:, 0] = 0.01
-                        self.P_dictionary[h_name][-1, 0] = 0.01
-                        self.P_dictionary[h_name][-1, 2] = -0.03
-                        self.P_dictionary[h_name][-1, 9] = 0.005
-                    elif self.options.pMatrix == pMatrixEnum.rosenbaum_first:
-                        self.P_dictionary[h_name] = nn.Parameter(
-                            torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device))
-                        )
-                        self.P_dictionary[h_name][:, 0] = 0.01
-                        self.P_dictionary[h_name][0, 0] = 0.01
-                        self.P_dictionary[h_name][0, 2] = -0.03
-                        self.P_dictionary[h_name][0, 9] = 0.005
-                    elif self.options.pMatrix == pMatrixEnum.first_col:
-                        self.P_dictionary[h_name] = nn.Parameter(
-                            torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device))
-                        )
-                        self.P_dictionary[h_name][:, 0] = 0.01
+                )
+            elif self.options.kMatrix == kMatrixEnum.uniform:
+                self.K_matrix = nn.Parameter(
+                    torch.nn.init.uniform_(
+                        torch.empty(
+                            size=(self.number_chemicals, self.number_chemicals),
+                            device=self.device,
+                        ),
+                        -0.01,
+                        0.01,
+                    )
+                )
+            self.all_meta_parameters.append(self.K_matrix)
 
-                    if self.options.kMatrix == kMatrixEnum.random:
-                        self.K_dictionary[h_name] = nn.Parameter(
-                            torch.nn.init.normal_(
-                                torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device),
-                                mean=0,
-                                std=0.01 / np.sqrt(self.number_chemicals),
-                            )
-                        )
-                    elif self.options.kMatrix == kMatrixEnum.rosenbaum:
-                        self.K_dictionary[h_name] = nn.Parameter(
-                            torch.nn.init.normal_(
-                                torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device),
-                                mean=0,
-                                std=0.2 / np.sqrt(self.number_chemicals),
-                            )
-                        )
-                    elif self.options.kMatrix == kMatrixEnum.xavier:
-                        self.K_dictionary[h_name] = nn.Parameter(
-                            0.1
-                            * torch.nn.init.xavier_normal_(
-                                torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device)
-                            )
-                        )
-                    elif self.options.kMatrix == kMatrixEnum.uniform:
-                        self.K_dictionary[h_name] = nn.Parameter(
-                            torch.nn.init.uniform_(
-                                torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device),
-                                -0.01,
-                                0.01,
-                            )
-                        )
-
-        self.all_meta_parameters.extend(self.K_dictionary.values())
-        self.all_meta_parameters.extend(self.P_dictionary.values())
+        self.all_meta_parameters.append(self.P_matrix)
 
         self.z_vector = torch.tensor([0] * self.number_chemicals, device=self.device)
         self.y_vector = torch.tensor([0] * self.number_chemicals, device=self.device)
@@ -228,6 +233,9 @@ class IndividualSynapse(nn.Module):
         self.z_vector = self.z_vector.to(self.device)
         self.z_vector = nn.Parameter(self.z_vector)
 
+        if self.options.train_z_vector:
+            self.all_meta_parameters.append(self.z_vector)
+
         ## Initialize the v vector
         if self.mode == "rosenbaum" or self.mode == "all_rosenbaum":
             self.v_vector = nn.Parameter(
@@ -268,7 +276,13 @@ class IndividualSynapse(nn.Module):
         self.operator = self.options.operator
 
     def __call__(
-        self, activations: list, output: torch.Tensor, label: torch.Tensor, params: dict, h_parameters: dict, beta: int
+        self,
+        activations: list,
+        output: torch.Tensor,
+        label: torch.Tensor,
+        params: dict,
+        h_parameters: dict,
+        beta: int,
     ):
         """
         :param activations: (list) model activations,
@@ -306,8 +320,8 @@ class IndividualSynapse(nn.Module):
                             "i,ijk->ijk",
                             self.z_vector,
                             self.non_linearity(
-                                torch.einsum("ic,ijk->cjk", self.K_dictionary[h_name], chemical)
-                                + torch.einsum("ci,ijk->cjk", self.P_dictionary[h_name], update_vector)
+                                torch.einsum("ic,ijk->cjk", self.K_matrix, chemical)
+                                + torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
                                 + self.bias_dictionary[h_name]
                             ),
                         )
@@ -321,8 +335,8 @@ class IndividualSynapse(nn.Module):
                             self.non_linearity(
                                 torch.sign(chemical)
                                 * (
-                                    torch.einsum("ic,ijk->cjk", self.K_dictionary[h_name], chemical)
-                                    + torch.einsum("ci,ijk->cjk", self.P_dictionary[h_name], update_vector)
+                                    torch.einsum("ic,ijk->cjk", self.K_matrix, chemical)
+                                    + torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
                                     + self.bias_dictionary[h_name]
                                 )
                             ),
@@ -335,10 +349,10 @@ class IndividualSynapse(nn.Module):
                             self.non_linearity(
                                 torch.einsum(
                                     "ci,ijk->cjk",
-                                    self.K_dictionary[h_name],
+                                    self.K_matrix,
                                     torch.einsum("i,ijk->ijk", self.z_vector, chemical),
                                 )
-                                + torch.einsum("ci,ijk->cjk", self.P_dictionary[h_name], update_vector)
+                                + torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
                                 + self.bias_dictionary[h_name]
                             ),
                         )
@@ -404,7 +418,10 @@ class IndividualSynapse(nn.Module):
         if self.update_rules[5]:
             update_vector[5] = -torch.matmul(
                 torch.matmul(
-                    torch.matmul(error[i + 1].T, torch.ones(size=(1, parameter.shape[0]), device=self.device)),
+                    torch.matmul(
+                        error[i + 1].T,
+                        torch.ones(size=(1, parameter.shape[0]), device=self.device),
+                    ),
                     activations_and_output[i + 1].T,
                 ),
                 activations_and_output[i],
@@ -414,7 +431,11 @@ class IndividualSynapse(nn.Module):
             update_vector[6] = -torch.matmul(
                 torch.matmul(
                     torch.matmul(
-                        torch.matmul(activations_and_output[i + 1].T, activations_and_output[i + 1]), parameter
+                        torch.matmul(
+                            activations_and_output[i + 1].T,
+                            activations_and_output[i + 1],
+                        ),
+                        parameter,
                     ),
                     error[i].T,
                 ),
@@ -424,7 +445,11 @@ class IndividualSynapse(nn.Module):
         if self.update_rules[7]:
             update_vector[7] = -torch.matmul(
                 torch.matmul(
-                    torch.matmul(torch.matmul(error[i + 1].T, activations_and_output[i + 1]), parameter), error[i].T
+                    torch.matmul(
+                        torch.matmul(error[i + 1].T, activations_and_output[i + 1]),
+                        parameter,
+                    ),
+                    error[i].T,
                 ),
                 activations_and_output[i],
             )  # - Maybe be bad
@@ -432,7 +457,10 @@ class IndividualSynapse(nn.Module):
         if self.update_rules[8]:
             update_vector[8] = -torch.matmul(
                 torch.matmul(
-                    torch.matmul(torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]), parameter.T),
+                    torch.matmul(
+                        torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]),
+                        parameter.T,
+                    ),
                     error[i + 1].T,
                 ),
                 error[i],
@@ -440,7 +468,8 @@ class IndividualSynapse(nn.Module):
 
         if self.update_rules[9]:
             update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) - torch.matmul(
-                torch.matmul(activations_and_output[i + 1].T, activations_and_output[i + 1]), parameter
+                torch.matmul(activations_and_output[i + 1].T, activations_and_output[i + 1]),
+                parameter,
             )  # Oja's rule
 
         return update_vector
