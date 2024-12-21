@@ -2,36 +2,44 @@ import os
 
 import torch
 import torch.nn as nn
-from code.synapses.complex_synapse import ComplexSynapse
-from code.misc.dataset import DataProcess, EmnistDataset
-from code.metalearners.meta_learner_main import RosenbaumChemicalNN
+from metalearners.meta_learner_main import RosenbaumChemicalNN
+from misc.dataset import DataProcess, EmnistDataset
+from synapses.complex_synapse import ComplexSynapse
 from torch.utils.data import DataLoader, RandomSampler
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     device = "cpu"
     options = {}
-    options['lr'] = 5e-4
-    options['optimizer'] = 'adam'
-    options['K_Matrix'] = 'n'
-    options['P_Matrix'] = 'n'
-    options['metaLossRegularization'] = 0
-    options['update_rules'] = [0, 1, 2, 3, 4, 8, 9]
-    options['operator'] = 'mode_1'
-    options['chemicals'] = 'n'
-    options['bias'] = True
-    options['y_vector'] = "first_one"
-    options['v_vector'] = "none"
+    options["lr"] = 5e-4
+    options["optimizer"] = "adam"
+    options["K_Matrix"] = "n"
+    options["P_Matrix"] = "n"
+    options["metaLossRegularization"] = 0
+    options["update_rules"] = [0, 1, 2, 3, 4, 8, 9]
+    options["operator"] = "mode_1"
+    options["chemicals"] = "n"
+    options["bias"] = True
+    options["y_vector"] = "first_one"
+    options["v_vector"] = "none"
     numberOfChemicals = 1
     model = RosenbaumChemicalNN(device, numberOfChemicals)
-    complex = ComplexSynapse(device=device, mode="all", numberOfChemicals=numberOfChemicals, non_linearity=torch.nn.functional.tanh, options=options, 
-                                                params=model.named_parameters())
-    
+    complex = ComplexSynapse(
+        device=device,
+        mode="all",
+        numberOfChemicals=numberOfChemicals,
+        non_linearity=torch.nn.functional.tanh,
+        options=options,
+        params=model.named_parameters(),
+    )
+
     # -- load model
     directory = os.path.join(os.getcwd(), "results/Mode_1")
     directory = os.path.join(directory, "mode_1_1_chemical")
-    complex.load_state_dict(torch.load(os.path.join(directory, "UpdateWeights.pth"), map_location=device, weights_only=True))
+    complex.load_state_dict(
+        torch.load(os.path.join(directory, "UpdateWeights.pth"), map_location=device, weights_only=True)
+    )
     model.load_state_dict(torch.load(os.path.join(directory, "model.pth"), map_location=device, weights_only=True))
-    
+
     vector_chemical_1 = complex.bias_dictonary["chemical1"].reshape(-1)
     vector_chemical_1 = torch.abs(vector_chemical_1)
     max_chemical_1 = vector_chemical_1.max()
@@ -70,4 +78,4 @@ if __name__ == '__main__':
     # -- testing
     chemical2 = nn.Parameter(torch.zeros(size=(5, 130, 170), device="cpu"))
     nn.init.xavier_uniform_(chemical2)
-    #print(chemical2)
+    # print(chemical2)

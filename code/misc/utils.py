@@ -1,11 +1,11 @@
 import os
 import re
-import torch
 
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
+import torch
 from torch.nn import functional
+
 
 class Plot:
     """
@@ -14,6 +14,7 @@ class Plot:
     This class contains functions for reading, processing, and plotting
     results of the meta-training.
     """
+
     def __init__(self, res_dir, window_size=11):
         """
             Initialize an instance of the Plot class.
@@ -56,7 +57,7 @@ class Plot:
         ret = np.cumsum(vector, dtype=float)
         ret[period:] = ret[period:] - ret[:-period]
 
-        return ret[period - 1:] / period
+        return ret[period - 1 :] / period
 
     def meta_accuracy(self):
         """
@@ -70,16 +71,16 @@ class Plot:
         :return: None
         """
         # -- compute moving average
-        z = self.comp_moving_avg(np.nan_to_num(np.loadtxt(self.res_dir + '/acc_meta.txt')), self.period)
+        z = self.comp_moving_avg(np.nan_to_num(np.loadtxt(self.res_dir + "/acc_meta.txt")), self.period)
 
         # -- plot
         plt.plot(np.array(range(len(z))) + int((self.period - 1) / 2), z)
 
-        plt.title('Meta Accuracy')
-        plt.xlabel('Meta-training episodes')
-        plt.ylabel('Meta Accuracy')
+        plt.title("Meta Accuracy")
+        plt.xlabel("Meta-training episodes")
+        plt.ylabel("Meta Accuracy")
         plt.ylim([0, 1])
-        plt.savefig(self.res_dir + '/meta_accuracy', bbox_inches='tight')
+        plt.savefig(self.res_dir + "/meta_accuracy", bbox_inches="tight")
         plt.close()
 
     def meta_parameters(self):
@@ -102,8 +103,8 @@ class Plot:
         :return: None
         """
         # -- read meta-params
-        with open(self.res_dir + '/params.txt', 'r') as f:
-            strings = re.findall(r'(-?\d+\.\d+|nan)', f.read())
+        with open(self.res_dir + "/params.txt", "r") as f:
+            strings = re.findall(r"(-?\d+\.\d+|nan)", f.read())
 
         y = np.nan_to_num(np.asarray([float(i) for i in strings])).reshape(-1, self.param_len)
         meta_param_lr = y[:, 2]
@@ -113,16 +114,16 @@ class Plot:
         cmap = plt.get_cmap("tab10")
 
         # -- pseudo-grad term
-        plt.plot(range(len(y)), meta_param_lr, color=cmap(0), label=r'$\theta_0$')
+        plt.plot(range(len(y)), meta_param_lr, color=cmap(0), label=r"$\theta_0$")
 
         # -- additional terms
         for i in range(meta_param_terms.shape[1]):
-            plt.plot(range(len(y)), meta_param_terms[:, i], color=cmap(i+1), label=r'$\theta_{}$'.format(i+1))
+            plt.plot(range(len(y)), meta_param_terms[:, i], color=cmap(i + 1), label=r"$\theta_{}$".format(i + 1))
 
         # -- plot
         plt.legend()
-        plt.title('Meta parameters')
-        plt.savefig(self.res_dir + '/meta_params', bbox_inches='tight')
+        plt.title("Meta parameters")
+        plt.savefig(self.res_dir + "/meta_params", bbox_inches="tight")
         plt.close()
 
     def meta_angles(self):
@@ -139,20 +140,20 @@ class Plot:
         :return: None
         """
         # -- read angles
-        y = np.nan_to_num(np.loadtxt(self.res_dir + '/e_ang_meta.txt'))
+        y = np.nan_to_num(np.loadtxt(self.res_dir + "/e_ang_meta.txt"))
 
         for idx in range(1, y.shape[1] - 1):
             # -- compute moving average
             z = self.comp_moving_avg(y[:, idx], self.period)
 
             # -- plot
-            plt.plot(np.array(range(len(z))) + int((self.period - 1) / 2), z, label=r'$\alpha_{}$'.format(idx))
+            plt.plot(np.array(range(len(z))) + int((self.period - 1) / 2), z, label=r"$\alpha_{}$".format(idx))
 
         plt.legend()
-        plt.title('Meta Angles')
+        plt.title("Meta Angles")
         plt.ylim([0, 120])
-        plt.plot(np.array(range(len(z))) + int((self.period - 1) / 2), 90. * np.ones(len(z)), '--', c='gray')
-        plt.savefig(self.res_dir + '/meta_angle', bbox_inches='tight')
+        plt.plot(np.array(range(len(z))) + int((self.period - 1) / 2), 90.0 * np.ones(len(z)), "--", c="gray")
+        plt.savefig(self.res_dir + "/meta_angle", bbox_inches="tight")
         plt.close()
 
     def meta_loss(self):
@@ -166,16 +167,16 @@ class Plot:
         :return: None
         """
         # -- compute moving average
-        z = self.comp_moving_avg(np.nan_to_num(np.loadtxt(self.res_dir + '/loss_meta.txt')), self.period)
+        z = self.comp_moving_avg(np.nan_to_num(np.loadtxt(self.res_dir + "/loss_meta.txt")), self.period)
 
         # -- plot
-        plt.plot(np.array(range(len(z))) + int((self.period - 1) / 2), z)#, label=label, color=self.color)
+        plt.plot(np.array(range(len(z))) + int((self.period - 1) / 2), z)  # , label=label, color=self.color)
 
-        plt.title('Meta Loss')
-        plt.xlabel('Meta-training episodes')
-        plt.ylabel('Meta Loss')
+        plt.title("Meta Loss")
+        plt.xlabel("Meta-training episodes")
+        plt.ylabel("Meta Loss")
         plt.ylim([0, 5])
-        plt.savefig(self.res_dir + '/meta_loss', bbox_inches='tight')
+        plt.savefig(self.res_dir + "/meta_loss", bbox_inches="tight")
         plt.close()
 
     def __call__(self, *args, **kwargs):
@@ -202,9 +203,9 @@ def log(data, filename):
     :param data: (list) data to be saved,
     :param filename: (str) path to the file.
     """
-    with open(filename, 'a') as f:
-        np.savetxt(f, np.array(data), newline=' ', fmt='%0.6f')
-        f.writelines('\n')
+    with open(filename, "a") as f:
+        np.savetxt(f, np.array(data), newline=" ", fmt="%0.6f")
+        f.writelines("\n")
 
 
 def normalize_vec(vector):
@@ -229,7 +230,7 @@ def measure_angle(v1, v2):
     n1 = normalize_vec(v1.squeeze())
     n2 = normalize_vec(v2.squeeze())
 
-    return np.nan_to_num((torch.acos(torch.einsum('i, i -> ', n1, n2)) * 180 / torch.pi).cpu().numpy())
+    return np.nan_to_num((torch.acos(torch.einsum("i, i -> ", n1, n2)) * 180 / torch.pi).cpu().numpy())
 
 
 def accuracy(logits, label):
@@ -268,25 +269,33 @@ def meta_stats(logits, params, label, y, Beta, res_dir, save=True):
 
     with torch.no_grad():
         # -- modulatory signal
-        B = dict({k: v for k, v in params.items() if 'feedback' in k})
+        B = dict({k: v for k, v in params.items() if "feedback" in k})
 
         e = [functional.softmax(logits, dim=1) - functional.one_hot(label, num_classes=47)]
         for y_, i in zip(reversed(y), reversed(list(B))):
             e.insert(0, torch.matmul(e[0], B[i]) * (1 - torch.exp(-Beta * y_)))
 
         # -- orthonormality errors
-        
-        W = [v for k, v in params.items() if 'forward' in k]
+
+        W = [v for k, v in params.items() if "forward" in k]
         E1 = []
         activation = [*y, functional.softmax(logits, dim=0)]
-        for i in range(len(activation)-1):
-            E1.append((torch.norm(torch.matmul(activation[i], W[i].T)-torch.matmul(torch.matmul(activation[i+1], W[i]), W[i].T)) ** 2).item())
+        for i in range(len(activation) - 1):
+            E1.append(
+                (
+                    torch.norm(
+                        torch.matmul(activation[i], W[i].T)
+                        - torch.matmul(torch.matmul(activation[i + 1], W[i]), W[i].T)
+                    )
+                    ** 2
+                ).item()
+            )
 
         if save:
-            log(E1, res_dir + '/E1_meta.txt')
+            log(E1, res_dir + "/E1_meta.txt")
 
         e_sym = [e[-1]]
-        W = dict({k: v for k, v in params.items() if 'forward' in k})
+        W = dict({k: v for k, v in params.items() if "forward" in k})
         for y_, i in zip(reversed(y), reversed(list(W))):
             e_sym.insert(0, torch.matmul(e_sym[0], W[i]) * (1 - torch.exp(-Beta * y_)))
 
@@ -294,19 +303,20 @@ def meta_stats(logits, params, label, y, Beta, res_dir, save=True):
         e_angl = []
         for e_fix_, e_sym_ in zip(e, e_sym):
             e_angl.append(measure_angle(e_fix_.mean(dim=0), e_sym_.mean(dim=0)))
-        
+
         if save:
-            log(e_angl, res_dir + '/e_ang_meta.txt')
+            log(e_angl, res_dir + "/e_ang_meta.txt")
 
         # -- accuracy
         acc = accuracy(logits, label)
 
         if save:
-            log([acc], res_dir + '/acc_meta.txt')
+            log([acc], res_dir + "/acc_meta.txt")
 
     return acc
 
-def multi_plot_accuracy(directories, window_size=11, save_dir=None): 
+
+def multi_plot_accuracy(directories, window_size=11, save_dir=None):
     """
         Plot the meta accuracy using a moving average.
 
@@ -321,19 +331,19 @@ def multi_plot_accuracy(directories, window_size=11, save_dir=None):
     plt.figure()
     average = np.array([])
     for directory in directories:
-        z = np.loadtxt(directory + '/acc_meta.txt')
+        z = np.loadtxt(directory + "/acc_meta.txt")
         z = Plot.comp_moving_avg(np.nan_to_num(z), window_size)
         average = z if average.shape[0] == 0 else np.average([average, z], axis=0)
 
-    plt.plot(np.array(range(len(average))) + int((window_size - 1) / 2), average, label='Average')
-    plt.title('Meta Accuracy (Average)')
+    plt.plot(np.array(range(len(average))) + int((window_size - 1) / 2), average, label="Average")
+    plt.title("Meta Accuracy (Average)")
     plt.ylim([0, 1])
     plt.legend()
-    plt.savefig(save_dir + '/meta_accuracy_average', bbox_inches='tight')
+    plt.savefig(save_dir + "/meta_accuracy_average", bbox_inches="tight")
     plt.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # -- test code
     """
     directory = os.getcwd() + '/results/rosenbaum_updated'
@@ -347,6 +357,6 @@ if __name__ == '__main__':
     """
 
     # -- test multi_plot_accuracy
-    directories = [os.curdir + '/results/rosenbaum_updated_5/{}'.format(i) for i in range(0, 6)]
-    save_dir = os.curdir + '/results/rosenbaum_updated_5'
+    directories = [os.curdir + "/results/rosenbaum_updated_5/{}".format(i) for i in range(0, 6)]
+    save_dir = os.curdir + "/results/rosenbaum_updated_5"
     multi_plot_accuracy(directories, window_size=3, save_dir=save_dir)

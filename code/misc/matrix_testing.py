@@ -2,11 +2,11 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # -- test matrix
     """a = torch.ones(170, 784)
     a_vector = torch.zeros(10, 170, 784)
-    
+
     for i in range(10):
         a_vector[i] = a
 
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     v_vector = nn.Parameter(torch.nn.init.ones_(torch.empty(size=(1, 5), device="cpu")))
     test_matrix = nn.Parameter(torch.nn.init.ones_(torch.empty(size=(5, 2, 4), device="cpu")))
 
-    product = torch.einsum('ci,ijk->cjk', v_vector, test_matrix).squeeze_(0)
+    product = torch.einsum("ci,ijk->cjk", v_vector, test_matrix).squeeze_(0)
     print(product.shape)
     print(product)
 
@@ -48,4 +48,3 @@ if __name__ == '__main__':
     K_matrix = torch.nn.init.uniform_(torch.empty(size=(5, 5), device="cpu"), -0.01, 0.01).numpy()
     eigenvalues, eigenvectors = np.linalg.eig(K_matrix)
     print(np.max(np.abs(eigenvalues)))
-    

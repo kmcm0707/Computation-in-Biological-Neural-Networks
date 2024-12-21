@@ -31,9 +31,7 @@ def multi_plot_accuracy(directories, labels, window_size=20, save_dir=None):
     x = np.array(range(average.shape[1])) + int((window_size - 1) / 2)
     print(x.shape, average.shape)
     for i in range(len(directories)):
-        plt.plot(
-            x, average[i], label="{} last={:.2f}".format(labels[i], average[i][-1])
-        )
+        plt.plot(x, average[i], label="{} last={:.2f}".format(labels[i], average[i][-1]))
     plt.axhline(y=0.2, color="r", linestyle="--", label="Chance Level")
     plt.xlabel("Meta-Training Episodes")
     plt.ylabel("Meta Accuracy")
@@ -112,9 +110,7 @@ if __name__ == "__main__":
     P_rosenbaum_label = "P initialised with Shervani-Tabar's results in 1st chemical"
 
     Khalf_label = "K randomly initialized with 0.5 std"  # , add_label, P_rosenbaum, P_random_label_2
-    K_001_label = (
-        "K randomly initialized with 0.01 std"  # , add, P_rosenbaum, P_random_2
-    )
+    K_001_label = "K randomly initialized with 0.01 std"  # , add, P_rosenbaum, P_random_2
 
     matrix = [
         [0.0212, 0.0080, -0.0208, -0.0086, 0.0150, 0.0036, 0.0078],

@@ -2,7 +2,7 @@ import math
 
 import numpy as np
 import torch
-from code.options.complex_options import (
+from options.complex_options import (
     complexOptions,
     kMatrixEnum,
     nonLinearEnum,

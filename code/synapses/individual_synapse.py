@@ -1,10 +1,7 @@
 # A complex synapse model where each layer has different parameters.
 
 import math
-
-import numpy as np
-import torch
-from code.options.complex_options import (
+from options.complex_options import (
     complexOptions,
     kMatrixEnum,
     nonLinearEnum,
@@ -13,6 +10,9 @@ from code.options.complex_options import (
     yVectorEnum,
     zVectorEnum,
 )
+
+import numpy as np
+import torch
 from torch import nn
 from torch.nn import functional
 

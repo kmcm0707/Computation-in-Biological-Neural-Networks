@@ -22,9 +22,7 @@ class EmnistDataset(Dataset):
     data from that category.
     """
 
-    def __init__(
-        self, trainingDataPerClass: int, queryDataPerClass: int, dimensionOfImage: int
-    ):
+    def __init__(self, trainingDataPerClass: int, queryDataPerClass: int, dimensionOfImage: int):
         """
             Initialize the EmnistDataset class.
 
@@ -44,20 +42,14 @@ class EmnistDataset(Dataset):
 
             # -- download
             emnist_url = "https://biometrics.nist.gov/cs_links/EMNIST/"
-            self.download(
-                emnist_url + file_name + ".zip", self.emnist_dir + file_name + ".zip"
-            )
+            self.download(emnist_url + file_name + ".zip", self.emnist_dir + file_name + ".zip")
 
             # -- unzip
             with zipfile.ZipFile(self.emnist_dir + file_name + ".zip", "r") as zip_file:
                 zip_file.extractall(self.emnist_dir)
             os.remove(self.emnist_dir + file_name + ".zip")
 
-            balanced_path = [
-                f
-                for f in [fs for _, _, fs in os.walk(self.emnist_dir + file_name)][0]
-                if "balanced" in f
-            ]
+            balanced_path = [f for f in [fs for _, _, fs in os.walk(self.emnist_dir + file_name)][0] if "balanced" in f]
             for file in balanced_path:
                 with gzip.open(self.emnist_dir + "gzip/" + file, "rb") as f_in:
                     try:
@@ -71,9 +63,7 @@ class EmnistDataset(Dataset):
             # -- write images
             self.write_to_file()
 
-            remove_path = [
-                files for _, folders, files in os.walk(self.emnist_dir) if folders
-            ][0]
+            remove_path = [files for _, folders, files in os.walk(self.emnist_dir) if folders][0]
             for path in remove_path:
                 os.unlink(self.emnist_dir + path)
 
@@ -83,9 +73,7 @@ class EmnistDataset(Dataset):
         self.trainingDataPerClass = trainingDataPerClass
         self.queryDataPerClass = queryDataPerClass
 
-        self.char_path = [
-            folder for folder, folders, _ in os.walk(self.emnist_dir) if not folders
-        ]
+        self.char_path = [folder for folder, folders, _ in os.walk(self.emnist_dir) if not folders]
         self.transform = transforms.Compose(
             [
                 transforms.Resize((dimensionOfImage, dimensionOfImage)),
@@ -122,21 +110,15 @@ class EmnistDataset(Dataset):
         n_class = 47
 
         # -- read images
-        with open(
-            self.emnist_dir + "emnist-balanced-test-images-idx3-ubyte", "rb"
-        ) as f:
+        with open(self.emnist_dir + "emnist-balanced-test-images-idx3-ubyte", "rb") as f:
             f.read(3)
             image_count = int.from_bytes(f.read(4), "big")
             height = int.from_bytes(f.read(4), "big")
             width = int.from_bytes(f.read(4), "big")
-            images = np.frombuffer(f.read(), dtype=np.uint8).reshape(
-                (image_count, height, width)
-            )
+            images = np.frombuffer(f.read(), dtype=np.uint8).reshape((image_count, height, width))
 
         # -- read labels
-        with open(
-            self.emnist_dir + "emnist-balanced-test-labels-idx1-ubyte", "rb"
-        ) as f:
+        with open(self.emnist_dir + "emnist-balanced-test-labels-idx1-ubyte", "rb") as f:
             f.read(3)
             label_count = int.from_bytes(f.read(4), "big")
             labels = np.frombuffer(f.read(), dtype=np.uint8)
@@ -147,17 +129,12 @@ class EmnistDataset(Dataset):
         for i in range(n_class):
             os.mkdir(self.emnist_dir + f"character{i + 1:02d}")
 
-        char_path = sorted(
-            [folder for folder, folders, _ in os.walk(self.emnist_dir) if not folders]
-        )
+        char_path = sorted([folder for folder, folders, _ in os.walk(self.emnist_dir) if not folders])
 
         label_counter = np.ones(n_class, dtype=int)
         for i in range(label_count):
             im = Image.fromarray(images[i])
-            im.save(
-                char_path[labels[i]]
-                + f"/{labels[i] + 1:02d}_{label_counter[labels[i]]:04d}.png"
-            )
+            im.save(char_path[labels[i]] + f"/{labels[i] + 1:02d}_{label_counter[labels[i]]:04d}.png")
 
             label_counter[labels[i]] += 1
 
@@ -190,13 +167,7 @@ class EmnistDataset(Dataset):
 
         img = []
         for img_ in os.listdir(self.char_path[index]):
-            img.append(
-                self.transform(
-                    Image.open(self.char_path[index] + "/" + img_, mode="r").convert(
-                        "L"
-                    )
-                )
-            )
+            img.append(self.transform(Image.open(self.char_path[index] + "/" + img_, mode="r").convert("L")))
 
         img = torch.cat(img)
         idx_vec = index * torch.ones(400, dtype=int)
@@ -204,14 +175,8 @@ class EmnistDataset(Dataset):
         return (
             img[: self.trainingDataPerClass],
             idx_vec[: self.trainingDataPerClass],
-            img[
-                self.trainingDataPerClass : self.trainingDataPerClass
-                + self.queryDataPerClass
-            ],
-            idx_vec[
-                self.trainingDataPerClass : self.trainingDataPerClass
-                + self.queryDataPerClass
-            ],
+            img[self.trainingDataPerClass : self.trainingDataPerClass + self.queryDataPerClass],
+            idx_vec[self.trainingDataPerClass : self.trainingDataPerClass + self.queryDataPerClass],
         )
 
 
@@ -267,18 +232,10 @@ class DataProcess:
         x_trn, y_trn, x_qry, y_qry = data
 
         # -- reshape
-        x_trn = torch.reshape(
-            x_trn, (classes * self.trainingDataPerClass, self.dimensionOfImage**2)
-        ).to(self.device)
-        y_trn = torch.reshape(y_trn, (classes * self.trainingDataPerClass, 1)).to(
-            self.device
-        )
-        x_qry = torch.reshape(
-            x_qry, (classes * self.queryDataPerClass, self.dimensionOfImage**2)
-        ).to(self.device)
-        y_qry = torch.reshape(y_qry, (classes * self.queryDataPerClass, 1)).to(
-            self.device
-        )
+        x_trn = torch.reshape(x_trn, (classes * self.trainingDataPerClass, self.dimensionOfImage**2)).to(self.device)
+        y_trn = torch.reshape(y_trn, (classes * self.trainingDataPerClass, 1)).to(self.device)
+        x_qry = torch.reshape(x_qry, (classes * self.queryDataPerClass, self.dimensionOfImage**2)).to(self.device)
+        y_qry = torch.reshape(y_qry, (classes * self.queryDataPerClass, 1)).to(self.device)
 
         # -- shuffle
         if self.iid:

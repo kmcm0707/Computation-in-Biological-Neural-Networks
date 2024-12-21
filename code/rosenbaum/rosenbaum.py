@@ -1,32 +1,28 @@
 import argparse
-from multiprocessing import Pool
-import os
-from typing import Literal
-import torch
-import warnings
 import datetime
+import os
+import shutil
+import warnings
+from multiprocessing import Pool
+from typing import Literal
 
+import torch
+from misc.dataset import DataProcess, EmnistDataset
+from misc.utils import Plot, log, meta_stats
+from rosenbaum.rosenbaum_optimizer import RosenbaumOptimizer, plasticity_rule
 from torch import nn, optim
 from torch.utils.data import DataLoader, RandomSampler
-
-from code.misc.dataset import EmnistDataset, DataProcess
-
-from code.rosenbaum.rosenbaum_optimizer import plasticity_rule, RosenbaumOptimizer
-
-from code.misc.utils import log, meta_stats, Plot
-
-import shutil
-
 from torch.utils.tensorboard import SummaryWriter
+
 
 class RosenbaumNN(nn.Module):
     """
 
     Rosenbaum Neural Network class.
-    
+
     """
 
-    def __init__(self, device: Literal['cpu', 'cuda'] = 'cpu'):
+    def __init__(self, device: Literal["cpu", "cuda"] = "cpu"):
 
         # Initialize the parent class
         super(RosenbaumNN, self).__init__()
@@ -52,10 +48,10 @@ class RosenbaumNN(nn.Module):
         self.feedback5 = nn.Linear(70, dim_out, bias=False)
 
         # Plastisity meta-parameters
-        self.theta0 = nn.Parameter(torch.tensor(1e-3).float()) # Pseudo-inverse
-        self.theta1 = nn.Parameter(torch.tensor(0.).float()) # Hebbian
-        self.theta2 = nn.Parameter(torch.tensor(0.).float()) # Oja
-        
+        self.theta0 = nn.Parameter(torch.tensor(1e-3).float())  # Pseudo-inverse
+        self.theta1 = nn.Parameter(torch.tensor(0.0).float())  # Hebbian
+        self.theta2 = nn.Parameter(torch.tensor(0.0).float())  # Oja
+
         self.thetas = nn.ParameterList([self.theta0, self.theta1, self.theta2])
 
         # Activation function
@@ -72,7 +68,8 @@ class RosenbaumNN(nn.Module):
         y5 = self.forward5(y4)
 
         return (y0, y1, y2, y3, y4), y5
-    
+
+
 class RosenbaumMetaLearner:
     """
     Rosenbaum Meta-learner class.
@@ -81,7 +78,15 @@ class RosenbaumMetaLearner:
 
     The MetaLearner class is used to define meta-learning algorithm.
     """
-    def __init__(self, metatrain_dataset, result_subdirectory: str, save_results: bool = True, seed: int = 1, display: bool = True):
+
+    def __init__(
+        self,
+        metatrain_dataset,
+        result_subdirectory: str,
+        save_results: bool = True,
+        seed: int = 1,
+        display: bool = True,
+    ):
         """
             Initialize the Meta-RosenbaumMetaLearner.
 
@@ -89,7 +94,7 @@ class RosenbaumMetaLearner:
         :param result_subdirectory: (str) The subdirectory to store results.
         """
         # -- processor params
-        self.device = torch.device('cpu') #torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device("cpu")  # torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.display = display
 
         # Set the seed for reproducibility
@@ -100,11 +105,16 @@ class RosenbaumMetaLearner:
         self.queryDataPerClass = 10
         self.database = "emnist"
         self.metatrain_dataset = metatrain_dataset
-        self.data_process = DataProcess(trainingDataPerClass=self.trainingDataPerClass, queryDataPerClass=self.queryDataPerClass, dimensionOfImage=28, device=self.device)
+        self.data_process = DataProcess(
+            trainingDataPerClass=self.trainingDataPerClass,
+            queryDataPerClass=self.queryDataPerClass,
+            dimensionOfImage=28,
+            device=self.device,
+        )
 
         # -- model params
         self.model = self.load_model().to(self.device)
-        self.feedbackMode = "fixed" # 'sym' or 'fixed'
+        self.feedbackMode = "fixed"  # 'sym' or 'fixed'
 
         # -- optimization params
         self.metaLossRegularization = 0
@@ -124,10 +134,10 @@ class RosenbaumMetaLearner:
                 warnings.warn("The directory already exists. The results will be overwritten.")
 
                 username = input("Proceed? (y/n): ")
-                while username.lower() not in ['y', 'n']:
+                while username.lower() not in ["y", "n"]:
                     username = input("Please enter 'y' or 'n': ")
 
-                if username.lower() == 'n':
+                if username.lower() == "n":
                     exit()
                 else:
                     shutil.rmtree(self.result_directory)
@@ -152,16 +162,15 @@ class RosenbaumMetaLearner:
 
         # -- learning flags
         for key, val in model.named_parameters():
-            if 'forward' in key:
+            if "forward" in key:
                 val.adapt = True
-            elif 'feedback' in key:
+            elif "feedback" in key:
                 val.adapt, val.requires_grad = False, False
-            elif 'theta' in key:
+            elif "theta" in key:
                 val.adapt = True
 
         return model
-        
-    
+
     @staticmethod
     def weights_init(modules):
         """
@@ -179,7 +188,7 @@ class RosenbaumMetaLearner:
         :param modules: modules in the model.
         """
         classname = modules.__class__.__name__
-        if classname.find('Linear') != -1:
+        if classname.find("Linear") != -1:
 
             # -- weights
             init_range = torch.sqrt(torch.tensor(6.0 / (modules.in_features + modules.out_features)))
@@ -203,17 +212,16 @@ class RosenbaumMetaLearner:
         # -- initialize weights
         self.model.apply(self.weights_init)
 
-        if self.feedbackMode == 'sym':
+        if self.feedbackMode == "sym":
             self.model.feedback1.weight.data = self.model.forward1.weight.data
             self.model.feedback2.weight.data = self.model.forward2.weight.data
             self.model.feedback3.weight.data = self.model.forward3.weight.data
             self.model.feedback4.weight.data = self.model.forward4.weight.data
             self.model.feedback5.weight.data = self.model.forward5.weight.data
 
-
-        #-- module parameters
-        #-- parameters are not linked to the model even if .clone() is not used
-        params = {key: val.clone() for key, val in dict(self.model.named_parameters()).items() if '.' in key}
+        # -- module parameters
+        # -- parameters are not linked to the model even if .clone() is not used
+        params = {key: val.clone() for key, val in dict(self.model.named_parameters()).items() if "." in key}
 
         # -- set adaptation flags for cloned parameters
         for key in params:
@@ -270,7 +278,7 @@ class RosenbaumMetaLearner:
             loss_meta = self.loss_func(logits, y_qry.ravel()) + l1_reg * self.metaLossRegularization
 
             # -- compute and store meta stats
-            
+
             acc = meta_stats(logits, parameters, y_qry.ravel(), y, self.model.beta, self.result_directory)
 
             # -- update params
@@ -280,25 +288,28 @@ class RosenbaumMetaLearner:
             self.UpdateMetaParameters.step()
 
             # -- log
-            log([loss_meta.item()], self.result_directory + '/loss_meta.txt')
+            log([loss_meta.item()], self.result_directory + "/loss_meta.txt")
 
-            line = 'Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}'.format(eps+1, loss_meta.item(), acc)
+            line = "Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}".format(eps + 1, loss_meta.item(), acc)
             for idx, param in enumerate(theta_temp):
-                line += '\tMetaParam_{}: {:.6f}'.format(idx + 1, param.clone().detach().cpu().numpy())
-                self.summary_writer.add_scalar('MetaParam_{}'.format(idx + 1), param.clone().detach().cpu().numpy(), eps)
-            
+                line += "\tMetaParam_{}: {:.6f}".format(idx + 1, param.clone().detach().cpu().numpy())
+                self.summary_writer.add_scalar(
+                    "MetaParam_{}".format(idx + 1), param.clone().detach().cpu().numpy(), eps
+                )
+
             if self.display:
                 print(line)
 
             if self.save_results:
-                self.summary_writer.add_scalar('Loss', loss_meta.item(), eps)
-                self.summary_writer.add_scalar('Accuracy', acc, eps)
-                with open(self.result_directory + '/params.txt', 'a') as f:
-                    f.writelines(line+'\n')
+                self.summary_writer.add_scalar("Loss", loss_meta.item(), eps)
+                self.summary_writer.add_scalar("Accuracy", acc, eps)
+                with open(self.result_directory + "/params.txt", "a") as f:
+                    f.writelines(line + "\n")
 
         # -- plot
         if self.save_results:
             self.plot()
+
 
 def main():
     """
@@ -317,7 +328,7 @@ def main():
 
     # -- set up
     Parser = argparse.ArgumentParser()
-    Parser.add_argument('--Pool', type=int, default=1, help='Number of processes to run in parallel')
+    Parser.add_argument("--Pool", type=int, default=1, help="Number of processes to run in parallel")
 
     Args = Parser.parse_args()
     print(Args)
@@ -325,29 +336,32 @@ def main():
     # -- run
     if Args.Pool > 1:
         with Pool(Args.Pool) as P:
-            P.starmap(run, zip(range(Args.Pool), [False]*Args.Pool))
+            P.starmap(run, zip(range(Args.Pool), [False] * Args.Pool))
     else:
         run(0)
 
+
 def run(seed, display=True):
     """
-        Run the meta-learning model.
+    Run the meta-learning model.
     """
 
     print(seed)
-       
+
     # -- load data
     result_subdirectory = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    result_subdirectory = "testing" # override
+    result_subdirectory = "testing"  # override
 
     dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=600 * 5)
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- meta-train
-    metalearning_model = RosenbaumMetaLearner(metatrain_dataset, result_subdirectory, save_results=True, seed=seed, display=display)
+    metalearning_model = RosenbaumMetaLearner(
+        metatrain_dataset, result_subdirectory, save_results=True, seed=seed, display=display
+    )
     metalearning_model.train()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -10,12 +10,12 @@ from typing import Literal
 
 import numpy as np
 import torch
-from code.misc.dataset import DataProcess, EmnistDataset
+from misc.dataset import DataProcess, EmnistDataset
+from misc.utils import Plot, log, meta_stats
 from ray import train, tune
 from torch import nn, optim
 from torch.utils.data import DataLoader, RandomSampler
 from torch.utils.tensorboard import SummaryWriter
-from code.misc.utils import Plot, log, meta_stats
 
 
 class RosenbaumNN(nn.Module):
@@ -120,32 +120,17 @@ class MetaLearner:
             self.result_directory = os.getcwd() + "/results"
             os.makedirs(self.result_directory, exist_ok=True)
             self.result_directory += (
-                "/"
-                + result_subdirectory
-                + "/"
-                + str(seed)
-                + "/"
-                + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+                "/" + result_subdirectory + "/" + str(seed) + "/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
             )
             try:
                 os.makedirs(self.result_directory, exist_ok=False)
                 with open(self.result_directory + "/arguments.txt", "w") as f:
                     f.writelines("Seed: {}\n".format(seed))
                     f.writelines("Model: {}\n".format("backprop"))
-                    f.writelines(
-                        "Number of training data per class: {}\n".format(
-                            self.trainingDataPerClass
-                        )
-                    )
-                    f.writelines(
-                        "Number of query data per class: {}\n".format(
-                            self.queryDataPerClass
-                        )
-                    )
+                    f.writelines("Number of training data per class: {}\n".format(self.trainingDataPerClass))
+                    f.writelines("Number of query data per class: {}\n".format(self.queryDataPerClass))
             except FileExistsError:
-                warnings.warn(
-                    "The directory already exists. The results will be overwritten."
-                )
+                warnings.warn("The directory already exists. The results will be overwritten.")
 
                 answer = input("Proceed? (y/n): ")
                 while answer.lower() not in ["y", "n"]:
@@ -215,9 +200,7 @@ class MetaLearner:
 
             # -- re initialize model
             self.model.train()
-            self.model.load_state_dict(
-                copy.deepcopy(self.UnOptimizedmodelStateDict), strict=True
-            )
+            self.model.load_state_dict(copy.deepcopy(self.UnOptimizedmodelStateDict), strict=True)
             self.UpdateParameters = optim.Adam(self.model.parameters(), lr=1e-3)
 
             # -- training data
@@ -257,9 +240,7 @@ class MetaLearner:
             if self.save_results:
                 log([loss_meta.item()], self.result_directory + "/loss_meta.txt")
 
-            line = "Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}".format(
-                eps + 1, loss_meta.item(), acc
-            )
+            line = "Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}".format(eps + 1, loss_meta.item(), acc)
             if self.display:
                 print(line)
 
@@ -310,15 +291,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -
     # -- load data
     numWorkers = 6
     epochs = 200
-    dataset = EmnistDataset(
-        trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28
-    )
-    sampler = RandomSampler(
-        data_source=dataset, replacement=True, num_samples=epochs * 5
-    )
-    metatrain_dataset = DataLoader(
-        dataset=dataset, sampler=sampler, batch_size=5, drop_last=True
-    )
+    dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
+    sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * 5)
+    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     metalearning_model = MetaLearner(
         device="cpu",

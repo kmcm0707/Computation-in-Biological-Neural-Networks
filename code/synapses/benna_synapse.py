@@ -30,13 +30,9 @@ class BennaSynapse(nn.Module):
         # Model
         self.numberOfChemicals = numberOfChemicals
         self.non_linearity = non_linearity
-        self.all_meta_parameters = nn.ParameterList(
-            []
-        )  # All updatable meta-parameters except bias
+        self.all_meta_parameters = nn.ParameterList([])  # All updatable meta-parameters except bias
         self.bias_dictionary = torch.nn.ParameterDict()  # All bias parameters
-        self.all_bias_parameters = nn.ParameterList(
-            []
-        )  # All bias parameters if they are used
+        self.all_bias_parameters = nn.ParameterList([])  # All bias parameters if they are used
         self.P_matrix = nn.Parameter()
 
         # Options
@@ -93,18 +89,14 @@ class BennaSynapse(nn.Module):
 
         base = max_tau / min_tau
         self.tau = base ** (1 / (2 * self.numberOfChemicals - 2))
-        self.C_vector = torch.tensor(
-            [self.tau**i for i in range(self.numberOfChemicals)], device=self.device
-        )
+        self.C_vector = torch.tensor([self.tau**i for i in range(self.numberOfChemicals)], device=self.device)
         self.G_vector = torch.tensor(
             [1 / min_tau * self.tau ** (i) for i in range(self.numberOfChemicals + 1)],
             device=self.device,
         )
 
         self.P_matrix = nn.Parameter(
-            torch.nn.init.zeros_(
-                torch.empty(size=(self.number_chemicals, 10), device=self.device)
-            )
+            torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device))
         )
         self.P_matrix[:, 0] = 1e-3
         self.all_meta_parameters.append(self.P_matrix)
@@ -128,15 +120,10 @@ class BennaSynapse(nn.Module):
         """
 
         feedback = {name: value for name, value in params.items() if "feedback" in name}
-        error = [
-            functional.softmax(output, dim=1)
-            - functional.one_hot(label, num_classes=47)
-        ]
+        error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=47)]
         # add the error for all the layers
         for y, i in zip(reversed(activations), reversed(list(feedback))):
-            error.insert(
-                0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-beta * y))
-            )
+            error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-beta * y)))
         activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
         """for i in range(len(activations_and_output)):
@@ -150,37 +137,25 @@ class BennaSynapse(nn.Module):
                 if parameter.adapt and "weight" in name:
                     # Equation 1: h(s+1) = yh(s) + zf(Kh(s) + \theta * F(Parameter) + b)
                     # Equation 2: w(s) = v * h(s)
-                    update_vector = self.calculate_update_vector(
-                        error, activations_and_output, parameter, i
-                    )
-                    inChange = self.non_linearity(
-                        torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
-                    )
+                    update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i)
+                    inChange = self.non_linearity(torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector))
                     inFlows = self.G_vector[0 : self.numberOfChemicals - 1] * (
-                        chemical[0 : self.numberOfChemicals - 1]
-                        - self.C_vector[1 : self.numberOfChemicals]
+                        chemical[0 : self.numberOfChemicals - 1] - self.C_vector[1 : self.numberOfChemicals]
                     )
                     backFlows = self.G_vector[1 : self.numberOfChemicals] * (
-                        chemical[1 : self.numberOfChemicals]
-                        - self.C_vector[0 : self.numberOfChemicals - 1]
+                        chemical[1 : self.numberOfChemicals] - self.C_vector[0 : self.numberOfChemicals - 1]
                     )
-                    outChange = self.G_vector[self.numberOfChemicals] * -(
-                        chemical[self.numberOfChemicals - 1]
-                    )
+                    outChange = self.G_vector[self.numberOfChemicals] * -(chemical[self.numberOfChemicals - 1])
 
                     newChemical = chemical
-                    newChemical[0] = (
-                        newChemical[0] + (inChange + backFlows[0]) / self.C_vector[0]
-                    )
+                    newChemical[0] = newChemical[0] + (inChange + backFlows[0]) / self.C_vector[0]
                     newChemical[1 : self.numberOfChemicals - 1] = (
                         newChemical[1 : self.numberOfChemicals - 1]
-                        + (inFlows + backFlows)
-                        / self.C_vector[1 : self.numberOfChemicals - 1]
+                        + (inFlows + backFlows) / self.C_vector[1 : self.numberOfChemicals - 1]
                     )
                     newChemical[self.numberOfChemicals - 1] = (
                         newChemical[self.numberOfChemicals - 1]
-                        + (outChange + inFlows[self.numberOfChemicals - 1])
-                        / self.C_vector[self.numberOfChemicals - 1]
+                        + (outChange + inFlows[self.numberOfChemicals - 1]) / self.C_vector[self.numberOfChemicals - 1]
                     )
                 i += 1
 
@@ -197,16 +172,12 @@ class BennaSynapse(nn.Module):
                 h_name = name.replace("forward", "chemical").split(".")[0]
                 if parameter.adapt and "weight" in name:
                     # Equation 2: w(s) = v * h(s)
-                    new_value = torch.einsum(
-                        "ci,ijk->cjk", self.v_vector, h_parameters[h_name]
-                    ).squeeze(0)
+                    new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
                     params[name] = new_value
 
                     params[name].adapt = True
 
-    def calculate_update_vector(
-        self, error, activations_and_output, parameter, i
-    ) -> torch.Tensor:
+    def calculate_update_vector(self, error, activations_and_output, parameter, i) -> torch.Tensor:
         """
         Calculate the update vector for the complex synapse model.
         :param error: (list) model error,
@@ -214,14 +185,10 @@ class BennaSynapse(nn.Module):
         :param parameter: (tensor) model parameter - dimension (W_1, W_2),
         :param i: (int) index of the parameter.
         """
-        update_vector = torch.zeros(
-            (10, parameter.shape[0], parameter.shape[1]), device=self.device
-        )
+        update_vector = torch.zeros((10, parameter.shape[0], parameter.shape[1]), device=self.device)
 
         if self.update_rules[0]:
-            update_vector[0] = -torch.matmul(
-                error[i + 1].T, activations_and_output[i]
-            )  # Pseudo-gradient
+            update_vector[0] = -torch.matmul(error[i + 1].T, activations_and_output[i])  # Pseudo-gradient
 
         if self.update_rules[1]:
             update_vector[1] = -torch.matmul(activations_and_output[i + 1].T, error[i])
@@ -233,9 +200,7 @@ class BennaSynapse(nn.Module):
             update_vector[3] = -parameter
 
         if self.update_rules[4]:
-            update_vector[4] = -torch.matmul(
-                torch.ones(size=(parameter.shape[0], 1), device=self.device), error[i]
-            )
+            update_vector[4] = -torch.matmul(torch.ones(size=(parameter.shape[0], 1), device=self.device), error[i])
 
         if self.update_rules[5]:
             update_vector[5] = -torch.matmul(
@@ -280,9 +245,7 @@ class BennaSynapse(nn.Module):
             update_vector[8] = -torch.matmul(
                 torch.matmul(
                     torch.matmul(
-                        torch.matmul(
-                            activations_and_output[i + 1].T, activations_and_output[i]
-                        ),
+                        torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]),
                         parameter.T,
                     ),
                     error[i + 1].T,
@@ -294,9 +257,7 @@ class BennaSynapse(nn.Module):
             update_vector[9] = torch.matmul(
                 activations_and_output[i + 1].T, activations_and_output[i]
             ) - self.oja_minus_parameter * torch.matmul(
-                torch.matmul(
-                    activations_and_output[i + 1].T, activations_and_output[i + 1]
-                ),
+                torch.matmul(activations_and_output[i + 1].T, activations_and_output[i + 1]),
                 parameter,
             )  # Oja's rule
 
