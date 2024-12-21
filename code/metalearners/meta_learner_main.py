@@ -378,11 +378,21 @@ class MetaLearner:
                 with open(self.result_directory + "/params.txt", "a") as f:
                     f.writelines(line + "\n")
 
+                for key, val in UpdateWeights_state_dict.items():
+                    if "K" in key or "P" in key or "v_vector" in key or "z_vector" in key or "y_vector" in key:
+                        with open(self.result_directory + "/{}.txt".format(key), "a") as f:
+                            f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
+
             # -- raytune
             if self.options.raytune:
                 if torch.isnan(loss_meta):
                     return train.report({"loss": loss_meta.item(), "accuracy": acc})
                 train.report({"loss": loss_meta.item(), "accuracy": acc})
+
+            # -- check for nan
+            if torch.isnan(loss_meta):
+                print("Meta loss is NaN.")
+                break
 
         # -- plot
         if self.save_results:
@@ -399,7 +409,7 @@ class MetaLearner:
         print("Meta-training complete.")
 
 
-def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -> None:
+def run(seed: int, display: bool = True, result_subdirectory: str = "testing", index: int = 0) -> None:
     """
         Main function for Meta-learning the plasticity rule.
 
@@ -430,8 +440,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -
 
     # -- options
 
-    model = modelEnum.complex
+    model = modelEnum.individual
     modelOptions = None
+
+    lrs = [1e-3, 4e-4, 1e-4, 4e-5, 1e-5, 4e-6]
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
@@ -478,7 +490,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=4e-4,
+        lr=lrs[index],
     )
 
     #   -- number of chemicals
@@ -511,7 +523,8 @@ def main():
     :return: None
     """
     # -- run
-    run(1, True, "testing")
+    for i in range(6):
+        run(1, True, "ssh_test", i)
 
 
 def pass_through(input):

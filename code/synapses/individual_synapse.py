@@ -9,6 +9,7 @@ from options.complex_options import (
     kMatrixEnum,
     modeEnum,
     nonLinearEnum,
+    operatorEnum,
     pMatrixEnum,
     vVectorEnum,
     yVectorEnum,
@@ -96,14 +97,6 @@ class IndividualSynapse(nn.Module):
                     )
                 )
 
-        if self.options.bias:
-            self.all_bias_parameters.extend(self.bias_dictionary.values())
-
-        ## Initialize the P and K matrices
-        for name, parameter in params:
-            if "forward" in name:
-                h_name = name.replace("forward", "chemical").split(".")[0]
-
                 ## Initialize the P and K matrices
                 if self.mode == modeEnum.rosenbaum or self.mode == modeEnum.all_rosenbaum:
                     self.P_dictionary[h_name] = nn.Parameter(
@@ -145,6 +138,8 @@ class IndividualSynapse(nn.Module):
                             torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device))
                         )
                         self.P_dictionary[h_name][:, 0] = 0.01
+                    else:
+                        raise ValueError("Invalid P matrix initialization")
 
                     if self.options.kMatrix == kMatrixEnum.random:
                         self.K_dictionary[h_name] = nn.Parameter(
@@ -170,7 +165,7 @@ class IndividualSynapse(nn.Module):
                             )
                         )
                     elif self.options.kMatrix == kMatrixEnum.zero:
-                        self.K_matrix = nn.Parameter(
+                        self.K_dictionary[h_name] = nn.Parameter(
                             torch.nn.init.zeros_(
                                 torch.empty(
                                     size=(self.number_chemicals, self.number_chemicals),
@@ -178,7 +173,11 @@ class IndividualSynapse(nn.Module):
                                 )
                             )
                         )
+                    else:
+                        raise ValueError("Invalid K matrix initialization")
 
+        if self.options.bias:
+            self.all_bias_parameters.extend(self.bias_dictionary.values())
         self.all_meta_parameters.extend(self.K_dictionary.values())
         self.all_meta_parameters.extend(self.P_dictionary.values())
 
@@ -195,7 +194,7 @@ class IndividualSynapse(nn.Module):
         self.z_vector = 1 / self.tau_vector
         self.y_vector = 1 - self.z_vector
 
-        if self.options.zVector == zVectorEnum.random:
+        if self.options.z_vector == zVectorEnum.random:
             self.z_vector = nn.Parameter(
                 torch.nn.init.normal_(
                     torch.empty(size=(1, self.number_chemicals), device=self.device),
@@ -203,9 +202,9 @@ class IndividualSynapse(nn.Module):
                     std=0.01,
                 )
             )
-        elif self.options.zVector == zVectorEnum.all_ones:
+        elif self.options.z_vector == zVectorEnum.all_ones:
             self.z_vector = torch.ones(self.number_chemicals, device=self.device)
-        elif self.options.zVector == zVectorEnum.default:
+        elif self.options.z_vector == zVectorEnum.default:
             pass
 
         if self.number_chemicals == 1:
@@ -301,7 +300,7 @@ class IndividualSynapse(nn.Module):
                     update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i)
                     new_chemical = None
                     if (
-                        self.operator == "mode_1" or self.operator == "mode_3"
+                        self.operator == operatorEnum.mode_1 or self.operator == operatorEnum.mode_3
                     ):  # mode 1 - was also called add in results
                         new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.einsum(
                             "i,ijk->ijk",
@@ -312,7 +311,7 @@ class IndividualSynapse(nn.Module):
                                 + self.bias_dictionary[h_name]
                             ),
                         )
-                    elif self.operator == "sub":
+                    elif self.operator == operatorEnum.sub:
                         # Equation 1 - operator = sub: h(s+1) = yh(s) + sign(h(s)) * z( f( sign(h(s)) * (Kh(s) + \theta * F(Parameter) + b) ))
                         new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.sign(
                             chemical
@@ -328,7 +327,7 @@ class IndividualSynapse(nn.Module):
                                 )
                             ),
                         )
-                    elif self.operator == "mode_2":
+                    elif self.operator == operatorEnum.mode_2:
                         # Equation 1: h(s+1) = yh(s) + zf(K(zh(s)) + P * F(Parameter) + b)
                         new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.einsum(
                             "i,ijk->ijk",
@@ -347,7 +346,7 @@ class IndividualSynapse(nn.Module):
                         raise ValueError("Invalid operator")
 
                     h_parameters[h_name] = new_chemical
-                    if self.operator == "mode_3":
+                    if self.operator == operatorEnum.mode_3:
                         # Equation 2: w(s) = w(s) + f(v * h(s))
                         new_value = parameter + torch.nn.functional.tanh(
                             torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
