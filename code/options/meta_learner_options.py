@@ -14,18 +14,6 @@ class schedulerEnum(Enum):
     none = "none"
 
 
-class metaLossRegularizationEnum(Enum):
-    l1 = "l1"
-    l2 = "l2"
-    none = "none"
-
-
-class biasLossRegularizationEnum(Enum):
-    l1 = "l1"
-    l2 = "l2"
-    none = "none"
-
-
 class optimizerEnum(Enum):
     adam = "adam"
     adamW = "adamW"
@@ -46,11 +34,11 @@ class MetaLearnerOptions:
     def __init__(
         self,
         scheduler: schedulerEnum,
-        metaLossRegularization: metaLossRegularizationEnum,
-        biasLossRegularization: biasLossRegularizationEnum,
+        metaLossRegularization: int,
+        biasLossRegularization: int,
         optimizer: optimizerEnum,
         model: modelEnum,
-        results_subdir: str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+        results_subdir: str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
         seed: int = 0,
         small: bool = False,
         raytune: bool = False,

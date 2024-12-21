@@ -22,6 +22,7 @@ class kMatrixEnum(Enum):
     random = "random"
     xavier = "xavier"
     uniform = "uniform"
+    zero = "zero"
 
 
 class zVectorEnum(Enum):
@@ -53,6 +54,12 @@ class vVectorEnum(Enum):
     random_small = "random_small"
 
 
+class modeEnum(Enum):
+    rosenbaum = "rosenbaum"
+    all_rosenbaum = "all_rosenbaum"
+    all = "all"
+
+
 class complexOptions:
     """
     Options for the complex synapse and individual complex synapse
@@ -71,6 +78,8 @@ class complexOptions:
         z_vector: zVectorEnum = zVectorEnum.default,
         operator: operatorEnum = operatorEnum.mode_1,
         train_z_vector: bool = False,
+        mode: modeEnum = modeEnum.all,
+        v_vector: vVectorEnum = vVectorEnum.default,
     ):
         self.nonLinear = nonLinear
         self.bias = bias
@@ -83,6 +92,8 @@ class complexOptions:
         self.z_vector = z_vector
         self.operator = operator
         self.train_z_vector = train_z_vector
+        self.mode = mode
+        self.v_vector = v_vector
 
     def __str__(self):
         string = ""

@@ -3,6 +3,11 @@
 import networkx as nx
 import numpy as np
 import torch
+from options.reservoir_options import (
+    modeReservoirEnum,
+    reservoirOptions,
+    vVectorReservoirEnum,
+)
 from torch import nn
 from torch.nn import functional
 
@@ -17,18 +22,13 @@ class ReservoirSynapse(nn.Module):
     def __init__(
         self,
         device="cpu",
-        mode="rosenbaum",
         numberOfChemicals: int = 1,
-        reservoir_connections=5,
-        non_linearity=torch.nn.functional.tanh,
-        spectral_radius=0.1,
+        options: reservoirOptions = None,
         params: dict = {},
-        **options
     ):
         """
         Initialize the complex synapse model.
         :param device: (str) The processing device to use. Default is 'cpu',
-        :param mode: (str) The update rule to use. Default is 'rosenbaum'.
         :param numberOfChemicals: (int) The number of chemicals to use. Default is 1,
         :param non_linearity: (function) The non-linearity to use. Default is torch.nn.functional.tanh,
         :param options: (dict) The options to use. Default is {}.
@@ -37,7 +37,6 @@ class ReservoirSynapse(nn.Module):
         super(ReservoirSynapse, self).__init__()
 
         self.device = device
-        self.mode = mode
         self.options = options
 
         # h(s+1) = (1-z)h(s) + zf(Kh(s) + \theta * F(Parameter) + b)
@@ -50,24 +49,21 @@ class ReservoirSynapse(nn.Module):
         self.bias_dictionary = torch.nn.ParameterDict()  # All bias parameters
         self.all_bias_parameters = nn.ParameterList([])  # All bias parameters if they are used
         self.number_chemicals = numberOfChemicals  # L
-        self.reservoir_connections = reservoir_connections
+        self.unit_connections = reservoirOptions.unit_connections
         self.reservoir_matrix = None
-        self.spec_rad = spectral_radius
 
-        self.non_linearity = non_linearity
-
+        self.spec_rad = reservoirOptions.spectral_radius
+        self.non_linearity = reservoirOptions.non_linearity
         self.update_rules = [False] * 10
-        if "update_rules" in self.options:
-            for i in self.options["update_rules"]:
-                self.update_rules[i] = True
-        else:
-            self.update_rules = [True] * 10
+        for i in self.options.update_rules:
+            self.update_rules[i] = True
+        self.operator = reservoirOptions.operator
 
         self.init_parameters(params=params)
 
     def reservoir_creation(self):
 
-        seed = self.options["seed"]
+        seed = self.options.reservoir_seed
         reservoir_matrix = nx.gnm_random_graph(self.number_chemicals, self.reservoir_connections, seed=seed)
         reservoir_matrix = nx.to_numpy_array(reservoir_matrix)
         reservoir_matrix = torch.from_numpy(reservoir_matrix).to_sparse().to(self.device)
@@ -97,9 +93,9 @@ class ReservoirSynapse(nn.Module):
                     )
                 )
 
-        if "bias" in self.options:
-            if self.options["bias"] == True:
-                self.all_bias_parameters.extend(self.bias_dictionary.values())
+        if self.options.bias:
+            for name, parameter in self.bias_dictionary.items():
+                self.all_bias_parameters.append(parameter)
 
         ## Initialize the P and K matrices
         self.K_matrix = nn.Parameter(
@@ -109,53 +105,39 @@ class ReservoirSynapse(nn.Module):
         self.reservoir_creation()
         self.K_matrix += self.reservoir_matrix
         self.K_matrix = self.spec_rad * self.K_matrix / torch.max(torch.abs(torch.eig(self.K_matrix)[0]))
+        if self.options.train_K_matrix:
+            self.all_meta_parameters.append(self.K_matrix)
 
         self.P_matrix = nn.Parameter(
             torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device))
         )
         self.P_matrix[:, 0] = 1e-3
-
-        if "train_K_matrix" in self.options:
-            if self.options["train_K_matrix"] == True:
-                self.all_meta_parameters.append(self.K_matrix)
-
         self.all_meta_parameters.append(self.P_matrix)
-
-        self.z_vector = torch.tensor([0] * self.number_chemicals, device=self.device)
-        self.y_vector = torch.tensor([0] * self.number_chemicals, device=self.device)
 
         ## Initialize the chemical time constants
         # z = 1 / \tau
-        min_tau = 1
-        if "min_tau" in self.options:
-            min_tau = self.options["min_tau"]
-        max_tau = 50
+        min_tau = self.options.minTau
+        max_tau = self.options.maxTau
         base = max_tau / min_tau
-
         self.tau_vector = min_tau * (base ** torch.linspace(0, 1, self.number_chemicals))
         self.z_vector = 1 / self.tau_vector
         self.y_vector = 1 - self.z_vector
-
         self.y_vector = self.y_vector.to(self.device)
+        self.y_vector = nn.Parameter(self.y_vector)
         self.z_vector = self.z_vector.to(self.device)
-
-        if "train_z_vector" in self.options:
-            if self.options["train_z_vector"] == True:
-                self.z_vector = nn.Parameter(self.z_vector)
-                self.all_meta_parameters.append(self.z_vector)
+        self.z_vector = nn.Parameter(self.z_vector)
 
         ## Initialize the v vector
-        self.v_vector = nn.Parameter(
-            torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device))
-            / self.number_chemicals
-        )
+        if self.options.v_vector == vVectorReservoirEnum.default:
+            self.v_vector = nn.Parameter(
+                torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device))
+                / self.number_chemicals
+            )
+        elif self.options.v_vector == vVectorReservoirEnum.small_random:
+            self.v_vector = nn.Parameter(
+                torch.nn.init.uniform_(torch.empty(size=(1, self.number_chemicals), device=self.device), -0.1, 0.1)
+            )
         self.all_meta_parameters.append(self.v_vector)
-
-        ## Initialize the oja minus parameter is trainable
-        self.oja_minus_parameter = nn.Parameter(torch.tensor(1, device=self.device).float())
-        if "oja_minus_parameter" in self.options:
-            if self.options["oja_minus_parameter"] == True:
-                self.all_meta_parameters.append(self.oja_minus_parameter)
 
     def __call__(
         self, activations: list, output: torch.Tensor, label: torch.Tensor, params: dict, h_parameters: dict, beta: int
@@ -200,13 +182,15 @@ class ReservoirSynapse(nn.Module):
                     )
                     h_parameters[h_name] = new_chemical
 
-                    if self.operator == "mode_3":
+                    if self.operator == modeReservoirEnum.mode_3:
                         # Equation 2: w(s) = w(s) + f(v * h(s))
                         new_value = parameter + torch.nn.functional.tanh(
                             torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
                         )
-                    else:
+                    elif self.operator == modeReservoirEnum.mode_1:
                         new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
+                    else:
+                        raise ValueError("Operator not implemented")
 
                     params[name] = new_value
                     params[name].adapt = True
@@ -293,9 +277,7 @@ class ReservoirSynapse(nn.Module):
             )
 
         if self.update_rules[9]:
-            update_vector[9] = torch.matmul(
-                activations_and_output[i + 1].T, activations_and_output[i]
-            ) - self.oja_minus_parameter * torch.matmul(
+            update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) - torch.matmul(
                 torch.matmul(activations_and_output[i + 1].T, activations_and_output[i + 1]), parameter
             )  # Oja's rule
 

@@ -1,18 +1,19 @@
 # A complex synapse model where each layer has different parameters.
 
 import math
+
+import numpy as np
+import torch
 from options.complex_options import (
     complexOptions,
     kMatrixEnum,
+    modeEnum,
     nonLinearEnum,
     pMatrixEnum,
     vVectorEnum,
     yVectorEnum,
     zVectorEnum,
 )
-
-import numpy as np
-import torch
 from torch import nn
 from torch.nn import functional
 
@@ -27,9 +28,7 @@ class IndividualSynapse(nn.Module):
     def __init__(
         self,
         device="cpu",
-        mode="rosenbaum",
         numberOfChemicals: int = 1,
-        non_linearity: nonLinearEnum = nonLinearEnum.tanh,
         complexOptions: complexOptions = None,
         params: dict = {},
     ):
@@ -45,7 +44,7 @@ class IndividualSynapse(nn.Module):
         super(IndividualSynapse, self).__init__()
 
         self.device = device
-        self.mode = mode
+        self.mode = complexOptions.mode
         self.options = complexOptions
 
         # h(s+1) = (1-z)h(s) + zf(Kh(s) + \theta * F(Parameter) + b)
@@ -58,17 +57,18 @@ class IndividualSynapse(nn.Module):
         self.all_bias_parameters = nn.ParameterList([])  # All bias parameters if they are used
         self.number_chemicals = numberOfChemicals  # L
 
-        self.non_linearity = non_linearity
+        self.non_linearity = self.options.nonLinear
 
         self.update_rules = [False] * 10
-        if self.mode == "rosenbaum":
+        if self.mode == modeEnum.rosenbaum:
             self.update_rules[0] = True
             self.update_rules[2] = True
             self.update_rules[9] = True
-        elif self.mode == "all_rosenbaum":
+        elif self.mode == modeEnum.all_rosenbaum:
             self.update_rules = [True] * 10
         else:
-            self.update_rules = self.options.update_rules
+            for i in self.options.update_rules:
+                self.update_rules[i] = True
 
         self.init_parameters(params=params)
 
@@ -105,7 +105,7 @@ class IndividualSynapse(nn.Module):
                 h_name = name.replace("forward", "chemical").split(".")[0]
 
                 ## Initialize the P and K matrices
-                if self.mode == "rosenbaum" or self.mode == "all_rosenbaum":
+                if self.mode == modeEnum.rosenbaum or self.mode == modeEnum.all_rosenbaum:
                     self.P_dictionary[h_name] = nn.Parameter(
                         torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device))
                     )
@@ -154,14 +154,6 @@ class IndividualSynapse(nn.Module):
                                 std=0.01 / np.sqrt(self.number_chemicals),
                             )
                         )
-                    elif self.options.kMatrix == kMatrixEnum.rosenbaum:
-                        self.K_dictionary[h_name] = nn.Parameter(
-                            torch.nn.init.normal_(
-                                torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device),
-                                mean=0,
-                                std=0.2 / np.sqrt(self.number_chemicals),
-                            )
-                        )
                     elif self.options.kMatrix == kMatrixEnum.xavier:
                         self.K_dictionary[h_name] = nn.Parameter(
                             0.1
@@ -175,6 +167,15 @@ class IndividualSynapse(nn.Module):
                                 torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device),
                                 -0.01,
                                 0.01,
+                            )
+                        )
+                    elif self.options.kMatrix == kMatrixEnum.zero:
+                        self.K_matrix = nn.Parameter(
+                            torch.nn.init.zeros_(
+                                torch.empty(
+                                    size=(self.number_chemicals, self.number_chemicals),
+                                    device=self.device,
+                                )
                             )
                         )
 
@@ -229,7 +230,7 @@ class IndividualSynapse(nn.Module):
         self.z_vector = nn.Parameter(self.z_vector)
 
         ## Initialize the v vector
-        if self.mode == "rosenbaum" or self.mode == "all_rosenbaum":
+        if self.mode == modeEnum.rosenbaum or self.mode == modeEnum.all_rosenbaum:
             self.v_vector = nn.Parameter(
                 torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device))
                 / self.number_chemicals

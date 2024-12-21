@@ -5,28 +5,42 @@ import os
 import random
 import sys
 from multiprocessing import Pool
-from typing import Literal
+from typing import Literal, Union
 
 import numpy as np
 import torch
-from code.nn.chemical_nn import ChemicalNN
-from code.synapses.complex_synapse import ComplexSynapse
-from code.misc.dataset import DataProcess, EmnistDataset
-from code.synapses.individual_synapse import IndividualSynapse
-from code.metalearners.meta_learner_options import (
+from misc.dataset import DataProcess, EmnistDataset
+from misc.utils import Plot, log, meta_stats
+from nn.chemical_nn import ChemicalNN
+from options.complex_options import (
+    complexOptions,
+    kMatrixEnum,
+    modeEnum,
+    nonLinearEnum,
+    operatorEnum,
+    pMatrixEnum,
+    vVectorEnum,
+    yVectorEnum,
+    zVectorEnum,
+)
+from options.meta_learner_options import (
     MetaLearnerOptions,
-    biasLossRegularizationEnum,
-    metaLossRegularizationEnum,
     modelEnum,
     optimizerEnum,
     schedulerEnum,
 )
+from options.reservoir_options import (
+    modeReservoirEnum,
+    reservoirOptions,
+    vVectorReservoirEnum,
+)
 from ray import train
-from code.synapses.reservoir_synapse import ReservoirSynapse
+from synapses.complex_synapse import ComplexSynapse
+from synapses.individual_synapse import IndividualSynapse
+from synapses.reservoir_synapse import ReservoirSynapse
 from torch import nn, optim
 from torch.utils.data import DataLoader, RandomSampler
 from torch.utils.tensorboard import SummaryWriter
-from code.misc.utils import Plot, log, meta_stats
 
 
 class MetaLearner:
@@ -39,21 +53,15 @@ class MetaLearner:
     def __init__(
         self,
         device: Literal["cpu", "cuda"] = "cpu",
-        model_type: str = "rosenbaum",
         numberOfChemicals: int = 1,
-        non_linearity=torch.nn.functional.tanh,
-        options={},
         metaLearnerOptions: MetaLearnerOptions = None,
+        modelOptions: Union[complexOptions, reservoirOptions] = None,
     ):
 
         # -- processor params
         self.device = torch.device(device)
-        self.model_type = model_type
-        self.options = options
-        self.small = metaLearnerOptions.small  # -- small model
-
-        # -- raytune
-        self.raytune = metaLearnerOptions.raytune
+        self.modelOptions = modelOptions
+        self.options = metaLearnerOptions
 
         # -- data params
         self.trainingDataPerClass = 50
@@ -82,30 +90,22 @@ class MetaLearner:
         if metaLearnerOptions.model == modelEnum.complex:
             self.UpdateWeights = ComplexSynapse(
                 device=self.device,
-                mode=self.model_type,
                 numberOfChemicals=self.numberOfChemicals,
-                non_linearity=non_linearity,
-                options=self.options,
+                complexOptions=self.modelOptions,
                 params=self.model.named_parameters(),
             )
         elif metaLearnerOptions.model == modelEnum.reservoir:
             self.UpdateWeights = ReservoirSynapse(
                 device=self.device,
-                mode=self.model_type,
                 numberOfChemicals=self.numberOfChemicals,
-                non_linearity=non_linearity,
-                options=self.options,
+                options=self.modelOptions,
                 params=self.model.named_parameters(),
-                spectral_radius=options["spectral_radius"],
-                reservoir_size=options["reservoir_size"],
             )
         elif metaLearnerOptions.model == modelEnum.individual:
             self.UpdateWeights = IndividualSynapse(
                 device=self.device,
-                mode=self.model_type,
                 numberOfChemicals=self.numberOfChemicals,
-                non_linearity=non_linearity,
-                options=self.options,
+                complexOptions=self.modelOptions,
                 params=self.model.named_parameters(),
             )
         else:
@@ -190,8 +190,8 @@ class MetaLearner:
                 f.writelines("Number of chemicals: {}\n".format(numberOfChemicals))
                 f.writelines("Number of training data per class: {}\n".format(self.trainingDataPerClass))
                 f.writelines("Number of query data per class: {}\n".format(self.queryDataPerClass))
-                f.writelines("Non linearity: {}\n".format(non_linearity))
                 f.writelines(str(metaLearnerOptions))
+                f.writelines(str(modelOptions))
 
             self.average_window = 10
             self.plot = Plot(self.result_directory, self.average_window)
@@ -208,7 +208,7 @@ class MetaLearner:
         :return: model with flags , "adapt", set for its parameters
         """
 
-        model = ChemicalNN(self.device, self.numberOfChemicals, small=self.small)
+        model = ChemicalNN(self.device, self.numberOfChemicals, small=self.options.small)
 
         # -- learning flags
         for key, val in model.named_parameters():
@@ -233,7 +233,7 @@ class MetaLearner:
 
     @torch.no_grad()
     def chemical_init(self, chemicals):
-        if self.options["chemicals"] == "zeros":
+        """if self.options["chemicals"] == "zeros":
             for chemical in chemicals:
                 nn.init.zeros_(chemical)
         elif self.options["chemicals"] == "same":
@@ -241,9 +241,9 @@ class MetaLearner:
                 nn.init.xavier_uniform_(chemical[0])
                 for idx in range(chemical.shape[0] - 1):
                     chemical[idx + 1] = chemical[0]
-        else:
-            for chemical in chemicals:
-                nn.init.xavier_uniform_(chemical)
+        else:"""
+        for chemical in chemicals:
+            nn.init.xavier_uniform_(chemical)
 
     def reinitialize(self):
         """
@@ -302,8 +302,8 @@ class MetaLearner:
             # Using a clone of the model parameters to allow for in-place operations
             # Maintains the computational graph for the model as .detach() is not used
             parameters, h_parameters = self.reinitialize()
-            if self.options["chemicals"] != "zeros":
-                self.UpdateWeights.initial_update(parameters, h_parameters)
+            # if self.options["chemicals"] != "zeros":
+            self.UpdateWeights.initial_update(parameters, h_parameters)
 
             # -- training data
             x_trn, y_trn, x_qry, y_qry = self.data_process(data, 5)
@@ -358,9 +358,8 @@ class MetaLearner:
 
             # -- update
             self.UpdateMetaParameters.step()
-            if "scheduler" in self.options:
-                if self.options["scheduler"] != "none":
-                    self.scheduler.step()
+            if self.scheduler is not None:
+                self.scheduler.step()
 
             # -- log
             if self.save_results:
@@ -380,7 +379,7 @@ class MetaLearner:
                     f.writelines(line + "\n")
 
             # -- raytune
-            if self.raytune:
+            if self.options.raytune:
                 if torch.isnan(loss_meta):
                     return train.report({"loss": loss_meta.item(), "accuracy": acc})
                 train.report({"loss": loss_meta.item(), "accuracy": acc})
@@ -430,30 +429,57 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- options
-    options = {}
-    options["lr"] = 4e-4
-    options["optimizer"] = "adam"
-    options["K_Matrix"] = "n"
-    options["P_Matrix"] = "n"
-    options["metaLossRegularization"] = 0
-    options["update_rules"] = [0, 1, 2, 3, 4, 8, 9]
-    options["operator"] = "mode_1"
-    options["chemicals"] = "n"
-    options["bias"] = False
-    options["y_vector"] = "last_one"
-    options["min_tau"] = 40
-    options["z_vector"] = "all_ones"
-    options["train_z_vector"] = True
-    options["v_vector"] = "none"
-    options["biasLossRegularization"] = 0
-    options["small"] = False
-    options["train_K_matrix"] = True
-    # options['oja_minus_parameter'] = True
-    # options['scheduler'] = 'exponential'
 
-    # -- non-linearity
-    non_linearity = torch.nn.functional.tanh
-    # non_linearity = pass_through
+    model = modelEnum.complex
+    modelOptions = None
+
+    if model == modelEnum.complex or model == modelEnum.individual:
+        modelOptions = complexOptions(
+            nonLinear=nonLinearEnum.tanh,
+            bias=True,
+            update_rules=[0, 1, 2, 3, 4, 8, 9],
+            pMatrix=pMatrixEnum.first_col,
+            kMatrix=kMatrixEnum.zero,
+            minTau=1,
+            maxTau=50,
+            y_vector=yVectorEnum.first_one,
+            z_vector=zVectorEnum.default,
+            operator=operatorEnum.mode_1,
+            train_z_vector=False,
+            mode=modeEnum.all,
+            v_vector=vVectorEnum.default,
+        )
+    elif model == modelEnum.reservoir:
+        modelOptions = reservoirOptions(
+            nonLinear=nonLinearEnum.tanh,
+            reservoir_size=100,
+            bias=True,
+            spectral_radius=0.9,
+            unit_connections=10,
+            update_rules=[0, 1, 2, 3, 4, 8, 9],
+            reservoir_seed=0,
+            train_K_matrix=False,
+            minTau=1,
+            maxTau=50,
+            v_vector=vVectorReservoirEnum.default,
+        )
+
+    # -- meta-learner options
+    metaLearnerOptions = MetaLearnerOptions(
+        scheduler=schedulerEnum.none,
+        metaLossRegularization=0,
+        biasLossRegularization=0,
+        optimizer=optimizerEnum.adam,
+        model=model,
+        results_subdir=result_subdirectory,
+        seed=seed,
+        small=False,
+        raytune=False,
+        save_results=True,
+        metatrain_dataset=metatrain_dataset,
+        display=display,
+        lr=4e-4,
+    )
 
     #   -- number of chemicals
     numberOfChemicals = 3
@@ -461,21 +487,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = 'cpu'
 
-    # -- model
-    options["model"] = "reservoir"
-
     metalearning_model = MetaLearner(
         device=device,
-        result_subdirectory=result_subdirectory,
-        save_results=True,
-        model_type="all",
-        metatrain_dataset=metatrain_dataset,
-        seed=seed,
-        display=display,
         numberOfChemicals=numberOfChemicals,
-        non_linearity=non_linearity,
-        options=options,
-        raytune=False,
+        metaLearnerOptions=metaLearnerOptions,
+        modelOptions=modelOptions,
     )
     metalearning_model.train()
 
@@ -494,33 +510,9 @@ def main():
 
     :return: None
     """
-
-    """non_linearity = [torch.nn.functional.tanh] * Args.Pool
-    results_directory = ['full_attempt/1', 'full_attempt/3', 'full_attempt/5'] * Args.Pool
-    chemicals = [1,3,5] """
-
     # -- run
     run(1, True, "testing")
-    """if Args.Pool > 1:
-        with Pool(Args.Pool) as P:
-            P.starmap(run, zip([0] * Args.Pool, [False]*Args.Pool, results_directory, non_linearity, chemicals))
-            P.close()
-            P.join()
-    else:
-        run(0)"""
 
 
 def pass_through(input):
     return input
-
-
-if __name__ == "__main__":
-    # torch.autograd.set_detect_anomaly(True)
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("Interrupted")
-        try:
-            sys.exit(0)
-        except SystemExit:
-            os._exit(0)
