@@ -505,7 +505,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=1e-3,
+        lr=5e-4,
     )
 
     #   -- number of chemicals
