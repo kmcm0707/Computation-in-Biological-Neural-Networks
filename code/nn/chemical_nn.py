@@ -58,10 +58,10 @@ class ChemicalNN(nn.Module):
             self.feedback5 = nn.Linear(70, dim_out, bias=False)
 
         # Layer normalization
-        """self.layer_norm1 = nn.LayerNorm(170)
+        self.layer_norm1 = nn.LayerNorm(170)
         self.layer_norm2 = nn.LayerNorm(130)
         self.layer_norm3 = nn.LayerNorm(100)
-        self.layer_norm4 = nn.LayerNorm(70)"""
+        self.layer_norm4 = nn.LayerNorm(70)
 
         # h(s) - LxW
         self.numberOfChemicals = numberOfChemicals
@@ -111,6 +111,7 @@ class ChemicalNN(nn.Module):
 
         if not self.small:
             y4 = self.activation(y4)
+            # y4 = self.layer_norm4(y4)
             # y4 = self.layer_norm4(y4)
             y5 = self.forward5(y4)
 

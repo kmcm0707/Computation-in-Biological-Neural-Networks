@@ -58,7 +58,6 @@ class ComplexSynapse_2(nn.Module):
         self.non_linearity = non_linearity
 
         self.update_rules = [False] * 10
-
         for i in self.options["update_rules"]:
             self.update_rules[i] = True
 

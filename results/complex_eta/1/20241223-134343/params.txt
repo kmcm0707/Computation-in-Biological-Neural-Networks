@@ -1,0 +1,15 @@
+Train Episode: 1	Loss: 3.848878	Accuracy: 0.200
+Train Episode: 2	Loss: 3.848599	Accuracy: 0.000
+Train Episode: 3	Loss: 3.850267	Accuracy: 0.000
+Train Episode: 4	Loss: 3.850349	Accuracy: 0.000
+Train Episode: 5	Loss: 3.851212	Accuracy: 0.000
+Train Episode: 6	Loss: 3.847614	Accuracy: 0.000
+Train Episode: 7	Loss: 3.851979	Accuracy: 0.000
+Train Episode: 8	Loss: 3.849553	Accuracy: 0.000
+Train Episode: 9	Loss: 3.850114	Accuracy: 0.000
+Train Episode: 10	Loss: 3.849736	Accuracy: 0.000
+Train Episode: 11	Loss: 3.851245	Accuracy: 0.000
+Train Episode: 12	Loss: 3.848633	Accuracy: 0.000
+Train Episode: 13	Loss: 3.849382	Accuracy: 0.000
+Train Episode: 14	Loss: 3.853959	Accuracy: 0.000
+Train Episode: 15	Loss: 3.852197	Accuracy: 0.000

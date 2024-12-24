@@ -107,7 +107,7 @@ class ComplexSynapse(nn.Module):
             self.P_matrix = nn.Parameter(
                 torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device))
             )
-            self.P_matrix[:, 0] = 1e-3
+            self.P_matrix[:, 0] = 1e-3 / self.options.eta
 
             self.K_matrix = nn.Parameter(
                 torch.nn.init.zeros_(
@@ -117,17 +117,17 @@ class ComplexSynapse(nn.Module):
                     )
                 )
             )
-
         else:
             if self.options.pMatrix == pMatrixEnum.random:
                 self.P_matrix = nn.Parameter(
-                    torch.nn.init.normal_(
+                    torch.nn.init.uniform_(
                         torch.empty(size=(self.number_chemicals, 10), device=self.device),
-                        mean=0,
-                        std=0.01,
+                        # mean=0,
+                        # std=0.001,
                     )
                 )
                 self.P_matrix[:, 0] = torch.abs_(self.P_matrix[:, 0])
+                self.P_matrix = torch.nn.Parameter(self.P_matrix)
             elif self.options.pMatrix == pMatrixEnum.rosenbaum_last:
                 self.P_matrix = nn.Parameter(
                     torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device))
@@ -148,7 +148,7 @@ class ComplexSynapse(nn.Module):
                 self.P_matrix = nn.Parameter(
                     torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device))
                 )
-                self.P_matrix[:, 0] = 0.01
+                self.P_matrix[:, 0] = 0.001
 
             if self.options.kMatrix == kMatrixEnum.random:
                 self.K_matrix = nn.Parameter(
@@ -158,13 +158,12 @@ class ComplexSynapse(nn.Module):
                             device=self.device,
                         ),
                         mean=0,
-                        std=0.01 / np.sqrt(self.number_chemicals),
+                        std=1e-3 / self.options.eta,
                     )
                 )
             elif self.options.kMatrix == kMatrixEnum.xavier:
                 self.K_matrix = nn.Parameter(
-                    0.1
-                    * torch.nn.init.xavier_normal_(
+                    torch.nn.init.xavier_normal_(
                         torch.empty(
                             size=(self.number_chemicals, self.number_chemicals),
                             device=self.device,
@@ -356,12 +355,15 @@ class ComplexSynapse(nn.Module):
                             "i,ijk->ijk",
                             self.z_vector,
                             self.non_linearity(
-                                torch.einsum(
-                                    "ci,ijk->cjk",
-                                    self.K_matrix,
-                                    torch.einsum("i,ijk->ijk", self.z_vector, chemical),
+                                self.options.eta
+                                * (
+                                    torch.einsum(
+                                        "ci,ijk->cjk",
+                                        self.K_matrix,
+                                        torch.einsum("i,ijk->ijk", self.z_vector, chemical),
+                                    )
+                                    + torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
                                 )
-                                + torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
                                 + self.bias_dictionary[h_name]
                             ),
                         )

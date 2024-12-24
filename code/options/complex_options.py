@@ -80,6 +80,7 @@ class complexOptions:
         train_z_vector: bool = False,
         mode: modeEnum = modeEnum.all,
         v_vector: vVectorEnum = vVectorEnum.default,
+        eta: float = 1e-3,
     ):
         self.nonLinear = nonLinear
         self.bias = bias
@@ -94,6 +95,7 @@ class complexOptions:
         self.train_z_vector = train_z_vector
         self.mode = mode
         self.v_vector = v_vector
+        self.eta = eta
 
     def __str__(self):
         string = ""

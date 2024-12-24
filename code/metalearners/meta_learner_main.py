@@ -12,6 +12,7 @@ import torch
 from misc.dataset import DataProcess, EmnistDataset
 from misc.utils import Plot, log, meta_stats
 from nn.chemical_nn import ChemicalNN
+from options.benna_options import bennaOptions
 from options.complex_options import (
     complexOptions,
     kMatrixEnum,
@@ -35,6 +36,7 @@ from options.reservoir_options import (
     vVectorReservoirEnum,
 )
 from ray import train
+from synapses.benna_synapse import BennaSynapse
 from synapses.complex_synapse import ComplexSynapse
 from synapses.individual_synapse import IndividualSynapse
 from synapses.reservoir_synapse import ReservoirSynapse
@@ -77,8 +79,7 @@ class MetaLearner:
         # -- model params
         self.numberOfChemicals = numberOfChemicals
         if self.device == "cpu":  # Remove if using a newer GPU
-            self.UnOptimizedModel = self.load_model().to(self.device)
-            self.model = torch.compile(self.UnOptimizedModel, mode="reduce-overhead")
+            self.model = self.load_model().to(self.device)
         else:
             self.model = self.load_model().to(self.device)
 
@@ -106,6 +107,13 @@ class MetaLearner:
                 device=self.device,
                 numberOfChemicals=self.numberOfChemicals,
                 complexOptions=self.modelOptions,
+                params=self.model.named_parameters(),
+            )
+        elif metaLearnerOptions.model == modelEnum.benna:
+            self.UpdateWeights = BennaSynapse(
+                device=self.device,
+                numberOfChemicals=self.numberOfChemicals,
+                options=self.modelOptions,
                 params=self.model.named_parameters(),
             )
         else:
@@ -245,6 +253,7 @@ class MetaLearner:
         for chemical in chemicals:
             nn.init.xavier_uniform_(chemical)
 
+    @torch.no_grad()
     def reinitialize(self):
         """
             Initialize module parameters.
@@ -372,8 +381,8 @@ class MetaLearner:
             if self.save_results:
                 self.summary_writer.add_scalar("Loss/meta", loss_meta.item(), eps)
                 self.summary_writer.add_scalar("Accuracy/meta", acc, eps)
-                for key, val in UpdateWeights_state_dict.items():
-                    self.summary_writer.add_tensor(key, val.clone().detach(), eps)
+                """for key, val in UpdateWeights_state_dict.items():
+                    self.summary_writer.add_tensor(key, val.clone().detach(), eps)"""
 
                 with open(self.result_directory + "/params.txt", "a") as f:
                     f.writelines(line + "\n")
@@ -401,11 +410,9 @@ class MetaLearner:
 
         # -- save
         if self.save_results:
-            torch.save(
-                self.UpdateWeights.state_dict(),
-                self.result_directory + "/UpdateWeights.pth",
-            )
+            torch.save(self.UpdateWeights.state_dict(), self.result_directory + "/UpdateWeights.pth")
             torch.save(self.model.state_dict(), self.result_directory + "/model.pth")
+            torch.save(self.UpdateMetaParameters.state_dict(), self.result_directory + "/UpdateMetaParameters.pth")
         print("Meta-training complete.")
 
 
@@ -439,16 +446,15 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- options
-
     model = modelEnum.individual
     modelOptions = None
 
-    lrs = [1e-3, 4e-4, 1e-4, 4e-5, 1e-5, 4e-6]
+    chemicals = [6, 10, 20]
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            bias=True,
+            bias=False,
             update_rules=[0, 1, 2, 3, 4, 8, 9],
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
@@ -460,6 +466,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
+            eta=1,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -474,6 +481,14 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             minTau=1,
             maxTau=50,
             v_vector=vVectorReservoirEnum.default,
+        )
+    elif model == modelEnum.benna:
+        modelOptions = bennaOptions(
+            non_linearity=nonLinearEnum.tanh,
+            bias=False,
+            update_rules=[0, 1, 2, 3, 4, 8, 9],
+            minTau=1,
+            maxTau=50,
         )
 
     # -- meta-learner options
@@ -490,11 +505,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=lrs[index],
+        lr=3e-4,
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 3
+    numberOfChemicals = chemicals[index]
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = 'cpu'
@@ -523,8 +538,9 @@ def main():
     :return: None
     """
     # -- run
-    for i in range(6):
-        run(1, True, "ssh_test", i)
+    # torch.autograd.set_detect_anomaly(True)
+    for i in range(3):
+        run(seed=0, display=True, result_subdirectory="sshing", index=i)
 
 
 def pass_through(input):

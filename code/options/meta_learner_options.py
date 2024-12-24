@@ -2,6 +2,7 @@ import datetime
 from enum import Enum
 from typing import Literal
 
+from synapses.benna_synapse import BennaSynapse
 from synapses.complex_synapse import ComplexSynapse
 from synapses.individual_synapse import IndividualSynapse
 from synapses.reservoir_synapse import ReservoirSynapse
@@ -24,6 +25,7 @@ class modelEnum(Enum):
     complex = ComplexSynapse
     reservoir = ReservoirSynapse
     individual = IndividualSynapse
+    benna = BennaSynapse
 
 
 class MetaLearnerOptions:
