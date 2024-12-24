@@ -446,10 +446,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- options
-    model = modelEnum.individual
+    model = modelEnum.benna
     modelOptions = None
 
-    chemicals = [6, 10, 20]
+    chemicals = [10, 12, 14]
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
@@ -540,7 +540,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(3):
-        run(seed=0, display=True, result_subdirectory="sshing", index=i)
+        run(seed=0, display=True, result_subdirectory="benna", index=i)
 
 
 def pass_through(input):
