@@ -251,7 +251,9 @@ class MetaLearner:
                     chemical[idx + 1] = chemical[0]
         else:"""
         for chemical in chemicals:
-            nn.init.xavier_uniform_(chemical)
+            nn.init.xavier_uniform_(chemical[0])
+            for idx in range(chemical.shape[0] - 1):
+                chemical[idx + 1] = chemical[0]
 
     @torch.no_grad()
     def reinitialize(self):
@@ -449,7 +451,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     model = modelEnum.benna
     modelOptions = None
 
-    chemicals = [10, 12, 14]
+    chemicals = [6, 7, 8]
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
@@ -505,7 +507,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=5e-4,
+        lr=3e-3,
     )
 
     #   -- number of chemicals
