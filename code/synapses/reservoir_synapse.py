@@ -7,6 +7,7 @@ from options.reservoir_options import (
     modeReservoirEnum,
     reservoirOptions,
     vVectorReservoirEnum,
+    yReservoirEnum,
 )
 from torch import nn
 from torch.nn import functional
@@ -65,7 +66,9 @@ class ReservoirSynapse(nn.Module):
     def reservoir_creation(self):
 
         seed = self.options.reservoir_seed
-        reservoir_matrix = nx.gnm_random_graph(self.number_chemicals, self.unit_connections, seed=seed)
+        reservoir_matrix = nx.gnm_random_graph(
+            self.number_chemicals, self.unit_connections * self.number_chemicals, seed=seed
+        )
         reservoir_matrix = nx.to_numpy_array(reservoir_matrix)
         reservoir_matrix = torch.from_numpy(reservoir_matrix).to(self.device)
         self.reservoir_matrix = reservoir_matrix.float()
@@ -105,7 +108,9 @@ class ReservoirSynapse(nn.Module):
         # self.K_matrix = self.K_matrix.to_sparse().to(self.device)
         self.reservoir_creation()
         self.K_matrix += self.reservoir_matrix
-        self.K_matrix = torch.nn.Parameter(self.spec_rad * self.K_matrix / torch.max(torch.abs(torch.linalg.eigvals(self.K_matrix)[0])))
+        self.K_matrix = torch.nn.Parameter(
+            self.spec_rad * self.K_matrix / torch.max(torch.abs(torch.linalg.eigvals(self.K_matrix)[0]))
+        )
         if self.options.train_K_matrix:
             self.all_meta_parameters.append(self.K_matrix)
 
@@ -123,6 +128,9 @@ class ReservoirSynapse(nn.Module):
         self.tau_vector = min_tau * (base ** torch.linspace(0, 1, self.number_chemicals))
         self.z_vector = 1 / self.tau_vector
         self.y_vector = 1 - self.z_vector
+
+        if self.options.y == yReservoirEnum.first_one:
+            self.y_vector[0] = 1
         self.y_vector = self.y_vector.to(self.device)
         self.y_vector = nn.Parameter(self.y_vector)
         self.z_vector = self.z_vector.to(self.device)

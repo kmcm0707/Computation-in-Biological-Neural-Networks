@@ -13,6 +13,11 @@ class modeReservoirEnum(Enum):
     mode_3 = "mode_3"
 
 
+class yReservoirEnum(Enum):
+    none = "none"
+    first_one = "first_one"
+
+
 class reservoirOptions:
     """
     Options for the reservoir synapse
@@ -31,7 +36,7 @@ class reservoirOptions:
         maxTau=50,
         v_vector: vVectorReservoirEnum = vVectorReservoirEnum.default,
         operator: modeReservoirEnum = modeReservoirEnum.mode_1,
-
+        y: yReservoirEnum = yReservoirEnum.none,
     ):
 
         self.non_linearity = non_linearity
@@ -45,6 +50,7 @@ class reservoirOptions:
         self.maxTau = maxTau
         self.v_vector = v_vector
         self.operator = operator
+        self.y = y
 
     def __str__(self):
         string = ""

@@ -34,6 +34,7 @@ from options.reservoir_options import (
     modeReservoirEnum,
     reservoirOptions,
     vVectorReservoirEnum,
+    yReservoirEnum,
 )
 from ray import train
 from synapses.benna_synapse import BennaSynapse
@@ -481,6 +482,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             minTau=1,
             maxTau=50,
             v_vector=vVectorReservoirEnum.default,
+            mode=modeReservoirEnum.mode_1,
+            y=yReservoirEnum.first_one,
         )
     elif model == modelEnum.benna:
         modelOptions = bennaOptions(
@@ -540,7 +543,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(4):
-        run(seed=0, display=True, result_subdirectory="reservoir", index=i)
+        run(seed=0, display=True, result_subdirectory="reservoir_non_broken", index=i)
 
 
 def pass_through(input):
