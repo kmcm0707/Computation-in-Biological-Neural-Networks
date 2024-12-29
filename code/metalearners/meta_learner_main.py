@@ -471,7 +471,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
-            nonLinear=nonLinearEnum.tanh,
+            non_linearity=nonLinearEnum.tanh,
             unit_connections=5,
             bias=True,
             spectral_radius=spectral_radius[index],

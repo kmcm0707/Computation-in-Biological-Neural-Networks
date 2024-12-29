@@ -30,6 +30,8 @@ class reservoirOptions:
         minTau=1,
         maxTau=50,
         v_vector: vVectorReservoirEnum = vVectorReservoirEnum.default,
+        operator: modeReservoirEnum = modeReservoirEnum.mode_1,
+
     ):
 
         self.non_linearity = non_linearity
@@ -42,6 +44,7 @@ class reservoirOptions:
         self.minTau = minTau
         self.maxTau = maxTau
         self.v_vector = v_vector
+        self.operator = operator
 
     def __str__(self):
         string = ""

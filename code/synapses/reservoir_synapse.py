@@ -49,25 +49,26 @@ class ReservoirSynapse(nn.Module):
         self.bias_dictionary = torch.nn.ParameterDict()  # All bias parameters
         self.all_bias_parameters = nn.ParameterList([])  # All bias parameters if they are used
         self.number_chemicals = numberOfChemicals  # L
-        self.unit_connections = reservoirOptions.unit_connections
+        self.unit_connections = options.unit_connections
         self.reservoir_matrix = None
 
-        self.spec_rad = reservoirOptions.spectral_radius
-        self.non_linearity = reservoirOptions.non_linearity
+        self.spec_rad = options.spectral_radius
+        self.non_linearity = options.non_linearity
         self.update_rules = [False] * 10
         for i in self.options.update_rules:
             self.update_rules[i] = True
-        self.operator = reservoirOptions.operator
+        self.operator = options.operator
 
         self.init_parameters(params=params)
 
+    @torch.no_grad()
     def reservoir_creation(self):
 
         seed = self.options.reservoir_seed
-        reservoir_matrix = nx.gnm_random_graph(self.number_chemicals, self.reservoir_connections, seed=seed)
+        reservoir_matrix = nx.gnm_random_graph(self.number_chemicals, self.unit_connections, seed=seed)
         reservoir_matrix = nx.to_numpy_array(reservoir_matrix)
-        reservoir_matrix = torch.from_numpy(reservoir_matrix).to_sparse().to(self.device)
-        self.reservoir_matrix = reservoir_matrix
+        reservoir_matrix = torch.from_numpy(reservoir_matrix).to(self.device)
+        self.reservoir_matrix = reservoir_matrix.float()
 
     @torch.no_grad()
     def init_parameters(self, params: dict = {}):
@@ -101,10 +102,10 @@ class ReservoirSynapse(nn.Module):
         self.K_matrix = nn.Parameter(
             torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, self.number_chemicals), device=self.device))
         )
-        self.K_matrix = self.K_matrix.to_sparse().to(self.device)
+        # self.K_matrix = self.K_matrix.to_sparse().to(self.device)
         self.reservoir_creation()
         self.K_matrix += self.reservoir_matrix
-        self.K_matrix = self.spec_rad * self.K_matrix / torch.max(torch.abs(torch.eig(self.K_matrix)[0]))
+        self.K_matrix = torch.nn.Parameter(self.spec_rad * self.K_matrix / torch.max(torch.abs(torch.linalg.eigvals(self.K_matrix)[0])))
         if self.options.train_K_matrix:
             self.all_meta_parameters.append(self.K_matrix)
 
