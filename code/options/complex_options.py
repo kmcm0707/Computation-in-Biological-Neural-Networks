@@ -45,6 +45,7 @@ class operatorEnum(Enum):
     mode_2 = "mode_2"
     mode_3 = "mode_3"
     sub = "sub"
+    attention = "attention"
 
 
 class vVectorEnum(Enum):

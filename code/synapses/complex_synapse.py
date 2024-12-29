@@ -376,8 +376,13 @@ class ComplexSynapse(nn.Module):
                         new_value = parameter + torch.nn.functional.tanh(
                             torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
                         )
+                    elif self.operator == operatorEnum.attention:
+                        # Equation 2: attention mechanism
+                        # v(s) = Attention(h(s), w(s-1), v(s-1), Input)
+                        pass
                     else:
                         new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
+
                     params[name] = new_value
 
                     params[name].adapt = True

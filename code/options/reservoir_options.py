@@ -21,7 +21,6 @@ class reservoirOptions:
     def __init__(
         self,
         non_linearity: nonLinearEnum,
-        reservoir_size: int,
         bias: bool,
         spectral_radius: float,
         unit_connections: int,
@@ -34,7 +33,6 @@ class reservoirOptions:
     ):
 
         self.non_linearity = non_linearity
-        self.reservoir_size = reservoir_size
         self.bias = bias
         self.spectral_radius = spectral_radius
         self.unit_connections = unit_connections

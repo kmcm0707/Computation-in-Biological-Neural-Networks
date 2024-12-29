@@ -448,10 +448,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- options
-    model = modelEnum.benna
+    model = modelEnum.reservoir
     modelOptions = None
-
-    chemicals = [6, 7, 8]
+    spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
@@ -473,10 +472,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
             nonLinear=nonLinearEnum.tanh,
-            reservoir_size=100,
+            unit_connections=5,
             bias=True,
-            spectral_radius=0.9,
-            unit_connections=10,
+            spectral_radius=spectral_radius[index],
             update_rules=[0, 1, 2, 3, 4, 8, 9],
             reservoir_seed=0,
             train_K_matrix=False,
@@ -507,11 +505,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=3e-3,
+        lr=1e-4,
     )
 
     #   -- number of chemicals
-    numberOfChemicals = chemicals[index]
+    numberOfChemicals = 20
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = 'cpu'
@@ -541,8 +539,8 @@ def main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    for i in range(3):
-        run(seed=0, display=True, result_subdirectory="benna", index=i)
+    for i in range(4):
+        run(seed=0, display=True, result_subdirectory="reservoir", index=i)
 
 
 def pass_through(input):
