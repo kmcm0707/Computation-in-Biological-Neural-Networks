@@ -442,7 +442,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 6
-    epochs = 200
+    epochs = 500
     dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * 5)
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
@@ -505,7 +505,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=1e-4,
+        lr=1e-3,
     )
 
     #   -- number of chemicals
