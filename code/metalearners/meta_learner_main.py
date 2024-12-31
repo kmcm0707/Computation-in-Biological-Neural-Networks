@@ -482,7 +482,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             minTau=1,
             maxTau=50,
             v_vector=vVectorReservoirEnum.default,
-            mode=modeReservoirEnum.mode_1,
+            operator=modeReservoirEnum.mode_1,
             y=yReservoirEnum.first_one,
         )
     elif model == modelEnum.benna:

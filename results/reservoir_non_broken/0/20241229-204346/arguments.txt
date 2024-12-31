@@ -1,0 +1,28 @@
+Number of chemicals: 20
+Number of training data per class: 50
+Number of query data per class: 10
+model: modelEnum.reservoir
+small: False
+scheduler: schedulerEnum.none
+metaLossRegularization: 0
+biasLossRegularization: 0
+optimizer: optimizerEnum.adam
+seed: 0
+raytune: False
+save_results: True
+results_subdir: reservoir_non_broken
+metatrain_dataset: <torch.utils.data.dataloader.DataLoader object at 0x7f10062d5f60>
+display: True
+lr: 0.001
+non_linearity: <function tanh at 0x7f102509cca0>
+bias: True
+spectral_radius: 0.9
+unit_connections: 5
+update_rules: [0, 1, 2, 3, 4, 8, 9]
+reservoir_seed: 0
+train_K_matrix: False
+minTau: 1
+maxTau: 50
+v_vector: vVectorReservoirEnum.default
+operator: modeReservoirEnum.mode_1
+y: yReservoirEnum.first_one
