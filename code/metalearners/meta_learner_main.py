@@ -483,7 +483,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             v_vector=vVectorReservoirEnum.default,
             operator=modeReservoirEnum.mode_1,
-            y=yReservoirEnum.first_one,
+            y=yReservoirEnum.none,
         )
     elif model == modelEnum.benna:
         modelOptions = bennaOptions(
@@ -508,7 +508,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=1e-3,
+        lr=3e-4,
     )
 
     #   -- number of chemicals
@@ -543,7 +543,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(4):
-        run(seed=0, display=True, result_subdirectory="reservoir_non_broken", index=i)
+        run(seed=0, display=True, result_subdirectory="reservoir_non_broken_2", index=i)
 
 
 def pass_through(input):
