@@ -29,10 +29,17 @@ if __name__ == "__main__":
     y_vector[0] = 1
 
     v_vector = nn.Parameter(torch.nn.init.ones_(torch.empty(size=(1, 5), device="cpu")))
-    test_matrix = nn.Parameter(torch.nn.init.ones_(torch.empty(size=(5, 2, 4), device="cpu")))
+    test_matrix = nn.Parameter(torch.nn.init.xavier_normal_(torch.empty(size=(2, 2, 2), device="cpu")))
+    test_matrix_2 = nn.Parameter(torch.nn.init.xavier_normal_(torch.empty(size=(2, 2, 2), device="cpu")))
 
-    product = torch.einsum("ci,ijk->cjk", v_vector, test_matrix).squeeze_(0)
+    print(test_matrix)
+    print(test_matrix_2)
+    product = torch.einsum("ijk,ijk->jk", test_matrix_2, test_matrix)
     print(product.shape)
+    print(product)
+
+    print(test_matrix)
+    product = torch.nn.functional.softmax(test_matrix, dim=0)
     print(product)
 
     print(tau_vector)
