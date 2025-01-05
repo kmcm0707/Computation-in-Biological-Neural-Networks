@@ -391,7 +391,7 @@ class MetaLearner:
                     f.writelines(line + "\n")
 
                 for key, val in UpdateWeights_state_dict.items():
-                    if "K" in key or "P" in key or "v_vector" in key or "z_vector" in key or "y_vector" in key:
+                    if "K" in key or "P" in key or "v_vector" in key or "z_vector" in key or "y_vector" in key or "A" in key or "B" in key:
                         with open(self.result_directory + "/{}.txt".format(key), "a") as f:
                             f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
 
@@ -512,14 +512,14 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 20
+    numberOfChemicals = [6,7,8,9]
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = 'cpu'
 
     metalearning_model = MetaLearner(
         device=device,
-        numberOfChemicals=numberOfChemicals,
+        numberOfChemicals=numberOfChemicals[index],
         metaLearnerOptions=metaLearnerOptions,
         modelOptions=modelOptions,
     )

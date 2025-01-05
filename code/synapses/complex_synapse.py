@@ -298,11 +298,11 @@ class ComplexSynapse(nn.Module):
             self.A_bias = nn.Parameter(
                 torch.nn.init.xavier_uniform_(
                     torch.empty(
-                        size=(self.number_chemicals),
+                        size=(1, self.number_chemicals),
                         device=self.device,
                     ),
                 )
-            )
+            ).squeeze_(0)
             self.all_meta_parameters.append(self.A_bias)
 
             self.B = nn.Parameter(
@@ -318,11 +318,11 @@ class ComplexSynapse(nn.Module):
             self.B_bias = nn.Parameter(
                 torch.nn.init.xavier_uniform_(
                     torch.empty(
-                        size=(self.number_chemicals),
+                        size=(1, self.number_chemicals),
                         device=self.device,
                     ),
                 )
-            )
+            ).squeeze_(0)
             self.all_meta_parameters.append(self.B_bias)
 
     def __call__(
@@ -364,7 +364,7 @@ class ComplexSynapse(nn.Module):
                     update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i)
                     new_chemical = None
                     if (
-                        self.operator == operatorEnum.mode_1 or self.operator == operatorEnum.mode_3
+                        self.operator == operatorEnum.mode_1 or self.operator == operatorEnum.mode_3 or self.operator == operatorEnum.attention
                     ):  # mode 1 - was also called add in results
                         new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.einsum(
                             "i,ijk->ijk",
