@@ -234,11 +234,11 @@ class MetaLearner:
         if classname.find("Linear") != -1:
 
             # -- weights
-            nn.init.kaiming_uniform_(modules.weight)
+            nn.init.xavier_uniform_(modules.weight)
 
             # -- bias
             if modules.bias is not None:
-                nn.init.kaiming_uniform_(modules.bias)
+                nn.init.xavier_uniform_(modules.bias)
 
     @torch.no_grad()
     def chemical_init(self, chemicals):
@@ -252,7 +252,7 @@ class MetaLearner:
                     chemical[idx + 1] = chemical[0]
         else:"""
         for chemical in chemicals:
-            nn.init.kaiming_uniform_(chemical[0])
+            nn.init.xavier_uniform_(chemical[0])
             for idx in range(chemical.shape[0] - 1):
                 chemical[idx + 1] = chemical[0]
 
@@ -456,7 +456,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            bias=True,
+            bias=False,
             update_rules=[0, 1, 2, 3, 4, 8, 9],
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
@@ -464,7 +464,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.first_one,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_1,
+            operator=operatorEnum.extended_attention,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -543,7 +543,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(4):
-        run(seed=0, display=True, result_subdirectory="kaiming", index=i)
+        run(seed=0, display=True, result_subdirectory="extened_attention", index=i)
 
 
 def pass_through(input):
