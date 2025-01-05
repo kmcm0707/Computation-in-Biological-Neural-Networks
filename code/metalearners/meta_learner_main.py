@@ -464,7 +464,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.first_one,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.extended_attention,
+            operator=operatorEnum.attention_2,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -508,7 +508,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=5e-5,
+        lr=1e-3,
     )
 
     #   -- number of chemicals
@@ -543,7 +543,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(4):
-        run(seed=0, display=True, result_subdirectory="extened_attention", index=i)
+        run(seed=0, display=True, result_subdirectory="attention_2", index=i)
 
 
 def pass_through(input):

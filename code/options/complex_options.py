@@ -47,6 +47,7 @@ class operatorEnum(Enum):
     sub = "sub"
     attention = "attention"
     extended_attention = "extended_attention"
+    attention_2 = "attention_2"
 
 
 class vVectorEnum(Enum):
