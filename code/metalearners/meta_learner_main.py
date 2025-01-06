@@ -443,7 +443,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 6
-    epochs = 200
+    epochs = 500
     dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * 5)
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
@@ -508,11 +508,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=1e-3,
+        lr=4e-4,
     )
 
     #   -- number of chemicals
-    numberOfChemicals = [2, 3, 4, 5]
+    numberOfChemicals = [3,5]
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = 'cpu'
@@ -544,6 +544,7 @@ def main():
     # torch.autograd.set_detect_anomaly(True)
     for i in range(4):
         run(seed=0, display=True, result_subdirectory="attention_2", index=i)
+        break
 
 
 def pass_through(input):
