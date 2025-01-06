@@ -1,7 +1,7 @@
 .obsidian
 .venv
 .trash
-.vscode
+
 
 __pycache__/
 data/*
