@@ -298,11 +298,11 @@ class ComplexSynapse(nn.Module):
             self.A_bias = nn.Parameter(
                 torch.nn.init.xavier_uniform_(
                     torch.empty(
-                        size=(self.number_chemicals),
+                        size=(1, self.number_chemicals),
                         device=self.device,
                     ),
                 )
-            )
+            ).squeeze_(0)
             self.all_meta_parameters.append(self.A_bias)
 
             self.B = nn.Parameter(
@@ -318,11 +318,91 @@ class ComplexSynapse(nn.Module):
             self.B_bias = nn.Parameter(
                 torch.nn.init.xavier_uniform_(
                     torch.empty(
-                        size=(self.number_chemicals),
+                        size=(1, self.number_chemicals),
+                        device=self.device,
+                    ),
+                )
+            ).squeeze_(0)
+            self.all_meta_parameters.append(self.B_bias)
+        elif self.operator == operatorEnum.extended_attention:
+            self.A = nn.Parameter(
+                torch.nn.init.xavier_normal_(
+                    torch.empty(
+                        size=(self.number_chemicals, self.number_chemicals),
                         device=self.device,
                     ),
                 )
             )
+            self.all_meta_parameters.append(self.A)
+
+            self.A_bias = nn.Parameter(
+                torch.nn.init.xavier_uniform_(
+                    torch.empty(
+                        size=(1, self.number_chemicals),
+                        device=self.device,
+                    ),
+                )
+            ).squeeze_(0)
+            self.all_meta_parameters.append(self.A_bias)
+
+            self.B = nn.Parameter(
+                torch.nn.init.xavier_normal_(
+                    torch.empty(
+                        size=(10, self.number_chemicals),
+                        device=self.device,
+                    ),
+                )
+            )
+            self.all_meta_parameters.append(self.B)
+
+            self.B_bias = nn.Parameter(
+                torch.nn.init.xavier_uniform_(
+                    torch.empty(
+                        size=(1, self.number_chemicals),
+                        device=self.device,
+                    ),
+                )
+            ).squeeze_(0)
+            self.all_meta_parameters.append(self.B_bias)
+        elif self.operator == operatorEnum.attention_2:
+            self.A = nn.Parameter(
+                torch.nn.init.xavier_normal_(
+                    torch.empty(
+                        size=(10+self.number_chemicals, self.number_chemicals),
+                        device=self.device,
+                    ),
+                )
+            )
+            self.all_meta_parameters.append(self.A)
+
+            self.A_bias = nn.Parameter(
+                torch.nn.init.xavier_uniform_(
+                    torch.empty(
+                        size=(1, self.number_chemicals),
+                        device=self.device,
+                    ),
+                )
+            ).squeeze_(0)
+            self.all_meta_parameters.append(self.A_bias)
+
+            self.B = nn.Parameter(
+                torch.nn.init.xavier_normal_(
+                    torch.empty(
+                        size=(10+self.number_chemicals, self.number_chemicals),
+                        device=self.device,
+                    ),
+                )
+            )
+            self.all_meta_parameters.append(self.B)
+
+            self.B_bias = nn.Parameter(
+                torch.nn.init.xavier_uniform_(
+                    torch.empty(
+                        size=(1, self.number_chemicals),
+                        device=self.device,
+                    ),
+                )
+            ).squeeze_(0)
             self.all_meta_parameters.append(self.B_bias)
 
     def __call__(
@@ -364,7 +444,8 @@ class ComplexSynapse(nn.Module):
                     update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i)
                     new_chemical = None
                     if (
-                        self.operator == operatorEnum.mode_1 or self.operator == operatorEnum.mode_3
+                        self.operator == operatorEnum.mode_1 or self.operator == operatorEnum.mode_3 or self.operator == operatorEnum.attention or self.operator == operatorEnum.extended_attention 
+                        or self .operator == operatorEnum.attention_2
                     ):  # mode 1 - was also called add in results
                         new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.einsum(
                             "i,ijk->ijk",
@@ -427,6 +508,29 @@ class ComplexSynapse(nn.Module):
                         # w(s) = v(s) * h(s)
                         v_A = torch.einsum("ic,ijk->cjk", self.A, h_parameters[h_name]) + self.A_bias[:, None, None]
                         v_B = torch.einsum("ic,ijk->cjk", self.B, h_parameters[h_name]) + self.B_bias[:, None, None]
+                        new_v = torch.nn.functional.softmax(torch.einsum("ijk,ijk->ijk", v_A, v_B), dim=0)
+                        new_value = torch.einsum("ijk,ijk->jk", new_v, h_parameters[h_name])
+                    elif self.operator == operatorEnum.extended_attention:
+                        # Equation 2: attention mechanism
+                        # v(s) = Attention(h(s), w(s-1), v(s-1), Input)
+                        # For now v(s) = attention(h(s))
+                        # v(s) = (A * h(s) + A_bias) * (B * h(s) + B_bias)
+                        # v(s) = softmax(v(s))
+                        # w(s) = v(s) * h(s)
+                        v_A = torch.einsum("ic,ijk->cjk", self.A, h_parameters[h_name]) + self.A_bias[:, None, None]
+                        v_B = torch.einsum("ic,ijk->cjk", self.B, update_vector) + self.B_bias[:, None, None]
+                        new_v = torch.nn.functional.softmax(torch.einsum("ijk,ijk->ijk", v_A, v_B), dim=0)
+                        new_value = torch.einsum("ijk,ijk->jk", new_v, h_parameters[h_name])
+                    elif self.operator == operatorEnum.attention_2:
+                        # Equation 2: attention mechanism
+                        # v(s) = Attention(h(s), w(s-1), v(s-1), Input)
+                        # For now v(s) = attention(h(s))
+                        # v(s) = (A * h(s) + A_bias) * (B * h(s) + B_bias)
+                        # v(s) = softmax(v(s))
+                        # w(s) = v(s) * h(s)
+                        attention_vector = torch.cat((h_parameters[h_name], update_vector), dim=0)
+                        v_A = torch.einsum("ic,ijk->cjk", self.A, attention_vector) + self.A_bias[:, None, None]
+                        v_B = torch.einsum("ic,ijk->cjk", self.B, attention_vector) + self.B_bias[:, None, None]
                         new_v = torch.nn.functional.softmax(torch.einsum("ijk,ijk->ijk", v_A, v_B), dim=0)
                         new_value = torch.einsum("ijk,ijk->jk", new_v, h_parameters[h_name])
                     else:

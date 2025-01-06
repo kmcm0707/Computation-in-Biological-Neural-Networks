@@ -391,7 +391,7 @@ class MetaLearner:
                     f.writelines(line + "\n")
 
                 for key, val in UpdateWeights_state_dict.items():
-                    if "K" in key or "P" in key or "v_vector" in key or "z_vector" in key or "y_vector" in key:
+                    if "K" in key or "P" in key or "v_vector" in key or "z_vector" in key or "y_vector" in key or "A" in key or "B" in key:
                         with open(self.result_directory + "/{}.txt".format(key), "a") as f:
                             f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
 
@@ -449,7 +449,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- options
-    model = modelEnum.reservoir
+    model = modelEnum.complex
     modelOptions = None
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
 
@@ -464,7 +464,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.first_one,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_1,
+            operator=operatorEnum.attention_2,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -508,18 +508,18 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=3e-4,
+        lr=4e-4,
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 20
+    numberOfChemicals = [3,5]
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = 'cpu'
 
     metalearning_model = MetaLearner(
         device=device,
-        numberOfChemicals=numberOfChemicals,
+        numberOfChemicals=numberOfChemicals[index],
         metaLearnerOptions=metaLearnerOptions,
         modelOptions=modelOptions,
     )
@@ -543,7 +543,8 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(4):
-        run(seed=0, display=True, result_subdirectory="reservoir_non_broken_2", index=i)
+        run(seed=0, display=True, result_subdirectory="attention_2", index=i)
+        break
 
 
 def pass_through(input):
