@@ -368,7 +368,7 @@ class ComplexSynapse(nn.Module):
             self.A = nn.Parameter(
                 torch.nn.init.xavier_normal_(
                     torch.empty(
-                        size=(10+self.number_chemicals, self.number_chemicals),
+                        size=(10 + self.number_chemicals, self.number_chemicals),
                         device=self.device,
                     ),
                 )
@@ -388,7 +388,7 @@ class ComplexSynapse(nn.Module):
             self.B = nn.Parameter(
                 torch.nn.init.xavier_normal_(
                     torch.empty(
-                        size=(10+self.number_chemicals, self.number_chemicals),
+                        size=(10 + self.number_chemicals, self.number_chemicals),
                         device=self.device,
                     ),
                 )
@@ -431,7 +431,14 @@ class ComplexSynapse(nn.Module):
         activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
         """for i in range(len(activations_and_output)):
-            activations_and_output[i] = activations_and_output[i] / torch.norm(activations_and_output[i], p=2)"""
+            # activations_and_output[i] = activations_and_output[i] / torch.norm(activations_and_output[i], p=2)
+            activations_and_output[i] = activations_and_output[i] / (
+                torch.max(torch.abs(activations_and_output[i])) + 1e-5
+            )
+
+        for i in range(len(error)):
+            # error[i] = error[i] / torch.norm(error[i], p=2)
+            error[i] = error[i] / (torch.max(torch.abs(error[i])) + 1e-5)"""
 
         i = 0
         for name, parameter in params.items():
@@ -442,10 +449,16 @@ class ComplexSynapse(nn.Module):
                     # Equation 1: h(s+1) = yh(s) + zf(Kh(s) + \theta * F(Parameter) + b)
                     # Equation 2: w(s) = v * h(s)
                     update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i)
+                    # update_vector = update_vector / (torch.amax(update_vector, dim=(1, 2)) + 1e-5)[:, None, None]
+                    # update_vector = update_vector / (torch.norm(update_vector, dim=(1, 2), p=2) + 1e-5)[:, None, None]
+
                     new_chemical = None
                     if (
-                        self.operator == operatorEnum.mode_1 or self.operator == operatorEnum.mode_3 or self.operator == operatorEnum.attention or self.operator == operatorEnum.extended_attention 
-                        or self .operator == operatorEnum.attention_2
+                        self.operator == operatorEnum.mode_1
+                        or self.operator == operatorEnum.mode_3
+                        or self.operator == operatorEnum.attention
+                        or self.operator == operatorEnum.extended_attention
+                        or self.operator == operatorEnum.attention_2
                     ):  # mode 1 - was also called add in results
                         new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.einsum(
                             "i,ijk->ijk",
@@ -512,9 +525,7 @@ class ComplexSynapse(nn.Module):
                         new_value = torch.einsum("ijk,ijk->jk", new_v, h_parameters[h_name])
                     elif self.operator == operatorEnum.extended_attention:
                         # Equation 2: attention mechanism
-                        # v(s) = Attention(h(s), w(s-1), v(s-1), Input)
-                        # For now v(s) = attention(h(s))
-                        # v(s) = (A * h(s) + A_bias) * (B * h(s) + B_bias)
+                        # v(s) = (A * h(s) + A_bias) * (B * update + B_bias)
                         # v(s) = softmax(v(s))
                         # w(s) = v(s) * h(s)
                         v_A = torch.einsum("ic,ijk->cjk", self.A, h_parameters[h_name]) + self.A_bias[:, None, None]
@@ -523,12 +534,13 @@ class ComplexSynapse(nn.Module):
                         new_value = torch.einsum("ijk,ijk->jk", new_v, h_parameters[h_name])
                     elif self.operator == operatorEnum.attention_2:
                         # Equation 2: attention mechanism
-                        # v(s) = Attention(h(s), w(s-1), v(s-1), Input)
-                        # For now v(s) = attention(h(s))
-                        # v(s) = (A * h(s) + A_bias) * (B * h(s) + B_bias)
+                        # v(s) = (A * (h(s), update) + A_bias) * (B * (h(s), update) + B_bias)
                         # v(s) = softmax(v(s))
                         # w(s) = v(s) * h(s)
                         attention_vector = torch.cat((h_parameters[h_name], update_vector), dim=0)
+                        attention_vector = (
+                            attention_vector / (torch.norm(attention_vector, p=2, dim=(1, 2)) + 1e-5)[:, None, None]
+                        )
                         v_A = torch.einsum("ic,ijk->cjk", self.A, attention_vector) + self.A_bias[:, None, None]
                         v_B = torch.einsum("ic,ijk->cjk", self.B, attention_vector) + self.B_bias[:, None, None]
                         new_v = torch.nn.functional.softmax(torch.einsum("ijk,ijk->ijk", v_A, v_B), dim=0)

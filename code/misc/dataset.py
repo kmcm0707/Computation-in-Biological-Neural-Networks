@@ -7,6 +7,7 @@ from typing import Literal
 import numpy as np
 import requests
 import torch
+import torchvision
 from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import transforms
@@ -178,6 +179,43 @@ class EmnistDataset(Dataset):
             img[self.trainingDataPerClass : self.trainingDataPerClass + self.queryDataPerClass],
             idx_vec[self.trainingDataPerClass : self.trainingDataPerClass + self.queryDataPerClass],
         )
+
+
+class FashionMnistDataset(Dataset):
+    """
+        Fashion MNIST Dataset class.
+
+    Constructs training and query sets for meta-training. Note that rather
+    than a single image and the corresponding label, each data point
+    represents samples from a class of images, containing training and query
+    data from that category.
+    """
+
+    def __init__(self, trainingDataPerClass: int, queryDataPerClass: int, dimensionOfImage: int):
+        """
+            Initialize the FashionMnistDataset class.
+
+        The method first downloads and preprocesses the Fashion MNIST dataset, creating
+        directories and files necessary for later use.
+
+        :param trainingDataPerClass: (int) integer value representing the number of training data per class,
+        :param queryDataPerClass: (int) integer value representing the number of query data per class,
+        :param dimensionOfImage: (int) integer value representing the dimension size of the images.
+        """
+        try:
+            # -- create directory
+            s_dir = os.getcwd()
+            self.fashion_mnist_dir = s_dir + "/data/fashion_mnist/"
+            os.makedirs(self.fashion_mnist_dir)
+
+            # -- download
+            dataset = torchvision.datasets.FashionMNIST(root=self.fashion_mnist_dir, download=True)
+
+        except FileExistsError:
+            pass
+
+        self.trainingDataPerClass = trainingDataPerClass
+        self.queryDataPerClass = queryDataPerClass
 
 
 class DataProcess:

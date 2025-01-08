@@ -126,12 +126,12 @@ class MetaLearner:
             self.UpdateMetaParameters = optim.SGD(
                 [
                     {
-                        "params": self.UpdateWeights.all_meta_parameters.parameters(),
-                        "weight_decay": self.metaLossRegularization,
-                    },
-                    {
                         "params": self.UpdateWeights.all_bias_parameters.parameters(),
                         "weight_decay": self.biasLossRegularization,
+                    },
+                    {
+                        "params": self.UpdateWeights.all_meta_parameters.parameters(),
+                        # "weight_decay": self.metaLossRegularization,
                     },
                 ],
                 lr=lr,
@@ -142,12 +142,12 @@ class MetaLearner:
             self.UpdateMetaParameters = optim.Adam(
                 [
                     {
-                        "params": self.UpdateWeights.all_meta_parameters.parameters(),
-                        "weight_decay": self.metaLossRegularization,
-                    },
-                    {
                         "params": self.UpdateWeights.all_bias_parameters.parameters(),
                         "weight_decay": self.biasLossRegularization,
+                    },
+                    {
+                        "params": self.UpdateWeights.all_meta_parameters.parameters(),
+                        # "weight_decay": self.metaLossRegularization,
                     },
                 ],
                 lr=lr,
@@ -156,12 +156,12 @@ class MetaLearner:
             self.UpdateMetaParameters = optim.AdamW(
                 [
                     {
-                        "params": self.UpdateWeights.all_meta_parameters.parameters(),
-                        "weight_decay": self.metaLossRegularization,
-                    },
-                    {
                         "params": self.UpdateWeights.all_bias_parameters.parameters(),
                         "weight_decay": self.biasLossRegularization,
+                    },
+                    {
+                        "params": self.UpdateWeights.all_meta_parameters.parameters(),
+                        # "weight_decay": self.metaLossRegularization,
                     },
                 ],
                 lr=lr,
@@ -315,7 +315,7 @@ class MetaLearner:
             # Maintains the computational graph for the model as .detach() is not used
             parameters, h_parameters = self.reinitialize()
             # if self.options["chemicals"] != "zeros":
-            self.UpdateWeights.initial_update(parameters, h_parameters)
+            # self.UpdateWeights.initial_update(parameters, h_parameters)
 
             # -- training data
             x_trn, y_trn, x_qry, y_qry = self.data_process(data, 5)
@@ -358,6 +358,11 @@ class MetaLearner:
                 self.save_results,
             )
 
+            # -- l1 regularization
+            if self.metaLossRegularization > 0:
+                P_matrix = self.UpdateWeights.P_matrix
+                loss_meta += self.metaLossRegularization * torch.norm(P_matrix, p=1)
+
             # -- record params
             UpdateWeights_state_dict = copy.deepcopy(self.UpdateWeights.state_dict())
 
@@ -391,7 +396,15 @@ class MetaLearner:
                     f.writelines(line + "\n")
 
                 for key, val in UpdateWeights_state_dict.items():
-                    if "K" in key or "P" in key or "v_vector" in key or "z_vector" in key or "y_vector" in key or "A" in key or "B" in key:
+                    if (
+                        "K" in key
+                        or "P" in key
+                        or "v_vector" in key
+                        or "z_vector" in key
+                        or "y_vector" in key
+                        or "A" in key
+                        or "B" in key
+                    ):
                         with open(self.result_directory + "/{}.txt".format(key), "a") as f:
                             f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
 
@@ -497,7 +510,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     # -- meta-learner options
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
-        metaLossRegularization=0,
+        metaLossRegularization=0,  # L1 regularization on P matrix (check 1.5)
         biasLossRegularization=0,
         optimizer=optimizerEnum.adam,
         model=model,
@@ -512,10 +525,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = [3,5]
+    numberOfChemicals = [5]
     # -- meta-train
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    # device = 'cpu'
+    # device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cpu"
 
     metalearning_model = MetaLearner(
         device=device,
@@ -543,8 +556,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(4):
-        run(seed=0, display=True, result_subdirectory="attention_2", index=i)
-        break
+        run(seed=0, display=True, result_subdirectory="attention_3", index=i)
 
 
 def pass_through(input):

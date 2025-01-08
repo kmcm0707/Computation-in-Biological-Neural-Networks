@@ -9,6 +9,8 @@ class nonLinearEnum(Enum):
     relu = functional.relu
     sigmoid = functional.sigmoid
     elu = functional.elu
+    gelu = functional.gelu
+    leaky_relu = functional.leaky_relu
 
 
 class pMatrixEnum(Enum):
