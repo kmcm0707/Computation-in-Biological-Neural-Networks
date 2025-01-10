@@ -465,10 +465,17 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     model = modelEnum.complex
     modelOptions = None
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
+    nonLinearites = [
+        nonLinearEnum.sigmoid,
+        nonLinearEnum.relu,
+        nonLinearEnum.elu,
+        nonLinearEnum.leaky_relu,
+        nonLinearEnum.gelu,
+    ]
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
-            nonLinear=nonLinearEnum.tanh,
+            nonLinear=nonLinearites[index],
             bias=False,
             update_rules=[0, 1, 2, 3, 4, 8, 9],
             pMatrix=pMatrixEnum.first_col,
@@ -477,7 +484,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.first_one,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.attention_2,
+            operator=operatorEnum.mode_1,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -525,14 +532,14 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = [5]
+    numberOfChemicals = 3
     # -- meta-train
-    # device = "cuda" if torch.cuda.is_available() else "cpu"
-    device = "cpu"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    # device = "cpu"
 
     metalearning_model = MetaLearner(
         device=device,
-        numberOfChemicals=numberOfChemicals[index],
+        numberOfChemicals=numberOfChemicals,
         metaLearnerOptions=metaLearnerOptions,
         modelOptions=modelOptions,
     )
@@ -555,8 +562,8 @@ def main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    for i in range(4):
-        run(seed=0, display=True, result_subdirectory="attention_3", index=i)
+    for i in range(5):
+        run(seed=0, display=True, result_subdirectory="different_non_lins", index=i)
 
 
 def pass_through(input):
