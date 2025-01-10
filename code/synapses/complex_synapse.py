@@ -55,7 +55,7 @@ class ComplexSynapse(nn.Module):
         self.all_bias_parameters = nn.ParameterList([])  # All bias parameters if they are used
         self.number_chemicals = numberOfChemicals  # L
 
-        self.non_linearity = torch.nn.functional.gelu
+        self.non_linearity = complexOptions.nonLinear
 
         self.update_rules = [False] * 10
         if self.mode == modeEnum.rosenbaum:
