@@ -35,7 +35,6 @@ class ComplexSynapse(nn.Module):
         :param device: (str) The processing device to use. Default is 'cpu',
         :param mode: (str) The update rule to use. Default is 'rosenbaum'.
         :param numberOfChemicals: (int) The number of chemicals to use. Default is 1,
-        :param non_linearity: (function) The non-linearity to use. Default is torch.nn.functional.tanh,
         :param options: (dict) The options to use. Default is {}.
         :param params: (dict) The parameters of the normal NN. Default is {}.
         """
@@ -56,7 +55,7 @@ class ComplexSynapse(nn.Module):
         self.all_bias_parameters = nn.ParameterList([])  # All bias parameters if they are used
         self.number_chemicals = numberOfChemicals  # L
 
-        self.non_linearity = complexOptions.nonLinear
+        self.non_linearity = torch.nn.functional.gelu
 
         self.update_rules = [False] * 10
         if self.mode == modeEnum.rosenbaum:

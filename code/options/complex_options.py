@@ -1,15 +1,18 @@
 from enum import Enum
 from typing import Literal
 
+import torch
 from torch.nn import functional
 
 
 class nonLinearEnum(Enum):
     tanh = functional.tanh
+    gelu = (
+        functional.gelu
+    )  # No idea why this is not working but manually setting it to functional.gelu in the code works????
     relu = functional.relu
     sigmoid = functional.sigmoid
     elu = functional.elu
-    gelu = functional.gelu
     leaky_relu = functional.leaky_relu
 
 
