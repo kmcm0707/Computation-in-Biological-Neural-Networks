@@ -471,7 +471,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
-            nonLinear=nonLinearites[index],
+            nonLinear=nonLinearEnum.gelu,
             bias=False,
             update_rules=[0, 1, 2, 3, 4, 8, 9],
             pMatrix=pMatrixEnum.first_col,
