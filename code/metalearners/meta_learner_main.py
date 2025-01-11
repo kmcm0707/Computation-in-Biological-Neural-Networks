@@ -525,7 +525,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 3
+    numberOfChemicals = [3, 5, 7, 9, 11][index]
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -556,7 +556,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(5):
-        run(seed=0, display=True, result_subdirectory="different_non_lins", index=i)
+        run(seed=0, display=True, result_subdirectory="reversed_y_z", index=i)
 
 
 def pass_through(input):
