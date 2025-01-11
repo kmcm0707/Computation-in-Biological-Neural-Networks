@@ -208,6 +208,7 @@ class ComplexSynapse(nn.Module):
 
         self.y_vector = 1 / self.tau_vector
         self.z_vector = 1 - self.y_vector
+        self.z_vector[0] = 1
 
         if self.options.z_vector == zVectorEnum.random:
             self.z_vector = nn.Parameter(
