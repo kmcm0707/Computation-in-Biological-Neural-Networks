@@ -7,6 +7,8 @@ from typing import Literal
 import numpy as np
 import requests
 import torch
+import torch.utils
+import torch.utils.data
 import torchvision
 from PIL import Image
 from torch.utils.data import Dataset
@@ -168,7 +170,12 @@ class EmnistDataset(Dataset):
 
         img = []
         for img_ in os.listdir(self.char_path[index]):
-            img.append(self.transform(Image.open(self.char_path[index] + "/" + img_, mode="r").convert("L")))
+            ims = self.transform(Image.open(self.char_path[index] + "/" + img_, mode="r").convert("L"))
+            """mean = torch.mean(ims)
+            std = torch.std(ims)
+            normalise = transforms.Normalize(mean, std)"""
+            # img.append(normalise(ims))
+            img.append(ims)
 
         img = torch.cat(img)
         idx_vec = index * torch.ones(400, dtype=int)
@@ -202,20 +209,75 @@ class FashionMnistDataset(Dataset):
         :param queryDataPerClass: (int) integer value representing the number of query data per class,
         :param dimensionOfImage: (int) integer value representing the dimension size of the images.
         """
-        try:
-            # -- create directory
-            s_dir = os.getcwd()
-            self.fashion_mnist_dir = s_dir + "/data/fashion_mnist/"
-            os.makedirs(self.fashion_mnist_dir)
 
-            # -- download
-            dataset = torchvision.datasets.FashionMNIST(root=self.fashion_mnist_dir, download=True)
-
-        except FileExistsError:
-            pass
+        # -- create directory
+        s_dir = os.getcwd()
+        self.fashion_mnist_dir = s_dir + "/data/fashion_mnist/"
+        os.makedirs(self.fashion_mnist_dir, exist_ok=True)
 
         self.trainingDataPerClass = trainingDataPerClass
         self.queryDataPerClass = queryDataPerClass
+
+        # -- process data
+        self.transform = transforms.Compose(
+            [
+                transforms.Resize((dimensionOfImage, dimensionOfImage)),
+                transforms.ToTensor(),
+                transforms.Normalize((0.5,), (0.5,)),
+            ]
+        )
+
+        # -- download
+        train_dataset = torchvision.datasets.FashionMNIST(
+            root=self.fashion_mnist_dir, download=True, train=True, transform=self.transform
+        )
+        test_dataset = torchvision.datasets.FashionMNIST(
+            root=self.fashion_mnist_dir, download=True, train=False, transform=self.transform
+        )
+
+        self.combined_set = torch.utils.data.ConcatDataset([train_dataset, test_dataset])
+
+    def __len__(self):
+        """
+            Get the length of the dataset.
+
+        :return: int: the length of the dataset, i.e., the number of classes in the
+            dataset
+        """
+        return 10
+
+    def __getitem__(self, index: int):
+        """
+            Return a tuple of tensors containing training and query images and
+            corresponding labels for a given index.
+
+        The images are loaded from the Fashion MNIST dataset. Each image is
+        converted to grayscale and resized to the specified dimension using
+        `torchvision.transforms.Resize` and `torchvision.transforms.ToTensor`.
+        The returned tuples contain tensors of K and Q images, where K is the
+        training data size per class and Q is the query data size per class.
+        Both K and Q are specified at initialization. The indices corresponding
+        to the images are also returned in tensors of size K and Q, respectively.
+
+        :param index: (int) Index of the character folder from which images are to be retrieved.
+        :return: tuple: A tuple of tensors containing training and query images and
+            corresponding labels for a given index.
+        """
+
+        img = []
+        for img_, label in self.combined_set:
+            if label == index:
+                img.append(img_)
+
+        img = torch.cat(img)
+        idx_vec = index * torch.ones(7000, dtype=int)
+
+        return (
+            img[: self.trainingDataPerClass],
+            idx_vec[: self.trainingDataPerClass],
+            img[self.trainingDataPerClass : self.trainingDataPerClass + self.queryDataPerClass],
+            idx_vec[self.trainingDataPerClass : self.trainingDataPerClass + self.queryDataPerClass],
+        )
 
 
 class DataProcess:

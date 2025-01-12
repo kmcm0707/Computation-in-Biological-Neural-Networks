@@ -203,12 +203,12 @@ class ComplexSynapse(nn.Module):
         base = max_tau / min_tau
 
         self.tau_vector = min_tau * (base ** torch.linspace(0, 1, self.number_chemicals))
-        # self.z_vector = 1 / self.tau_vector
-        # self.y_vector = 1 - self.z_vector
+        self.z_vector = 1 / self.tau_vector
+        self.y_vector = 1 - self.z_vector
 
-        self.y_vector = 1 / self.tau_vector
-        self.z_vector = 1 - self.y_vector
-        self.z_vector[0] = 1
+        # self.y_vector = 1 / self.tau_vector
+        # self.z_vector = 1 - self.y_vector
+        # self.z_vector[0] = 1
 
         if self.options.z_vector == zVectorEnum.random:
             self.z_vector = nn.Parameter(

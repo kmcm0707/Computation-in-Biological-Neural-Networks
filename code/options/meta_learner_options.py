@@ -48,6 +48,8 @@ class MetaLearnerOptions:
         metatrain_dataset: str = None,
         display: bool = True,
         lr: float = 1e-3,
+        numberOfClasses: int = 5,
+        dataset_name: Literal["EMNIST", "FASHION-MNIST"] = "FASHION-MNIST",
     ):
 
         self.model = model
@@ -63,6 +65,8 @@ class MetaLearnerOptions:
         self.metatrain_dataset = metatrain_dataset
         self.display = display
         self.lr = lr
+        self.numberOfClasses = numberOfClasses
+        self.dataset_name = dataset_name
 
     def __str__(self):
         string = ""

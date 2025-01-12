@@ -9,7 +9,7 @@ from typing import Literal, Union
 
 import numpy as np
 import torch
-from misc.dataset import DataProcess, EmnistDataset
+from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset
 from misc.utils import Plot, log, meta_stats
 from nn.chemical_nn import ChemicalNN
 from options.benna_options import bennaOptions
@@ -318,7 +318,7 @@ class MetaLearner:
             # self.UpdateWeights.initial_update(parameters, h_parameters)
 
             # -- training data
-            x_trn, y_trn, x_qry, y_qry = self.data_process(data, 5)
+            x_trn, y_trn, x_qry, y_qry = self.data_process(data, self.options.numberOfClasses)
 
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
@@ -457,8 +457,18 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     # -- load data
     numWorkers = 6
     epochs = 500
-    dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
-    sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * 5)
+
+    dataset_name = "EMNIST"
+    numberOfClasses = None
+
+    if dataset_name == "EMNIST":
+        numberOfClasses = 5
+        dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
+    elif dataset_name == "FASHION-MNIST":
+        numberOfClasses = 10
+        dataset = FashionMnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
+
+    sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- options
@@ -522,6 +532,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset=metatrain_dataset,
         display=display,
         lr=4e-4,
+        numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
     )
 
     #   -- number of chemicals
