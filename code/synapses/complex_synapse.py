@@ -407,6 +407,15 @@ class ComplexSynapse(nn.Module):
                 )
             ).squeeze_(0)
             self.all_meta_parameters.append(self.B_bias)
+        elif self.operator == operatorEnum.full_attention:
+            self.linear_attention = nn.Linear(
+                10 + self.number_chemicals, 3 * (10 + self.number_chemicals), device=self.device
+            )
+            self.attention = nn.MultiheadAttention(10 + self.number_chemicals, 1, device=self.device)
+            self.compress_attention = nn.Linear(10 + self.number_chemicals, self.number_chemicals, device=self.device)
+
+            self.all_meta_parameters.append(self.linear_attention)
+            self.all_meta_parameters.append(self.attention)
 
     def __call__(
         self,
@@ -462,6 +471,7 @@ class ComplexSynapse(nn.Module):
                         or self.operator == operatorEnum.attention
                         or self.operator == operatorEnum.extended_attention
                         or self.operator == operatorEnum.attention_2
+                        or self.operator == operatorEnum.full_attention
                     ):  # mode 1 - was also called add in results
                         new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.einsum(
                             "i,ijk->ijk",
@@ -548,6 +558,24 @@ class ComplexSynapse(nn.Module):
                         v_B = torch.einsum("ic,ijk->cjk", self.B, attention_vector) + self.B_bias[:, None, None]
                         new_v = torch.nn.functional.softmax(torch.einsum("ijk,ijk->ijk", v_A, v_B), dim=0)
                         new_value = torch.einsum("ijk,ijk->jk", new_v, h_parameters[h_name])
+                    elif self.operator == operatorEnum.full_attention:
+                        attention_vector = torch.cat((h_parameters[h_name], update_vector), dim=0)
+                        attention_vector = torch.reshape(
+                            attention_vector,
+                            (1, attention_vector.shape[1] * attention_vector.shape[2], 10 + self.number_chemicals),
+                        )
+                        linear_attention = self.linear_attention(attention_vector)
+                        K = linear_attention[:, :, : 10 + self.number_chemicals]
+                        Q = linear_attention[:, :, 10 + self.number_chemicals : 2 * (10 + self.number_chemicals)]
+                        V = linear_attention[:, :, 2 * (10 + self.number_chemicals) :]
+                        intermeditate_v, _ = self.attention(Q, K, V)
+                        new_v = self.compress_attention(intermeditate_v)
+                        new_v = new_v.squeeze(0)
+                        new_v = torch.reshape(
+                            new_v, (self.number_chemicals, h_parameters[h_name].shape[1], h_parameters[h_name].shape[2])
+                        )
+                        new_value = torch.einsum("ijk,ijk->jk", new_v, h_parameters[h_name])
+
                     else:
                         new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
 
