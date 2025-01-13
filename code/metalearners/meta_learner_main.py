@@ -487,7 +487,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.first_one,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.full_attention,
+            operator=operatorEnum.mode_1,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -536,10 +536,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = [3, 5, 7, 9, 11][index]
+    numberOfChemicals = [1, 2, 3, 4, 6][index]
     # -- meta-train
-    # device = "cuda" if torch.cuda.is_available() else "cpu"
-    device = "cpu"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    # device = "cpu"
 
     metalearning_model = MetaLearner(
         device=device,
@@ -567,7 +567,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(5):
-        run(seed=0, display=True, result_subdirectory="full_attention_test", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_1", index=i)
 
 
 def pass_through(input):
