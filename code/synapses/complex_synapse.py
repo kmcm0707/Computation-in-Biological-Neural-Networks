@@ -685,8 +685,14 @@ class ComplexSynapse(nn.Module):
             )
 
         if self.update_rules[9]:
-            update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) - torch.matmul(
-                torch.matmul(activations_and_output[i + 1].T, activations_and_output[i + 1]),
+            update_vector[9] = torch.matmul(
+                torch.nn.functional.sigmoid(activations_and_output[i + 1].T),
+                torch.nn.functional.sigmoid(activations_and_output[i]),
+            ) - torch.matmul(
+                torch.matmul(
+                    torch.nn.functional.sigmoid(activations_and_output[i + 1].T),
+                    torch.nn.functional.sigmoid(activations_and_output[i + 1]),
+                ),
                 parameter,
             )  # Oja's rule
 
