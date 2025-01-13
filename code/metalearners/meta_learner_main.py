@@ -480,7 +480,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
             bias=False,
-            update_rules=[0, 1, 2, 3, 4, 8, 9],
+            update_rules=[0, 1, 2, 3, 4, 5, 8, 9],
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=1,

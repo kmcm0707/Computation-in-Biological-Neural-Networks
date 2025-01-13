@@ -628,7 +628,7 @@ class ComplexSynapse(nn.Module):
             update_vector[4] = -torch.matmul(torch.ones(size=(parameter.shape[0], 1), device=self.device), error[i])
 
         if self.update_rules[5]:
-            update_vector[5] = -torch.matmul(
+            """update_vector[5] = -torch.matmul(
                 torch.matmul(
                     torch.matmul(
                         error[i + 1].T,
@@ -637,7 +637,13 @@ class ComplexSynapse(nn.Module):
                     activations_and_output[i + 1].T,
                 ),
                 activations_and_output[i],
-            )  # = ERROR on high learning rate
+            )  # = ERROR on high learning rate"""
+            normalised_weight = torch.nn.functional.normalize(parameter.clone(), p=2, dim=1)
+            squeeze_activations = activations_and_output[i].clone().squeeze(0)
+            normalised_activation = torch.nn.functional.normalize(squeeze_activations, p=2, dim=0)
+            output = torch.matmul(normalised_activation, normalised_weight.T)
+            max_index_output = torch.argmax(output)  # max index of the output
+            update_vector[5][:, max_index_output] = normalised_activation[i] - normalised_weight[:, max_index_output]
 
         if self.update_rules[6]:
             update_vector[6] = -torch.matmul(

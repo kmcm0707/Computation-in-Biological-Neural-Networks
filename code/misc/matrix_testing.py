@@ -55,3 +55,10 @@ if __name__ == "__main__":
     K_matrix = torch.nn.init.uniform_(torch.empty(size=(5, 5), device="cpu"), -0.01, 0.01).numpy()
     eigenvalues, eigenvectors = np.linalg.eig(K_matrix)
     print(np.max(np.abs(eigenvalues)))
+
+    # -- test matrix
+    A = torch.randn((3, 4))
+    print(A[:, 1])
+    norm_A = torch.nn.functional.normalize(A, p=2, dim=0)
+    print(norm_A)
+    print(A)
