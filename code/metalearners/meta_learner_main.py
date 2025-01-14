@@ -456,7 +456,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 6
-    epochs = 500
+    epochs = 200
 
     dataset_name = "EMNIST"
     numberOfClasses = None
@@ -480,7 +480,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
             bias=False,
-            update_rules=[0, 1, 2, 3, 4, 5, 8, 9],
+            update_rules=[0, 1, 2, 3, 4, 5, 6, 8, 9],
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=1,
@@ -536,7 +536,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = [1, 2, 3, 4, 6][index]
+    numberOfChemicals = [1, 2][index]
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
