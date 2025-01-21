@@ -533,6 +533,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         display=display,
         lr=0.00009,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
+        dataset_name=dataset_name,
     )
 
     #   -- number of chemicals
