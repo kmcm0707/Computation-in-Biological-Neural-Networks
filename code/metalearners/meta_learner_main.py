@@ -315,7 +315,7 @@ class MetaLearner:
             # Maintains the computational graph for the model as .detach() is not used
             parameters, h_parameters = self.reinitialize()
             # if self.options["chemicals"] != "zeros":
-            # self.UpdateWeights.initial_update(parameters, h_parameters)
+            self.UpdateWeights.initial_update(parameters, h_parameters)
 
             # -- training data
             x_trn, y_trn, x_qry, y_qry = self.data_process(data, self.options.numberOfClasses)
@@ -480,7 +480,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
             bias=False,
-            update_rules=[0, 1, 2, 3, 4, 5, 6, 8, 9],
+            update_rules=[0, 1, 2, 3, 4, 8, 9],
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=1,
@@ -531,12 +531,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0005,
+        lr=0.001,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
     )
 
     #   -- number of chemicals
-    numberOfChemicals = [1, 2, 4, 5][index]
+    numberOfChemicals = [2, 4, 5][index]
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
