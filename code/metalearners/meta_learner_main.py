@@ -472,15 +472,15 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- options
-    model = modelEnum.individual
+    model = modelEnum.complex
     modelOptions = None
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            bias=False,
             update_rules=[0, 1, 2, 3, 4, 8, 9],
+            bias=True,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=1,
@@ -536,7 +536,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = [2, 4, 5][index]
+    numberOfChemicals = [1, 2,3, 4, 5][index]
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"

@@ -84,7 +84,7 @@ class ComplexSynapse(nn.Module):
         for name, parameter in params:
             if "forward" in name:
                 h_name = name.replace("forward", "chemical").split(".")[0]
-                self.bias_dictionary[h_name] = nn.Parameter(
+                """self.bias_dictionary[h_name] = nn.Parameter(
                     torch.nn.init.zeros_(
                         torch.empty(
                             size=(
@@ -96,6 +96,9 @@ class ComplexSynapse(nn.Module):
                             requires_grad=True,
                         )
                     )
+                )"""
+                self.bias_dictionary[h_name] = nn.Parameter(
+                    torch.tensor([0.0] * self.number_chemicals, device=self.device)
                 )
 
         if self.options.bias:
@@ -479,7 +482,7 @@ class ComplexSynapse(nn.Module):
                             self.non_linearity(
                                 torch.einsum("ic,ijk->cjk", self.K_matrix, chemical)
                                 + torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
-                                + self.bias_dictionary[h_name]
+                                + self.bias_dictionary[h_name][:, None, None]
                             ),
                         )
                     elif self.operator == operatorEnum.sub:
