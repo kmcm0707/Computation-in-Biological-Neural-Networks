@@ -62,3 +62,15 @@ if __name__ == "__main__":
     norm_A = torch.nn.functional.normalize(A, p=2, dim=0)
     print(norm_A)
     print(A)
+
+    min_tau = 1.1
+    max_tau = 50
+    base = max_tau / min_tau
+
+    tau_vector = min_tau * (base ** torch.linspace(0, 1, 5))
+    z_vector = 1 / tau_vector
+    y_vector = 1 - z_vector
+
+    print(tau_vector)
+    print(z_vector)
+    print(y_vector)

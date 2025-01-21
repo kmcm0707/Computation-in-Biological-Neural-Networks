@@ -531,12 +531,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=4e-4,
+        lr=0.0005,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
     )
 
     #   -- number of chemicals
-    numberOfChemicals = [1, 2][index]
+    numberOfChemicals = [1, 2, 4, 5][index]
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
