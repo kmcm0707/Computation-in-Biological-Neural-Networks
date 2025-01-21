@@ -97,7 +97,9 @@ class ComplexSynapse(nn.Module):
                         )
                     )
                 )"""
-                self.bias_dictionary[h_name] = torch.tensor([0] * self.number_chemicals, device=self.device)
+                self.bias_dictionary[h_name] = nn.Parameter(
+                    torch.tensor([0.0] * self.number_chemicals, device=self.device)
+                )
 
         if self.options.bias:
             self.all_bias_parameters.extend(self.bias_dictionary.values())
