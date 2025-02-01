@@ -535,8 +535,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         chemicalInitialization=chemicalEnum.zero,
     )
 
-    #   -- number of chemicals
-    numberOfChemicals = [1, 2, 3, 4, 5]
+    #   -- number of chemicalsD
+    numberOfChemicals = [1, 2, 3, 4, 5][index]
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
