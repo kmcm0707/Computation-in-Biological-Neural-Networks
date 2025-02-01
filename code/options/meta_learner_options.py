@@ -28,6 +28,11 @@ class modelEnum(Enum):
     benna = BennaSynapse
 
 
+class chemicalEnum(Enum):
+    same = "same"
+    zero = "zero"
+
+
 class MetaLearnerOptions:
     """
     Options for the metal learner
@@ -50,6 +55,7 @@ class MetaLearnerOptions:
         lr: float = 1e-3,
         numberOfClasses: int = 5,
         dataset_name: Literal["EMNIST", "FASHION-MNIST"] = "FASHION-MNIST",
+        chemicalInitialization: chemicalEnum = chemicalEnum.same,
     ):
 
         self.model = model
@@ -67,6 +73,7 @@ class MetaLearnerOptions:
         self.lr = lr
         self.numberOfClasses = numberOfClasses
         self.dataset_name = dataset_name
+        self.chemicalInitialization = chemicalInitialization
 
     def __str__(self):
         string = ""
