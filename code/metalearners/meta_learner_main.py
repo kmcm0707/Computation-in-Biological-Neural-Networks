@@ -26,6 +26,7 @@ from options.complex_options import (
 )
 from options.meta_learner_options import (
     MetaLearnerOptions,
+    chemicalEnum,
     modelEnum,
     optimizerEnum,
     schedulerEnum,
@@ -242,19 +243,16 @@ class MetaLearner:
 
     @torch.no_grad()
     def chemical_init(self, chemicals):
-        """if self.options["chemicals"] == "zeros":
-            for chemical in chemicals:
-                nn.init.zeros_(chemical)
-        elif self.options["chemicals"] == "same":
+        if self.options.chemicalInitialization == chemicalEnum.same:
             for chemical in chemicals:
                 nn.init.xavier_uniform_(chemical[0])
                 for idx in range(chemical.shape[0] - 1):
                     chemical[idx + 1] = chemical[0]
-        else:"""
-        for chemical in chemicals:
-            nn.init.xavier_uniform_(chemical[0])
-            for idx in range(chemical.shape[0] - 1):
-                chemical[idx + 1] = chemical[0]
+        elif self.options.chemicalInitialization == chemicalEnum.zero:
+            for chemical in chemicals:
+                nn.init.zeros_(chemical)
+        else:
+            raise ValueError("Invalid Chemical Initialization")
 
     @torch.no_grad()
     def reinitialize(self):
@@ -314,8 +312,8 @@ class MetaLearner:
             # Using a clone of the model parameters to allow for in-place operations
             # Maintains the computational graph for the model as .detach() is not used
             parameters, h_parameters = self.reinitialize()
-            # if self.options["chemicals"] != "zeros":
-            self.UpdateWeights.initial_update(parameters, h_parameters)
+            if self.options.chemicalInitialization != chemicalEnum.zero:
+                self.UpdateWeights.initial_update(parameters, h_parameters)
 
             # -- training data
             x_trn, y_trn, x_qry, y_qry = self.data_process(data, self.options.numberOfClasses)
@@ -456,7 +454,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 6
-    epochs = 200
+    epochs = 500
 
     dataset_name = "EMNIST"
     numberOfClasses = None
@@ -480,17 +478,17 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
             update_rules=[0, 1, 2, 3, 4, 8, 9],
-            bias=True,
+            bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=1,
+            minTau=1 + 1 / 50,
             maxTau=50,
-            y_vector=yVectorEnum.first_one,
+            y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_1,
+            operator=operatorEnum.mode_3,
             train_z_vector=False,
             mode=modeEnum.all,
-            v_vector=vVectorEnum.default,
+            v_vector=vVectorEnum.random_small,
             eta=1,
         )
     elif model == modelEnum.reservoir:
@@ -531,13 +529,14 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.00009,
+        lr=0.0004,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
+        chemicalInitialization=chemicalEnum.zero,
     )
 
     #   -- number of chemicals
-    numberOfChemicals = [3, 4, 5][index]
+    numberOfChemicals = [1, 2, 3, 4, 5]
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -567,7 +566,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(5):
-        run(seed=0, display=True, result_subdirectory="mode_1", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_3", index=i)
 
 
 def pass_through(input):

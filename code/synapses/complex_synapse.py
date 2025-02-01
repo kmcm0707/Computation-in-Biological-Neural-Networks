@@ -84,7 +84,7 @@ class ComplexSynapse(nn.Module):
         for name, parameter in params:
             if "forward" in name:
                 h_name = name.replace("forward", "chemical").split(".")[0]
-                """self.bias_dictionary[h_name] = nn.Parameter(
+                self.bias_dictionary[h_name] = nn.Parameter(
                     torch.nn.init.zeros_(
                         torch.empty(
                             size=(
@@ -96,10 +96,10 @@ class ComplexSynapse(nn.Module):
                             requires_grad=True,
                         )
                     )
-                )"""
-                self.bias_dictionary[h_name] = nn.Parameter(
-                    torch.tensor([0.0] * self.number_chemicals, device=self.device)
                 )
+                """self.bias_dictionary[h_name] = nn.Parameter(
+                    torch.tensor([0.0] * self.number_chemicals, device=self.device)
+                )"""
 
         if self.options.bias:
             self.all_bias_parameters.extend(self.bias_dictionary.values())
@@ -461,7 +461,7 @@ class ComplexSynapse(nn.Module):
                 h_name = name.replace("forward", "chemical").split(".")[0]
                 chemical = h_parameters[h_name]
                 if parameter.adapt and "weight" in name:
-                    # Equation 1: h(s+1) = yh(s) + zf(Kh(s) + \theta * F(Parameter) + b)
+                    # Equation 1: h(s+1) = yh(s) + (1/\eta) * zf(Kh(s) + \eta * P * F(Parameter) + b)
                     # Equation 2: w(s) = v * h(s)
                     update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i)
                     # update_vector = update_vector / (torch.amax(update_vector, dim=(1, 2)) + 1e-5)[:, None, None]
@@ -482,7 +482,7 @@ class ComplexSynapse(nn.Module):
                             self.non_linearity(
                                 torch.einsum("ic,ijk->cjk", self.K_matrix, chemical)
                                 + torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
-                                + self.bias_dictionary[h_name][:, None, None]
+                                + self.bias_dictionary[h_name]  # [:, None, None]
                             ),
                         )
                     elif self.operator == operatorEnum.sub:
@@ -641,12 +641,12 @@ class ComplexSynapse(nn.Module):
                 ),
                 activations_and_output[i],
             )  # = ERROR on high learning rate"""
-            normalised_weight = torch.nn.functional.normalize(parameter.clone(), p=2, dim=1)
+            """normalised_weight = torch.nn.functional.normalize(parameter.clone(), p=2, dim=1)
             squeeze_activations = activations_and_output[i].clone().squeeze(0)
             normalised_activation = torch.nn.functional.normalize(squeeze_activations, p=2, dim=0)
             output = torch.matmul(normalised_activation, normalised_weight.T)
             max_index_output = torch.argmax(output)  # max index of the output
-            update_vector[5][:, max_index_output] = normalised_activation[i] - normalised_weight[:, max_index_output]
+            update_vector[5][:, max_index_output] = normalised_activation[i] - normalised_weight[:, max_index_output]"""
 
         if self.update_rules[6]:
             """update_vector[6] = -torch.matmul(
