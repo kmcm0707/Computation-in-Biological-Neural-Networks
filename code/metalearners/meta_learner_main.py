@@ -488,7 +488,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             operator=operatorEnum.mode_3,
             train_z_vector=False,
             mode=modeEnum.all,
-            v_vector=vVectorEnum.random_small,
+            v_vector=vVectorEnum.default,
             eta=1,
         )
     elif model == modelEnum.reservoir:
@@ -566,7 +566,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(5):
-        run(seed=0, display=True, result_subdirectory="mode_3", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_3_v_change", index=i)
 
 
 def pass_through(input):
