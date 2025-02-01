@@ -488,7 +488,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             operator=operatorEnum.mode_3,
             train_z_vector=False,
             mode=modeEnum.all,
-            v_vector=vVectorEnum.default,
+            v_vector=vVectorEnum.random_small,
             eta=1,
         )
     elif model == modelEnum.reservoir:
@@ -529,10 +529,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.00004,
+        lr=0.0004,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.zero,
+        chemicalInitialization=chemicalEnum.same,
     )
 
     #   -- number of chemicalsD
@@ -566,7 +566,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(5):
-        run(seed=0, display=True, result_subdirectory="mode_3_v_change", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_3_h_same", index=i)
 
 
 def pass_through(input):
