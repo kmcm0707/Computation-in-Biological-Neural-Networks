@@ -470,7 +470,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- options
-    model = modelEnum.complex
+    model = modelEnum.individual
     modelOptions = None
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
 
@@ -535,8 +535,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         chemicalInitialization=chemicalEnum.same,
     )
 
-    #   -- number of chemicalsD
-    numberOfChemicals = [5][index]
+    #   -- number of chemicals
+    numberOfChemicals = [2, 3, 4, 5][index]
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -566,7 +566,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(5):
-        run(seed=0, display=True, result_subdirectory="mode_3_h_same", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_3_ind", index=i)
 
 
 def pass_through(input):
