@@ -1,4 +1,5 @@
 import math
+from typing import Literal
 
 import numpy as np
 import torch
@@ -29,20 +30,23 @@ class ComplexSynapse(nn.Module):
         numberOfChemicals: int = 1,
         params: dict = {},
         complexOptions: complexOptions = None,
+        adaptionPathway: Literal["forward", "feedback"] = "forward",
     ):
         """
         Initialize the complex synapse model.
         :param device: (str) The processing device to use. Default is 'cpu',
         :param mode: (str) The update rule to use. Default is 'rosenbaum'.
         :param numberOfChemicals: (int) The number of chemicals to use. Default is 1,
-        :param options: (dict) The options to use. Default is {}.
-        :param params: (dict) The parameters of the normal NN. Default is {}.
+        :param params: (dict) The model parameters. Default is an empty dictionary,
+        :param complexOptions: (complexOptions) The complex options. Default is None,
+        :param adaptionPathway: (str) The adaption pathway to use. Default is 'forward'.
         """
         super(ComplexSynapse, self).__init__()
 
         self.device = device
         self.mode = complexOptions.mode
         self.options = complexOptions
+        self.adaptionPathway = adaptionPathway
 
         # h(s+1) = (1-z)h(s) + zf(Kh(s) + \theta * F(Parameter) + b)
         # y = 1-z, y_0 = 1, z_0 = 1
@@ -82,7 +86,7 @@ class ComplexSynapse(nn.Module):
         """
         ## Initialize the bias parameters
         for name, parameter in params:
-            if "forward" in name:
+            if self.adaptionPathway in name and "chemical" not in name:
                 h_name = name.replace("forward", "chemical").split(".")[0]
                 self.bias_dictionary[h_name] = nn.Parameter(
                     torch.nn.init.zeros_(
@@ -422,12 +426,10 @@ class ComplexSynapse(nn.Module):
 
     def __call__(
         self,
-        activations: list,
-        output: torch.Tensor,
-        label: torch.Tensor,
         params: dict,
         h_parameters: dict,
-        beta: int,
+        activations_and_output: list,
+        error: list,
     ):
         """
         :param activations: (list) model activations,
@@ -437,13 +439,6 @@ class ComplexSynapse(nn.Module):
         :param h_parameters: (dict) model chemicals - dimension L x (W_1, W_2) (per parameter),
         :param beta: (int) smoothness coefficient for non-linearity,
         """
-
-        feedback = {name: value for name, value in params.items() if "feedback" in name}
-        error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=47)]
-        # add the error for all the layers
-        for y, i in zip(reversed(activations), reversed(list(feedback))):
-            error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-beta * y)))
-        activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
         """for i in range(len(activations_and_output)):
             # activations_and_output[i] = activations_and_output[i] / torch.norm(activations_and_output[i], p=2)
@@ -457,10 +452,13 @@ class ComplexSynapse(nn.Module):
 
         i = 0
         for name, parameter in params.items():
-            if "forward" in name:
-                h_name = name.replace("forward", "chemical").split(".")[0]
+            if self.adaptionPathway in name:
+
+                h_name = name.replace(self.adaptionPathway, "chemical").split(".")[0]
+                if self.adaptionPathway == "feedback":
+                    h_name = "feedback_" + h_name
                 chemical = h_parameters[h_name]
-                if parameter.adapt and "weight" in name:
+                if parameter.adapt == self.adaptionPathway and "weight" in name:
                     # Equation 1: h(s+1) = yh(s) + (1/\eta) * zf(Kh(s) + \eta * P * F(Parameter) + b)
                     # Equation 2: w(s) = v * h(s)
                     update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i)
@@ -584,7 +582,7 @@ class ComplexSynapse(nn.Module):
 
                     params[name] = new_value
 
-                    params[name].adapt = True
+                    params[name].adapt = self.adaptionPathway
                 i += 1
 
     @torch.no_grad()
@@ -598,12 +596,12 @@ class ComplexSynapse(nn.Module):
         for name, parameter in params.items():
             if "forward" in name:
                 h_name = name.replace("forward", "chemical").split(".")[0]
-                if parameter.adapt and "weight" in name:
+                if parameter.adapt == self.adaptionPathway and "weight" in name:
                     # Equation 2: w(s) = v * h(s)
                     new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
                     params[name] = new_value
 
-                    params[name].adapt = True
+                    params[name].adapt = self.adaptionPathway
 
     def calculate_update_vector(self, error, activations_and_output, parameter, i) -> torch.Tensor:
         """

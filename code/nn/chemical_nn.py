@@ -16,6 +16,7 @@ class ChemicalNN(nn.Module):
         device: Literal["cpu", "cuda"] = "cpu",
         numberOfChemicals: int = 1,
         small: bool = False,
+        train_feedback: bool = False,
     ):
 
         # Initialize the parent class
@@ -24,6 +25,7 @@ class ChemicalNN(nn.Module):
         # Set the device
         self.device = device
         self.small = small  # Small model for testing
+        self.train_feedback = train_feedback  # Train feedback for feedback alignment
 
         # Model
         dim_out = 47
@@ -84,6 +86,26 @@ class ChemicalNN(nn.Module):
                     self.chemical3,
                     self.chemical4,
                     self.chemical5,
+                ]
+            )
+
+        # h(s) for feedback
+        # Only works for non-small models
+        if train_feedback:
+            self.feedback_chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 784, 170), device=self.device))
+            self.feedback_chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 170, 130), device=self.device))
+            self.feedback_chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 130, 100), device=self.device))
+            self.feedback_chemical4 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 100, 70), device=self.device))
+            self.feedback_chemical5 = nn.Parameter(
+                torch.zeros(size=(numberOfChemicals, 70, dim_out), device=self.device)
+            )
+            self.feedback_chemicals = nn.ParameterList(
+                [
+                    self.feedback_chemical1,
+                    self.feedback_chemical2,
+                    self.feedback_chemical3,
+                    self.feedback_chemical4,
+                    self.feedback_chemical5,
                 ]
             )
 

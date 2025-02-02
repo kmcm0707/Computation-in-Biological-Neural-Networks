@@ -42,7 +42,7 @@ from synapses.benna_synapse import BennaSynapse
 from synapses.complex_synapse import ComplexSynapse
 from synapses.individual_synapse import IndividualSynapse
 from synapses.reservoir_synapse import ReservoirSynapse
-from torch import nn, optim
+from torch import functional, nn, optim
 from torch.utils.data import DataLoader, RandomSampler
 from torch.utils.tensorboard import SummaryWriter
 
@@ -60,12 +60,14 @@ class MetaLearner:
         numberOfChemicals: int = 1,
         metaLearnerOptions: MetaLearnerOptions = None,
         modelOptions: Union[complexOptions, reservoirOptions] = None,
+        feedbackModelOptions: Union[complexOptions, reservoirOptions] = None,
     ):
 
         # -- processor params
         self.device = torch.device(device)
         self.modelOptions = modelOptions
         self.options = metaLearnerOptions
+        self.feedbackModelOptions = feedbackModelOptions
 
         # -- data params
         self.trainingDataPerClass = 50
@@ -90,48 +92,31 @@ class MetaLearner:
         self.biasLossRegularization = metaLearnerOptions.biasLossRegularization
 
         self.loss_func = nn.CrossEntropyLoss()
-        if metaLearnerOptions.model == modelEnum.complex:
-            self.UpdateWeights = ComplexSynapse(
-                device=self.device,
-                numberOfChemicals=self.numberOfChemicals,
-                complexOptions=self.modelOptions,
-                params=self.model.named_parameters(),
+
+        # -- set chemical model
+        self.UpdateWeights = self.chemical_model_setter(self.modelOptions, adaptionPathway="forward")
+        if self.options.trainFeedback:
+            self.UpdateFeedbackWeights = self.chemical_model_setter(
+                self.feedbackModelOptions, adaptionPathway="feedback"
             )
-        elif metaLearnerOptions.model == modelEnum.reservoir:
-            self.UpdateWeights = ReservoirSynapse(
-                device=self.device,
-                numberOfChemicals=self.numberOfChemicals,
-                options=self.modelOptions,
-                params=self.model.named_parameters(),
-            )
-        elif metaLearnerOptions.model == modelEnum.individual:
-            self.UpdateWeights = IndividualSynapse(
-                device=self.device,
-                numberOfChemicals=self.numberOfChemicals,
-                complexOptions=self.modelOptions,
-                params=self.model.named_parameters(),
-            )
-        elif metaLearnerOptions.model == modelEnum.benna:
-            self.UpdateWeights = BennaSynapse(
-                device=self.device,
-                numberOfChemicals=self.numberOfChemicals,
-                options=self.modelOptions,
-                params=self.model.named_parameters(),
-            )
-        else:
-            raise ValueError("Model not recognized.")
 
         lr = metaLearnerOptions.lr
 
+        # -- optimizer
+        bias_parameters = self.UpdateWeights.all_bias_parameters.parameters()
+        meta_parameters = self.UpdateWeights.all_meta_parameters.parameters()
+        if self.options.trainFeedback:
+            bias_parameters = bias_parameters + self.UpdateFeedbackWeights.all_bias_parameters.parameters()
+            meta_parameters = meta_parameters + self.UpdateFeedbackWeights.all_meta_parameters.parameters()
         if metaLearnerOptions.optimizer == optimizerEnum.sgd:
             self.UpdateMetaParameters = optim.SGD(
                 [
                     {
-                        "params": self.UpdateWeights.all_bias_parameters.parameters(),
+                        "params": bias_parameters,
                         "weight_decay": self.biasLossRegularization,
                     },
                     {
-                        "params": self.UpdateWeights.all_meta_parameters.parameters(),
+                        "params": meta_parameters,
                         # "weight_decay": self.metaLossRegularization,
                     },
                 ],
@@ -143,11 +128,11 @@ class MetaLearner:
             self.UpdateMetaParameters = optim.Adam(
                 [
                     {
-                        "params": self.UpdateWeights.all_bias_parameters.parameters(),
+                        "params": bias_parameters,
                         "weight_decay": self.biasLossRegularization,
                     },
                     {
-                        "params": self.UpdateWeights.all_meta_parameters.parameters(),
+                        "params": meta_parameters,
                         # "weight_decay": self.metaLossRegularization,
                     },
                 ],
@@ -157,11 +142,11 @@ class MetaLearner:
             self.UpdateMetaParameters = optim.AdamW(
                 [
                     {
-                        "params": self.UpdateWeights.all_bias_parameters.parameters(),
+                        "params": bias_parameters,
                         "weight_decay": self.biasLossRegularization,
                     },
                     {
-                        "params": self.UpdateWeights.all_meta_parameters.parameters(),
+                        "params": meta_parameters,
                         # "weight_decay": self.metaLossRegularization,
                     },
                 ],
@@ -202,10 +187,47 @@ class MetaLearner:
                 f.writelines("Number of query data per class: {}\n".format(self.queryDataPerClass))
                 f.writelines(str(metaLearnerOptions))
                 f.writelines(str(modelOptions))
+                if self.options.trainFeedback:
+                    f.writelines(str(feedbackModelOptions))
 
             self.average_window = 10
             self.plot = Plot(self.result_directory, self.average_window)
             self.summary_writer = SummaryWriter(log_dir=self.result_directory)
+
+    def chemical_model_setter(self, options: Union[complexOptions, reservoirOptions], adaptionPathway="forward"):
+        model = None
+        if options == modelEnum.complex:
+            model = ComplexSynapse(
+                device=self.device,
+                numberOfChemicals=self.numberOfChemicals,
+                complexOptions=self.modelOptions,
+                params=self.model.named_parameters(),
+                adaptionPathway=adaptionPathway,
+            )
+        elif options == modelEnum.reservoir:
+            model = ReservoirSynapse(
+                device=self.device,
+                numberOfChemicals=self.numberOfChemicals,
+                options=self.modelOptions,
+                params=self.model.named_parameters(),
+            )
+        elif options == modelEnum.individual:
+            model = IndividualSynapse(
+                device=self.device,
+                numberOfChemicals=self.numberOfChemicals,
+                complexOptions=self.modelOptions,
+                params=self.model.named_parameters(),
+            )
+        elif options == modelEnum.benna:
+            model = BennaSynapse(
+                device=self.device,
+                numberOfChemicals=self.numberOfChemicals,
+                options=self.modelOptions,
+                params=self.model.named_parameters(),
+            )
+        else:
+            raise ValueError("Model not recognized.")
+        return model
 
     def load_model(self):
         """
@@ -218,14 +240,16 @@ class MetaLearner:
         :return: model with flags , "adapt", set for its parameters
         """
 
-        model = ChemicalNN(self.device, self.numberOfChemicals, small=self.options.small)
+        model = ChemicalNN(
+            self.device, self.numberOfChemicals, small=self.options.small, train_feedback=self.options.trainFeedback
+        )
 
         # -- learning flags
         for key, val in model.named_parameters():
             if "forward" in key:
-                val.adapt = True
+                val.adapt = "forward"
             elif "feedback" in key:
-                val.adapt, val.requires_grad = False, False
+                val.adapt, val.requires_grad = "feedback", self.options.trainFeedback
 
         return model
 
@@ -277,12 +301,24 @@ class MetaLearner:
             for key, val in dict(self.model.named_parameters()).items()
             if "." in key and "chemical" not in key and "layer_norm" not in key
         }
-        h_params = {key: val.clone() for key, val in dict(self.model.named_parameters()).items() if "chemical" in key}
+        h_params = {
+            key: val.clone()
+            for key, val in dict(self.model.named_parameters()).items()
+            if "chemical" in key and "feedback" not in key
+        }
+        feedback_h_params = None
+        if self.options.trainFeedback:
+            feedback_h_params = {
+                key: val.clone()
+                for key, val in dict(self.model.named_parameters()).items()
+                if "feedback_chemical" in key
+            }
+
         # -- set adaptation flags for cloned parameters
         for key in params:
             params[key].adapt = dict(self.model.named_parameters())[key].adapt
 
-        return params, h_params
+        return params, h_params, feedback_h_params
 
     def train(self):
         """
@@ -311,7 +347,7 @@ class MetaLearner:
             # -- initialize
             # Using a clone of the model parameters to allow for in-place operations
             # Maintains the computational graph for the model as .detach() is not used
-            parameters, h_parameters = self.reinitialize()
+            parameters, h_parameters, feedback_params = self.reinitialize()
             if self.options.chemicalInitialization != chemicalEnum.zero:
                 self.UpdateWeights.initial_update(parameters, h_parameters)
 
@@ -326,19 +362,41 @@ class MetaLearner:
                     self.model, (parameters, h_parameters), x.unsqueeze(0).unsqueeze(0)
                 )
 
+                # -- compute error
+                activations = y
+                output = logits
+                params = parameters
+                feedback = {name: value for name, value in params.items() if "feedback" in name}
+                error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=47)]
+                # add the error for all the layers
+                for y, i in zip(reversed(activations), reversed(list(feedback))):
+                    error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
+                activations_and_output = [*activations, functional.softmax(output, dim=1)]
+
                 # -- update network params
                 self.UpdateWeights(
-                    activations=y,
-                    output=logits,
-                    label=label,
                     params=parameters,
                     h_parameters=h_parameters,
-                    beta=self.model.beta,
+                    error=error,
+                    activations=activations_and_output,
                 )
+
+                # -- update feedback params
+                if self.options.trainFeedback:
+                    self.UpdateFeedbackWeights(
+                        params=parameters,
+                        h_parameters=feedback_params,
+                        error=error,
+                        activations=activations_and_output,
+                    )
 
             """ meta update """
             # -- predict
-            y, logits = torch.func.functional_call(self.model, (parameters, h_parameters), x_qry)
+            if self.options.trainFeedback:
+                y, logits = torch.func.functional_call(self.model, (parameters, h_parameters, feedback_params), x_qry)
+            else:
+                y, logits = torch.func.functional_call(self.model, (parameters, h_parameters), x_qry)
+
             loss_meta = self.loss_func(logits, y_qry.ravel())
 
             if loss_meta > 1e5 or torch.isnan(loss_meta):
@@ -363,6 +421,9 @@ class MetaLearner:
 
             # -- record params
             UpdateWeights_state_dict = copy.deepcopy(self.UpdateWeights.state_dict())
+            UpdateFeedbackWeights_state_dict = None
+            if self.options.trainFeedback:
+                UpdateFeedbackWeights_state_dict = copy.deepcopy(self.UpdateFeedbackWeights.state_dict())
 
             # -- backprop
             self.UpdateMetaParameters.zero_grad()
@@ -405,6 +466,20 @@ class MetaLearner:
                     ):
                         with open(self.result_directory + "/{}.txt".format(key), "a") as f:
                             f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
+
+                if self.options.trainFeedback:
+                    for key, val in UpdateFeedbackWeights_state_dict.items():
+                        if (
+                            "K" in key
+                            or "P" in key
+                            or "v_vector" in key
+                            or "z_vector" in key
+                            or "y_vector" in key
+                            or "A" in key
+                            or "B" in key
+                        ):
+                            with open(self.result_directory + "/Feedback_{}.txt".format(key), "a") as f:
+                                f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
 
             # -- raytune
             if self.options.raytune:

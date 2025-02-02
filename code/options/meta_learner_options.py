@@ -56,6 +56,8 @@ class MetaLearnerOptions:
         numberOfClasses: int = 5,
         dataset_name: Literal["EMNIST", "FASHION-MNIST"] = "FASHION-MNIST",
         chemicalInitialization: chemicalEnum = chemicalEnum.same,
+        trainFeedback: bool = False,
+        feedbackModel: modelEnum = modelEnum.complex,
     ):
 
         self.model = model
@@ -74,6 +76,8 @@ class MetaLearnerOptions:
         self.numberOfClasses = numberOfClasses
         self.dataset_name = dataset_name
         self.chemicalInitialization = chemicalInitialization
+        self.trainFeedback = trainFeedback
+        self.feedbackModel = feedbackModel
 
     def __str__(self):
         string = ""

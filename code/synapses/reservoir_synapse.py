@@ -149,7 +149,11 @@ class ReservoirSynapse(nn.Module):
         self.all_meta_parameters.append(self.v_vector)
 
     def __call__(
-        self, activations: list, output: torch.Tensor, label: torch.Tensor, params: dict, h_parameters: dict, beta: int
+        self,
+        params: dict,
+        h_parameters: dict,
+        activations_and_output: list,
+        error: list,
     ):
         """
         :param activations: (list) model activations,
@@ -159,13 +163,6 @@ class ReservoirSynapse(nn.Module):
         :param h_parameters: (dict) model chemicals - dimension L x (W_1, W_2) (per parameter),
         :param beta: (int) smoothness coefficient for non-linearity,
         """
-
-        feedback = {name: value for name, value in params.items() if "feedback" in name}
-        error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=47)]
-        # add the error for all the layers
-        for y, i in zip(reversed(activations), reversed(list(feedback))):
-            error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-beta * y)))
-        activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
         """for i in range(len(activations_and_output)):
             activations_and_output[i] = activations_and_output[i] / torch.norm(activations_and_output[i], p=2)"""
