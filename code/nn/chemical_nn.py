@@ -92,12 +92,12 @@ class ChemicalNN(nn.Module):
         # h(s) for feedback
         # Only works for non-small models
         if train_feedback:
-            self.feedback_chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 784, 170), device=self.device))
-            self.feedback_chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 170, 130), device=self.device))
-            self.feedback_chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 130, 100), device=self.device))
-            self.feedback_chemical4 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 100, 70), device=self.device))
+            self.feedback_chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 170, 784), device=self.device))
+            self.feedback_chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 130, 170), device=self.device))
+            self.feedback_chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 100, 130), device=self.device))
+            self.feedback_chemical4 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 70, 100), device=self.device))
             self.feedback_chemical5 = nn.Parameter(
-                torch.zeros(size=(numberOfChemicals, 70, dim_out), device=self.device)
+                torch.zeros(size=(numberOfChemicals, dim_out, 70), device=self.device)
             )
             self.feedback_chemicals = nn.ParameterList(
                 [

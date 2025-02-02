@@ -14,7 +14,6 @@ from options.complex_options import (
     zVectorEnum,
 )
 from torch import nn
-from torch.nn import functional
 
 
 class ComplexSynapse(nn.Module):
@@ -87,7 +86,9 @@ class ComplexSynapse(nn.Module):
         ## Initialize the bias parameters
         for name, parameter in params:
             if self.adaptionPathway in name and "chemical" not in name:
-                h_name = name.replace("forward", "chemical").split(".")[0]
+                h_name = name.replace(self.adaptionPathway, "chemical").split(".")[0]
+                if self.adaptionPathway == "feedback":
+                    h_name = "feedback_" + h_name
                 self.bias_dictionary[h_name] = nn.Parameter(
                     torch.nn.init.zeros_(
                         torch.empty(
@@ -594,8 +595,10 @@ class ComplexSynapse(nn.Module):
         To connect the forward and chemical parameters.
         """
         for name, parameter in params.items():
-            if "forward" in name:
-                h_name = name.replace("forward", "chemical").split(".")[0]
+            if self.adaptionPathway in name:
+                h_name = name.replace(self.adaptionPathway, "chemical").split(".")[0]
+                if self.adaptionPathway == "feedback":
+                    h_name = "feedback_" + h_name
                 if parameter.adapt == self.adaptionPathway and "weight" in name:
                     # Equation 2: w(s) = v * h(s)
                     new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)

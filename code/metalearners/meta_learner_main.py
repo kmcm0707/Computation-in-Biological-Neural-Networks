@@ -42,7 +42,8 @@ from synapses.benna_synapse import BennaSynapse
 from synapses.complex_synapse import ComplexSynapse
 from synapses.individual_synapse import IndividualSynapse
 from synapses.reservoir_synapse import ReservoirSynapse
-from torch import functional, nn, optim
+from torch import nn, optim
+from torch.nn import functional
 from torch.utils.data import DataLoader, RandomSampler
 from torch.utils.tensorboard import SummaryWriter
 
@@ -94,20 +95,22 @@ class MetaLearner:
         self.loss_func = nn.CrossEntropyLoss()
 
         # -- set chemical model
-        self.UpdateWeights = self.chemical_model_setter(self.modelOptions, adaptionPathway="forward")
+        self.UpdateWeights = self.chemical_model_setter(
+            options=self.modelOptions, adaptionPathway="forward", typeOfModel=self.options.model
+        )
         if self.options.trainFeedback:
             self.UpdateFeedbackWeights = self.chemical_model_setter(
-                self.feedbackModelOptions, adaptionPathway="feedback"
+                options=self.feedbackModelOptions, adaptionPathway="feedback", typeOfModel=self.options.feedbackModel
             )
 
         lr = metaLearnerOptions.lr
 
         # -- optimizer
-        bias_parameters = self.UpdateWeights.all_bias_parameters.parameters()
-        meta_parameters = self.UpdateWeights.all_meta_parameters.parameters()
+        bias_parameters = list(self.UpdateWeights.all_bias_parameters.parameters())
+        meta_parameters = list(self.UpdateWeights.all_meta_parameters.parameters())
         if self.options.trainFeedback:
-            bias_parameters = bias_parameters + self.UpdateFeedbackWeights.all_bias_parameters.parameters()
-            meta_parameters = meta_parameters + self.UpdateFeedbackWeights.all_meta_parameters.parameters()
+            bias_parameters = bias_parameters + list(self.UpdateFeedbackWeights.all_bias_parameters.parameters())
+            meta_parameters = meta_parameters + list(self.UpdateFeedbackWeights.all_meta_parameters.parameters())
         if metaLearnerOptions.optimizer == optimizerEnum.sgd:
             self.UpdateMetaParameters = optim.SGD(
                 [
@@ -194,35 +197,37 @@ class MetaLearner:
             self.plot = Plot(self.result_directory, self.average_window)
             self.summary_writer = SummaryWriter(log_dir=self.result_directory)
 
-    def chemical_model_setter(self, options: Union[complexOptions, reservoirOptions], adaptionPathway="forward"):
+    def chemical_model_setter(
+        self, options: Union[complexOptions, reservoirOptions], adaptionPathway="forward", typeOfModel=None
+    ):
         model = None
-        if options == modelEnum.complex:
+        if typeOfModel == modelEnum.complex:
             model = ComplexSynapse(
                 device=self.device,
                 numberOfChemicals=self.numberOfChemicals,
-                complexOptions=self.modelOptions,
+                complexOptions=options,
                 params=self.model.named_parameters(),
                 adaptionPathway=adaptionPathway,
             )
-        elif options == modelEnum.reservoir:
+        elif typeOfModel == modelEnum.reservoir:
             model = ReservoirSynapse(
                 device=self.device,
                 numberOfChemicals=self.numberOfChemicals,
-                options=self.modelOptions,
+                options=options,
                 params=self.model.named_parameters(),
             )
-        elif options == modelEnum.individual:
+        elif typeOfModel == modelEnum.individual:
             model = IndividualSynapse(
                 device=self.device,
                 numberOfChemicals=self.numberOfChemicals,
-                complexOptions=self.modelOptions,
+                complexOptions=options,
                 params=self.model.named_parameters(),
             )
-        elif options == modelEnum.benna:
+        elif typeOfModel == modelEnum.benna:
             model = BennaSynapse(
                 device=self.device,
                 numberOfChemicals=self.numberOfChemicals,
-                options=self.modelOptions,
+                options=options,
                 params=self.model.named_parameters(),
             )
         else:
@@ -293,6 +298,8 @@ class MetaLearner:
         # -- initialize weights
         self.model.apply(self.weights_init)
         self.chemical_init(self.model.chemicals)
+        if self.options.trainFeedback:
+            self.chemical_init(self.model.feedback_chemicals)
 
         # -- module parameters
         # -- parameters are not linked to the model even if .clone() is not used
@@ -350,6 +357,8 @@ class MetaLearner:
             parameters, h_parameters, feedback_params = self.reinitialize()
             if self.options.chemicalInitialization != chemicalEnum.zero:
                 self.UpdateWeights.initial_update(parameters, h_parameters)
+                if self.options.trainFeedback:
+                    self.UpdateFeedbackWeights.initial_update(parameters, feedback_params)
 
             # -- training data
             x_trn, y_trn, x_qry, y_qry = self.data_process(data, self.options.numberOfClasses)
@@ -358,10 +367,15 @@ class MetaLearner:
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
 
                 # -- predict
-                y, logits = torch.func.functional_call(
-                    self.model, (parameters, h_parameters), x.unsqueeze(0).unsqueeze(0)
-                )
-
+                y, logits = None, None
+                if self.options.trainFeedback:
+                    y, logits = torch.func.functional_call(
+                        self.model, (parameters, h_parameters, feedback_params), x.unsqueeze(0).unsqueeze(0)
+                    )
+                else:
+                    y, logits = torch.func.functional_call(
+                        self.model, (parameters, h_parameters), x.unsqueeze(0).unsqueeze(0)
+                    )
                 # -- compute error
                 activations = y
                 output = logits
@@ -378,7 +392,7 @@ class MetaLearner:
                     params=parameters,
                     h_parameters=h_parameters,
                     error=error,
-                    activations=activations_and_output,
+                    activations_and_output=activations_and_output,
                 )
 
                 # -- update feedback params
@@ -387,11 +401,12 @@ class MetaLearner:
                         params=parameters,
                         h_parameters=feedback_params,
                         error=error,
-                        activations=activations_and_output,
+                        activations_and_output=activations_and_output,
                     )
 
             """ meta update """
             # -- predict
+            y, logits = None, None
             if self.options.trainFeedback:
                 y, logits = torch.func.functional_call(self.model, (parameters, h_parameters, feedback_params), x_qry)
             else:
@@ -418,6 +433,9 @@ class MetaLearner:
             if self.metaLossRegularization > 0:
                 P_matrix = self.UpdateWeights.P_matrix
                 loss_meta += self.metaLossRegularization * torch.norm(P_matrix, p=1)
+                if self.options.trainFeedback:
+                    P_matrix = self.UpdateFeedbackWeights.P_matrix
+                    loss_meta += self.metaLossRegularization * torch.norm(P_matrix, p=1)
 
             # -- record params
             UpdateWeights_state_dict = copy.deepcopy(self.UpdateWeights.state_dict())
@@ -502,6 +520,10 @@ class MetaLearner:
             torch.save(self.UpdateWeights.state_dict(), self.result_directory + "/UpdateWeights.pth")
             torch.save(self.model.state_dict(), self.result_directory + "/model.pth")
             torch.save(self.UpdateMetaParameters.state_dict(), self.result_directory + "/UpdateMetaParameters.pth")
+            if self.options.trainFeedback:
+                torch.save(
+                    self.UpdateFeedbackWeights.state_dict(), self.result_directory + "/UpdateFeedbackWeights.pth"
+                )
         print("Meta-training complete.")
 
 
@@ -545,7 +567,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- options
-    model = modelEnum.individual
+    model = modelEnum.complex
     modelOptions = None
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
 
@@ -556,14 +578,14 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=1 + 1 / 50,
+            minTau=1,  # + 1 / 50,
             maxTau=50,
-            y_vector=yVectorEnum.none,
+            y_vector=yVectorEnum.first_one,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_3,
+            operator=operatorEnum.mode_1,
             train_z_vector=False,
             mode=modeEnum.all,
-            v_vector=vVectorEnum.random_small,
+            v_vector=vVectorEnum.default,
             eta=1,
         )
     elif model == modelEnum.reservoir:
@@ -608,10 +630,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
+        trainFeedback=True,
+        feedbackModel=modelEnum.complex,
     )
 
     #   -- number of chemicals
-    numberOfChemicals = [2, 3, 4, 5][index]
+    numberOfChemicals = [1, 2, 3, 4, 5][index]
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -620,6 +644,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         numberOfChemicals=numberOfChemicals,
         metaLearnerOptions=metaLearnerOptions,
         modelOptions=modelOptions,
+        feedbackModelOptions=modelOptions,
     )
     metalearning_model.train()
 
@@ -641,7 +666,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(5):
-        run(seed=0, display=True, result_subdirectory="mode_3_ind", index=i)
+        run(seed=0, display=True, result_subdirectory="testing", index=i)
 
 
 def pass_through(input):
