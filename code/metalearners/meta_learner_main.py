@@ -345,6 +345,8 @@ class MetaLearner:
         """
         self.model.train()
         self.UpdateWeights.train()
+        if self.options.trainFeedback:
+            self.UpdateFeedbackWeights.train()
 
         x_qry = None
         y_qry = None
