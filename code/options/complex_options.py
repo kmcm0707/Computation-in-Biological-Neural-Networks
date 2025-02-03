@@ -21,6 +21,7 @@ class pMatrixEnum(Enum):
     rosenbaum_last = "rosenbaum_last"
     rosenbaum_first = "rosenbaum_first"
     first_col = "first_col"
+    zero = "zero"
 
 
 class kMatrixEnum(Enum):
@@ -49,6 +50,7 @@ class operatorEnum(Enum):
     mode_1 = "mode_1"
     mode_2 = "mode_2"
     mode_3 = "mode_3"
+    mode_4 = "mode_4"
     sub = "sub"
     attention = "attention"
     extended_attention = "extended_attention"
@@ -61,6 +63,7 @@ class vVectorEnum(Enum):
     random = "random"
     last_one = "last_one"
     random_small = "random_small"
+    random_beta = "random_beta"
 
 
 class modeEnum(Enum):
@@ -90,6 +93,7 @@ class complexOptions:
         mode: modeEnum = modeEnum.all,
         v_vector: vVectorEnum = vVectorEnum.default,
         eta: float = 1e-3,
+        beta: float = 0,
     ):
         self.nonLinear = nonLinear
         self.bias = bias
@@ -105,6 +109,7 @@ class complexOptions:
         self.mode = mode
         self.v_vector = v_vector
         self.eta = eta
+        self.beta = beta
 
     def __str__(self):
         string = ""

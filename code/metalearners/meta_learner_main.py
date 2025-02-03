@@ -357,9 +357,12 @@ class MetaLearner:
             # Using a clone of the model parameters to allow for in-place operations
             # Maintains the computational graph for the model as .detach() is not used
             parameters, h_parameters, feedback_params = self.reinitialize()
-            if self.options.chemicalInitialization != chemicalEnum.zero:
+            if (
+                self.options.chemicalInitialization != chemicalEnum.zero
+                and self.modelOptions.operator != operatorEnum.mode_3
+            ):
                 self.UpdateWeights.initial_update(parameters, h_parameters)
-                if self.options.trainFeedback:
+                if self.options.trainFeedback and self.feedbackModelOptions.operator != operatorEnum.mode_3:
                     self.UpdateFeedbackWeights.initial_update(parameters, feedback_params)
 
             # -- training data
@@ -572,6 +575,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     model = modelEnum.complex
     modelOptions = None
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
+    beta = [1, 0.1, 0.01, 0.001, 0.0001]
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
@@ -580,15 +584,16 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=1,  # + 1 / 50,
+            minTau=1 + 1 / 50,
             maxTau=50,
-            y_vector=yVectorEnum.first_one,
+            y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_1,
+            operator=operatorEnum.mode_3,
             train_z_vector=False,
             mode=modeEnum.all,
-            v_vector=vVectorEnum.default,
+            v_vector=vVectorEnum.random_beta,
             eta=1,
+            beta=beta[index],  ## Only for v_vector=random_beta
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -614,6 +619,50 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
         )
 
+    # -- feedback model options
+    feedbackModel = modelEnum.complex
+    feedbackModelOptions = None
+    if feedbackModel == modelEnum.complex or feedbackModel == modelEnum.individual:
+        feedbackModelOptions = complexOptions(
+            nonLinear=nonLinearEnum.tanh,
+            update_rules=[0, 1, 2, 3, 4, 8, 9],
+            bias=False,
+            pMatrix=pMatrixEnum.zero,
+            kMatrix=kMatrixEnum.zero,
+            minTau=2,  # + 1 / 50,
+            maxTau=50,
+            y_vector=yVectorEnum.first_one,
+            z_vector=zVectorEnum.default,
+            operator=operatorEnum.mode_1,
+            train_z_vector=False,
+            mode=modeEnum.all,
+            v_vector=vVectorEnum.default,
+            eta=1,
+        )
+    elif feedbackModel == modelEnum.reservoir:
+        feedbackModelOptions = reservoirOptions(
+            non_linearity=nonLinearEnum.tanh,
+            unit_connections=5,
+            bias=True,
+            spectral_radius=spectral_radius[index],
+            update_rules=[0, 1, 2, 3, 4, 8, 9],
+            reservoir_seed=0,
+            train_K_matrix=False,
+            minTau=1,
+            maxTau=50,
+            v_vector=vVectorReservoirEnum.default,
+            operator=modeReservoirEnum.mode_1,
+            y=yReservoirEnum.none,
+        )
+    elif feedbackModel == modelEnum.benna:
+        feedbackModelOptions = bennaOptions(
+            non_linearity=nonLinearEnum.tanh,
+            bias=False,
+            update_rules=[0, 1, 2, 3, 4, 8, 9],
+            minTau=1,
+            maxTau=50,
+        )
+
     # -- meta-learner options
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
@@ -628,16 +677,16 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0001,
+        lr=0.0004,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
-        trainFeedback=True,
-        feedbackModel=modelEnum.complex,
+        trainFeedback=False,
+        feedbackModel=feedbackModel,
     )
 
     #   -- number of chemicals
-    numberOfChemicals = [2, 3, 4, 5][index]
+    numberOfChemicals = 3
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -646,7 +695,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         numberOfChemicals=numberOfChemicals,
         metaLearnerOptions=metaLearnerOptions,
         modelOptions=modelOptions,
-        feedbackModelOptions=modelOptions,
+        feedbackModelOptions=feedbackModelOptions,
     )
     metalearning_model.train()
 
@@ -668,7 +717,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(5):
-        run(seed=0, display=True, result_subdirectory="train_feedback_2", index=i)
+        run(seed=0, display=True, result_subdirectory="beta", index=i)
 
 
 def pass_through(input):
