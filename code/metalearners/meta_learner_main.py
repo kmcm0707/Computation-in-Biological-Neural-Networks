@@ -551,7 +551,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 6
-    epochs = 800
+    epochs = 500
 
     dataset_name = "EMNIST"
     numberOfClasses = None
