@@ -630,12 +630,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
-        trainFeedback=True,
+        trainFeedback=False,
         feedbackModel=modelEnum.complex,
     )
 
     #   -- number of chemicals
-    numberOfChemicals = [1, 2, 3, 4, 5][index]
+    numberOfChemicals = [2, 3, 4, 5][index]
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -666,7 +666,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(5):
-        run(seed=0, display=True, result_subdirectory="testing", index=i)
+        run(seed=0, display=True, result_subdirectory="error_oja", index=i)
 
 
 def pass_through(input):

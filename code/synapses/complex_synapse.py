@@ -623,7 +623,13 @@ class ComplexSynapse(nn.Module):
             update_vector[1] = -torch.matmul(activations_and_output[i + 1].T, error[i])
 
         if self.update_rules[2]:
-            update_vector[2] = -torch.matmul(error[i + 1].T, error[i])  # eHebb rule
+            update_vector[2] = -(
+                torch.matmul(error[i + 1].T, error[i])
+                - torch.matmul(
+                    torch.matmul(error[i + 1].T, error[i + 1]),
+                    parameter,
+                )
+            )  # error oja
 
         if self.update_rules[3]:
             update_vector[3] = -parameter
@@ -663,10 +669,10 @@ class ComplexSynapse(nn.Module):
                 ),
                 error[i],
             )  # - ERROR"""
-            update_vector[6] = -torch.matmul(
+            """update_vector[6] = -torch.matmul(
                 torch.nn.functional.sigmoid(activations_and_output[i + 1].T),
                 torch.nn.functional.sigmoid(activations_and_output[i]),
-            )
+            )"""
 
         if self.update_rules[7]:
             update_vector[7] = -torch.matmul(
