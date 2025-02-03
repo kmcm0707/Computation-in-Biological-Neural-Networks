@@ -623,13 +623,11 @@ class ComplexSynapse(nn.Module):
             update_vector[1] = -torch.matmul(activations_and_output[i + 1].T, error[i])
 
         if self.update_rules[2]:
-            update_vector[2] = -(
-                torch.matmul(error[i + 1].T, error[i])
-                - torch.matmul(
+            update_vector[2] = -(torch.matmul(error[i + 1].T, error[i]))  # error oja
+            """- torch.matmul(
                     torch.matmul(error[i + 1].T, error[i + 1]),
                     parameter,
-                )
-            )  # error oja
+            )"""
 
         if self.update_rules[3]:
             update_vector[3] = -parameter
