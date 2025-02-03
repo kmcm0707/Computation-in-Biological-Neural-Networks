@@ -551,7 +551,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 6
-    epochs = 500
+    epochs = 200
 
     dataset_name = "EMNIST"
     numberOfClasses = None
@@ -635,7 +635,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = [2, 3, 4, 5][index]
+    numberOfChemicals = [3, 4, 5][index]
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
