@@ -299,8 +299,8 @@ class ComplexSynapse(nn.Module):
                     * nn.Parameter(
                         torch.nn.init.uniform_(
                             torch.empty(size=(1, self.number_chemicals), device=self.device),
-                            mean=0,
-                            std=1,
+                            # mean=0,
+                            # std=1,
                         )
                     )
                     / np.sqrt(self.number_chemicals)
