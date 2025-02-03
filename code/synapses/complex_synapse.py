@@ -294,14 +294,12 @@ class ComplexSynapse(nn.Module):
                     )
                 )
             elif self.options.v_vector == vVectorEnum.random_beta:
-                self.v_vector = (
+                self.v_vector = nn.Parameter(
                     self.options.beta
-                    * nn.Parameter(
-                        torch.nn.init.uniform_(
-                            torch.empty(size=(1, self.number_chemicals), device=self.device),
-                            # mean=0,
-                            # std=1,
-                        )
+                    * torch.nn.init.uniform_(
+                        torch.empty(size=(1, self.number_chemicals), device=self.device),
+                        # mean=0,
+                        # std=1,
                     )
                     / np.sqrt(self.number_chemicals)
                 )
