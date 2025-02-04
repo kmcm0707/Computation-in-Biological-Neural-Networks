@@ -94,6 +94,7 @@ class complexOptions:
         v_vector: vVectorEnum = vVectorEnum.default,
         eta: float = 1e-3,
         beta: float = 0,
+        kMasking: bool = False,
     ):
         self.nonLinear = nonLinear
         self.bias = bias
@@ -110,6 +111,7 @@ class complexOptions:
         self.v_vector = v_vector
         self.eta = eta
         self.beta = beta
+        self.kMasking = kMasking
 
     def __str__(self):
         string = ""

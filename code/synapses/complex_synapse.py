@@ -205,6 +205,13 @@ class ComplexSynapse(nn.Module):
 
         self.all_meta_parameters.append(self.P_matrix)
 
+        ## K Mask
+        if self.options.kMasking:
+            identity = torch.eye(self.number_chemicals, device=self.device)
+            self.K_mask = torch.ones(self.number_chemicals, self.number_chemicals, device=self.device) - identity
+        else:
+            self.K_mask = torch.ones(self.number_chemicals, self.number_chemicals, device=self.device)
+
         self.z_vector = torch.tensor([0] * self.number_chemicals, device=self.device)
         self.y_vector = torch.tensor([0] * self.number_chemicals, device=self.device)
 
@@ -494,7 +501,7 @@ class ComplexSynapse(nn.Module):
                             "i,ijk->ijk",
                             self.z_vector,
                             self.non_linearity(
-                                torch.einsum("ic,ijk->cjk", self.K_matrix, chemical)
+                                torch.einsum("ic,ijk->cjk", self.K_mask * self.K_matrix, chemical)
                                 + torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
                                 + self.bias_dictionary[h_name]  # [:, None, None]
                             ),
