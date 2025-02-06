@@ -681,7 +681,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.001,
+        lr=[0.001,0.0009,0.0008,0.0006,0.0004][index],
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -703,7 +703,6 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     metalearning_model.train()
-    exit()
 
 
 def main():
