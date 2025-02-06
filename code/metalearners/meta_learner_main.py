@@ -486,6 +486,7 @@ class MetaLearner:
                         or "y_vector" in key
                         or "A" in key
                         or "B" in key
+                        or "v_dict" in key
                     ):
                         with open(self.result_directory + "/{}.txt".format(key), "a") as f:
                             f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
@@ -572,7 +573,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- options
-    model = modelEnum.complex
+    model = modelEnum.individual
     modelOptions = None
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
     # beta = [1, 0.1, 0.01, 0.001, 0.0001]
@@ -594,7 +595,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             v_vector=vVectorEnum.default,
             eta=1,
             beta=0,  ## Only for v_vector=random_beta
-            kMasking=True,
+            kMasking=False,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -679,7 +680,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0007,
+        lr=0.001,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -721,7 +722,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(5):
-        run(seed=0, display=True, result_subdirectory="k_masking", index=i)
+        run(seed=0, display=True, result_subdirectory="ind_h_change", index=i)
 
 
 def pass_through(input):

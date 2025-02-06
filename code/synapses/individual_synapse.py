@@ -229,40 +229,45 @@ class IndividualSynapse(nn.Module):
         self.z_vector = nn.Parameter(self.z_vector)
 
         ## Initialize the v vector
-        if self.mode == modeEnum.rosenbaum or self.mode == modeEnum.all_rosenbaum:
-            self.v_vector = nn.Parameter(
-                torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device))
-                / self.number_chemicals
-            )
-        else:
-            if self.options.v_vector == vVectorEnum.default:
-                self.v_vector = nn.Parameter(
-                    torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device))
-                    / self.number_chemicals
-                )
-            elif self.options.v_vector == vVectorEnum.random:
-                self.v_vector = nn.Parameter(
-                    torch.nn.init.normal_(
-                        torch.empty(size=(1, self.number_chemicals), device=self.device),
-                        mean=0,
-                        std=1,
+        for name, parameter in params.items():
+            if "forward" in name:
+                h_name = name.replace("forward", "chemical").split(".")[0]
+                if self.mode == modeEnum.rosenbaum or self.mode == modeEnum.all_rosenbaum:
+                    self.v_dictionary[h_name] = nn.Parameter(
+                        torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device))
+                        / self.number_chemicals
                     )
-                )
-                self.v_vector = self.v_vector / torch.norm(self.v_vector, p=2)
-            elif self.options.v_vector == vVectorEnum.last_one:
-                self.v_vector = nn.Parameter(
-                    torch.nn.init.zeros_(torch.empty(size=(1, self.number_chemicals), device=self.device))
-                )
-                self.v_vector[0, -1] = 1
-            elif self.options.v_vector == vVectorEnum.random_small:
-                self.v_vector = nn.Parameter(
-                    torch.nn.init.normal_(
-                        torch.empty(size=(1, self.number_chemicals), device=self.device),
-                        mean=0,
-                        std=0.01,
-                    )
-                )
-            self.all_meta_parameters.append(self.v_vector)
+                else:
+                    if self.options.v_vector == vVectorEnum.default:
+                        self.v_dictionary[h_name] = nn.Parameter(
+                            torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device))
+                            / self.number_chemicals
+                        )
+                    elif self.options.v_vector == vVectorEnum.random:
+                        self.v_dictionary[h_name] = nn.Parameter(
+                            torch.nn.init.normal_(
+                                torch.empty(size=(1, self.number_chemicals), device=self.device),
+                                mean=0,
+                                std=1,
+                            )
+                        )
+                        self.v_dictionary[h_name] = self.v_dictionary[h_name] / torch.norm(
+                            self.v_dictionary[h_name], p=2
+                        )
+                    elif self.options.v_vector == vVectorEnum.last_one:
+                        self.v_dictionary[h_name] = nn.Parameter(
+                            torch.nn.init.zeros_(torch.empty(size=(1, self.number_chemicals), device=self.device))
+                        )
+                        self.v_dictionary[h_name][0, -1] = 1
+                    elif self.options.v_vector == vVectorEnum.random_small:
+                        self.v_dictionary[h_name] = nn.Parameter(
+                            torch.nn.init.normal_(
+                                torch.empty(size=(1, self.number_chemicals), device=self.device),
+                                mean=0,
+                                std=0.01,
+                            )
+                        )
+            self.all_meta_parameters.extend(self.v_dictionary.values())
 
         ## Initialize the mode
         self.operator = self.options.operator
@@ -294,7 +299,9 @@ class IndividualSynapse(nn.Module):
                     update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i)
                     new_chemical = None
                     if (
-                        self.operator == operatorEnum.mode_1 or self.operator == operatorEnum.mode_3
+                        self.operator == operatorEnum.mode_1
+                        or self.operator == operatorEnum.mode_3
+                        or self.operator == operatorEnum.mode_4
                     ):  # mode 1 - was also called add in results
                         new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.einsum(
                             "i,ijk->ijk",
@@ -343,10 +350,15 @@ class IndividualSynapse(nn.Module):
                     if self.operator == operatorEnum.mode_3:
                         # Equation 2: w(s) = w(s) + f(v * h(s))
                         new_value = parameter + torch.nn.functional.tanh(
-                            torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
+                            torch.einsum("ci,ijk->cjk", self.v_dictionary[h_name], h_parameters[h_name]).squeeze(0)
                         )
+                    elif self.operator == operatorEnum.mode_4:
+                        v_vector_softmax = torch.nn.functional.softmax(self.v_dictionary[h_name], dim=1)
+                        new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)
                     else:
-                        new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
+                        new_value = torch.einsum(
+                            "ci,ijk->cjk", self.v_dictionary[h_name], h_parameters[h_name]
+                        ).squeeze(0)
                     params[name] = new_value
 
                     params[name].adapt = True
@@ -365,7 +377,7 @@ class IndividualSynapse(nn.Module):
                 h_name = name.replace("forward", "chemical").split(".")[0]
                 if parameter.adapt and "weight" in name:
                     # Equation 2: w(s) = v * h(s)
-                    new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
+                    new_value = torch.einsum("ci,ijk->cjk", self.v_dictionary[h_name], h_parameters[h_name]).squeeze(0)
                     params[name] = new_value
 
                     params[name].adapt = True
