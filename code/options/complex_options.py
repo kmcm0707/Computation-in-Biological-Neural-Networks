@@ -95,6 +95,7 @@ class complexOptions:
         eta: float = 1e-3,
         beta: float = 0,
         kMasking: bool = False,
+        individual_different_v_vector: bool = False,
     ):
         self.nonLinear = nonLinear
         self.bias = bias
@@ -112,6 +113,7 @@ class complexOptions:
         self.eta = eta
         self.beta = beta
         self.kMasking = kMasking
+        self.individual_different_v_vector = individual_different_v_vector
 
     def __str__(self):
         string = ""

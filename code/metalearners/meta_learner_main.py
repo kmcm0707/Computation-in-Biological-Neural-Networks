@@ -596,6 +596,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             eta=1,
             beta=0,  ## Only for v_vector=random_beta
             kMasking=False,
+            individual_different_v_vector=False,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
