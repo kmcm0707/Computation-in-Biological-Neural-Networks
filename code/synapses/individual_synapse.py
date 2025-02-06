@@ -384,6 +384,7 @@ class IndividualSynapse(nn.Module):
                     new_value = None
                     if self.options.individual_different_v_vector == False:
                         v_name = "all"
+
                     if self.operator == operatorEnum.mode_4:
                         v_vector_softmax = torch.nn.functional.softmax(self.v_dictionary[v_name], dim=1)
                         new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)

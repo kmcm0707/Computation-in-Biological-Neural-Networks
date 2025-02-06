@@ -155,6 +155,20 @@ class MetaLearner:
                 ],
                 lr=lr,
             )
+        elif metaLearnerOptions.optimizer == optimizerEnum.nadam:
+            self.UpdateMetaParameters = optim.NAdam(
+                [
+                    {
+                        "params": bias_parameters,
+                        "weight_decay": self.biasLossRegularization,
+                    },
+                    {
+                        "params": meta_parameters,
+                        # "weight_decay": self.metaLossRegularization,
+                    },
+                ],
+                lr=lr,
+            )
         else:
             raise ValueError("Optimizer not recognized.")
 
@@ -596,7 +610,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             eta=1,
             beta=0,  ## Only for v_vector=random_beta
             kMasking=False,
-            individual_different_v_vector=False,
+            individual_different_v_vector=True,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -681,7 +695,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=[0.001,0.0009,0.0008,0.0006,0.0004][index],
+        lr=[0.001, 0.0009, 0.0008, 0.0006, 0.0004][index],
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -722,7 +736,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(5):
-        run(seed=0, display=True, result_subdirectory="ind_h_change_v_not_different", index=i)
+        run(seed=0, display=True, result_subdirectory="ind_diff_v", index=i)
 
 
 def pass_through(input):
