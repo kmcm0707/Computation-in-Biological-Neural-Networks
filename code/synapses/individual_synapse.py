@@ -176,10 +176,48 @@ class IndividualSynapse(nn.Module):
                     else:
                         raise ValueError("Invalid K matrix initialization")
 
+                ## Initialize the v vector
+                if self.mode == modeEnum.rosenbaum or self.mode == modeEnum.all_rosenbaum:
+                    self.v_dictionary[h_name] = nn.Parameter(
+                        torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device))
+                        / self.number_chemicals
+                    )
+                else:
+                    if self.options.v_vector == vVectorEnum.default:
+                        self.v_dictionary[h_name] = nn.Parameter(
+                            torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device))
+                            / self.number_chemicals
+                        )
+                    elif self.options.v_vector == vVectorEnum.random:
+                        self.v_dictionary[h_name] = nn.Parameter(
+                            torch.nn.init.normal_(
+                                torch.empty(size=(1, self.number_chemicals), device=self.device),
+                                mean=0,
+                                std=1,
+                            )
+                        )
+                        self.v_dictionary[h_name] = self.v_dictionary[h_name] / torch.norm(
+                            self.v_dictionary[h_name], p=2
+                        )
+                    elif self.options.v_vector == vVectorEnum.last_one:
+                        self.v_dictionary[h_name] = nn.Parameter(
+                            torch.nn.init.zeros_(torch.empty(size=(1, self.number_chemicals), device=self.device))
+                        )
+                        self.v_dictionary[h_name][0, -1] = 1
+                    elif self.options.v_vector == vVectorEnum.random_small:
+                        self.v_dictionary[h_name] = nn.Parameter(
+                            torch.nn.init.normal_(
+                                torch.empty(size=(1, self.number_chemicals), device=self.device),
+                                mean=0,
+                                std=0.01,
+                            )
+                        )
+
         if self.options.bias:
             self.all_bias_parameters.extend(self.bias_dictionary.values())
         self.all_meta_parameters.extend(self.K_dictionary.values())
         self.all_meta_parameters.extend(self.P_dictionary.values())
+        self.all_meta_parameters.extend(self.v_dictionary.values())
 
         self.z_vector = torch.tensor([0] * self.number_chemicals, device=self.device)
         self.y_vector = torch.tensor([0] * self.number_chemicals, device=self.device)
@@ -227,47 +265,6 @@ class IndividualSynapse(nn.Module):
         self.y_vector = nn.Parameter(self.y_vector)
         self.z_vector = self.z_vector.to(self.device)
         self.z_vector = nn.Parameter(self.z_vector)
-
-        ## Initialize the v vector
-        for name, parameter in params.items():
-            if "forward" in name:
-                h_name = name.replace("forward", "chemical").split(".")[0]
-                if self.mode == modeEnum.rosenbaum or self.mode == modeEnum.all_rosenbaum:
-                    self.v_dictionary[h_name] = nn.Parameter(
-                        torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device))
-                        / self.number_chemicals
-                    )
-                else:
-                    if self.options.v_vector == vVectorEnum.default:
-                        self.v_dictionary[h_name] = nn.Parameter(
-                            torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device))
-                            / self.number_chemicals
-                        )
-                    elif self.options.v_vector == vVectorEnum.random:
-                        self.v_dictionary[h_name] = nn.Parameter(
-                            torch.nn.init.normal_(
-                                torch.empty(size=(1, self.number_chemicals), device=self.device),
-                                mean=0,
-                                std=1,
-                            )
-                        )
-                        self.v_dictionary[h_name] = self.v_dictionary[h_name] / torch.norm(
-                            self.v_dictionary[h_name], p=2
-                        )
-                    elif self.options.v_vector == vVectorEnum.last_one:
-                        self.v_dictionary[h_name] = nn.Parameter(
-                            torch.nn.init.zeros_(torch.empty(size=(1, self.number_chemicals), device=self.device))
-                        )
-                        self.v_dictionary[h_name][0, -1] = 1
-                    elif self.options.v_vector == vVectorEnum.random_small:
-                        self.v_dictionary[h_name] = nn.Parameter(
-                            torch.nn.init.normal_(
-                                torch.empty(size=(1, self.number_chemicals), device=self.device),
-                                mean=0,
-                                std=0.01,
-                            )
-                        )
-            self.all_meta_parameters.extend(self.v_dictionary.values())
 
         ## Initialize the mode
         self.operator = self.options.operator
