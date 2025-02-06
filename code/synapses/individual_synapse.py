@@ -381,9 +381,16 @@ class IndividualSynapse(nn.Module):
                 if parameter.adapt and "weight" in name:
                     # Equation 2: w(s) = v * h(s)
                     v_name = h_name
+                    new_value = None
                     if self.options.individual_different_v_vector == False:
                         v_name = "all"
-                    new_value = torch.einsum("ci,ijk->cjk", self.v_dictionary[v_name], h_parameters[h_name]).squeeze(0)
+                    if self.operator == operatorEnum.mode_4:
+                        v_vector_softmax = torch.nn.functional.softmax(self.v_dictionary[v_name], dim=1)
+                        new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)
+                    else:
+                        new_value = torch.einsum(
+                            "ci,ijk->cjk", self.v_dictionary[v_name], h_parameters[h_name]
+                        ).squeeze(0)
                     params[name] = new_value
 
                     params[name].adapt = True
