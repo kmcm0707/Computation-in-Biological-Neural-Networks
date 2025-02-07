@@ -20,6 +20,7 @@ class optimizerEnum(Enum):
     adamW = "adamW"
     sgd = "sgd"
     nadam = "nadam"
+    radam = "radam"
 
 
 class modelEnum(Enum):

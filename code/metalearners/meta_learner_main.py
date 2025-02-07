@@ -169,6 +169,20 @@ class MetaLearner:
                 ],
                 lr=lr,
             )
+        elif metaLearnerOptions.optimizer == optimizerEnum.radam:
+            self.UpdateMetaParameters = optim.RAdam(
+                [
+                    {
+                        "params": bias_parameters,
+                        "weight_decay": self.biasLossRegularization,
+                    },
+                    {
+                        "params": meta_parameters,
+                        # "weight_decay": self.metaLossRegularization,
+                    },
+                ],
+                lr=lr,
+            )
         else:
             raise ValueError("Optimizer not recognized.")
 
@@ -571,7 +585,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 6
-    epochs = 500
+    epochs = 800
 
     dataset_name = "EMNIST"
     numberOfClasses = None
@@ -610,7 +624,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             eta=1,
             beta=0,  ## Only for v_vector=random_beta
             kMasking=False,
-            individual_different_v_vector=True,
+            individual_different_v_vector=False,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -686,7 +700,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P matrix (check 1.5)
         biasLossRegularization=0,
-        optimizer=optimizerEnum.adam,
+        optimizer=optimizerEnum.radam,
         model=model,
         results_subdir=result_subdirectory,
         seed=seed,
@@ -736,7 +750,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(5):
-        run(seed=0, display=True, result_subdirectory="ind_diff_v", index=i)
+        run(seed=0, display=True, result_subdirectory="radam_800", index=i)
 
 
 def pass_through(input):
