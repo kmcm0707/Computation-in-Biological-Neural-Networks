@@ -624,7 +624,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             eta=1,
             beta=0,  ## Only for v_vector=random_beta
             kMasking=False,
-            individual_different_v_vector=False,
+            individual_different_v_vector=True,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -750,7 +750,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(5):
-        run(seed=0, display=True, result_subdirectory="radam_800", index=i)
+        run(seed=0, display=True, result_subdirectory="radam_800_v_diff", index=i)
 
 
 def pass_through(input):
