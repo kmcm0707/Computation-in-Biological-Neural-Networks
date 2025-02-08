@@ -389,6 +389,7 @@ class MetaLearner:
                 self.options.chemicalInitialization != chemicalEnum.zero
                 and self.modelOptions.operator != operatorEnum.mode_3
             ):
+                print("here")
                 self.UpdateWeights.initial_update(parameters, h_parameters)
                 if self.options.trainFeedback and self.feedbackModelOptions.operator != operatorEnum.mode_3:
                     self.UpdateFeedbackWeights.initial_update(parameters, feedback_params)
@@ -585,7 +586,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 6
-    epochs = 800
+    epochs = 500
 
     dataset_name = "EMNIST"
     numberOfClasses = None
@@ -622,7 +623,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             mode=modeEnum.all,
             v_vector=vVectorEnum.random_beta,
             eta=1,
-            beta=0.1,  ## Only for v_vector=random_beta
+            beta=0.01,  ## Only for v_vector=random_beta
             kMasking=False,
             individual_different_v_vector=False,  # Individual Model Only
         )
@@ -709,7 +710,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0001,
+        lr=0.0005,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
