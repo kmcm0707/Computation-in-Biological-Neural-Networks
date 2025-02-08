@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Literal
+from typing import Literal, Union
 
 import torch
 from torch.nn import functional
@@ -96,6 +96,7 @@ class complexOptions:
         beta: float = 0,
         kMasking: bool = False,
         individual_different_v_vector: bool = False,
+        scheduler_t0: Union[int, None] = None,
     ):
         self.nonLinear = nonLinear
         self.bias = bias
@@ -114,6 +115,7 @@ class complexOptions:
         self.beta = beta
         self.kMasking = kMasking
         self.individual_different_v_vector = individual_different_v_vector
+        self.scheduler_t0 = scheduler_t0
 
     def __str__(self):
         string = ""

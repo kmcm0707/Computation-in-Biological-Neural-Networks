@@ -625,6 +625,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             beta=0.1,  ## Only for v_vector=random_beta
             kMasking=False,
             individual_different_v_vector=False,  # Individual Model Only
+            scheduler_t0=None,  # Only mode_3
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -651,9 +652,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         )
 
     # -- feedback model options
-    feedbackModel = modelEnum.complex
-    feedbackModelOptions = None
-    if feedbackModel == modelEnum.complex or feedbackModel == modelEnum.individual:
+    # feedbackModel = modelEnum.complex
+    # feedbackModelOptions = None
+    """if feedbackModel == modelEnum.complex or feedbackModel == modelEnum.individual:
         feedbackModelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
             update_rules=[0, 1, 2, 3, 4, 8, 9],
@@ -669,6 +670,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
             eta=1,
+            beta=0,
+            kMasking=False,
+            individual_different_v_vector=False,  # Individual Model Only
         )
     elif feedbackModel == modelEnum.reservoir:
         feedbackModelOptions = reservoirOptions(
@@ -692,8 +696,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             update_rules=[0, 1, 2, 3, 4, 8, 9],
             minTau=1,
             maxTau=50,
-        )
+        )"""
 
+    feedbackModel = model
     feedbackModelOptions = modelOptions
     # -- meta-learner options
     metaLearnerOptions = MetaLearnerOptions(

@@ -71,6 +71,8 @@ class ComplexSynapse(nn.Module):
             for i in self.options.update_rules:
                 self.update_rules[i] = True
 
+        self.time_index = 0
+
         self.init_parameters(params=params)
 
     @torch.no_grad()
@@ -446,6 +448,20 @@ class ComplexSynapse(nn.Module):
             self.all_meta_parameters.append(self.linear_attention)
             self.all_meta_parameters.append(self.attention)
 
+    @torch.no_grad()
+    def reset_time_index(self):
+        """
+        Reset the time index.
+        """
+        self.time_index = 0
+
+    @torch.no_grad()
+    def update_time_index(self):
+        """
+        Update the time index.
+        """
+        self.time_index += 1
+
     def __call__(
         self,
         params: dict,
@@ -546,7 +562,13 @@ class ComplexSynapse(nn.Module):
                     h_parameters[h_name] = new_chemical
                     if self.operator == operatorEnum.mode_3:
                         # Equation 2: w(s) = w(s) + f(v * h(s))
-                        new_value = parameter + torch.nn.functional.tanh(
+                        y_schedular = 1
+                        z_schedular = 1
+                        if self.options.scheduler_t0 != None:
+                            z_schedular = self.options.scheduler_t0 / (self.options.scheduler_t0 + self.time_index)
+                            y_schedular = self.time_index / (self.options.scheduler_t0 + self.time_index)
+
+                        new_value = y_schedular * parameter + z_schedular * torch.nn.functional.tanh(
                             torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
                         )
                     elif self.operator == operatorEnum.attention:
