@@ -1,0 +1,57 @@
+Number of chemicals: 3
+Number of training data per class: 50
+Number of query data per class: 10
+model: modelEnum.complex
+small: False
+scheduler: schedulerEnum.none
+metaLossRegularization: 0
+biasLossRegularization: 0
+optimizer: optimizerEnum.radam
+seed: 0
+raytune: False
+save_results: True
+results_subdir: feedback_mode_3
+metatrain_dataset: <torch.utils.data.dataloader.DataLoader object at 0x7f5bb2205c60>
+display: True
+lr: 0.0005
+numberOfClasses: 5
+dataset_name: EMNIST
+chemicalInitialization: chemicalEnum.same
+trainFeedback: True
+feedbackModel: modelEnum.complex
+nonLinear: <function tanh at 0x7f5bd1028e50>
+bias: False
+update_rules: [0, 1, 2, 3, 4, 8, 9]
+pMatrix: pMatrixEnum.first_col
+kMatrix: kMatrixEnum.zero
+minTau: 1.02
+maxTau: 50
+y_vector: yVectorEnum.none
+z_vector: zVectorEnum.default
+operator: operatorEnum.mode_3
+train_z_vector: False
+mode: modeEnum.all
+v_vector: vVectorEnum.random_beta
+eta: 1
+beta: 0.01
+kMasking: False
+individual_different_v_vector: False
+scheduler_t0: None
+nonLinear: <function tanh at 0x7f5bd1028e50>
+bias: False
+update_rules: [0, 1, 2, 3, 4, 8, 9]
+pMatrix: pMatrixEnum.first_col
+kMatrix: kMatrixEnum.zero
+minTau: 1.02
+maxTau: 50
+y_vector: yVectorEnum.none
+z_vector: zVectorEnum.default
+operator: operatorEnum.mode_3
+train_z_vector: False
+mode: modeEnum.all
+v_vector: vVectorEnum.random_beta
+eta: 1
+beta: 0.01
+kMasking: False
+individual_different_v_vector: False
+scheduler_t0: None
