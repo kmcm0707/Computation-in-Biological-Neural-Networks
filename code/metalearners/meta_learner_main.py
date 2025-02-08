@@ -601,7 +601,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- options
-    model = modelEnum.individual
+    model = modelEnum.complex
     modelOptions = None
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
     # beta = [1, 0.1, 0.01, 0.001, 0.0001]
