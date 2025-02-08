@@ -613,18 +613,18 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=2,
+            minTau=1 + 1 / 50,
             maxTau=50,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_4,
-            train_z_vector=False,
+            z_vector=zVectorEnum.default,
+            operator=operatorEnum.mode_3,
+            train_z_vector=True,
             mode=modeEnum.all,
-            v_vector=vVectorEnum.default,
+            v_vector=vVectorEnum.random_beta,
             eta=1,
-            beta=0,  ## Only for v_vector=random_beta
+            beta=0.1,  ## Only for v_vector=random_beta
             kMasking=False,
-            individual_different_v_vector=True,
+            individual_different_v_vector=False,  # Individual Model Only
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -660,11 +660,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             bias=False,
             pMatrix=pMatrixEnum.zero,
             kMatrix=kMatrixEnum.zero,
-            minTau=5,  # + 1 / 50,
+            minTau=1 + 1 / 50,  # + 1 / 50,
             maxTau=50,
             y_vector=yVectorEnum.first_one,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_1,
+            operator=operatorEnum.mode_3,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -709,11 +709,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=[0.001, 0.0009, 0.0008, 0.0006, 0.0004][index],
+        lr=0.0001,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
-        trainFeedback=False,
+        trainFeedback=True,
         feedbackModel=feedbackModel,
     )
 
@@ -731,6 +731,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     metalearning_model.train()
+    exit()
 
 
 def main():
@@ -750,7 +751,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(5):
-        run(seed=0, display=True, result_subdirectory="radam_800_v_diff", index=i)
+        run(seed=0, display=True, result_subdirectory="feedback_mode_3", index=i)
 
 
 def pass_through(input):
