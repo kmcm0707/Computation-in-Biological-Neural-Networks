@@ -71,6 +71,7 @@ class IndividualSynapse(nn.Module):
             for i in self.options.update_rules:
                 self.update_rules[i] = True
 
+        self.time_index = 0
         self.init_parameters(params=params)
 
     @torch.no_grad()
@@ -271,6 +272,20 @@ class IndividualSynapse(nn.Module):
 
         ## Initialize the mode
         self.operator = self.options.operator
+
+    @torch.no_grad()
+    def reset_time_index(self):
+        """
+        Reset the time index.
+        """
+        self.time_index = 0
+
+    @torch.no_grad()
+    def update_time_index(self):
+        """
+        Update the time index.
+        """
+        self.time_index += 1
 
     def __call__(
         self,

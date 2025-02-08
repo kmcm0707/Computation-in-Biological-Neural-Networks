@@ -394,6 +394,10 @@ class MetaLearner:
                 if self.options.trainFeedback and self.feedbackModelOptions.operator != operatorEnum.mode_3:
                     self.UpdateFeedbackWeights.initial_update(parameters, feedback_params)
 
+            self.UpdateWeights.reset_time_index()
+            if self.options.trainFeedback:
+                self.UpdateFeedbackWeights.reset_time_index()
+
             # -- training data
             x_trn, y_trn, x_qry, y_qry = self.data_process(data, self.options.numberOfClasses)
 
@@ -428,6 +432,7 @@ class MetaLearner:
                     error=error,
                     activations_and_output=activations_and_output,
                 )
+                self.UpdateWeights.update_time_index()
 
                 # -- update feedback params
                 if self.options.trainFeedback:
@@ -437,6 +442,7 @@ class MetaLearner:
                         error=error,
                         activations_and_output=activations_and_output,
                     )
+                    self.UpdateFeedbackWeights.update_time_index()
 
             """ meta update """
             # -- predict
