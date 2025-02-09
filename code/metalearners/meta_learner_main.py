@@ -393,6 +393,7 @@ class MetaLearner:
                 if self.options.trainFeedback and self.feedbackModelOptions.operator != operatorEnum.mode_3:
                     self.UpdateFeedbackWeights.initial_update(parameters, feedback_params)
 
+            # -- reset time index
             self.UpdateWeights.reset_time_index()
             if self.options.trainFeedback:
                 self.UpdateFeedbackWeights.reset_time_index()
@@ -413,6 +414,7 @@ class MetaLearner:
                     y, logits = torch.func.functional_call(
                         self.model, (parameters, h_parameters), x.unsqueeze(0).unsqueeze(0)
                     )
+
                 # -- compute error
                 activations = y
                 output = logits
@@ -431,6 +433,8 @@ class MetaLearner:
                     error=error,
                     activations_and_output=activations_and_output,
                 )
+
+                # -- update time index
                 self.UpdateWeights.update_time_index()
 
                 # -- update feedback params
@@ -441,6 +445,8 @@ class MetaLearner:
                         error=error,
                         activations_and_output=activations_and_output,
                     )
+
+                    # -- update feedback time index
                     self.UpdateFeedbackWeights.update_time_index()
 
             """ meta update """
@@ -591,7 +597,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 6
-    epochs = 800
+    epochs = 500
 
     dataset_name = "EMNIST"
     numberOfClasses = None
@@ -611,7 +617,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     modelOptions = None
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
     # beta = [1, 0.1, 0.01, 0.001, 0.0001]
-    maxTau = [5, 10, 15, 20, 25][index]
+    schedulerT0 = [1, 5, 10, 20, 30, 40][index]
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
@@ -620,16 +626,16 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=2,
-            maxTau=maxTau,
+            minTau=1 + 1 / 50,  # + 1 / 50,
+            maxTau=50,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_4,
-            train_z_vector=False,
+            z_vector=zVectorEnum.default,
+            operator=operatorEnum.mode_3,
+            train_z_vector=True,
             mode=modeEnum.all,
-            v_vector=vVectorEnum.default,
+            v_vector=vVectorEnum.random_beta,
             eta=1,
-            beta=0,  ## Only for v_vector=random_beta
+            beta=0.01,  ## Only for v_vector=random_beta
             kMasking=False,
             individual_different_v_vector=False,  # Individual Model Only
             scheduler_t0=None,  # Only mode_3
@@ -721,11 +727,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0001,
+        lr=0.0004,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
-        trainFeedback=True,
+        trainFeedback=False,
         feedbackModel=feedbackModel,
     )
 
@@ -761,8 +767,8 @@ def main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    for i in range(5):
-        run(seed=0, display=True, result_subdirectory="different_Y_feedback_2", index=i)
+    for i in range(6):
+        run(seed=0, display=True, result_subdirectory="schedualrT0", index=i)
 
 
 def pass_through(input):
