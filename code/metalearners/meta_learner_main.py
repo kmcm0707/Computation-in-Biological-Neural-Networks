@@ -612,7 +612,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     modelOptions = None
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
     # beta = [1, 0.1, 0.01, 0.001, 0.0001]
-    minTau = [1 + 1 / 50, 2][index]
+    maxTau = [5, 10, 15, 20, 25]
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
@@ -621,16 +621,16 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=minTau,
-            maxTau=50,
+            minTau=2,
+            maxTau=maxTau,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
             operator=operatorEnum.mode_3,
             train_z_vector=True,
             mode=modeEnum.all,
-            v_vector=vVectorEnum.random_beta,
+            v_vector=vVectorEnum.all_ones,
             eta=1,
-            beta=0.01,  ## Only for v_vector=random_beta
+            beta=0,  ## Only for v_vector=random_beta
             kMasking=False,
             individual_different_v_vector=False,  # Individual Model Only
             scheduler_t0=None,  # Only mode_3
@@ -713,7 +713,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P matrix (check 1.5)
         biasLossRegularization=0,
-        optimizer=optimizerEnum.radam,
+        optimizer=optimizerEnum.adam,
         model=model,
         results_subdir=result_subdirectory,
         seed=seed,
@@ -722,7 +722,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0005,
+        lr=0.0001,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -763,7 +763,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(5):
-        run(seed=0, display=True, result_subdirectory="feedback_mode_3", index=i)
+        run(seed=0, display=True, result_subdirectory="different_Y_feedback_2", index=i)
 
 
 def pass_through(input):
