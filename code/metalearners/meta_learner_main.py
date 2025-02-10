@@ -638,7 +638,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             beta=0.01,  ## Only for v_vector=random_beta
             kMasking=False,
             individual_different_v_vector=False,  # Individual Model Only
-            scheduler_t0=None,  # Only mode_3
+            scheduler_t0=schedulerT0,  # Only mode_3
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
