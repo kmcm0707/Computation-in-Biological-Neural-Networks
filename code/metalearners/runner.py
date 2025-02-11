@@ -103,7 +103,7 @@ class Runner:
         # -- load chemical model
         state_dict = torch.load(self.options.modelPath + "/UpdateWeights.pth", weights_only=True)
         if self.options.model == modelEnum.individual:
-            if "v_vector" in feedback_state_dict:
+            if "v_vector" in state_dict:
                 state_dict["v_dictionary.all"] = state_dict["v_vector"].clone()
                 state_dict.pop("v_vector")
         self.UpdateWeights.load_state_dict(state_dict)
@@ -115,7 +115,6 @@ class Runner:
                     feedback_state_dict.pop("v_vector")
             self.UpdateFeedbackWeights.load_state_dict(feedback_state_dict)
 
-        print(self.UpdateWeights.state_dict())
         # -- log params
         self.save_results = self.options.save_results
         self.display = self.options.display
@@ -425,11 +424,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 200
+    epochs = 100
 
     dataset_name = "EMNIST"
     numberOfClasses = None
-    trainingDataPerClass = 50
+    trainingDataPerClass = 120
     queryDataPerClass = 10
 
     if dataset_name == "EMNIST":
@@ -455,9 +454,6 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     # -- options
     model = modelEnum.individual
     modelOptions = None
-    spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
-    # beta = [1, 0.1, 0.01, 0.001, 0.0001]
-    schedulerT0 = [1, 5, 10, 20, 30, 40][index]
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
@@ -466,18 +462,18 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=1,
+            minTau=2,
             maxTau=50,
-            y_vector=yVectorEnum.first_one,
-            z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_1,
+            y_vector=yVectorEnum.none,
+            z_vector=zVectorEnum.all_ones,
+            operator=operatorEnum.mode_4,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
             eta=1,
             beta=0,  ## Only for v_vector=random_beta
             kMasking=False,
-            individual_different_v_vector=False,  # Individual Model Only
+            individual_different_v_vector=True,  # Individual Model Only
             scheduler_t0=None,  # Only mode_3
         )
     elif model == modelEnum.reservoir:
@@ -485,7 +481,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             non_linearity=nonLinearEnum.tanh,
             unit_connections=5,
             bias=True,
-            spectral_radius=spectral_radius[index],
+            spectral_radius=0.9,
             update_rules=[0, 1, 2, 3, 4, 8, 9],
             reservoir_seed=0,
             train_K_matrix=False,
@@ -555,10 +551,13 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModelOptions = modelOptions
 
     # -- path to load model
-    results = os.getcwd() + "/results"
-    modelPath = results + "/individual_no_bias/1"
-    list_of_files = os.listdir(modelPath)
-    modelPath = modelPath + "/" + list_of_files[1]
+    # results = os.getcwd() + "/results"
+    modelPath = (
+        r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_ind_v_diff_lr\0\0.0009"
+    )
+    # list_of_files = os.listdir(modelPath)
+    # modelPath = modelPath + "/" + list_of_files[1]
+
     # -- runner options
     runnerOptions = RunnerOptions(
         model=model,
@@ -610,7 +609,7 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    run(seed=0, display=True, result_subdirectory="runner", index=0)
+    run(seed=0, display=True, result_subdirectory="runner_radam_800_v_diff", index=0)
 
 
 def pass_through(input):

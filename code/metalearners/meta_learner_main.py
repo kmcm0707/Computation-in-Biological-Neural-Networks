@@ -597,7 +597,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 6
-    epochs = 500
+    epochs = 200
 
     dataset_name = "EMNIST"
     numberOfClasses = None
@@ -613,7 +613,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
 
     # -- options
-    model = modelEnum.complex
+    model = modelEnum.individual
     modelOptions = None
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
     # beta = [1, 0.1, 0.01, 0.001, 0.0001]
@@ -626,16 +626,16 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=1 + 1 / 50,  # + 1 / 50,
+            minTau=1,  # + 1 / 50,
             maxTau=50,
-            y_vector=yVectorEnum.none,
+            y_vector=yVectorEnum.first_one,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_3,
-            train_z_vector=True,
+            operator=operatorEnum.mode_1,
+            train_z_vector=False,
             mode=modeEnum.all,
-            v_vector=vVectorEnum.random_beta,
+            v_vector=vVectorEnum.default,
             eta=1,
-            beta=0.01,  ## Only for v_vector=random_beta
+            beta=0,  ## Only for v_vector=random_beta
             kMasking=False,
             individual_different_v_vector=False,  # Individual Model Only
             scheduler_t0=schedulerT0,  # Only mode_3
@@ -727,7 +727,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0004,
+        lr=0.001,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -749,6 +749,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     metalearning_model.train()
+    exit()
 
 
 def main():
@@ -768,7 +769,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="schedualrT0", index=i)
+        run(seed=1, display=True, result_subdirectory="individual_no_bias_recreate", index=i)
 
 
 def pass_through(input):
