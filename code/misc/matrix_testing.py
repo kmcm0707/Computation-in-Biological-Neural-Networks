@@ -74,3 +74,6 @@ if __name__ == "__main__":
     print(tau_vector)
     print(z_vector)
     print(y_vector)
+
+    if "forward":
+        print("yes")
