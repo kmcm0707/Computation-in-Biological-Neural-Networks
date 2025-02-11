@@ -566,7 +566,7 @@ class ComplexSynapse(nn.Module):
                         z_schedular = 1
                         if self.options.scheduler_t0 != None:
                             z_schedular = self.options.scheduler_t0 / (self.options.scheduler_t0 + self.time_index)
-                            y_schedular = self.time_index / (self.options.scheduler_t0 + self.time_index)
+                            y_schedular = 1 - z_schedular
 
                         new_value = y_schedular * parameter + z_schedular * torch.nn.functional.tanh(
                             torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
