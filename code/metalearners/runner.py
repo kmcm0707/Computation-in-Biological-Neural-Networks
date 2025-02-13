@@ -435,8 +435,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     dataset_name = "EMNIST"
     numberOfClasses = None
-    minTrainingDataPerClass = 60
-    maxTrainingDataPerClass = 60
+    minTrainingDataPerClass = 40
+    maxTrainingDataPerClass = 40
     queryDataPerClass = 10
 
     if dataset_name == "EMNIST":
@@ -563,7 +563,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     modelPath = (
         # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_ind_v_diff_lr\0\0.0009"
         # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\Mode_1\baselines\0\3"
-        r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\varied_training\1\20250213-134357"
+        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\varied_training\1\20250213-134357"
+        r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\longer_train_test\1\20250213-154422"
     )
     # list_of_files = os.listdir(modelPath)
     # modelPath = modelPath + "/" + list_of_files[1]
