@@ -25,7 +25,8 @@ class RunnerOptions:
         chemicalInitialization: chemicalEnum = chemicalEnum.same,
         trainFeedback: bool = False,
         feedbackModel: modelEnum = modelEnum.complex,
-        trainingDataPerClass: int = 50,
+        minTrainingDataPerClass: int = 40,
+        maxTrainingDataPerClass: int = 60,
         queryDataPerClass: int = 10,
     ):
 
@@ -42,7 +43,8 @@ class RunnerOptions:
         self.chemicalInitialization = chemicalInitialization
         self.trainFeedback = trainFeedback
         self.feedbackModel = feedbackModel
-        self.trainingDataPerClass = trainingDataPerClass
+        self.minTrainingDataPerClass = minTrainingDataPerClass
+        self.maxTrainingDataPerClass = maxTrainingDataPerClass
         self.queryDataPerClass = queryDataPerClass
 
     def __str__(self):

@@ -71,11 +71,11 @@ class MetaLearner:
         self.feedbackModelOptions = feedbackModelOptions
 
         # -- data params
-        self.trainingDataPerClass = 50
-        self.queryDataPerClass = 10
+        self.queryDataPerClass = metaLearnerOptions.queryDataPerClass
         self.metatrain_dataset = metaLearnerOptions.metatrain_dataset
         self.data_process = DataProcess(
-            trainingDataPerClass=self.trainingDataPerClass,
+            minTrainingDataPerClass=metaLearnerOptions.minTrainingDataPerClass,
+            maxTrainingDataPerClass=metaLearnerOptions.maxTrainingDataPerClass,
             queryDataPerClass=self.queryDataPerClass,
             dimensionOfImage=28,
             device=self.device,
@@ -214,7 +214,6 @@ class MetaLearner:
             os.makedirs(self.result_directory, exist_ok=False)
             with open(self.result_directory + "/arguments.txt", "w") as f:
                 f.writelines("Number of chemicals: {}\n".format(numberOfChemicals))
-                f.writelines("Number of training data per class: {}\n".format(self.trainingDataPerClass))
                 f.writelines("Number of query data per class: {}\n".format(self.queryDataPerClass))
                 f.writelines(str(metaLearnerOptions))
                 f.writelines(str(modelOptions))
@@ -378,6 +377,7 @@ class MetaLearner:
 
         x_qry = None
         y_qry = None
+        current_training_data_per_class = None
 
         for eps, data in enumerate(self.metatrain_dataset):
 
@@ -399,7 +399,9 @@ class MetaLearner:
                 self.UpdateFeedbackWeights.reset_time_index()
 
             # -- training data
-            x_trn, y_trn, x_qry, y_qry = self.data_process(data, self.options.numberOfClasses)
+            x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(
+                data, self.options.numberOfClasses
+            )
 
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
@@ -504,15 +506,15 @@ class MetaLearner:
             if self.save_results:
                 log([loss_meta.item()], self.result_directory + "/loss_meta.txt")
 
-            line = "Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}".format(eps + 1, loss_meta.item(), acc)
+            line = "Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}\tCurrent Training Data Per Class: {}".format(
+                eps + 1, loss_meta.item(), acc, current_training_data_per_class
+            )
             if self.display:
                 print(line)
 
             if self.save_results:
                 self.summary_writer.add_scalar("Loss/meta", loss_meta.item(), eps)
                 self.summary_writer.add_scalar("Accuracy/meta", acc, eps)
-                """for key, val in UpdateWeights_state_dict.items():
-                    self.summary_writer.add_tensor(key, val.clone().detach(), eps)"""
 
                 with open(self.result_directory + "/params.txt", "a") as f:
                     f.writelines(line + "\n")
@@ -597,20 +599,33 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 6
-    epochs = 500
+    epochs = 800
 
     dataset_name = "EMNIST"
     numberOfClasses = None
+    minTrainingDataPerClass = 110
+    maxTrainingDataPerClass = 130
+    queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
-        dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
+        dataset = EmnistDataset(
+            minTrainingDataPerClass=minTrainingDataPerClass,
+            maxTrainingDataPerClass=maxTrainingDataPerClass,
+            queryDataPerClass=queryDataPerClass,
+            dimensionOfImage=28,
+        )
     elif dataset_name == "FASHION-MNIST":
         numberOfClasses = 10
-        dataset = FashionMnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
+        dataset = FashionMnistDataset(
+            minTrainingDataPerClass=minTrainingDataPerClass,
+            maxTrainingDataPerClass=maxTrainingDataPerClass,
+            queryDataPerClass=queryDataPerClass,
+            dimensionOfImage=28,
+        )
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
-    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
+    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True)
 
     # -- options
     model = modelEnum.complex
@@ -626,14 +641,14 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=1 + 1 / 50,  # + 1 / 50,
+            minTau=2,  # + 1 / 50,
             maxTau=50,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_3,
-            train_z_vector=True,
+            z_vector=zVectorEnum.all_ones,
+            operator=operatorEnum.mode_4,
+            train_z_vector=False,
             mode=modeEnum.all,
-            v_vector=vVectorEnum.random_beta,
+            v_vector=vVectorEnum.default,
             eta=1,
             beta=0.01,  ## Only for v_vector=random_beta
             kMasking=False,
@@ -733,6 +748,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         chemicalInitialization=chemicalEnum.same,
         trainFeedback=False,
         feedbackModel=feedbackModel,
+        minTrainingDataPerClass=minTrainingDataPerClass,
+        maxTrainingDataPerClass=maxTrainingDataPerClass,
+        queryDataPerClass=queryDataPerClass,
     )
 
     #   -- number of chemicals
@@ -768,7 +786,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="schedularT0_non_broken", index=i)
+        run(seed=1, display=True, result_subdirectory="longer_train_test", index=i)
 
 
 def pass_through(input):

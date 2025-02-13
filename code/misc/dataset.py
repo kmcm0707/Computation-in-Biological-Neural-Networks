@@ -25,7 +25,9 @@ class EmnistDataset(Dataset):
     data from that category.
     """
 
-    def __init__(self, trainingDataPerClass: int, queryDataPerClass: int, dimensionOfImage: int):
+    def __init__(
+        self, minTrainingDataPerClass: int, maxTrainingDataPerClass: int, queryDataPerClass: int, dimensionOfImage: int
+    ):
         """
             Initialize the EmnistDataset class.
 
@@ -73,7 +75,8 @@ class EmnistDataset(Dataset):
         except FileExistsError:
             pass
 
-        self.trainingDataPerClass = trainingDataPerClass
+        self.minTrainingDataPerClass = minTrainingDataPerClass
+        self.maxTrainingDataPerClass = maxTrainingDataPerClass
         self.queryDataPerClass = queryDataPerClass
 
         self.char_path = [folder for folder, folders, _ in os.walk(self.emnist_dir) if not folders]
@@ -165,26 +168,21 @@ class EmnistDataset(Dataset):
 
         :param index: (int) Index of the character folder from which images are to be retrieved.
         :return: tuple: A tuple of tensors containing training and query images and
-            corresponding labels for a given index.
+            corresponding labels for a given index and current training data per class.
         """
-
         img = []
         for img_ in os.listdir(self.char_path[index]):
             ims = self.transform(Image.open(self.char_path[index] + "/" + img_, mode="r").convert("L"))
-            """mean = torch.mean(ims)
-            std = torch.std(ims)
-            normalise = transforms.Normalize(mean, std)"""
-            # img.append(normalise(ims))
             img.append(ims)
 
         img = torch.cat(img)
-        idx_vec = index * torch.ones(400, dtype=int)
+        idx_vec = index * torch.ones(self.maxTrainingDataPerClass + self.queryDataPerClass, dtype=int)
 
         return (
-            img[: self.trainingDataPerClass],
-            idx_vec[: self.trainingDataPerClass],
-            img[self.trainingDataPerClass : self.trainingDataPerClass + self.queryDataPerClass],
-            idx_vec[self.trainingDataPerClass : self.trainingDataPerClass + self.queryDataPerClass],
+            img[: self.maxTrainingDataPerClass],
+            idx_vec[: self.maxTrainingDataPerClass],
+            img[self.maxTrainingDataPerClass : self.maxTrainingDataPerClass + self.queryDataPerClass],
+            idx_vec[self.maxTrainingDataPerClass : self.maxTrainingDataPerClass + self.queryDataPerClass],
         )
 
 
@@ -198,7 +196,9 @@ class FashionMnistDataset(Dataset):
     data from that category.
     """
 
-    def __init__(self, trainingDataPerClass: int, queryDataPerClass: int, dimensionOfImage: int):
+    def __init__(
+        self, minTrainingDataPerClass: int, maxTrainingDataPerClass: int, queryDataPerClass: int, dimensionOfImage: int
+    ):
         """
             Initialize the FashionMnistDataset class.
 
@@ -215,7 +215,8 @@ class FashionMnistDataset(Dataset):
         self.fashion_mnist_dir = s_dir + "/data/fashion_mnist/"
         os.makedirs(self.fashion_mnist_dir, exist_ok=True)
 
-        self.trainingDataPerClass = trainingDataPerClass
+        self.minTrainingDataPerClass = minTrainingDataPerClass
+        self.maxTrainingDataPerClass = maxTrainingDataPerClass
         self.queryDataPerClass = queryDataPerClass
 
         # -- process data
@@ -261,8 +262,10 @@ class FashionMnistDataset(Dataset):
 
         :param index: (int) Index of the character folder from which images are to be retrieved.
         :return: tuple: A tuple of tensors containing training and query images and
-            corresponding labels for a given index.
+            corresponding labels for a given index and current training data per class.
         """
+
+        current_training_data_per_class = np.random.randint(self.minTrainingDataPerClass, self.maxTrainingDataPerClass)
 
         img = []
         for img_, label in self.combined_set:
@@ -270,13 +273,14 @@ class FashionMnistDataset(Dataset):
                 img.append(img_)
 
         img = torch.cat(img)
-        idx_vec = index * torch.ones(7000, dtype=int)
+        idx_vec = index * torch.ones(self.maxTrainingDataPerClass + self.queryDataPerClass, dtype=int)
 
         return (
-            img[: self.trainingDataPerClass],
-            idx_vec[: self.trainingDataPerClass],
-            img[self.trainingDataPerClass : self.trainingDataPerClass + self.queryDataPerClass],
-            idx_vec[self.trainingDataPerClass : self.trainingDataPerClass + self.queryDataPerClass],
+            img[: self.maxTrainingDataPerClass],
+            idx_vec[: self.maxTrainingDataPerClass],
+            img[self.maxTrainingDataPerClass : self.maxTrainingDataPerClass + self.queryDataPerClass],
+            idx_vec[self.maxTrainingDataPerClass : self.maxTrainingDataPerClass + self.queryDataPerClass],
+            current_training_data_per_class,
         )
 
 
@@ -296,7 +300,8 @@ class DataProcess:
 
     def __init__(
         self,
-        trainingDataPerClass: int,
+        minTrainingDataPerClass: int,
+        maxTrainingDataPerClass: int,
         queryDataPerClass: int,
         dimensionOfImage: int,
         device: Literal["cpu", "cuda"] = "cpu",
@@ -305,13 +310,13 @@ class DataProcess:
         """
             Initialize the DataProcess object.
 
-        :param trainingDataPerClass: (int) training data set size per class,
         :param queryDataPerClass: (int) query data set size per class,
         :param dimensionOfImage: (int) image dimension,
         :param device: (str) The processing device to use. Default is 'cpu',
         :param iid: (bool) shuffling flag. Default is True.
         """
-        self.trainingDataPerClass = trainingDataPerClass
+        self.minTrainingDataPerClass = minTrainingDataPerClass
+        self.maxTrainingDataPerClass = maxTrainingDataPerClass
         self.queryDataPerClass = queryDataPerClass
         self.device = device
         self.iid = iid
@@ -329,23 +334,35 @@ class DataProcess:
         """
 
         # -- load data
+        current_training_data_per_class = 0
+        if self.maxTrainingDataPerClass == self.minTrainingDataPerClass:
+            current_training_data_per_class = self.minTrainingDataPerClass
+        else:
+            current_training_data_per_class = np.random.randint(
+                self.minTrainingDataPerClass, self.maxTrainingDataPerClass
+            )
+
         x_trn, y_trn, x_qry, y_qry = data
+        x_trn = x_trn[:, :current_training_data_per_class, :, :]
+        y_trn = y_trn[:, :current_training_data_per_class]
 
         # -- reshape
-        x_trn = torch.reshape(x_trn, (classes * self.trainingDataPerClass, self.dimensionOfImage**2)).to(self.device)
-        y_trn = torch.reshape(y_trn, (classes * self.trainingDataPerClass, 1)).to(self.device)
+        x_trn = torch.reshape(x_trn, (classes * current_training_data_per_class, self.dimensionOfImage**2)).to(
+            self.device
+        )
+        y_trn = torch.reshape(y_trn, (classes * current_training_data_per_class, 1)).to(self.device)
         x_qry = torch.reshape(x_qry, (classes * self.queryDataPerClass, self.dimensionOfImage**2)).to(self.device)
         y_qry = torch.reshape(y_qry, (classes * self.queryDataPerClass, 1)).to(self.device)
 
         # -- shuffle
         if self.iid:
             perm = np.random.choice(
-                range(classes * self.trainingDataPerClass),
-                classes * self.trainingDataPerClass,
+                range(classes * current_training_data_per_class),
+                classes * current_training_data_per_class,
                 False,
             )
 
             x_trn = x_trn[perm]
             y_trn = y_trn[perm]
 
-        return x_trn, y_trn, x_qry, y_qry
+        return x_trn, y_trn, x_qry, y_qry, current_training_data_per_class

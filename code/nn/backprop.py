@@ -84,13 +84,15 @@ class MetaLearner:
         save_results: bool = True,
         metatrain_dataset=None,
         seed: int = 0,
+        number_of_classes: int = 5,
+        trainingDataPerClass: int = 50,
     ):
 
         # -- processor params
         self.device = torch.device(device)
 
         # -- data params
-        self.trainingDataPerClass = 50
+        self.trainingDataPerClass = trainingDataPerClass
         self.queryDataPerClass = 10
         self.metatrain_dataset = metatrain_dataset
         self.data_process = DataProcess(
@@ -99,6 +101,7 @@ class MetaLearner:
             dimensionOfImage=28,
             device=self.device,
         )
+        self.number_of_classes = number_of_classes
 
         # -- model params
         if self.device == "cpu":  # Remove if using a newer GPU
@@ -204,7 +207,7 @@ class MetaLearner:
             self.UpdateParameters = optim.Adam(self.model.parameters(), lr=1e-3)
 
             # -- training data
-            x_trn, y_trn, x_qry, y_qry = self.data_process(data, 5)
+            x_trn, y_trn, x_qry, y_qry = self.data_process(data, self.number_of_classes)
 
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
@@ -224,14 +227,12 @@ class MetaLearner:
             """ meta update """
             # -- predict
             self.model.eval()
-            print(x_qry.shape)
             y, logits = self.model(x_qry)
 
             # -- compute and store meta stats
             pred = torch.argmax(logits, dim=1)
             acc = torch.eq(pred, y_qry.ravel()).sum().item() / len(y_qry.ravel())
-            print(torch.eq(pred, y_qry).sum().item())
-            print(acc)
+            loss_meta = self.loss_func(logits, y_qry.ravel())
 
             # -- gradient clipping
             # torch.nn.utils.clip_grad_norm_(self.UpdateWeights.parameters(), 0.5)
@@ -291,20 +292,25 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -
     # -- load data
     numWorkers = 6
     epochs = 200
-    dataset = EmnistDataset(trainingDataPerClass=50, queryDataPerClass=10, dimensionOfImage=28)
+    number_of_classes = 47
+    trainingDataPerClass = 90
+    dataset = EmnistDataset(trainingDataPerClass=trainingDataPerClass, queryDataPerClass=10, dimensionOfImage=28)
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * 5)
-    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=5, drop_last=True)
+    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=number_of_classes, drop_last=True)
 
     metalearning_model = MetaLearner(
         device="cpu",
         result_subdirectory=result_subdirectory,
         save_results=True,
         metatrain_dataset=metatrain_dataset,
+        seed=seed,
+        number_of_classes=number_of_classes,
+        trainingDataPerClass=trainingDataPerClass,
     )
     metalearning_model.train()
 
 
-def main():
+def backprop_main():
     """
         Main function for Meta-learning the plasticity rule.
 
@@ -331,15 +337,3 @@ def main():
 
 def pass_through(input):
     return input
-
-
-if __name__ == "__main__":
-    # torch.autograd.set_detect_anomaly(True)
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("Interrupted")
-        try:
-            sys.exit(0)
-        except SystemExit:
-            os._exit(0)

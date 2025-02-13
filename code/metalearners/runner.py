@@ -74,11 +74,11 @@ class Runner:
         self.feedbackModelOptions = feedbackModelOptions
 
         # -- data params
-        self.trainingDataPerClass = self.options.trainingDataPerClass
         self.queryDataPerClass = self.options.queryDataPerClass
         self.metatrain_dataset = self.options.metatrain_dataset
         self.data_process = DataProcess(
-            trainingDataPerClass=self.trainingDataPerClass,
+            minTrainingDataPerClass=self.options.minTrainingDataPerClass,
+            maxTrainingDataPerClass=self.options.maxTrainingDataPerClass,
             queryDataPerClass=self.queryDataPerClass,
             dimensionOfImage=28,
             device=self.device,
@@ -133,7 +133,6 @@ class Runner:
             os.makedirs(self.result_directory, exist_ok=False)
             with open(self.result_directory + "/arguments.txt", "w") as f:
                 f.writelines("Number of chemicals: {}\n".format(numberOfChemicals))
-                f.writelines("Number of training data per class: {}\n".format(self.trainingDataPerClass))
                 f.writelines("Number of query data per class: {}\n".format(self.queryDataPerClass))
                 f.writelines(str(self.options))
                 f.writelines(str(modelOptions))
@@ -288,6 +287,7 @@ class Runner:
 
         x_qry = None
         y_qry = None
+        current_training_data_per_class = None
 
         for eps, data in enumerate(self.metatrain_dataset):
 
@@ -309,7 +309,9 @@ class Runner:
                 self.UpdateFeedbackWeights.reset_time_index()
 
             # -- training data
-            x_trn, y_trn, x_qry, y_qry = self.data_process(data, self.options.numberOfClasses)
+            x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(
+                data, self.options.numberOfClasses
+            )
 
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
@@ -384,13 +386,18 @@ class Runner:
             if self.save_results:
                 log([loss_meta.item()], self.result_directory + "/loss_meta.txt")
 
-            line = "Runner Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}".format(eps + 1, loss_meta.item(), acc)
+            line = "Runner Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f} \t Current Training Data Per Class: {}".format(
+                eps + 1, loss_meta.item(), acc, current_training_data_per_class
+            )
             if self.display:
                 print(line)
 
             if self.save_results:
                 self.summary_writer.add_scalar("Loss/meta", loss_meta.item(), eps)
                 self.summary_writer.add_scalar("Accuracy/meta", acc, eps)
+
+                with open(self.result_directory + "/params.txt", "a") as f:
+                    f.writelines(line + "\n")
 
         # -- plot
         if self.save_results:
@@ -428,31 +435,32 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     dataset_name = "EMNIST"
     numberOfClasses = None
-    trainingDataPerClass = 120
+    minTrainingDataPerClass = 60
+    maxTrainingDataPerClass = 60
     queryDataPerClass = 10
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
         dataset = EmnistDataset(
-            trainingDataPerClass=trainingDataPerClass,
+            minTrainingDataPerClass=minTrainingDataPerClass,
+            maxTrainingDataPerClass=maxTrainingDataPerClass,
             queryDataPerClass=queryDataPerClass,
             dimensionOfImage=28,
         )
     elif dataset_name == "FASHION-MNIST":
         numberOfClasses = 10
         dataset = FashionMnistDataset(
-            trainingDataPerClass=trainingDataPerClass,
+            minTrainingDataPerClass=minTrainingDataPerClass,
+            maxTrainingDataPerClass=maxTrainingDataPerClass,
             queryDataPerClass=queryDataPerClass,
             dimensionOfImage=28,
         )
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
-    metatrain_dataset = DataLoader(
-        dataset=dataset, sampler=sampler, batch_size=5, drop_last=True, num_workers=numWorkers
-    )
+    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True)
 
     # -- options
-    model = modelEnum.individual
+    model = modelEnum.complex
     modelOptions = None
 
     if model == modelEnum.complex or model == modelEnum.individual:
@@ -464,7 +472,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             kMatrix=kMatrixEnum.zero,
             minTau=2,
             maxTau=50,
-            y_vector=yVectorEnum.none,
+            y_vector=yVectorEnum.first_one,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_4,
             train_z_vector=False,
@@ -553,7 +561,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     # -- path to load model
     # results = os.getcwd() + "/results"
     modelPath = (
-        r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_ind_v_diff_lr\0\0.0009"
+        # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_ind_v_diff_lr\0\0.0009"
+        # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\Mode_1\baselines\0\3"
+        r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\varied_training\1\20250213-134357"
     )
     # list_of_files = os.listdir(modelPath)
     # modelPath = modelPath + "/" + list_of_files[1]
@@ -573,7 +583,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         chemicalInitialization=chemicalEnum.same,
         trainFeedback=False,
         feedbackModel=feedbackModel,
-        trainingDataPerClass=trainingDataPerClass,
+        minTrainingDataPerClass=minTrainingDataPerClass,
+        maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
     )
 
@@ -609,7 +620,7 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    run(seed=0, display=True, result_subdirectory="runner_radam_800_v_diff", index=0)
+    run(seed=0, display=True, result_subdirectory="testing", index=0)
 
 
 def pass_through(input):

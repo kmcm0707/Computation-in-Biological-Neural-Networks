@@ -60,6 +60,9 @@ class MetaLearnerOptions:
         chemicalInitialization: chemicalEnum = chemicalEnum.same,
         trainFeedback: bool = False,
         feedbackModel: modelEnum = modelEnum.complex,
+        minTrainingDataPerClass: int = 50,
+        maxTrainingDataPerClass: int = 50,
+        queryDataPerClass: int = 10,
     ):
 
         self.model = model
@@ -80,6 +83,9 @@ class MetaLearnerOptions:
         self.chemicalInitialization = chemicalInitialization
         self.trainFeedback = trainFeedback
         self.feedbackModel = feedbackModel
+        self.minTrainingDataPerClass = minTrainingDataPerClass
+        self.maxTrainingDataPerClass = maxTrainingDataPerClass
+        self.queryDataPerClass = queryDataPerClass
 
     def __str__(self):
         string = ""
