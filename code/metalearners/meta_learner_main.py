@@ -603,8 +603,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     dataset_name = "EMNIST"
     numberOfClasses = None
-    minTrainingDataPerClass = 110
-    maxTrainingDataPerClass = 130
+    minTrainingDataPerClass = 30
+    maxTrainingDataPerClass = 150
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
@@ -786,7 +786,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="longer_train_test", index=i)
+        run(seed=1, display=True, result_subdirectory="super_varied_longer_train_test", index=i)
 
 
 def pass_through(input):
