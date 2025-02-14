@@ -5,6 +5,10 @@ import torch
 from torch.nn import functional
 
 
+def pass_through(input):
+    return input
+
+
 class nonLinearEnum(Enum):
     tanh = functional.tanh
     gelu = (
@@ -14,6 +18,7 @@ class nonLinearEnum(Enum):
     sigmoid = functional.sigmoid
     elu = functional.elu
     leaky_relu = functional.leaky_relu
+    pass_through = pass_through
 
 
 class pMatrixEnum(Enum):

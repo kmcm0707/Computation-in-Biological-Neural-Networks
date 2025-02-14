@@ -636,19 +636,19 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
-            nonLinear=nonLinearEnum.tanh,
+            nonLinear=nonLinearEnum.pass_through,
             update_rules=[0, 1, 2, 3, 4, 8, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=1,  # + 1 / 50,
             maxTau=50,
-            y_vector=yVectorEnum.last_one_and_small_first,
+            y_vector=yVectorEnum.first_one,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_3,
+            operator=operatorEnum.mode_1,
             train_z_vector=False,
-            mode=modeEnum.all,
-            v_vector=vVectorEnum.random_small,
+            mode=modeEnum.rosenbaum,
+            v_vector=vVectorEnum.default,
             eta=1,
             beta=0.01,  ## Only for v_vector=random_beta
             kMasking=False,
@@ -754,7 +754,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = [3, 4, 5, 6, 10][index]
+    numberOfChemicals = 1
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -787,7 +787,3 @@ def main():
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
         run(seed=1, display=True, result_subdirectory="mode_3", index=i)
-
-
-def pass_through(input):
-    return input
