@@ -435,9 +435,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     dataset_name = "EMNIST"
     numberOfClasses = None
-    minTrainingDataPerClass = 40
-    maxTrainingDataPerClass = 40
-    queryDataPerClass = 10
+    trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
+    # trainingDataPerClass = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
+    minTrainingDataPerClass = trainingDataPerClass[index]
+    maxTrainingDataPerClass = trainingDataPerClass[index]
+    queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -460,7 +462,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True)
 
     # -- options
-    model = modelEnum.complex
+    model = modelEnum.individual
     modelOptions = None
 
     if model == modelEnum.complex or model == modelEnum.individual:
@@ -470,18 +472,18 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=2,
+            minTau=1,
             maxTau=50,
             y_vector=yVectorEnum.first_one,
-            z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_4,
+            z_vector=zVectorEnum.default,
+            operator=operatorEnum.mode_1,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
             eta=1,
             beta=0,  ## Only for v_vector=random_beta
             kMasking=False,
-            individual_different_v_vector=True,  # Individual Model Only
+            individual_different_v_vector=False,  # Individual Model Only
             scheduler_t0=None,  # Only mode_3
         )
     elif model == modelEnum.reservoir:
@@ -564,7 +566,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_ind_v_diff_lr\0\0.0009"
         # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\Mode_1\baselines\0\3"
         # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\varied_training\1\20250213-134357"
-        r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\longer_train_test\1\20250213-154422"
+        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\longer_train_test\1\20250213-154422"
+        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\super_varied_longer_train_test\1\20250213-180025"
+        # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_0\0\20250203-234503"
+        r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\individual_no_bias\1\individual_no_bias_recreate\1\20250211-010125"
     )
     # list_of_files = os.listdir(modelPath)
     # modelPath = modelPath + "/" + list_of_files[1]
@@ -621,7 +626,8 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    run(seed=0, display=True, result_subdirectory="testing", index=0)
+    for index in range(0, 19):
+        run(seed=0, display=True, result_subdirectory="runner_indvidual_no_bias_2", index=index)
 
 
 def pass_through(input):

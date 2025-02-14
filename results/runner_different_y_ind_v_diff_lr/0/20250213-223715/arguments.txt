@@ -1,0 +1,36 @@
+Number of chemicals: 3
+Number of query data per class: 20
+model: modelEnum.individual
+modelPath: C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_ind_v_diff_lr\0\0.0009
+small: False
+seed: 0
+save_results: True
+results_subdir: runner_different_y_ind_v_diff_lr
+metatrain_dataset: <torch.utils.data.dataloader.DataLoader object at 0x000001F2A6E3A350>
+display: True
+numberOfClasses: 5
+dataset_name: EMNIST
+chemicalInitialization: chemicalEnum.same
+trainFeedback: False
+feedbackModel: modelEnum.individual
+minTrainingDataPerClass: 110
+maxTrainingDataPerClass: 110
+queryDataPerClass: 20
+nonLinear: <function tanh at 0x000001F28A6B6200>
+bias: False
+update_rules: [0, 1, 2, 3, 4, 8, 9]
+pMatrix: pMatrixEnum.first_col
+kMatrix: kMatrixEnum.zero
+minTau: 2
+maxTau: 50
+y_vector: yVectorEnum.none
+z_vector: zVectorEnum.all_ones
+operator: operatorEnum.mode_4
+train_z_vector: False
+mode: modeEnum.all
+v_vector: vVectorEnum.default
+eta: 1
+beta: 0
+kMasking: False
+individual_different_v_vector: True
+scheduler_t0: None

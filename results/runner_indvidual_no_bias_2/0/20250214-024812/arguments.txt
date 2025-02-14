@@ -1,0 +1,36 @@
+Number of chemicals: 3
+Number of query data per class: 20
+model: modelEnum.individual
+modelPath: C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\individual_no_bias\1\individual_no_bias_recreate\1\20250211-010125
+small: False
+seed: 0
+save_results: True
+results_subdir: runner_indvidual_no_bias_2
+metatrain_dataset: <torch.utils.data.dataloader.DataLoader object at 0x000002880D263390>
+display: True
+numberOfClasses: 5
+dataset_name: EMNIST
+chemicalInitialization: chemicalEnum.same
+trainFeedback: False
+feedbackModel: modelEnum.individual
+minTrainingDataPerClass: 180
+maxTrainingDataPerClass: 180
+queryDataPerClass: 20
+nonLinear: <function tanh at 0x00000288736E6200>
+bias: False
+update_rules: [0, 1, 2, 3, 4, 8, 9]
+pMatrix: pMatrixEnum.first_col
+kMatrix: kMatrixEnum.zero
+minTau: 1
+maxTau: 50
+y_vector: yVectorEnum.first_one
+z_vector: zVectorEnum.default
+operator: operatorEnum.mode_1
+train_z_vector: False
+mode: modeEnum.all
+v_vector: vVectorEnum.default
+eta: 1
+beta: 0
+kMasking: False
+individual_different_v_vector: False
+scheduler_t0: None

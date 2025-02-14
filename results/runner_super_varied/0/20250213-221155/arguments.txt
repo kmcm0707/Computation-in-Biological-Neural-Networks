@@ -1,0 +1,36 @@
+Number of chemicals: 3
+Number of query data per class: 20
+model: modelEnum.complex
+modelPath: C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\super_varied_longer_train_test\1\20250213-180025
+small: False
+seed: 0
+save_results: True
+results_subdir: runner_super_varied
+metatrain_dataset: <torch.utils.data.dataloader.DataLoader object at 0x0000010D9EA54190>
+display: True
+numberOfClasses: 5
+dataset_name: EMNIST
+chemicalInitialization: chemicalEnum.same
+trainFeedback: False
+feedbackModel: modelEnum.complex
+minTrainingDataPerClass: 160
+maxTrainingDataPerClass: 160
+queryDataPerClass: 20
+nonLinear: <function tanh at 0x0000010D82D16200>
+bias: False
+update_rules: [0, 1, 2, 3, 4, 8, 9]
+pMatrix: pMatrixEnum.first_col
+kMatrix: kMatrixEnum.zero
+minTau: 2
+maxTau: 50
+y_vector: yVectorEnum.first_one
+z_vector: zVectorEnum.all_ones
+operator: operatorEnum.mode_4
+train_z_vector: False
+mode: modeEnum.all
+v_vector: vVectorEnum.default
+eta: 1
+beta: 0
+kMasking: False
+individual_different_v_vector: True
+scheduler_t0: None

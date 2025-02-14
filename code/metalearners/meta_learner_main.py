@@ -599,12 +599,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 6
-    epochs = 800
+    epochs = 500
 
     dataset_name = "EMNIST"
     numberOfClasses = None
-    minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 150
+    minTrainingDataPerClass = 40
+    maxTrainingDataPerClass = 60
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
@@ -632,7 +632,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     modelOptions = None
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
     # beta = [1, 0.1, 0.01, 0.001, 0.0001]
-    schedulerT0 = [10, 20, 30, 40][index]
+    # schedulerT0 = [10, 20, 30, 40][index]
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
@@ -641,19 +641,19 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=2,  # + 1 / 50,
+            minTau=1,  # + 1 / 50,
             maxTau=50,
-            y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_4,
+            y_vector=yVectorEnum.last_one_and_small_first,
+            z_vector=zVectorEnum.default,
+            operator=operatorEnum.mode_3,
             train_z_vector=False,
             mode=modeEnum.all,
-            v_vector=vVectorEnum.default,
+            v_vector=vVectorEnum.random_small,
             eta=1,
             beta=0.01,  ## Only for v_vector=random_beta
             kMasking=False,
             individual_different_v_vector=False,  # Individual Model Only
-            scheduler_t0=schedulerT0,  # Only mode_3
+            scheduler_t0=None,  # Only mode_3
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -745,7 +745,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         lr=0.0004,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.zero,
         trainFeedback=False,
         feedbackModel=feedbackModel,
         minTrainingDataPerClass=minTrainingDataPerClass,
@@ -754,7 +754,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 3
+    numberOfChemicals = [2, 3, 4, 5, 6][index]
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -787,7 +787,7 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="super_varied_longer_train_test", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_3", index=i)
 
 
 def pass_through(input):
