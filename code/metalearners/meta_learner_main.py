@@ -754,7 +754,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = [2, 3, 4, 5, 6][index]
+    numberOfChemicals = [3, 4, 5, 6, 10][index]
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -767,7 +767,6 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     metalearning_model.train()
-    exit()
 
 
 def main():
