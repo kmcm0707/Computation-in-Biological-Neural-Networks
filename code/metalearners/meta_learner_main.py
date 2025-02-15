@@ -603,8 +603,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     dataset_name = "EMNIST"
     numberOfClasses = None
-    minTrainingDataPerClass = [50, 30][index]
-    maxTrainingDataPerClass = [50, 120][index]
+    minTrainingDataPerClass = [40, 30][index]
+    maxTrainingDataPerClass = [60, 120][index]
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
@@ -745,7 +745,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         lr=0.001,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.zero,
+        chemicalInitialization=chemicalEnum.same,
         trainFeedback=False,
         feedbackModel=feedbackModel,
         minTrainingDataPerClass=minTrainingDataPerClass,
