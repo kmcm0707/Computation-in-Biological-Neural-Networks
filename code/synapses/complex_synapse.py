@@ -522,7 +522,7 @@ class ComplexSynapse(nn.Module):
                                 + self.bias_dictionary[h_name]  # [:, None, None]
                             ),
                         )
-                    elif self.operator == operatorEnum.sub:
+                    elif self.operator == operatorEnum.sub or self.operator == operatorEnum.sub_4:
                         # Equation 1 - operator = sub: h(s+1) = yh(s) + sign(h(s)) * z( f( sign(h(s)) * (Kh(s) + \theta * F(Parameter) + b) ))
                         new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.sign(
                             chemical
@@ -621,7 +621,7 @@ class ComplexSynapse(nn.Module):
                             new_v, (self.number_chemicals, h_parameters[h_name].shape[1], h_parameters[h_name].shape[2])
                         )
                         new_value = torch.einsum("ijk,ijk->jk", new_v, h_parameters[h_name])
-                    elif self.operator == operatorEnum.mode_4:
+                    elif self.operator == operatorEnum.mode_4 or self.operator == operatorEnum.sub_4:
                         v_vector_softmax = torch.nn.functional.softmax(self.v_vector, dim=1)
                         new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)
                     else:

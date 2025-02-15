@@ -636,18 +636,18 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
-            nonLinear=nonLinearEnum.pass_through,
+            nonLinear=nonLinearEnum.elu,
             update_rules=[0, 1, 2, 3, 4, 8, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=1,  # + 1 / 50,
+            minTau=2,  # + 1 / 50,
             maxTau=50,
-            y_vector=yVectorEnum.first_one,
-            z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_1,
+            y_vector=yVectorEnum.none,
+            z_vector=zVectorEnum.all_ones,
+            operator=operatorEnum.sub_4,
             train_z_vector=False,
-            mode=modeEnum.rosenbaum,
+            mode=modeEnum.all,
             v_vector=vVectorEnum.default,
             eta=1,
             beta=0.01,  ## Only for v_vector=random_beta
@@ -754,7 +754,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 1
+    numberOfChemicals = 3
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -767,6 +767,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     metalearning_model.train()
+    exit()
 
 
 def main():
@@ -786,4 +787,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="rosenbaum_recreate", index=i)
+        run(seed=1, display=True, result_subdirectory="sub", index=i)

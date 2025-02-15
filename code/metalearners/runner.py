@@ -435,8 +435,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     dataset_name = "EMNIST"
     numberOfClasses = None
-    trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
+    # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
     # trainingDataPerClass = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
+    trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
@@ -462,12 +463,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True)
 
     # -- options
-    model = modelEnum.individual
+    model = modelEnum.complex
     modelOptions = None
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
-            nonLinear=nonLinearEnum.tanh,
+            nonLinear=nonLinearEnum.pass_through,
             update_rules=[0, 1, 2, 3, 4, 8, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
@@ -478,7 +479,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             z_vector=zVectorEnum.default,
             operator=operatorEnum.mode_1,
             train_z_vector=False,
-            mode=modeEnum.all,
+            mode=modeEnum.rosenbaum,
             v_vector=vVectorEnum.default,
             eta=1,
             beta=0,  ## Only for v_vector=random_beta
@@ -569,7 +570,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\longer_train_test\1\20250213-154422"
         # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\super_varied_longer_train_test\1\20250213-180025"
         # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_0\0\20250203-234503"
-        r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\individual_no_bias\1\individual_no_bias_recreate\1\20250211-010125"
+        # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\individual_no_bias\1\individual_no_bias_recreate\1\20250211-010125"
+        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\rosenbaum_recreate\1\20250215-003840"
+        r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\rosenbaum_recreate\1\20250215-010641"
     )
     # list_of_files = os.listdir(modelPath)
     # modelPath = modelPath + "/" + list_of_files[1]
@@ -595,7 +598,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 3
+    numberOfChemicals = 1
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -627,7 +630,7 @@ def runner_main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for index in range(0, 19):
-        run(seed=0, display=True, result_subdirectory="runner_indvidual_no_bias_2", index=index)
+        run(seed=0, display=True, result_subdirectory="runner_rosenbaum_varied", index=index)
 
 
 def pass_through(input):
