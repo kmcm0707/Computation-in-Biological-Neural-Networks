@@ -603,8 +603,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     dataset_name = "EMNIST"
     numberOfClasses = None
-    minTrainingDataPerClass = 40
-    maxTrainingDataPerClass = 60
+    minTrainingDataPerClass = 50
+    maxTrainingDataPerClass = 50
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
