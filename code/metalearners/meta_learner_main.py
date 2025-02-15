@@ -603,8 +603,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     dataset_name = "EMNIST"
     numberOfClasses = None
-    minTrainingDataPerClass = [40, 30][index]
-    maxTrainingDataPerClass = [60, 120][index]
+    minTrainingDataPerClass = 30
+    maxTrainingDataPerClass = 90
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
@@ -636,7 +636,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
-            nonLinear=nonLinearEnum.elu,
+            nonLinear=nonLinearEnum.relu,
             update_rules=[0, 1, 2, 3, 4, 8, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
@@ -650,7 +650,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
             eta=1,
-            beta=0.01,  ## Only for v_vector=random_beta
+            beta=0,  ## Only for v_vector=random_beta
             kMasking=False,
             individual_different_v_vector=False,  # Individual Model Only
             scheduler_t0=None,  # Only mode_3
@@ -742,7 +742,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.001,
+        lr=0.0002,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
