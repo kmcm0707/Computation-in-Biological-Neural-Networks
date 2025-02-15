@@ -468,18 +468,18 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
-            nonLinear=nonLinearEnum.pass_through,
+            nonLinear=nonLinearEnum.tanh,
             update_rules=[0, 1, 2, 3, 4, 8, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=1,
+            minTau=2,
             maxTau=50,
-            y_vector=yVectorEnum.first_one,
-            z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_1,
+            y_vector=yVectorEnum.none,
+            z_vector=zVectorEnum.all_ones,
+            operator=operatorEnum.mode_4,
             train_z_vector=False,
-            mode=modeEnum.rosenbaum,
+            mode=modeEnum.all,
             v_vector=vVectorEnum.default,
             eta=1,
             beta=0,  ## Only for v_vector=random_beta
@@ -568,11 +568,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\Mode_1\baselines\0\3"
         # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\varied_training\1\20250213-134357"
         # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\longer_train_test\1\20250213-154422"
-        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\super_varied_longer_train_test\1\20250213-180025"
+        r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\super_varied_longer_train_test\1\20250213-180025"
         # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_0\0\20250203-234503"
         # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\individual_no_bias\1\individual_no_bias_recreate\1\20250211-010125"
         # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\rosenbaum_recreate\1\20250215-003840"
-        r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\rosenbaum_recreate\1\20250215-010641"
+        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\rosenbaum_recreate\1\20250215-010641"
     )
     # list_of_files = os.listdir(modelPath)
     # modelPath = modelPath + "/" + list_of_files[1]
@@ -598,7 +598,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 1
+    numberOfChemicals = 3
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -630,8 +630,4 @@ def runner_main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for index in range(0, 19):
-        run(seed=0, display=True, result_subdirectory="runner_rosenbaum_varied", index=index)
-
-
-def pass_through(input):
-    return input
+        run(seed=0, display=True, result_subdirectory="runner_y0_super", index=index)

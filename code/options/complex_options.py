@@ -62,6 +62,7 @@ class operatorEnum(Enum):
     extended_attention = "extended_attention"
     attention_2 = "attention_2"
     full_attention = "full_attention"
+    compressed_full_attention = "compressed_full_attention"
 
 
 class vVectorEnum(Enum):

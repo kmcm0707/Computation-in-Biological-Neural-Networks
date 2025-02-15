@@ -603,9 +603,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     dataset_name = "EMNIST"
     numberOfClasses = None
-    minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 90
-    queryDataPerClass = 20
+    minTrainingDataPerClass = 40
+    maxTrainingDataPerClass = 60
+    queryDataPerClass = 10
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -636,7 +636,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
-            nonLinear=nonLinearEnum.relu,
+            nonLinear=nonLinearEnum.tanh,
             update_rules=[0, 1, 2, 3, 4, 8, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
@@ -645,7 +645,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.sub_4,
+            operator=operatorEnum.compressed_full_attention,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -742,7 +742,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0002,
+        lr=0.0004,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -787,4 +787,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="sub", index=i)
+        run(seed=1, display=True, result_subdirectory="attention_test", index=i)
