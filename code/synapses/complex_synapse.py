@@ -624,10 +624,12 @@ class ComplexSynapse(nn.Module):
                         intermeditate_v, _ = self.attention(Q, K, V)
                         new_v = self.compress_attention(intermeditate_v)
                         new_v = new_v.squeeze(0)
-                        new_v = torch.reshape(
-                            new_v, (self.number_chemicals, h_parameters[h_name].shape[1], h_parameters[h_name].shape[2])
+                        v_softmax = torch.nn.functional.softmax(new_v, dim=1)
+                        v_softmax = torch.reshape(
+                            v_softmax,
+                            (self.number_chemicals, h_parameters[h_name].shape[1], h_parameters[h_name].shape[2]),
                         )
-                        new_value = torch.einsum("ijk,ijk->jk", new_v, h_parameters[h_name])
+                        new_value = torch.einsum("ijk,ijk->jk", v_softmax, h_parameters[h_name])
                     elif self.operator == operatorEnum.compressed_full_attention:
                         time_index = (
                             torch.ones(size=(1, update_vector.shape[1], update_vector.shape[2]), device=self.device)

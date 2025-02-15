@@ -65,6 +65,7 @@ class MetaLearner:
     ):
 
         # -- processor params
+        self.str_device = device
         self.device = torch.device(device)
         self.modelOptions = modelOptions
         self.options = metaLearnerOptions
@@ -379,6 +380,12 @@ class MetaLearner:
         y_qry = None
         current_training_data_per_class = None
 
+        # scaler = torch.amp.GradScaler("cuda", enabled=True)
+
+        """with torch.autocast(
+            device_type=self.str_device,
+            dtype=torch.float16,
+        ):"""
         for eps, data in enumerate(self.metatrain_dataset):
 
             # -- initialize
@@ -491,7 +498,9 @@ class MetaLearner:
                 UpdateFeedbackWeights_state_dict = copy.deepcopy(self.UpdateFeedbackWeights.state_dict())
 
             # -- backprop
-            self.UpdateMetaParameters.zero_grad()
+            """scaler.scale(loss_meta).backward()
+            scaler.step(self.UpdateMetaParameters)
+            scaler.update()"""
             loss_meta.backward()
 
             # -- gradient clipping
@@ -501,6 +510,7 @@ class MetaLearner:
             self.UpdateMetaParameters.step()
             if self.scheduler is not None:
                 self.scheduler.step()
+            self.UpdateMetaParameters.zero_grad(set_to_none=True)
 
             # -- log
             if self.save_results:
@@ -603,8 +613,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     dataset_name = "EMNIST"
     numberOfClasses = None
-    minTrainingDataPerClass = 40
-    maxTrainingDataPerClass = 60
+    minTrainingDataPerClass = 50
+    maxTrainingDataPerClass = 50
     queryDataPerClass = 10
 
     if dataset_name == "EMNIST":
@@ -645,7 +655,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.compressed_full_attention,
+            operator=operatorEnum.mode_4,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -787,4 +797,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="attention_test", index=i)
+        run(seed=1, display=True, result_subdirectory="testing", index=i)
