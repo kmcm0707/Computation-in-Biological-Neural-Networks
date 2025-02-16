@@ -1,6 +1,9 @@
 from metalearners.meta_learner_main import main
 from metalearners.runner import runner_main
 from nn.backprop import backprop_main
+import os
+
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
 if __name__ == "__main__":
     # torch.autograd.set_detect_anomaly(True)
