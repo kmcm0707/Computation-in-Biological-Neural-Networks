@@ -472,6 +472,7 @@ class ComplexSynapse(nn.Module):
         elif self.operator == operatorEnum.v_linear:
             # v_+1 = linear(w-h, update, v_-1, time)
             self.linear_v = nn.Linear(10 + 2 * self.number_chemicals + 1, self.number_chemicals, device=self.device)
+            self.all_meta_parameters.append(self.linear_v)
 
     @torch.no_grad()
     def reset_time_index(self):

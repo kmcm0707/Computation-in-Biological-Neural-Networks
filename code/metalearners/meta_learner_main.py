@@ -539,6 +539,7 @@ class MetaLearner:
                         or "A" in key
                         or "B" in key
                         or "v_dict" in key
+                        or "linear" in key
                     ):
                         with open(self.result_directory + "/{}.txt".format(key), "a") as f:
                             f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
@@ -553,6 +554,7 @@ class MetaLearner:
                             or "y_vector" in key
                             or "A" in key
                             or "B" in key
+                            or "linear" in key
                         ):
                             with open(self.result_directory + "/Feedback_{}.txt".format(key), "a") as f:
                                 f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
@@ -613,9 +615,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     dataset_name = "EMNIST"
     numberOfClasses = None
-    minTrainingDataPerClass = 40
-    maxTrainingDataPerClass = 60
-    queryDataPerClass = 10
+    minTrainingDataPerClass = 20
+    maxTrainingDataPerClass = 150
+    queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -797,4 +799,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="v_lin_test", index=i)
+        run(seed=0, display=True, result_subdirectory="v_lin_actually_training", index=i)
