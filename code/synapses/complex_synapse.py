@@ -73,6 +73,9 @@ class ComplexSynapse(nn.Module):
 
         self.time_index = 0
 
+        if self.options.operator == operatorEnum.v_linear:
+            self.v_dict = {}
+
         self.init_parameters(params=params)
 
     @torch.no_grad()
@@ -104,6 +107,19 @@ class ComplexSynapse(nn.Module):
                         )
                     )
                 )
+                if self.options.operator == operatorEnum.v_linear:
+                    self.v_dict[h_name] = (
+                        torch.ones(
+                            size=(
+                                self.number_chemicals,
+                                parameter.shape[0],
+                                parameter.shape[1],
+                            ),
+                            device=self.device,
+                            requires_grad=False,
+                        )
+                        / self.number_chemicals
+                    )
                 """self.bias_dictionary[h_name] = nn.Parameter(
                     torch.tensor([0.0] * self.number_chemicals, device=self.device)
                 )"""
@@ -453,6 +469,9 @@ class ComplexSynapse(nn.Module):
             self.attention = nn.MultiheadAttention(self.number_chemicals, 1, device=self.device)
             self.all_meta_parameters.append(self.linear_attention)
             self.all_meta_parameters.append(self.attention)
+        elif self.operator == operatorEnum.v_linear:
+            # v_+1 = linear(w-h, update, v_-1, time)
+            self.linear_v = nn.Linear(10 + 2 * self.number_chemicals + 1, self.number_chemicals, device=self.device)
 
     @torch.no_grad()
     def reset_time_index(self):
@@ -519,6 +538,7 @@ class ComplexSynapse(nn.Module):
                         or self.operator == operatorEnum.full_attention
                         or self.operator == operatorEnum.mode_4
                         or self.operator == operatorEnum.compressed_full_attention
+                        or self.operator == operatorEnum.v_linear
                     ):  # mode 1 - was also called add in results
                         new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.einsum(
                             "i,ijk->ijk",
@@ -652,6 +672,30 @@ class ComplexSynapse(nn.Module):
                             (self.number_chemicals, h_parameters[h_name].shape[1], h_parameters[h_name].shape[2]),
                         )
                         new_value = torch.einsum("ijk,ijk->jk", v_softmax, h_parameters[h_name])
+                    elif self.operator == operatorEnum.v_linear:
+                        attention_vector = None
+                        with torch.no_grad():
+                            time_index = (
+                                torch.ones(size=(1, update_vector.shape[1], update_vector.shape[2]), device=self.device)
+                                * self.time_index
+                            )
+                            h_diff = h_parameters[h_name] - parameter[None, :, :]
+                            attention_vector = torch.cat(
+                                (time_index, update_vector, self.v_dict[h_name], h_diff), dim=0
+                            )
+                            attention_vector = torch.reshape(
+                                attention_vector,
+                                (update_vector.shape[1] * update_vector.shape[2], 10 + 2 * self.number_chemicals + 1),
+                            )
+                        new_v = self.linear_v(attention_vector)
+                        v_softmax = torch.nn.functional.softmax(new_v, dim=1)
+                        v_softmax = torch.reshape(
+                            v_softmax,
+                            (self.number_chemicals, update_vector.shape[1], update_vector.shape[2]),
+                        )
+                        self.v_dict[h_name] = v_softmax.clone().detach()
+                        new_value = torch.einsum("ijk,ijk->jk", v_softmax, h_parameters[h_name])
+
                     elif self.operator == operatorEnum.mode_4 or self.operator == operatorEnum.sub_4:
                         v_vector_softmax = torch.nn.functional.softmax(self.v_vector, dim=1)
                         new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)

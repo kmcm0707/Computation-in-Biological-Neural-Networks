@@ -431,13 +431,13 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 100
+    epochs = 10
 
     dataset_name = "EMNIST"
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    # trainingDataPerClass = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
+    trainingDataPerClass = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
+    # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
@@ -477,7 +477,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_4,
+            operator=operatorEnum.compressed_full_attention,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -568,11 +568,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\Mode_1\baselines\0\3"
         # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\varied_training\1\20250213-134357"
         # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\longer_train_test\1\20250213-154422"
-        r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\super_varied_longer_train_test\1\20250213-180025"
+        # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\super_varied_longer_train_test\1\20250213-180025"
         # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_0\0\20250203-234503"
         # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\individual_no_bias\1\individual_no_bias_recreate\1\20250211-010125"
         # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\rosenbaum_recreate\1\20250215-003840"
         # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\rosenbaum_recreate\1\20250215-010641"
+        r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\attention_test\0\20250215-204423"
     )
     # list_of_files = os.listdir(modelPath)
     # modelPath = modelPath + "/" + list_of_files[1]
@@ -630,4 +631,4 @@ def runner_main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for index in range(0, 19):
-        run(seed=0, display=True, result_subdirectory="runner_y0_super", index=index)
+        run(seed=1, display=True, result_subdirectory="runner_attention", index=index)
