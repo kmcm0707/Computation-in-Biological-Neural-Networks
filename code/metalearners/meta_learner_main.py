@@ -412,7 +412,7 @@ class MetaLearner:
 
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
-
+               
                 # -- predict
                 y, logits = None, None
                 if self.options.trainFeedback:
