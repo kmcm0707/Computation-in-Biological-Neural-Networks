@@ -63,6 +63,7 @@ class MetaLearnerOptions:
         minTrainingDataPerClass: int = 50,
         maxTrainingDataPerClass: int = 50,
         queryDataPerClass: int = 10,
+        datasetDevice: Literal["cpu", "cuda"] = "cuda",
     ):
 
         self.model = model
@@ -86,6 +87,7 @@ class MetaLearnerOptions:
         self.minTrainingDataPerClass = minTrainingDataPerClass
         self.maxTrainingDataPerClass = maxTrainingDataPerClass
         self.queryDataPerClass = queryDataPerClass
+        self.datasetDevice = datasetDevice
 
     def __str__(self):
         string = ""

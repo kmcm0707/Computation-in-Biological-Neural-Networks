@@ -79,7 +79,7 @@ class MetaLearner:
             maxTrainingDataPerClass=metaLearnerOptions.maxTrainingDataPerClass,
             queryDataPerClass=self.queryDataPerClass,
             dimensionOfImage=28,
-            device=self.device,
+            device=self.options.datasetDevice,
         )
 
         # -- model params
@@ -412,7 +412,11 @@ class MetaLearner:
 
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
-               
+
+                # -- fix device
+                if self.device != self.options.datasetDevice:
+                    x, label = x.to(self.device), label.to(self.device)
+
                 # -- predict
                 y, logits = None, None
                 if self.options.trainFeedback:
@@ -459,6 +463,10 @@ class MetaLearner:
                     self.UpdateFeedbackWeights.update_time_index()
 
             """ meta update """
+            # -- fix device
+            if self.device != self.options.datasetDevice:
+                x_qry, y_qry = x_qry.to(self.device), y_qry.to(self.device)
+
             # -- predict
             y, logits = None, None
             if self.options.trainFeedback:
@@ -763,13 +771,14 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
+        datasetDevice="cpu",  # if running out of memory, change to "cpu"
     )
 
     #   -- number of chemicals
     numberOfChemicals = 4
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    #device = "cpu"
+    # device = "cpu"
     metalearning_model = MetaLearner(
         device=device,
         numberOfChemicals=numberOfChemicals,
@@ -799,4 +808,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="y0_3_extra_long", index=i)
+        run(seed=1, display=True, result_subdirectory="y0_4_extra_long", index=i)
