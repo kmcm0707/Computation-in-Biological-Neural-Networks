@@ -3,6 +3,11 @@ import os
 from metalearners.meta_learner_main import main
 from metalearners.runner import runner_main
 from nn.backprop import backprop_main
+import os
+import torch
+
+torch.cuda.empty_cache()
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
