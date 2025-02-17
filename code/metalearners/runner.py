@@ -431,7 +431,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 30
+    epochs = 100
 
     dataset_name = "EMNIST"
     numberOfClasses = None
@@ -474,7 +474,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,
-            maxTau=120,
+            maxTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_4,
@@ -574,7 +574,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\rosenbaum_recreate\1\20250215-003840"
         # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\rosenbaum_recreate\1\20250215-010641"
         # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\attention_test\0\20250215-204423"
-        r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_extra_long\0\20250216-035231"
+        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_extra_long\0\20250216-035231"
+        r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_3_extra_long\1\20250216-185131"
     )
     # list_of_files = os.listdir(modelPath)
     # modelPath = modelPath + "/" + list_of_files[1]
@@ -600,7 +601,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 4
+    numberOfChemicals = 3
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -632,4 +633,4 @@ def runner_main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for index in range(0, 19):
-        run(seed=1, display=True, result_subdirectory="runner_y0_extra_long", index=index)
+        run(seed=0, display=True, result_subdirectory="runner_y0_3_extra_long", index=index)

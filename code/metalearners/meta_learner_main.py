@@ -79,7 +79,7 @@ class MetaLearner:
             maxTrainingDataPerClass=metaLearnerOptions.maxTrainingDataPerClass,
             queryDataPerClass=self.queryDataPerClass,
             dimensionOfImage=28,
-            device=self.options.datasetDevice,
+            device=torch.device(self.options.datasetDevice),
         )
 
         # -- model params
@@ -371,6 +371,24 @@ class MetaLearner:
 
         :return: None
         """
+
+        # -- continue training
+        last_trained_epoch = -1
+        if self.options.continueTraining is not None:
+            self.UpdateWeights.load_state_dict(
+                torch.load(self.options.continueTraining + "/UpdateWeights.pth", weights_only=True)
+            )
+            self.UpdateMetaParameters.load_state_dict(
+                torch.load(self.options.continueTraining + "/UpdateMetaParameters.pth", weights_only=True)
+            )
+            if self.options.trainFeedback:
+                self.UpdateFeedbackWeights.load_state_dict(
+                    torch.load(self.options.continueTraining + "/UpdateFeedbackWeights.pth", weights_only=True)
+                )
+            z = np.loadtxt(self.options.continueTraining + "/acc_meta.txt")
+            last_trained_epoch = z.shape[0]
+
+        # -- set model to training mode
         self.model.train()
         self.UpdateWeights.train()
         if self.options.trainFeedback:
@@ -387,6 +405,10 @@ class MetaLearner:
             dtype=torch.float16,
         ):"""
         for eps, data in enumerate(self.metatrain_dataset):
+
+            # -- continue training
+            if eps < last_trained_epoch:
+                continue
 
             # -- initialize
             # Using a clone of the model parameters to allow for in-place operations
@@ -411,10 +433,11 @@ class MetaLearner:
             )
 
             """ adaptation """
+
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
 
                 # -- fix device
-                if self.device != self.options.datasetDevice:
+                if self.str_device != self.options.datasetDevice:
                     x, label = x.to(self.device), label.to(self.device)
 
                 # -- predict
@@ -619,7 +642,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 6
-    epochs = 500
+    epochs = 800
 
     dataset_name = "EMNIST"
     numberOfClasses = None
@@ -748,6 +771,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     feedbackModel = model
     feedbackModelOptions = modelOptions
+    current_dir = os.getcwd()
+    continue_training = current_dir + r"\results\y0_3_extra_long\1\20250216-185131"
     # -- meta-learner options
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
@@ -771,11 +796,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        datasetDevice="cpu",  # if running out of memory, change to "cpu"
+        datasetDevice="cuda",  # if running out of memory, change to "cpu"
+        continueTraining=continue_training,
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 4
+    numberOfChemicals = 3
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -808,4 +834,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="y0_4_extra_long", index=i)
+        run(seed=1, display=True, result_subdirectory="y0_3_extra_long", index=i)

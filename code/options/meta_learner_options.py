@@ -64,6 +64,7 @@ class MetaLearnerOptions:
         maxTrainingDataPerClass: int = 50,
         queryDataPerClass: int = 10,
         datasetDevice: Literal["cpu", "cuda"] = "cuda",
+        continueTraining: str = None,
     ):
 
         self.model = model
@@ -88,6 +89,7 @@ class MetaLearnerOptions:
         self.maxTrainingDataPerClass = maxTrainingDataPerClass
         self.queryDataPerClass = queryDataPerClass
         self.datasetDevice = datasetDevice
+        self.continueTraining = continueTraining
 
     def __str__(self):
         string = ""
