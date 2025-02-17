@@ -230,6 +230,23 @@
   file = {C\:\\Users\\Kyle\\Zotero\\storage\\SKRT5PCN\\Cho et al. - 2014 - Learning Phrase Representations using RNN Encoder-Decoder for Statistical Machine Translation.pdf;C\:\\Users\\Kyle\\Zotero\\storage\\XDLFRV6N\\1406.html}
 }
 
+@online{chuRandomFeedbackAlignment2023,
+  title = {Random {{Feedback Alignment Algorithms}} to Train {{Neural Networks}}: {{Why}} Do They {{Align}}?},
+  shorttitle = {Random {{Feedback Alignment Algorithms}} to Train {{Neural Networks}}},
+  author = {Chu, Dominique and Bacho, Florian},
+  date = {2023-06-04},
+  eprint = {2306.02325},
+  eprinttype = {arXiv},
+  eprintclass = {cs},
+  doi = {10.48550/arXiv.2306.02325},
+  url = {http://arxiv.org/abs/2306.02325},
+  urldate = {2025-02-17},
+  abstract = {Feedback alignment algorithms are an alternative to backpropagation to train neural networks, whereby some of the partial derivatives that are required to compute the gradient are replaced by random terms. This essentially transforms the update rule into a random walk in weight space. Surprisingly, learning still works with those algorithms, including training of deep neural networks. This is generally attributed to an alignment of the update of the random walker with the true gradient - the eponymous gradient alignment -- which drives an approximate gradient descend. The mechanism that leads to this alignment remains unclear, however. In this paper, we use mathematical reasoning and simulations to investigate gradient alignment. We observe that the feedback alignment update rule has fixed points, which correspond to extrema of the loss function. We show that gradient alignment is a stability criterion for those fixed points. It is only a necessary criterion for algorithm performance. Experimentally, we demonstrate that high levels of gradient alignment can lead to poor algorithm performance and that the alignment is not always driving the gradient descend.},
+  pubstate = {prepublished},
+  keywords = {Computer Science - Artificial Intelligence,Computer Science - Machine Learning},
+  file = {C\:\\Users\\Kyle\\Zotero\\storage\\44FT7PQJ\\Chu and Bacho - 2023 - Random Feedback Alignment Algorithms to train Neural Networks Why do they Align.pdf;C\:\\Users\\Kyle\\Zotero\\storage\\GQX6RYRL\\2306.html}
+}
+
 @online{cohenEMNISTExtensionMNIST2017,
   title = {{{EMNIST}}: An Extension of {{MNIST}} to Handwritten Letters},
   shorttitle = {{{EMNIST}}},
@@ -513,6 +530,22 @@
   file = {C\:\\Users\\Kyle\\Zotero\\storage\\42ZLU96A\\Ha et al. - 2016 - HyperNetworks.pdf;C\:\\Users\\Kyle\\Zotero\\storage\\IBNKKM3X\\1609.html}
 }
 
+@online{hanExtensionDirectFeedback2020,
+  title = {Extension of {{Direct Feedback Alignment}} to {{Convolutional}} and {{Recurrent Neural Network}} for {{Bio-plausible Deep Learning}}},
+  author = {Han, Donghyeon and Park, Gwangtae and Ryu, Junha and Yoo, Hoi-jun},
+  date = {2020-06-23},
+  eprint = {2006.12830},
+  eprinttype = {arXiv},
+  eprintclass = {cs},
+  doi = {10.48550/arXiv.2006.12830},
+  url = {http://arxiv.org/abs/2006.12830},
+  urldate = {2025-02-17},
+  abstract = {Throughout this paper, we focus on the improvement of the direct feedback alignment (DFA) algorithm and extend the usage of the DFA to convolutional and recurrent neural networks (CNNs and RNNs). Even though the DFA algorithm is biologically plausible and has a potential of high-speed training, it has not been considered as the substitute for back-propagation (BP) due to the low accuracy in the CNN and RNN training. In this work, we propose a new DFA algorithm for BP-level accurate CNN and RNN training. Firstly, we divide the network into several modules and apply the DFA algorithm within the module. Second, the DFA with the sparse backward weight is applied. It comes with a form of dilated convolution in the CNN case, and in a form of sparse matrix multiplication in the RNN case. Additionally, the error propagation method of CNN becomes simpler through the group convolution. Finally, hybrid DFA increases the accuracy of the CNN and RNN training to the BP-level while taking advantage of the parallelism and hardware efficiency of the DFA algorithm.},
+  pubstate = {prepublished},
+  keywords = {Computer Science - Machine Learning,Computer Science - Neural and Evolutionary Computing,Statistics - Machine Learning},
+  file = {C\:\\Users\\Kyle\\Zotero\\storage\\R79G88PZ\\Han et al. - 2020 - Extension of Direct Feedback Alignment to Convolutional and Recurrent Neural Network for Bio-plausib.pdf;C\:\\Users\\Kyle\\Zotero\\storage\\5NNZAJ3D\\2006.html}
+}
+
 @incollection{hauserPhysicalReservoirComputing2021,
   title = {Physical {{Reservoir Computing}} in {{Robotics}}},
   booktitle = {Reservoir {{Computing}}: {{Theory}}, {{Physical Implementations}}, and {{Applications}}},
@@ -594,6 +627,20 @@
   abstract = {Synaptic plasticity is a complex phenomenon involving multiple biochemical processes that operate on different timescales. Complexity can greatly increase memory capacity when the variables characterizing the synaptic dynamics have limited precision, as shown in simple memory retrieval problems involving random patterns. Here we turn to a real-world problem, face familiarity detection, and we show that synaptic complexity can be harnessed to store in memory a large number of faces that can be recognized at a later time. The number of recognizable faces grows almost linearly with the number of synapses and quadratically with the number of neurons. Complex synapses outperform simple ones characterized by a single variable, even when the total number of dynamical variables is matched. Complex and simple synapses have distinct signatures that are testable in experiments. Our results indicate that a system with complex synapses can be used in real-world tasks such as face familiarity detection.},
   keywords = {Applied computing,Artificial intelligence,Neuroscience},
   file = {C\:\\Users\\Kyle\\Zotero\\storage\\6VCHZD3M\\Ji-An et al. - 2023 - Face familiarity detection with complex synapses.pdf;C\:\\Users\\Kyle\\Zotero\\storage\\JYNIVLV7\\S2589004222021290.html}
+}
+
+@inproceedings{jinHowDoesWeight2020,
+  title = {How Does {{Weight Correlation Affect Generalisation Ability}} of {{Deep Neural Networks}}?},
+  booktitle = {Advances in {{Neural Information Processing Systems}}},
+  author = {Jin, Gaojie and Yi, Xinping and Zhang, Liang and Zhang, Lijun and Schewe, Sven and Huang, Xiaowei},
+  date = {2020},
+  volume = {33},
+  pages = {21346--21356},
+  publisher = {Curran Associates, Inc.},
+  url = {https://papers.nips.cc/paper/2020/hash/f48c04ffab49ff0e5d1176244fdfb65c-Abstract.html},
+  urldate = {2025-02-17},
+  abstract = {This paper studies the novel concept of weight correlation in deep neural networks and discusses its impact on the networks' generalisation ability. For fully-connected layers, the weight correlation is defined as the average cosine similarity between weight vectors of neurons, and for convolutional layers, the weight correlation is defined as the cosine similarity between filter matrices. Theoretically, we show that, weight correlation can, and should, be incorporated into the PAC Bayesian framework for the generalisation of neural networks, and the resulting generalisation bound is monotonic with respect to the weight correlation. We formulate a new complexity measure,  which lifts the PAC Bayes measure  with weight correlation, and experimentally confirm that it is able to rank the generalisation errors of a set of networks more precisely than existing measures. More importantly, we develop a new regulariser for training, and provide extensive experiments that show that the generalisation error can be greatly reduced with our novel approach.},
+  file = {C:\Users\Kyle\Zotero\storage\TSWEUGRY\Jin et al. - 2020 - How does Weight Correlation Affect Generalisation Ability of Deep Neural Networks.pdf}
 }
 
 @article{johansenMolecularMechanismsFear2011,
