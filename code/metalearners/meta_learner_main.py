@@ -408,6 +408,7 @@ class MetaLearner:
 
             # -- continue training
             if eps < last_trained_epoch:
+                print(eps)
                 continue
 
             # -- initialize
@@ -772,7 +773,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + r"\results\y0_3_extra_long\1\20250216-185131"
+    continue_training = current_dir + "/results/y0_3_extra_long/1/20250216-185131"
     # -- meta-learner options
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
@@ -787,7 +788,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0001,
+        lr=0.0003,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
