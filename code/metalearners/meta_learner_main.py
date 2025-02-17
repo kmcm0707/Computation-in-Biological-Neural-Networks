@@ -792,13 +792,13 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
-        trainFeedback=False,
+        trainFeedback=True,
         feedbackModel=feedbackModel,
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice="cuda",  # if running out of memory, change to "cpu"
-        continueTraining=continue_training,
+        continueTraining=None,
     )
 
     #   -- number of chemicals
@@ -835,4 +835,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="y0_3_extra_long", index=i)
+        run(seed=1, display=True, result_subdirectory="feedback_super_varied", index=i)
