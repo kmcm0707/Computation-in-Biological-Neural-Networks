@@ -643,12 +643,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 3
-    epochs = 500
+    epochs = 100
 
     dataset_name = "EMNIST"
     numberOfClasses = None
     minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 150
+    maxTrainingDataPerClass = 70
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
@@ -669,7 +669,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         )
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
-    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True, num_workers = numWorkers)
+    metatrain_dataset = DataLoader(
+        dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True, num_workers=numWorkers
+    )
 
     # -- options
     model = modelEnum.complex
@@ -773,7 +775,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results/y0_3_extra_long/1/20250216-185131"
+    continue_training = current_dir + "/results/y0_5_extra_long_200/20250218-171551"
     # -- meta-learner options
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
@@ -798,13 +800,13 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice="cpu",  # if running out of memory, change to "cpu"
-        continueTraining=None,
+        continueTraining=continue_training,
     )
 
     #   -- number of chemicals
     numberOfChemicals = 5
     # -- meta-train
-    #device = "cuda" if torch.cuda.is_available() else "cpu"
+    # device = "cuda" if torch.cuda.is_available() else "cpu"
     device = "cpu"
     metalearning_model = MetaLearner(
         device=device,
@@ -835,4 +837,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="yo_4_extra_long_200", index=i)
+        run(seed=1, display=True, result_subdirectory="yo_5_extra_long_200", index=i)
