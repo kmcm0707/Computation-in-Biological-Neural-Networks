@@ -643,7 +643,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 3
-    epochs = 100
+    epochs = 600
 
     dataset_name = "EMNIST"
     numberOfClasses = None
@@ -799,15 +799,15 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        datasetDevice="cpu",  # if running out of memory, change to "cpu"
+        datasetDevice="cuda",  # if running out of memory, change to "cpu"
         continueTraining=continue_training,
     )
 
     #   -- number of chemicals
     numberOfChemicals = 5
     # -- meta-train
-    # device = "cuda" if torch.cuda.is_available() else "cpu"
-    device = "cpu"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    #device = "cpu"
     metalearning_model = MetaLearner(
         device=device,
         numberOfChemicals=numberOfChemicals,
