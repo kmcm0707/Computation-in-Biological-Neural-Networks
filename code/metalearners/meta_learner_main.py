@@ -802,7 +802,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 4
+    numberOfChemicals = 5
     # -- meta-train
     #device = "cuda" if torch.cuda.is_available() else "cpu"
     device = "cpu"
