@@ -642,8 +642,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     random.seed(seed)
 
     # -- load data
-    numWorkers = 6
-    epochs = 800
+    numWorkers = 3
+    epochs = 500
 
     dataset_name = "EMNIST"
     numberOfClasses = None
@@ -669,7 +669,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         )
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
-    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True)
+    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True, num_workers = numWorkers)
 
     # -- options
     model = modelEnum.complex
@@ -804,7 +804,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     #   -- number of chemicals
     numberOfChemicals = 4
     # -- meta-train
-    # device = "cuda" if torch.cuda.is_available() else "cpu"
+    #device = "cuda" if torch.cuda.is_available() else "cpu"
     device = "cpu"
     metalearning_model = MetaLearner(
         device=device,
