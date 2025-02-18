@@ -112,6 +112,8 @@ class MetaLearner:
         if self.options.trainFeedback:
             bias_parameters = bias_parameters + list(self.UpdateFeedbackWeights.all_bias_parameters.parameters())
             meta_parameters = meta_parameters + list(self.UpdateFeedbackWeights.all_meta_parameters.parameters())
+
+        self.UpdateMetaParameters: Union[optim.SGD, optim.Adam, optim.AdamW, optim.NAdam, optim.RAdam] = None
         if metaLearnerOptions.optimizer == optimizerEnum.sgd:
             self.UpdateMetaParameters = optim.SGD(
                 [
@@ -188,12 +190,17 @@ class MetaLearner:
             raise ValueError("Optimizer not recognized.")
 
         # -- scheduler
+        self.scheduler: Union[
+            optim.lr_scheduler.ExponentialLR, optim.lr_scheduler.StepLR, optim.lr_scheduler.ConstantLR, None
+        ] = None
         if metaLearnerOptions.scheduler == schedulerEnum.exponential:
             self.scheduler = optim.lr_scheduler.ExponentialLR(optimizer=self.UpdateMetaParameters, gamma=0.95)
         elif metaLearnerOptions.scheduler == schedulerEnum.linear:
             self.scheduler = optim.lr_scheduler.StepLR(optimizer=self.UpdateMetaParameters, step_size=30, gamma=0.1)
         elif metaLearnerOptions.scheduler == schedulerEnum.constant:
-            self.scheduler = optim.lr_scheduler.StepLR(optimizer=self.UpdateMetaParameters, step_size=100000, gamma=1)
+            self.scheduler = optim.lr_scheduler.ConstantLR(
+                optimizer=self.UpdateMetaParameters, total_iters=self.options.epochs
+            )
         elif metaLearnerOptions.scheduler == schedulerEnum.none:
             self.scheduler = None
 
