@@ -113,7 +113,7 @@ class MetaLearner:
             bias_parameters = bias_parameters + list(self.UpdateFeedbackWeights.all_bias_parameters.parameters())
             meta_parameters = meta_parameters + list(self.UpdateFeedbackWeights.all_meta_parameters.parameters())
 
-        self.UpdateMetaParameters: Union[optim.SGD, optim.Adam, optim.AdamW, optim.NAdam, optim.RAdam] = None
+        self.UpdateMetaParameters: Union[optim.SGD, optim.Adam, optim.AdamW, optim.NAdam, optim.RAdam, None] = None
         if metaLearnerOptions.optimizer == optimizerEnum.sgd:
             self.UpdateMetaParameters = optim.SGD(
                 [
@@ -650,12 +650,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 3
-    epochs = 700
+    epochs = 800
 
     dataset_name = "EMNIST"
-    numberOfClasses = None
     minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 70
+    maxTrainingDataPerClass = 150
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
@@ -686,6 +685,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
     # beta = [1, 0.1, 0.01, 0.001, 0.0001]
     # schedulerT0 = [10, 20, 30, 40][index]
+    minTau = [1 + 1 / 50, 2, 3, 4, 5][index]
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
@@ -694,8 +694,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=2,  # + 1 / 50,
-            maxTau=200,
+            minTau=minTau,  # + 1 / 50,
+            maxTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_4,
@@ -797,7 +797,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0001,
+        lr=0.0003,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -811,10 +811,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 3
     # -- meta-train
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    #device = "cpu"
+    device: Literal["cpu", "cuda"] = "cuda" if torch.cuda.is_available() else "cpu"
+    # device = "cpu"
     metalearning_model = MetaLearner(
         device=device,
         numberOfChemicals=numberOfChemicals,
@@ -824,7 +824,6 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     metalearning_model.train()
-    exit()
 
 
 def main():
@@ -844,4 +843,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="yo_5_extra_long_200", index=i)
+        run(seed=1, display=True, result_subdirectory="min_tau_testing", index=i)

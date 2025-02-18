@@ -52,7 +52,7 @@ class MetaLearnerOptions:
         small: bool = False,
         raytune: bool = False,
         save_results: bool = True,
-        metatrain_dataset: str = None,
+        metatrain_dataset: str | None = None,
         display: bool = True,
         lr: float = 1e-3,
         numberOfClasses: int = 5,
@@ -64,7 +64,7 @@ class MetaLearnerOptions:
         maxTrainingDataPerClass: int = 50,
         queryDataPerClass: int = 10,
         datasetDevice: Literal["cpu", "cuda"] = "cuda",
-        continueTraining: str = None,
+        continueTraining: str | None = None,
     ):
 
         self.model = model

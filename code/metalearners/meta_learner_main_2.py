@@ -9,13 +9,13 @@ from typing import Literal
 
 import numpy as np
 import torch
-from code.synapses.complex_synapse_2 import ComplexSynapse_2
-from code.misc.dataset import DataProcess, EmnistDataset
+from misc.dataset import DataProcess, EmnistDataset
+from misc.utils import Plot, log, meta_stats
 from ray import train, tune
+from synapses.complex_synapse_2 import ComplexSynapse_2
 from torch import nn, optim
 from torch.utils.data import DataLoader, RandomSampler
 from torch.utils.tensorboard import SummaryWriter
-from code.misc.utils import Plot, log, meta_stats
 
 
 class RosenbaumChemicalNN(nn.Module):
