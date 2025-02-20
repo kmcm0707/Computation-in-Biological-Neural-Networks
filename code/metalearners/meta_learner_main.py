@@ -315,6 +315,12 @@ class MetaLearner:
         elif self.options.chemicalInitialization == chemicalEnum.zero:
             for chemical in chemicals:
                 nn.init.zeros_(chemical)
+        elif self.options.chemicalInitialization == chemicalEnum.different:
+            for chemical in chemicals:
+                for idx in range(chemical.shape[0]):
+                    nn.init.xavier_uniform_(chemical[idx])
+            if self.numberOfChemicals > 1:
+                assert chemicals[0] != chemicals[1]
         else:
             raise ValueError("Invalid Chemical Initialization")
 
@@ -694,7 +700,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=minTau,  # + 1 / 50,
+            minTau=3,  # + 1 / 50,
             maxTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
@@ -800,7 +806,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         lr=0.0003,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,
         trainFeedback=False,
         feedbackModel=feedbackModel,
         minTrainingDataPerClass=minTrainingDataPerClass,
@@ -824,6 +830,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     metalearning_model.train()
+    exit()
 
 
 def main():
@@ -843,4 +850,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="min_tau_testing", index=i)
+        run(seed=1, display=True, result_subdirectory="different_inital", index=i)

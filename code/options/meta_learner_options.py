@@ -33,6 +33,7 @@ class modelEnum(Enum):
 class chemicalEnum(Enum):
     same = "same"
     zero = "zero"
+    different = "different"
 
 
 class MetaLearnerOptions:
