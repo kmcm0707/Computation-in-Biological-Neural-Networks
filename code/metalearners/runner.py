@@ -407,7 +407,14 @@ class Runner:
         print("Runner complete.")
 
 
-def run(seed: int, display: bool = True, result_subdirectory: str = "testing", index: int = 0) -> None:
+def run(
+    seed: int,
+    display: bool = True,
+    result_subdirectory: str = "testing",
+    index: int = 0,
+    minTau: int = 0,
+    modelPath=None,
+) -> None:
     """
         Main function for Meta-learning the plasticity rule.
 
@@ -430,7 +437,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     random.seed(seed)
 
     # -- load data
-    numWorkers = 2
+    numWorkers = 3
     epochs = 50
 
     dataset_name = "EMNIST"
@@ -461,7 +468,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         )
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
-    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True)
+    metatrain_dataset = DataLoader(
+        dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True, num_workers=numWorkers
+    )
 
     # -- options
     model = modelEnum.complex
@@ -474,7 +483,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=2,
+            minTau=minTau,
             maxTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
@@ -564,22 +573,22 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- path to load model
     # results = os.getcwd() + "/results"
-    modelPath = (
-        # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_ind_v_diff_lr\0\0.0009"
-        # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\Mode_1\baselines\0\3"
-        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\varied_training\1\20250213-134357"
-        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\longer_train_test\1\20250213-154422"
-        # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\super_varied_longer_train_test\1\20250213-180025"
-        # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_0\0\20250203-234503"
-        # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\individual_no_bias\1\individual_no_bias_recreate\1\20250211-010125"
-        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\rosenbaum_recreate\1\20250215-003840"
-        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\rosenbaum_recreate\1\20250215-010641"
-        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\attention_test\0\20250215-204423"
-        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_extra_long\0\20250216-035231"
-        r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_4_extra_long\100_max_tau"
-        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_3_extra_long\1\20250216-185131"
-        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_3_extra_long\1\20250217-005224"
-    )
+    # modelPath = (
+    # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_ind_v_diff_lr\0\0.0009"
+    # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\Mode_1\baselines\0\3"
+    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\varied_training\1\20250213-134357"
+    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\longer_train_test\1\20250213-154422"
+    # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\super_varied_longer_train_test\1\20250213-180025"
+    # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_0\0\20250203-234503"
+    # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\individual_no_bias\1\individual_no_bias_recreate\1\20250211-010125"
+    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\rosenbaum_recreate\1\20250215-003840"
+    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\rosenbaum_recreate\1\20250215-010641"
+    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\attention_test\0\20250215-204423"
+    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_extra_long\0\20250216-035231"
+    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_4_extra_long\100_max_tau"
+    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_3_extra_long\1\20250216-185131"
+    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_3_extra_long\1\20250217-005224"
+    # )
     # list_of_files = os.listdir(modelPath)
     # modelPath = modelPath + "/" + list_of_files[1]
 
@@ -604,7 +613,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 4
+    numberOfChemicals = 3
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -635,5 +644,19 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    for index in range(0, 19):
-        run(seed=0, display=True, result_subdirectory="runner_y0_4_extra_long_100", index=index)
+    current_directory = os.getcwd()
+    results = current_directory + "/results"
+    min_tau_testing_directory = results + "/min_tau_testing/1"
+    all = os.listdir(min_tau_testing_directory)
+    min_taus = [1 + 1 / 50, 2, 3, 4, 5]
+    for i in range(0, len(all)):
+        modelPath = min_tau_testing_directory + "/" + all[i]
+        for index in range(0, 19):
+            run(
+                seed=0,
+                display=True,
+                result_subdirectory="runner_min_tau_testing_{}".format(all[i]),
+                index=index,
+                minTau=min_taus[i],
+                modelPath=modelPath,
+            )
