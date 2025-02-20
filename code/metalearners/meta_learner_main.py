@@ -320,7 +320,7 @@ class MetaLearner:
                 for idx in range(chemical.shape[0]):
                     nn.init.xavier_uniform_(chemical[idx])
             if self.numberOfChemicals > 1:
-                assert chemicals[0][0] is not chemicals[1][0]
+                assert chemicals[0][0] is not chemicals[0][1]
         else:
             raise ValueError("Invalid Chemical Initialization")
 
