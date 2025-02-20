@@ -596,7 +596,7 @@ def run(
     # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_3_extra_long\1\20250217-005224"
     # )
     # list_of_files = os.listdir(modelPath)
-    modelPath = os.getcwd() + "/results/different_inital/1/post_trained"
+    modelPath = os.getcwd() + "/results/different_inital/1/20250220-183747"
 
     # -- runner options
     runnerOptions = RunnerOptions(
