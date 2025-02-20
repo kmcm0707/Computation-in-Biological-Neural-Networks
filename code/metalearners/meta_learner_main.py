@@ -660,7 +660,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 150
+    maxTrainingDataPerClass = 80
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
@@ -788,7 +788,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results/y0_5_extra_long_200/20250218-171551"
+    continue_training = current_dir + "/results/different_inital/1/20250220-183747"
     # -- meta-learner options
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
@@ -813,7 +813,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice="cuda",  # if running out of memory, change to "cpu"
-        continueTraining=None,
+        continueTraining=continue_training,
     )
 
     #   -- number of chemicals
