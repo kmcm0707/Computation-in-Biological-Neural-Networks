@@ -449,9 +449,9 @@ def run(
     dataset_name = "EMNIST"
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    # trainingDataPerClass = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
+    trainingDataPerClass = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
-    trainingDataPerClass = [200, 250, 300, 350, 375]
+    #trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
