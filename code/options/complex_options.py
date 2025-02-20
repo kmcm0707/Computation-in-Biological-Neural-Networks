@@ -34,6 +34,7 @@ class kMatrixEnum(Enum):
     xavier = "xavier"
     uniform = "uniform"
     zero = "zero"
+    identiy = "identity"
 
 
 class zVectorEnum(Enum):
