@@ -128,7 +128,7 @@ class Runner:
                 + "/"
                 + str(self.options.seed)
                 + "/"
-                + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+                + str(self.options.minTrainingDataPerClass)
             )
             os.makedirs(self.result_directory, exist_ok=False)
             with open(self.result_directory + "/arguments.txt", "w") as f:
@@ -485,7 +485,7 @@ def run(
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4, 8, 9],
+            update_rules=[0, 1, 2, 3, 4, 5, 8, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
@@ -596,7 +596,7 @@ def run(
     # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_3_extra_long\1\20250217-005224"
     # )
     # list_of_files = os.listdir(modelPath)
-    modelPath = os.getcwd() + "/results/different_inital/1/20250220-183747"
+    modelPath = os.getcwd() + "/results/lr_5/1/20250220-210326"
 
     # -- runner options
     runnerOptions = RunnerOptions(
@@ -610,7 +610,7 @@ def run(
         display=display,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         trainFeedback=False,
         feedbackModel=feedbackModel,
         minTrainingDataPerClass=minTrainingDataPerClass,
@@ -665,7 +665,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_rosenbaum_varied",
+                result_subdirectory="runner_lr_5",
                 index=index,
             )
         exit()
