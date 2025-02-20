@@ -649,8 +649,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     random.seed(seed)
 
     # -- load data
-    numWorkers = 3
-    epochs = 800
+    numWorkers = 4
+    epochs = 500
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
@@ -807,7 +807,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice="cuda",  # if running out of memory, change to "cpu"
-        continueTraining=continue_training,
+        continueTraining=None,
     )
 
     #   -- number of chemicals
