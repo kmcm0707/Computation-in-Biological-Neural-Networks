@@ -226,6 +226,12 @@ class Runner:
         elif self.options.chemicalInitialization == chemicalEnum.zero:
             for chemical in chemicals:
                 nn.init.zeros_(chemical)
+        elif self.options.chemicalInitialization == chemicalEnum.different:
+            for chemical in chemicals:
+                for idx in range(chemical.shape[0]):
+                    nn.init.xavier_uniform_(chemical[idx])
+            if self.numberOfChemicals > 1:
+                assert chemicals[0][0] is not chemicals[0][1]
         else:
             raise ValueError("Invalid Chemical Initialization")
 
@@ -483,13 +489,13 @@ def run(
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=1,
-            maxTau=50,
-            y_vector=yVectorEnum.first_one,
-            z_vector=zVectorEnum.default,
+            minTau=2,
+            maxTau=100,
+            y_vector=yVectorEnum.none,
+            z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_4,
             train_z_vector=False,
-            mode=modeEnum.rosenbaum,
+            mode=modeEnum.all,
             v_vector=vVectorEnum.default,
             eta=1,
             beta=0,  ## Only for v_vector=random_beta
@@ -572,25 +578,25 @@ def run(
     feedbackModelOptions = modelOptions
 
     # -- path to load model
-    # results = os.getcwd() + "/results"
-    modelPath = (
-        # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_ind_v_diff_lr\0\0.0009"
-        # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\Mode_1\baselines\0\3"
-        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\varied_training\1\20250213-134357"
-        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\longer_train_test\1\20250213-154422"
-        # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\super_varied_longer_train_test\1\20250213-180025"
-        # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_0\0\20250203-234503"
-        # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\individual_no_bias\1\individual_no_bias_recreate\1\20250211-010125"
-        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\rosenbaum_recreate\1\20250215-003840"
-        r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\rosenbaum_recreate\1\20250215-010641"
-        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\attention_test\0\20250215-204423"
-        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_extra_long\0\20250216-035231"
-        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_4_extra_long\100_max_tau"
-        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_3_extra_long\1\20250216-185131"
-        # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_3_extra_long\1\20250217-005224"
-    )
+    results = os.getcwd() + "/results"
+    # modelPath = (
+    # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_ind_v_diff_lr\0\0.0009"
+    # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\Mode_1\baselines\0\3"
+    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\varied_training\1\20250213-134357"
+    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\longer_train_test\1\20250213-154422"
+    # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\super_varied_longer_train_test\1\20250213-180025"
+    # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_0\0\20250203-234503"
+    # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\individual_no_bias\1\individual_no_bias_recreate\1\20250211-010125"
+    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\rosenbaum_recreate\1\20250215-003840"
+    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\rosenbaum_recreate\1\20250215-010641"
+    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\attention_test\0\20250215-204423"
+    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_extra_long\0\20250216-035231"
+    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_4_extra_long\100_max_tau"
+    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_3_extra_long\1\20250216-185131"
+    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_3_extra_long\1\20250217-005224"
+    # )
     # list_of_files = os.listdir(modelPath)
-    # modelPath = modelPath + "/" + list_of_files[1]
+    modelPath = os.getcwd() + "/results/different_inital/1/post_trained"
 
     # -- runner options
     runnerOptions = RunnerOptions(
@@ -604,7 +610,7 @@ def run(
         display=display,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,
         trainFeedback=False,
         feedbackModel=feedbackModel,
         minTrainingDataPerClass=minTrainingDataPerClass,
@@ -613,7 +619,7 @@ def run(
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 1
+    numberOfChemicals = 3
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
