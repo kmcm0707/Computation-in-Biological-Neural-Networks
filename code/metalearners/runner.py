@@ -648,7 +648,11 @@ def runner_main():
     results = current_directory + "/results"
     min_tau_testing_directory = results + "/min_tau_testing/1"
     all = os.listdir(min_tau_testing_directory)
-    min_taus = [1 + 1 / 50, 2, 3, 4, 5]
+    all = [int(i) for i in all]
+    all.sort()
+    all = [str(i) for i in all]
+    all = all[4:-1]
+    min_taus = [10, 20, 30, 40, 50, 60]
     for i in range(0, len(all)):
         modelPath = min_tau_testing_directory + "/" + all[i]
         for index in range(0, 19):
