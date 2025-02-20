@@ -685,7 +685,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
     # beta = [1, 0.1, 0.01, 0.001, 0.0001]
     # schedulerT0 = [10, 20, 30, 40][index]
-    minTau = [1 + 1 / 50, 2, 3, 4, 5][index]
+    minTau = [10, 20, 30, 40, 50, 60][index]
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
