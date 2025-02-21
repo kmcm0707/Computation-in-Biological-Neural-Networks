@@ -651,7 +651,8 @@ def runner_main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     current_dir = os.getcwd() + "/results/y0_5_extra_long_200"
-    to_do = os.listdir(current_dir)[0:2]
+    to_do = [os.listdir(current_dir)[-1]]
+    print(to_do)
     for i in to_do:
         for index in range(0, 19):
             run(
