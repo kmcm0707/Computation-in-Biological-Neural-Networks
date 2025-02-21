@@ -337,7 +337,7 @@ class ComplexSynapse(nn.Module):
         self.operator = self.options.operator
 
         ## Attention mechanism
-        if self.operator == operatorEnum.attention:
+        """if self.operator == operatorEnum.attention:
             self.A = nn.Parameter(
                 torch.nn.init.xavier_normal_(
                     torch.empty(
@@ -479,7 +479,7 @@ class ComplexSynapse(nn.Module):
         elif self.operator == operatorEnum.compressed_v_linear:
             # v_+1 = linear(update, time)
             self.linear_v = nn.Linear(11, self.number_chemicals, device=self.device)
-            self.all_meta_parameters.append(self.linear_v)
+            self.all_meta_parameters.append(self.linear_v)"""
 
     @torch.no_grad()
     def reset_time_index(self):

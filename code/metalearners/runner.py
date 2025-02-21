@@ -451,7 +451,7 @@ def run(
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
     trainingDataPerClass = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
-    #trainingDataPerClass = [200, 250, 300, 350, 375]
+    # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
@@ -490,7 +490,7 @@ def run(
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,
-            maxTau=100,
+            maxTau=200,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_4,
@@ -596,7 +596,7 @@ def run(
     # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_3_extra_long\1\20250217-005224"
     # )
     # list_of_files = os.listdir(modelPath)
-    modelPath = os.getcwd() + "/results/lr_5/1/20250220-210326"
+    # modelPath = r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_0\100_200_max_tau\y0_5_extra_long_200\500_epochs"
 
     # -- runner options
     runnerOptions = RunnerOptions(
@@ -619,7 +619,7 @@ def run(
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 3
+    numberOfChemicals = 5
     # -- meta-train
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -650,22 +650,14 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    current_directory = os.getcwd()
-    results = current_directory + "/results"
-    min_tau_testing_directory = results + "/min_tau_testing/1"
-    all = os.listdir(min_tau_testing_directory)
-    all = [int(i) for i in all]
-    all.sort()
-    all = [str(i) for i in all]
-    all = all[4:-1]
-    min_taus = [10, 20, 30, 40, 50, 60]
-    for i in range(0, len(all)):
-        modelPath = min_tau_testing_directory + "/" + all[i]
+    current_dir = os.getcwd() + "/results/y0_5_extra_long_200"
+    to_do = os.listdir(current_dir)[0:2]
+    for i in to_do:
         for index in range(0, 19):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_lr_5",
+                result_subdirectory="runner_{}".format(i),
                 index=index,
+                modelPath=current_dir + "/" + i,
             )
-        exit()

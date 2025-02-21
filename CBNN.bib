@@ -675,6 +675,40 @@
   file = {C\:\\Users\\Kyle\\Zotero\\storage\\IUJ5YR56\\Kaplanis et al. - 2018 - Continual Reinforcement Learning with Complex Synapses.pdf;C\:\\Users\\Kyle\\Zotero\\storage\\7PXRAJMH\\1802.html}
 }
 
+@online{lambProfessorForcingNew2016,
+  title = {Professor {{Forcing}}: {{A New Algorithm}} for {{Training Recurrent Networks}}},
+  shorttitle = {Professor {{Forcing}}},
+  author = {Lamb, Alex and Goyal, Anirudh and Zhang, Ying and Zhang, Saizheng and Courville, Aaron and Bengio, Yoshua},
+  date = {2016-10-27},
+  eprint = {1610.09038},
+  eprinttype = {arXiv},
+  eprintclass = {stat},
+  doi = {10.48550/arXiv.1610.09038},
+  url = {http://arxiv.org/abs/1610.09038},
+  urldate = {2025-02-21},
+  abstract = {The Teacher Forcing algorithm trains recurrent networks by supplying observed sequence values as inputs during training and using the network's own one-step-ahead predictions to do multi-step sampling. We introduce the Professor Forcing algorithm, which uses adversarial domain adaptation to encourage the dynamics of the recurrent network to be the same when training the network and when sampling from the network over multiple time steps. We apply Professor Forcing to language modeling, vocal synthesis on raw waveforms, handwriting generation, and image generation. Empirically we find that Professor Forcing acts as a regularizer, improving test likelihood on character level Penn Treebank and sequential MNIST. We also find that the model qualitatively improves samples, especially when sampling for a large number of time steps. This is supported by human evaluation of sample quality. Trade-offs between Professor Forcing and Scheduled Sampling are discussed. We produce T-SNEs showing that Professor Forcing successfully makes the dynamics of the network during training and sampling more similar.},
+  pubstate = {prepublished},
+  keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
+  file = {C\:\\Users\\Kyle\\Zotero\\storage\\TYB5NYBT\\Lamb et al. - 2016 - Professor Forcing A New Algorithm for Training Recurrent Networks.pdf;C\:\\Users\\Kyle\\Zotero\\storage\\YAM7EJ3G\\1610.html}
+}
+
+@online{leSimpleWayInitialize2015,
+  title = {A {{Simple Way}} to {{Initialize Recurrent Networks}} of {{Rectified Linear Units}}},
+  author = {Le, Quoc V. and Jaitly, Navdeep and Hinton, Geoffrey E.},
+  date = {2015-04-07},
+  eprint = {1504.00941},
+  eprinttype = {arXiv},
+  eprintclass = {cs},
+  doi = {10.48550/arXiv.1504.00941},
+  url = {http://arxiv.org/abs/1504.00941},
+  urldate = {2025-02-21},
+  abstract = {Learning long term dependencies in recurrent networks is difficult due to vanishing and exploding gradients. To overcome this difficulty, researchers have developed sophisticated optimization techniques and network architectures. In this paper, we propose a simpler solution that use recurrent neural networks composed of rectified linear units. Key to our solution is the use of the identity matrix or its scaled version to initialize the recurrent weight matrix. We find that our solution is comparable to a standard implementation of LSTMs on our four benchmarks: two toy problems involving long-range temporal structures, a large language modeling problem and a benchmark speech recognition problem.},
+  langid = {english},
+  pubstate = {prepublished},
+  keywords = {Computer Science - Machine Learning,Computer Science - Neural and Evolutionary Computing},
+  file = {C:\Users\Kyle\Zotero\storage\6SBKI28H\Le et al. - 2015 - A Simple Way to Initialize Recurrent Networks of Rectified Linear Units.pdf}
+}
+
 @article{lillicrapRandomSynapticFeedback2016,
   title = {Random Synaptic Feedback Weights Support Error Backpropagation for Deep Learning},
   author = {Lillicrap, Timothy P. and Cownden, Daniel and Tweed, Douglas B. and Akerman, Colin J.},
@@ -751,6 +785,15 @@
   isbn = {978-981-13-1686-9 978-981-13-1687-6},
   langid = {english},
   keywords = {dynamical system,Machine Learning,Neural Networks,Reservoir Computing,Signal Processing,Soft Robotics,spintronics}
+}
+
+@online{PapersCodeDiscriminative,
+  title = {Papers with {{Code}} - {{Discriminative Fine-Tuning Explained}}},
+  url = {https://paperswithcode.com/method/discriminative-fine-tuning},
+  urldate = {2025-02-21},
+  abstract = {Discriminative Fine-Tuning is a fine-tuning strategy that is used for ULMFiT type models. Instead of using the same learning rate for all layers of the model, discriminative fine-tuning allows us to tune each layer with different learning rates. For context, the regular stochastic gradient descent (SGD) update of a model’s parameters \$\textbackslash theta\$ at time step \$t\$ looks like the following (Ruder, 2016): \$\$ \textbackslash theta\_\{t\} = \textbackslash theta\_\{t-1\} − \textbackslash eta\textbackslash cdot\textbackslash nabla\_\{\textbackslash theta\}J\textbackslash left(\textbackslash theta\textbackslash right)\$\$ where \$\textbackslash eta\$ is the learning rate and \$\textbackslash nabla\_\{\textbackslash theta\}J\textbackslash left(\textbackslash theta\textbackslash right)\$ is the gradient with regard to the model’s objective function. For discriminative fine-tuning, we split the parameters \$\textbackslash theta\$ into \{\$\textbackslash theta\_\{1\}, \textbackslash ldots, \textbackslash theta\_\{L\}\$\} where \$\textbackslash theta\_\{l\}\$ contains the parameters of the model at the \$l\$-th layer and \$L\$ is the number of layers of the model. Similarly, we obtain \{\$\textbackslash eta\_\{1\}, \textbackslash ldots, \textbackslash eta\_\{L\}\$\} where \$\textbackslash theta\_\{l\}\$ where \$\textbackslash eta\_\{l\}\$ is the learning rate of the \$l\$-th layer. The SGD update with discriminative finetuning is then: \$\$ \textbackslash theta\_\{t\}\textasciicircum\{l\} = \textbackslash theta\_\{t-1\}\textasciicircum\{l\} - \textbackslash eta\textasciicircum\{l\}\textbackslash cdot\textbackslash nabla\_\{\textbackslash theta\textasciicircum\{l\}\}J\textbackslash left(\textbackslash theta\textbackslash right) \$\$ The authors find that empirically it worked well to first choose the learning rate \$\textbackslash eta\textasciicircum\{L\}\$ of the last layer by fine-tuning only the last layer and using \$\textbackslash eta\textasciicircum\{l-1\}=\textbackslash eta\textasciicircum\{l\}/2.6\$ as the learning rate for lower layers.},
+  langid = {english},
+  file = {C:\Users\Kyle\Zotero\storage\8BEQE79E\discriminative-fine-tuning.html}
 }
 
 @incollection{pathakReservoirComputingForecasting2021,
