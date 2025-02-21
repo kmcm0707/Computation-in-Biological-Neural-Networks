@@ -265,9 +265,9 @@
 %<<< title and authors
 \renewcommand\Authands{ and } 
 %\title{What dynamical regime is the cortex in?}
-\title{Complex synapse backprop}
+\title{Complex synapses}
 
-\author[1]{Yashar Ahmadian}%${}^{\star}$} 
+\author[1]{KM and Yashar Ahmadian}%${}^{\star}$} 
 
 
 \begin{document}
@@ -279,98 +279,29 @@
 % \end{abstract}
 
 % ---------------------------------------------------
-\section{Introduction}
+\section*{21/02/2025}
 
+Done:
+\begin{itemize}
+  \item 4 Chems, tau max = 200, 500 epochs
+  \item 5 Chems, tau max = 200, 500 epochs
+  \item 5 Chems, tau max = 200, 500 epochs and then 100 epochs fine tune
+  \item 5 Chems, tau max = 200, 500 epochs and then 300 epochs fine tune
+  \item Varied Rosenbaum
+  \item tau min sweep (turns out same due to K matrix)
+  \item Reason for P increase in last layer: https://paperswithcode.com/method/discriminative-fine-tuning
+  \item New LR: $softmax(\y_{l+1})^T (W_l - \y_l[None,:]) $ - improvement for low number of images
+  \item Tested v = linear(v-1, h, t, F) and v = attention(h, t, F) (compressed) no improvement and made it worse
+  \item Tested setting h's different (need to do a runner but looks worse on a check, maybe same?)  
+\end{itemize}
 
+Need to Do:
 
-
-
-\begin{align}
-    \h(t+1) &= \y \sdot \h(t) + \z\sdot \phi(K\h(t) + PF)
-    \\
-    \y_t &= \sigma(K_y \h_t + P_y \f_t + \b{b}_y)
-    \\
-    \z_t &= \sigma(K_z \h_t + P_z \f_t + \b{b}_z)
-    \\
-    w(t+1) &= \boldsymbol{v} . \h(t+1)
-    \\
-\end{align}
-where $\sigma$ is the sigmoid function, and 
-\begin{equation}
-\phi(x) = \beta^{-1}\tanh(\beta x)
-\end{equation}
-(in the limit of $\beta\to 0$, this function tends to the identity function, while for large $\beta$ it is approximately  $\beta^{-1}$ times the sign function, $\text{sgn} x$).
-
-For the time being, we will set $K_y=P_y = K_z=P_z = 0$.
-In fact, for more immediate time being, we will not train the $\b{b}_y$  and $\b{b}_z$'s either, but set $\y$ and $\z$ by hand according to:
-
-\begin{align}
-    z_i = \tau_{\min} (\tau_{\max}/\tau_{\min})^{i/L}
-\end{align}
-
-And for all components, but the last one (the chemical with the slowest timescale $\tau_{\max}$), we set $y_i  = 1 - z_i$. and for the last component we set $y_{L-1} = 1$.
-
-
-
-Let's initialize as follows: 
-\begin{align}
-K &= 0
-\\
-P[L-1, :] &= \bm{\theta} / z_{L-1} =: \b{p}
-\\
-P[0:L-1, :] &= 0
-\\
-\beta = \text{ some small value}
-\end{align}
-(the value of $\beta$ should be set such with the initialized value of P the order of magnitude of $\beta \b{p}\cdot \f_t$ is $\ll 1$).
+\begin{itemize}
+  \item Remove Bias memory
+  \item Remove redundant for complex Synapse
+  \item Create RNN
+  \item Add RNN learning rules
+\end{itemize}
 
 \end{document}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
