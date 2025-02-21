@@ -700,11 +700,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=3,  # + 1 / 50,
+            minTau=2,  # + 1 / 50,
             maxTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_4,
+            operator=operatorEnum.compressed_v_linear,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -850,4 +850,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="lr_5", index=i)
+        run(seed=1, display=True, result_subdirectory="compressed_v_lin", index=i)

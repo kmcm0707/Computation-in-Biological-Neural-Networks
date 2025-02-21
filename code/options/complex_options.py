@@ -65,6 +65,7 @@ class operatorEnum(Enum):
     full_attention = "full_attention"
     compressed_full_attention = "compressed_full_attention"
     v_linear = "v_linear"
+    compressed_v_linear = "compressed_v_linear"
 
 
 class vVectorEnum(Enum):
