@@ -819,8 +819,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     #   -- number of chemicals
     numberOfChemicals = 3
     # -- meta-train
-    device: Literal["cpu", "cuda"] = "cuda" if torch.cuda.is_available() else "cpu"
-    # device = "cpu"
+    #device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
+    device = "cpu"
     metalearning_model = MetaLearner(
         device=device,
         numberOfChemicals=numberOfChemicals,
