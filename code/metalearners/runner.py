@@ -101,14 +101,18 @@ class Runner:
             )
 
         # -- load chemical model
-        state_dict = torch.load(self.options.modelPath + "/UpdateWeights.pth", weights_only=True)
+        state_dict = torch.load(
+            self.options.modelPath + "/UpdateWeights.pth", weights_only=True, map_location=self.device
+        )
         if self.options.model == modelEnum.individual:
             if "v_vector" in state_dict:
                 state_dict["v_dictionary.all"] = state_dict["v_vector"].clone()
                 state_dict.pop("v_vector")
         self.UpdateWeights.load_state_dict(state_dict)
         if self.options.trainFeedback:
-            feedback_state_dict = torch.load(self.options.modelPath + "/UpdateFeedbackWeights.pth", weights_only=True)
+            feedback_state_dict = torch.load(
+                self.options.modelPath + "/UpdateFeedbackWeights.pth", weights_only=True, map_location=self.device
+            )
             if self.options.feedbackModel == modelEnum.individual:
                 if "v_vector" in feedback_state_dict:
                     feedback_state_dict["v_dictionary.all"] = feedback_state_dict["v_vector"].clone()
