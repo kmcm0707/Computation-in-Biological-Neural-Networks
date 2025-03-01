@@ -478,7 +478,7 @@ class MetaLearner:
                 if self.options.typeOfFeedback == "FA":
                     # add the error for all the layers
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(0, torch.matmul(error[0], feedback[i]))   * (1 - torch.exp(-self.model.beta * y)))
+                        error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
                 elif self.options.typeOfFeedback == "DFA":
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(
@@ -831,7 +831,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     #   -- number of chemicals
     numberOfChemicals = 3
     # -- meta-train
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cpu"
     metalearning_model = MetaLearner(
         device=device,
