@@ -482,8 +482,7 @@ class MetaLearner:
                 elif self.options.typeOfFeedback == "DFA":
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(
-                            0, torch.matmul(error[-1], feedback[i])
-                        )  # * (1 - torch.exp(-self.model.beta * y)))
+                            0, torch.matmul(error[-1], feedback[i])* (1 - torch.exp(-self.model.beta * y)))
                 activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
                 # -- update network params
@@ -862,4 +861,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="DFA_test", index=i)
+        run(seed=1, display=True, result_subdirectory="DFA_grad_test", index=i)
