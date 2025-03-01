@@ -482,12 +482,16 @@ class MetaLearner:
                 elif self.options.typeOfFeedback == "DFA":
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(
+<<<<<<< HEAD
                             0, torch.matmul(error[-1], feedback[i])
                         )  # * (1 - torch.exp(-self.model.beta * y)))
                 elif self.options.typeOfFeedback == "scalar":
                     error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(0, torch.matmul(error_scalar, feedback[i]))
+=======
+                            0, torch.matmul(error[-1], feedback[i])* (1 - torch.exp(-self.model.beta * y)))
+>>>>>>> 1912419abe751a6b4ceb4e4bbfeec584e0111c08
                 activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
                 # -- update network params
