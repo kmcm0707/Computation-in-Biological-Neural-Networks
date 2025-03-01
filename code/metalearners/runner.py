@@ -405,6 +405,7 @@ class Runner:
                 self.model.beta,
                 self.result_directory,
                 self.save_results,
+                typeOfFeedback=self.options.typeOfFeedback,
             )
 
             # -- log

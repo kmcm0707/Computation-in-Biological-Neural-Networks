@@ -278,6 +278,9 @@ def meta_stats(logits, params, label, y, Beta, res_dir, save=True, typeOfFeedbac
         elif typeOfFeedback == "DFA":
             for y_, i in zip(reversed(y), reversed(list(B))):
                 e.insert(0, torch.matmul(e[-1], B[i]))  # * (1 - torch.exp(-Beta * y_)))
+        elif typeOfFeedback == "DFA_grad":
+            for y_, i in zip(reversed(y), reversed(list(B))):
+                e.insert(0, torch.matmul(e[-1], B[i]))
         elif typeOfFeedback == "scalar":
             error_scalar = torch.norm(e[0], p=2, dim=1, keepdim=True)
             for y_, i in zip(reversed(y), reversed(list(B))):
