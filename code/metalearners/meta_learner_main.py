@@ -473,7 +473,7 @@ class MetaLearner:
                 error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=47)]
                 # add the error for all the layers
                 for y, i in zip(reversed(activations), reversed(list(feedback))):
-                    error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
+                    error.insert(0, torch.matmul(error[0], feedback[i]))  # * (1 - torch.exp(-self.model.beta * y)))
                 activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
                 # -- update network params
@@ -819,7 +819,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     #   -- number of chemicals
     numberOfChemicals = 3
     # -- meta-train
-    #device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
+    # device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
     device = "cpu"
     metalearning_model = MetaLearner(
         device=device,
@@ -850,4 +850,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="compressed_v_lin", index=i)
+        run(seed=1, display=True, result_subdirectory="error_no_diff", index=i)
