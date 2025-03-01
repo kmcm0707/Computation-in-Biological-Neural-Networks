@@ -481,6 +481,9 @@ class MetaLearner:
                         error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
                 elif self.options.typeOfFeedback == "DFA":
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
+                        error.insert(0, torch.matmul(error[-1], feedback[i]))
+                elif self.options.typeOfFeedback == "DFA_grad":
+                    for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(0, torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
                 elif self.options.typeOfFeedback == "scalar":
                     error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)

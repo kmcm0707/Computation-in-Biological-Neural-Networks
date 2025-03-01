@@ -28,6 +28,7 @@ class RunnerOptions:
         minTrainingDataPerClass: int = 40,
         maxTrainingDataPerClass: int = 60,
         queryDataPerClass: int = 10,
+        typeOfFeedback: Literal["FA", "DFA", "DFA_grad", "scalar"] = "FA",
     ):
 
         self.model = model
@@ -46,6 +47,7 @@ class RunnerOptions:
         self.minTrainingDataPerClass = minTrainingDataPerClass
         self.maxTrainingDataPerClass = maxTrainingDataPerClass
         self.queryDataPerClass = queryDataPerClass
+        self.typeOfFeedback = typeOfFeedback
 
     def __str__(self):
         string = ""

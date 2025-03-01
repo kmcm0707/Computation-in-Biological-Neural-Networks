@@ -192,7 +192,11 @@ class Runner:
         """
 
         model = ChemicalNN(
-            self.device, self.numberOfChemicals, small=self.options.small, train_feedback=self.options.trainFeedback
+            self.device,
+            self.numberOfChemicals,
+            small=self.options.small,
+            train_feedback=self.options.trainFeedback,
+            typeOfFeedback=self.options.typeOfFeedback,
         )
 
         # -- learning flags
@@ -340,8 +344,19 @@ class Runner:
                 feedback = {name: value for name, value in params.items() if "feedback" in name}
                 error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=47)]
                 # add the error for all the layers
-                for y, i in zip(reversed(activations), reversed(list(feedback))):
-                    error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
+                if self.options.typeOfFeedback == "FA":
+                    for y, i in zip(reversed(activations), reversed(list(feedback))):
+                        error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
+                elif self.options.typeOfFeedback == "DFA":
+                    for y, i in zip(reversed(activations), reversed(list(feedback))):
+                        error.insert(0, torch.matmul(error[-1], feedback[i]))
+                elif self.options.typeOfFeedback == "DFA_grad":
+                    for y, i in zip(reversed(activations), reversed(list(feedback))):
+                        error.insert(0, torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
+                elif self.options.typeOfFeedback == "scalar":
+                    error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)
+                    for y, i in zip(reversed(activations), reversed(list(feedback))):
+                        error.insert(0, torch.matmul(error_scalar, feedback[i]))
                 activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
                 # -- update network params
@@ -490,7 +505,7 @@ def run(
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,
-            maxTau=200,
+            maxTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_4,
@@ -578,7 +593,7 @@ def run(
     feedbackModelOptions = modelOptions
 
     # -- path to load model
-    results = os.getcwd() + "/results"
+    modelPath = os.getcwd() + "/results/DFA_grad_test/1/20250301-175734"
     # modelPath = (
     # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_ind_v_diff_lr\0\0.0009"
     # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\Mode_1\baselines\0\3"
@@ -616,12 +631,13 @@ def run(
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
+        typeOfFeedback="DFA_grad",
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 3
     # -- meta-train
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cuda:1" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
     runner = Runner(
         device=device,
@@ -650,15 +666,10 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    current_dir = os.getcwd() + "/results/y0_5_extra_long_200"
-    to_do = [os.listdir(current_dir)[-1]]
-    print(to_do)
-    for i in to_do:
-        for index in range(0, 19):
-            run(
-                seed=0,
-                display=True,
-                result_subdirectory="runner_{}".format(i),
-                index=index,
-                modelPath=current_dir + "/" + i,
-            )
+    for index in range(0, 19):
+        run(
+            seed=0,
+            display=True,
+            result_subdirectory="runner_DFA_grad_test",
+            index=index,
+        )
