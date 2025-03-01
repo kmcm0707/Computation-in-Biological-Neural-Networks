@@ -281,7 +281,11 @@ class MetaLearner:
         """
 
         model = ChemicalNN(
-            self.device, self.numberOfChemicals, small=self.options.small, train_feedback=self.options.trainFeedback
+            self.device,
+            self.numberOfChemicals,
+            small=self.options.small,
+            train_feedback=self.options.trainFeedback,
+            typeOfFeedback=self.options.typeOfFeedback,
         )
 
         # -- learning flags
@@ -471,9 +475,15 @@ class MetaLearner:
                 params = parameters
                 feedback = {name: value for name, value in params.items() if "feedback" in name}
                 error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=47)]
-                # add the error for all the layers
-                for y, i in zip(reversed(activations), reversed(list(feedback))):
-                    error.insert(0, torch.matmul(error[0], feedback[i]))  # * (1 - torch.exp(-self.model.beta * y)))
+                if self.options.typeOfFeedback == "FA":
+                    # add the error for all the layers
+                    for y, i in zip(reversed(activations), reversed(list(feedback))):
+                        error.insert(0, torch.matmul(error[0], feedback[i]))   * (1 - torch.exp(-self.model.beta * y)))
+                elif self.options.typeOfFeedback == "DFA":
+                    for y, i in zip(reversed(activations), reversed(list(feedback))):
+                        error.insert(
+                            0, torch.matmul(error[-1], feedback[i])
+                        )  # * (1 - torch.exp(-self.model.beta * y)))
                 activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
                 # -- update network params
@@ -526,6 +536,7 @@ class MetaLearner:
                 self.model.beta,
                 self.result_directory,
                 self.save_results,
+                self.options.typeOfFeedback,
             )
 
             # -- l1 regularization
@@ -814,13 +825,14 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice="cuda",  # if running out of memory, change to "cpu"
         continueTraining=None,
+        typeOfFeedback="DFA",
     )
 
     #   -- number of chemicals
     numberOfChemicals = 3
     # -- meta-train
-    # device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
-    device = "cpu"
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
+    # device = "cpu"
     metalearning_model = MetaLearner(
         device=device,
         numberOfChemicals=numberOfChemicals,
@@ -850,4 +862,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="error_no_diff", index=i)
+        run(seed=1, display=True, result_subdirectory="DFA_test", index=i)

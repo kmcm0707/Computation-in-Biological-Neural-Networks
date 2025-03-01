@@ -250,7 +250,7 @@ def accuracy(logits, label):
     return torch.eq(pred, label).sum().item() / len(label)
 
 
-def meta_stats(logits, params, label, y, Beta, res_dir, save=True):
+def meta_stats(logits, params, label, y, Beta, res_dir, save=True, typeOfFeedback="FA"):
     """
         Compute meta statistics.
 
@@ -272,8 +272,12 @@ def meta_stats(logits, params, label, y, Beta, res_dir, save=True):
         B = dict({k: v for k, v in params.items() if "feedback" in k})
 
         e = [functional.softmax(logits, dim=1) - functional.one_hot(label, num_classes=47)]
-        for y_, i in zip(reversed(y), reversed(list(B))):
-            e.insert(0, torch.matmul(e[0], B[i]) * (1 - torch.exp(-Beta * y_)))
+        if typeOfFeedback == "FA":
+            for y_, i in zip(reversed(y), reversed(list(B))):
+                e.insert(0, torch.matmul(e[0], B[i]) * (1 - torch.exp(-Beta * y_)))
+        elif typeOfFeedback == "DFA":
+            for y_, i in zip(reversed(y), reversed(list(B))):
+                e.insert(0, torch.matmul(e[-1], B[i]) * (1 - torch.exp(-Beta * y_)))
 
         # -- orthonormality errors
 

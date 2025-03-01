@@ -17,6 +17,7 @@ class ChemicalNN(nn.Module):
         numberOfChemicals: int = 1,
         small: bool = False,
         train_feedback: bool = False,
+        typeOfFeedback: Literal["FA", "DFA"] = "FA",
     ):
 
         # Initialize the parent class
@@ -26,6 +27,13 @@ class ChemicalNN(nn.Module):
         self.device = device
         self.small = small  # Small model for testing
         self.train_feedback = train_feedback  # Train feedback for feedback alignment
+        self.typeOfFeedback = typeOfFeedback  # Feedback alignment or direct feedback alignment
+
+        if self.typeOfFeedback == "DFA" and self.train_feedback:
+            raise ValueError("DFA and train_feedback cannot be used together")
+
+        if self.small and self.train_feedback:
+            raise ValueError("Small and train_feedback cannot be used together")
 
         # Model
         dim_out = 47
@@ -44,26 +52,39 @@ class ChemicalNN(nn.Module):
             self.forward5 = nn.Linear(70, dim_out, bias=False)
             """self.forward_layers = nn.ModuleList([self.forward1, self.forward2, self.forward3, self.forward4, self.forward5])"""
 
-        # Feedback pathway (fixed or symmetric) for plasticity
-        # Symmetric feedback is used for backpropagation training
-        # Fixed feedback is used for feedback alignment meta-learning
-        if self.small:
-            self.feedback1 = nn.Linear(784, 15, bias=False)
-            self.feedback2 = nn.Linear(15, 10, bias=False)
-            self.feedback3 = nn.Linear(10, 5, bias=False)
-            self.feedback4 = nn.Linear(5, dim_out, bias=False)
-        else:
-            self.feedback1 = nn.Linear(784, 170, bias=False)
-            self.feedback2 = nn.Linear(170, 130, bias=False)
-            self.feedback3 = nn.Linear(130, 100, bias=False)
-            self.feedback4 = nn.Linear(100, 70, bias=False)
-            self.feedback5 = nn.Linear(70, dim_out, bias=False)
+        # Feedback pathway for plasticity
+        # Feedback alignment
+        if self.typeOfFeedback == "FA":
+            if self.small:
+                self.feedback1 = nn.Linear(784, 15, bias=False)
+                self.feedback2 = nn.Linear(15, 10, bias=False)
+                self.feedback3 = nn.Linear(10, 5, bias=False)
+                self.feedback4 = nn.Linear(5, dim_out, bias=False)
+            else:
+                self.feedback1 = nn.Linear(784, 170, bias=False)
+                self.feedback2 = nn.Linear(170, 130, bias=False)
+                self.feedback3 = nn.Linear(130, 100, bias=False)
+                self.feedback4 = nn.Linear(100, 70, bias=False)
+                self.feedback5 = nn.Linear(70, dim_out, bias=False)
+        # Direct feedback alignment
+        elif self.typeOfFeedback == "DFA":
+            if self.small:
+                self.feedback1 = nn.Linear(784, dim_out, bias=False)
+                self.feedback2 = nn.Linear(15, dim_out, bias=False)
+                self.feedback3 = nn.Linear(10, dim_out, bias=False)
+                self.feedback4 = nn.Linear(5, dim_out, bias=False)
+            else:
+                self.feedback1 = nn.Linear(784, dim_out, bias=False)
+                self.feedback2 = nn.Linear(170, dim_out, bias=False)
+                self.feedback3 = nn.Linear(130, dim_out, bias=False)
+                self.feedback4 = nn.Linear(100, dim_out, bias=False)
+                self.feedback5 = nn.Linear(70, dim_out, bias=False)
 
         # Layer normalization
-        self.layer_norm1 = nn.LayerNorm(170)
+        """self.layer_norm1 = nn.LayerNorm(170)
         self.layer_norm2 = nn.LayerNorm(130)
         self.layer_norm3 = nn.LayerNorm(100)
-        self.layer_norm4 = nn.LayerNorm(70)
+        self.layer_norm4 = nn.LayerNorm(70)"""
 
         # h(s) - LxW
         self.numberOfChemicals = numberOfChemicals
@@ -80,13 +101,7 @@ class ChemicalNN(nn.Module):
             self.chemical4 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 70, 100), device=self.device))
             self.chemical5 = nn.Parameter(torch.zeros(size=(numberOfChemicals, dim_out, 70), device=self.device))
             self.chemicals = nn.ParameterList(
-                [
-                    self.chemical1,
-                    self.chemical2,
-                    self.chemical3,
-                    self.chemical4,
-                    self.chemical5,
-                ]
+                [self.chemical1, self.chemical2, self.chemical3, self.chemical4, self.chemical5]
             )
 
         # h(s) for feedback
