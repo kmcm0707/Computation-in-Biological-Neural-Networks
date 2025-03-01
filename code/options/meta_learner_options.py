@@ -66,7 +66,7 @@ class MetaLearnerOptions:
         queryDataPerClass: int = 10,
         datasetDevice: Literal["cpu", "cuda"] = "cuda",
         continueTraining: str | None = None,
-        typeOfFeedback: Literal["FA", "DFA"] = "FA",
+        typeOfFeedback: Literal["FA", "DFA", "scalar"] = "FA",
     ):
 
         self.model = model

@@ -484,6 +484,10 @@ class MetaLearner:
                         error.insert(
                             0, torch.matmul(error[-1], feedback[i])
                         )  # * (1 - torch.exp(-self.model.beta * y)))
+                elif self.options.typeOfFeedback == "scalar":
+                    error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)
+                    for y, i in zip(reversed(activations), reversed(list(feedback))):
+                        error.insert(0, torch.matmul(error_scalar, feedback[i]))
                 activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
                 # -- update network params
@@ -825,7 +829,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice="cuda",  # if running out of memory, change to "cpu"
         continueTraining=None,
-        typeOfFeedback="DFA",
+        typeOfFeedback="scalar",
     )
 
     #   -- number of chemicals
@@ -862,4 +866,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="DFA_test", index=i)
+        run(seed=1, display=True, result_subdirectory="scalar_testing", index=i)

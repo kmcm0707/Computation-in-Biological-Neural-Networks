@@ -17,7 +17,7 @@ class ChemicalNN(nn.Module):
         numberOfChemicals: int = 1,
         small: bool = False,
         train_feedback: bool = False,
-        typeOfFeedback: Literal["FA", "DFA"] = "FA",
+        typeOfFeedback: Literal["FA", "DFA", "scalar"] = "FA",
     ):
 
         # Initialize the parent class
@@ -79,6 +79,20 @@ class ChemicalNN(nn.Module):
                 self.feedback3 = nn.Linear(130, dim_out, bias=False)
                 self.feedback4 = nn.Linear(100, dim_out, bias=False)
                 self.feedback5 = nn.Linear(70, dim_out, bias=False)
+        elif self.typeOfFeedback == "scalar":
+            if self.small:
+                self.feedback1 = nn.Linear(784, 1, bias=False)
+                self.feedback2 = nn.Linear(15, 1, bias=False)
+                self.feedback3 = nn.Linear(10, 1, bias=False)
+                self.feedback4 = nn.Linear(5, 1, bias=False)
+            else:
+                self.feedback1 = nn.Linear(784, 1, bias=False)
+                self.feedback2 = nn.Linear(170, 1, bias=False)
+                self.feedback3 = nn.Linear(130, 1, bias=False)
+                self.feedback4 = nn.Linear(100, 1, bias=False)
+                self.feedback5 = nn.Linear(70, 1, bias=False)
+        else:
+            raise ValueError("Invalid type of feedback")
 
         # Layer normalization
         """self.layer_norm1 = nn.LayerNorm(170)
