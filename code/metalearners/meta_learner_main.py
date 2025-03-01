@@ -672,7 +672,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 4
-    epochs = 500
+    epochs = 800
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
@@ -836,7 +836,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     #   -- number of chemicals
     numberOfChemicals = 3
     # -- meta-train
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cpu"
     metalearning_model = MetaLearner(
         device=device,

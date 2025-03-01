@@ -598,7 +598,7 @@ def run(
     feedbackModelOptions = modelOptions
 
     # -- path to load model
-    modelPath = os.getcwd() + "/results/DFA_grad_test/1/20250301-175734"
+    modelPath = os.getcwd() + "/results/DFA_test/1/20250301-165653"
     # modelPath = (
     # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_ind_v_diff_lr\0\0.0009"
     # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\Mode_1\baselines\0\3"
@@ -636,13 +636,13 @@ def run(
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        typeOfFeedback="DFA_grad",
+        typeOfFeedback="DFA",
     )
 
     #   -- number of chemicals
     numberOfChemicals = 3
     # -- meta-train
-    device = "cuda:1" if torch.cuda.is_available() else "cpu"
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
     runner = Runner(
         device=device,
@@ -675,6 +675,6 @@ def runner_main():
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_DFA_grad_test",
+            result_subdirectory="runner_DFA_test",
             index=index,
         )
