@@ -67,7 +67,7 @@ class ChemicalNN(nn.Module):
                 self.feedback4 = nn.Linear(100, 70, bias=False)
                 self.feedback5 = nn.Linear(70, dim_out, bias=False)
         # Direct feedback alignment
-        elif self.typeOfFeedback == "DFA":
+        elif self.typeOfFeedback == "DFA" or self.typeOfFeedback == "DFA_grad":
             if self.small:
                 self.feedback1 = nn.Linear(784, dim_out, bias=False)
                 self.feedback2 = nn.Linear(15, dim_out, bias=False)
