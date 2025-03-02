@@ -469,8 +469,36 @@ def run(
     dataset_name = "EMNIST"
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    # trainingDataPerClass = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
+    trainingDataPerClass = [
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        70,
+        80,
+        90,
+        100,
+        110,
+        120,
+        130,
+        140,
+        150,
+        160,
+        170,
+        180,
+        190,
+        200,
+        225,
+        250,
+        275,
+        300,
+        325,
+        350,
+        375,
+    ]
+    # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
@@ -673,14 +701,14 @@ def runner_main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [
-        os.getcwd() + "/results/DFA_grad_test/1/20250301-175734",
+        os.getcwd() + r"\results\DFA_grad_no5\1\20250302-132048",
     ]
     for i in range(2):
         for index in range(0, 19):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_DFA_grad_test"][i],
+                result_subdirectory=["runner_DFA_grad_no5"][i],
                 index=index,
                 typeOfFeedback=["DFA_grad"][i],
                 modelPath=modelPath_s[i],

@@ -672,11 +672,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 500
+    epochs = 800
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 150
+    maxTrainingDataPerClass = 160
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
@@ -717,7 +717,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=70,
+            maxTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_4,
@@ -804,7 +804,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results/different_inital/1/20250220-183747"
+    continue_training = current_dir + "/results/DFA_grad_test/1/20250301-175734"
     # -- meta-learner options
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
@@ -829,7 +829,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice="cuda:1",  # if running out of memory, change to "cpu"
-        continueTraining=None,
+        continueTraining=continue_training,
         typeOfFeedback="DFA_grad",
     )
 
@@ -867,4 +867,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="DFA_no_grad_no5", index=i)
+        run(seed=1, display=True, result_subdirectory="DFA_grad_test", index=i)
