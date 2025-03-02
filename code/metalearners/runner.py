@@ -673,7 +673,6 @@ def runner_main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [
-        os.getcwd() + "/results/DFA_test/1/20250301-165653",
         os.getcwd() + "/results/DFA_grad_test/1/20250301-175734",
     ]
     for i in range(2):
@@ -681,8 +680,8 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_DFA_test", "runner_DFA_grad_test"][i],
+                result_subdirectory=["runner_DFA_grad_test"][i],
                 index=index,
-                typeOfFeedback=["DFA", "DFA_grad"][i],
+                typeOfFeedback=["DFA_grad"][i],
                 modelPath=modelPath_s[i],
             )
