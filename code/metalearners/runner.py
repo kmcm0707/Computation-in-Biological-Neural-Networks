@@ -438,7 +438,7 @@ def run(
     display: bool = True,
     result_subdirectory: str = "testing",
     index: int = 0,
-    minTau: int = 0,
+    typeOfFeedback: Literal["FA", "DFA", "DFA_grad", "scalar"] = "FA",
     modelPath=None,
 ) -> None:
     """
@@ -469,8 +469,8 @@ def run(
     dataset_name = "EMNIST"
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    trainingDataPerClass = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
+    # trainingDataPerClass = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
+    trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
@@ -598,7 +598,8 @@ def run(
     feedbackModelOptions = modelOptions
 
     # -- path to load model
-    modelPath = os.getcwd() + "/results/DFA_test/1/20250301-165653"
+
+    # modelPath = os.getcwd() + "/results/DFA_test/1/20250301-165653"
     # modelPath = (
     # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_ind_v_diff_lr\0\0.0009"
     # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\Mode_1\baselines\0\3"
@@ -636,7 +637,7 @@ def run(
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        typeOfFeedback="DFA",
+        typeOfFeedback=typeOfFeedback,
     )
 
     #   -- number of chemicals
@@ -671,10 +672,17 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    for index in range(0, 19):
-        run(
-            seed=0,
-            display=True,
-            result_subdirectory="runner_DFA_test",
-            index=index,
-        )
+    modelPath_s = [
+        os.getcwd() + "/results/DFA_test/1/20250301-165653",
+        os.getcwd() + "/results/DFA_grad_test/1/20250301-175734",
+    ]
+    for i in range(2):
+        for index in range(0, 19):
+            run(
+                seed=0,
+                display=True,
+                result_subdirectory=["runner_DFA_test", "runner_DFA_grad_test"][i],
+                index=index,
+                typeOfFeedback=["DFA", "DFA_grad"][i],
+                modelPath=modelPath_s[i],
+            )
