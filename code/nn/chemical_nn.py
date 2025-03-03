@@ -2,6 +2,7 @@ from typing import Literal
 
 import torch
 import torch.nn as nn
+from options.meta_learner_options import typeOfFeedbackEnum
 
 
 class ChemicalNN(nn.Module):
@@ -17,7 +18,7 @@ class ChemicalNN(nn.Module):
         numberOfChemicals: int = 1,
         small: bool = False,
         train_feedback: bool = False,
-        typeOfFeedback: Literal["FA", "DFA", "scalar"] = "FA",
+        typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
     ):
 
         # Initialize the parent class
@@ -54,7 +55,7 @@ class ChemicalNN(nn.Module):
 
         # Feedback pathway for plasticity
         # Feedback alignment
-        if self.typeOfFeedback == "FA":
+        if self.typeOfFeedback == typeOfFeedbackEnum.FA or self.typeOfFeedback == typeOfFeedbackEnum.FA_NO_GRAD:
             if self.small:
                 self.feedback1 = nn.Linear(784, 15, bias=False)
                 self.feedback2 = nn.Linear(15, 10, bias=False)
@@ -67,7 +68,7 @@ class ChemicalNN(nn.Module):
                 self.feedback4 = nn.Linear(100, 70, bias=False)
                 self.feedback5 = nn.Linear(70, dim_out, bias=False)
         # Direct feedback alignment
-        elif self.typeOfFeedback == "DFA" or self.typeOfFeedback == "DFA_grad":
+        elif self.typeOfFeedback == typeOfFeedbackEnum.DFA or self.typeOfFeedback == typeOfFeedbackEnum.DFA_grad:
             if self.small:
                 self.feedback1 = nn.Linear(784, dim_out, bias=False)
                 self.feedback2 = nn.Linear(15, dim_out, bias=False)
@@ -79,7 +80,7 @@ class ChemicalNN(nn.Module):
                 self.feedback3 = nn.Linear(130, dim_out, bias=False)
                 self.feedback4 = nn.Linear(100, dim_out, bias=False)
                 self.feedback5 = nn.Linear(70, dim_out, bias=False)
-        elif self.typeOfFeedback == "scalar":
+        elif self.typeOfFeedback == typeOfFeedbackEnum.scalar:
             if self.small:
                 self.feedback1 = nn.Linear(784, 1, bias=False)
                 self.feedback2 = nn.Linear(15, 1, bias=False)

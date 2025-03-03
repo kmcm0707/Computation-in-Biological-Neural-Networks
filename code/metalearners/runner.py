@@ -30,6 +30,7 @@ from options.meta_learner_options import (
     modelEnum,
     optimizerEnum,
     schedulerEnum,
+    typeOfFeedbackEnum,
 )
 from options.reservoir_options import (
     modeReservoirEnum,
@@ -348,16 +349,21 @@ class Runner:
                 feedback = {name: value for name, value in params.items() if "feedback" in name}
                 error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=47)]
                 # add the error for all the layers
-                if self.options.typeOfFeedback == "FA":
+                if self.options.typeOfFeedback == typeOfFeedbackEnum.FA:
+                    # add the error for all the layers
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
-                elif self.options.typeOfFeedback == "DFA":
+                elif self.options.typeOfFeedback == typeOfFeedbackEnum.FA_NO_GRAD:
+                    # add the error for all the layers
+                    for y, i in zip(reversed(activations), reversed(list(feedback))):
+                        error.insert(0, torch.matmul(error[0], feedback[i]))
+                elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA:
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(0, torch.matmul(error[-1], feedback[i]))
-                elif self.options.typeOfFeedback == "DFA_grad":
+                elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad:
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(0, torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
-                elif self.options.typeOfFeedback == "scalar":
+                elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar:
                     error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(0, torch.matmul(error_scalar, feedback[i]))
@@ -438,7 +444,7 @@ def run(
     display: bool = True,
     result_subdirectory: str = "testing",
     index: int = 0,
-    typeOfFeedback: Literal["FA", "DFA", "DFA_grad", "scalar"] = "FA",
+    typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
     modelPath=None,
 ) -> None:
     """
@@ -701,15 +707,15 @@ def runner_main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [
-        os.getcwd() + "/results/DFA_grad_test/1/20250302-181936",
+        os.getcwd() + "/results/FA_No_Grad_Test/1/20250301-155814",
     ]
     for i in range(2):
         for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_DFA_grad_800"][i],
+                result_subdirectory=["runner_FA_No_Grad_Test"][i],
                 index=index,
-                typeOfFeedback=["DFA_grad"][i],
+                typeOfFeedback=typeOfFeedbackEnum.FA_NO_GRAD,
                 modelPath=modelPath_s[i],
             )

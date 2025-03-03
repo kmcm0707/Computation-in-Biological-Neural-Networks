@@ -36,6 +36,14 @@ class chemicalEnum(Enum):
     different = "different"
 
 
+class typeOfFeedbackEnum(Enum):
+    FA = "FA"
+    FA_NO_GRAD = "FA_NO_GRAD"
+    DFA = "DFA"
+    DFA_grad = "DFA_grad"
+    scalar = "scalar"
+
+
 class MetaLearnerOptions:
     """
     Options for the metal learner
@@ -66,7 +74,7 @@ class MetaLearnerOptions:
         queryDataPerClass: int = 10,
         datasetDevice: Literal["cpu", "cuda"] = "cuda",
         continueTraining: str | None = None,
-        typeOfFeedback: Literal["FA", "DFA", "DFA_grad", "scalar"] = "FA",
+        typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
     ):
 
         self.model = model

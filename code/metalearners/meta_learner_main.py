@@ -30,6 +30,7 @@ from options.meta_learner_options import (
     modelEnum,
     optimizerEnum,
     schedulerEnum,
+    typeOfFeedbackEnum,
 )
 from options.reservoir_options import (
     modeReservoirEnum,
@@ -475,17 +476,21 @@ class MetaLearner:
                 params = parameters
                 feedback = {name: value for name, value in params.items() if "feedback" in name}
                 error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=47)]
-                if self.options.typeOfFeedback == "FA":
+                if self.options.typeOfFeedback == typeOfFeedbackEnum.FA:
                     # add the error for all the layers
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
-                elif self.options.typeOfFeedback == "DFA":
+                elif self.options.typeOfFeedback == typeOfFeedbackEnum.FA_NO_GRAD:
+                    # add the error for all the layers
+                    for y, i in zip(reversed(activations), reversed(list(feedback))):
+                        error.insert(0, torch.matmul(error[0], feedback[i]))
+                elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA:
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(0, torch.matmul(error[-1], feedback[i]))
-                elif self.options.typeOfFeedback == "DFA_grad":
+                elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad:
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(0, torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
-                elif self.options.typeOfFeedback == "scalar":
+                elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar:
                     error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(0, torch.matmul(error_scalar, feedback[i]))

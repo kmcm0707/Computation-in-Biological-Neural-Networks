@@ -2,7 +2,7 @@ import datetime
 from enum import Enum
 from typing import Literal
 
-from options.meta_learner_options import chemicalEnum, modelEnum
+from options.meta_learner_options import chemicalEnum, modelEnum, typeOfFeedbackEnum
 
 
 class RunnerOptions:
@@ -28,7 +28,7 @@ class RunnerOptions:
         minTrainingDataPerClass: int = 40,
         maxTrainingDataPerClass: int = 60,
         queryDataPerClass: int = 10,
-        typeOfFeedback: Literal["FA", "DFA", "DFA_grad", "scalar"] = "FA",
+        typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
     ):
 
         self.model = model

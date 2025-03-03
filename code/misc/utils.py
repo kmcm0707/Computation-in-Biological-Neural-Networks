@@ -4,6 +4,7 @@ import re
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from options.meta_learner_options import typeOfFeedbackEnum
 from torch.nn import functional
 
 
@@ -250,7 +251,7 @@ def accuracy(logits, label):
     return torch.eq(pred, label).sum().item() / len(label)
 
 
-def meta_stats(logits, params, label, y, Beta, res_dir, save=True, typeOfFeedback="FA"):
+def meta_stats(logits, params, label, y, Beta, res_dir, save=True, typeOfFeedback=typeOfFeedbackEnum.FA):
     """
         Compute meta statistics.
 
@@ -272,16 +273,19 @@ def meta_stats(logits, params, label, y, Beta, res_dir, save=True, typeOfFeedbac
         B = dict({k: v for k, v in params.items() if "feedback" in k})
 
         e = [functional.softmax(logits, dim=1) - functional.one_hot(label, num_classes=47)]
-        if typeOfFeedback == "FA":
+        if typeOfFeedback == typeOfFeedbackEnum.FA:
             for y_, i in zip(reversed(y), reversed(list(B))):
                 e.insert(0, torch.matmul(e[0], B[i]) * (1 - torch.exp(-Beta * y_)))
-        elif typeOfFeedback == "DFA":
+        elif typeOfFeedback == typeOfFeedbackEnum.FA_NO_GRAD:
             for y_, i in zip(reversed(y), reversed(list(B))):
-                e.insert(0, torch.matmul(e[-1], B[i]))  # * (1 - torch.exp(-Beta * y_)))
-        elif typeOfFeedback == "DFA_grad":
+                e.insert(0, torch.matmul(e[0], B[i]))
+        elif typeOfFeedback == typeOfFeedbackEnum.DFA:
             for y_, i in zip(reversed(y), reversed(list(B))):
                 e.insert(0, torch.matmul(e[-1], B[i]))
-        elif typeOfFeedback == "scalar":
+        elif typeOfFeedback == typeOfFeedbackEnum.DFA_grad:
+            for y_, i in zip(reversed(y), reversed(list(B))):
+                e.insert(0, torch.matmul(e[-1], B[i]) * (1 - torch.exp(-Beta * y_)))
+        elif typeOfFeedback == typeOfFeedbackEnum.scalar:
             error_scalar = torch.norm(e[0], p=2, dim=1, keepdim=True)
             for y_, i in zip(reversed(y), reversed(list(B))):
                 e.insert(0, torch.matmul(error_scalar, B[i]))
