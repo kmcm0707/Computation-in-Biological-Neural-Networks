@@ -289,6 +289,16 @@ def meta_stats(logits, params, label, y, Beta, res_dir, save=True, typeOfFeedbac
             error_scalar = torch.norm(e[0], p=2, dim=1, keepdim=True)
             for y_, i in zip(reversed(y), reversed(list(B))):
                 e.insert(0, torch.matmul(error_scalar, B[i]))
+        elif typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
+            feedback = {name: value for name, value in params.items() if "FA_feedback" in name}
+            DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
+            DFA_error = [functional.softmax(logits, dim=1) - functional.one_hot(label, num_classes=47)]
+            for y_, i in zip(reversed(y), reversed(list(DFA_feedback))):
+                DFA_error.insert(0, torch.matmul(e[-1], DFA_feedback[i]) * (1 - torch.exp(Beta * y_)))
+            for y_, i in zip(reversed(y), reversed(list(feedback))):
+                e.insert(0, torch.matmul(e[0], feedback[i]) * (1 - torch.exp(Beta * y_)))
+            for i in range(len(DFA_error)):
+                e[i] = (DFA_error[i] + e[i]) / 2
 
         # -- orthonormality errors
 

@@ -42,6 +42,7 @@ class typeOfFeedbackEnum(Enum):
     DFA = "DFA"
     DFA_grad = "DFA_grad"
     scalar = "scalar"
+    DFA_grad_FA = "DFA_grad_FA"
 
 
 class MetaLearnerOptions:

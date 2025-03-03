@@ -494,6 +494,21 @@ class MetaLearner:
                     error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(0, torch.matmul(error_scalar, feedback[i]))
+                elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
+                    DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
+                    feedback = {name: value for name, value in params.items() if "FA_feedback" in name}
+                    DFA_error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=47)]
+                    for y, i in zip(reversed(activations), reversed(list(DFA_feedback))):
+                        DFA_error.insert(
+                            0, torch.matmul(error[-1], DFA_feedback[i]) * (1 - torch.exp(-self.model.beta * y))
+                        )
+                    for y, i in zip(reversed(activations), reversed(list(feedback))):
+                        error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
+                    for i in range(len(DFA_error)):
+                        error[i] = (DFA_error[i] + error[i]) / 2
+                else:
+                    raise ValueError("Invalid type of feedback")
+
                 activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
                 # -- update network params
@@ -677,7 +692,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 1
-    epochs = 800
+    epochs = 500
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
@@ -834,8 +849,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice="cuda:1",  # if running out of memory, change to "cpu"
-        continueTraining=continue_training,
-        typeOfFeedback="DFA",
+        continueTraining=None,
+        typeOfFeedback=typeOfFeedbackEnum.DFA_grad_FA,
     )
 
     #   -- number of chemicals
@@ -872,4 +887,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="DFA_grad_test", index=i)
+        run(seed=1, display=True, result_subdirectory="combined_test", index=i)

@@ -92,6 +92,27 @@ class ChemicalNN(nn.Module):
                 self.feedback3 = nn.Linear(130, 1, bias=False)
                 self.feedback4 = nn.Linear(100, 1, bias=False)
                 self.feedback5 = nn.Linear(70, 1, bias=False)
+        elif self.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
+            if self.small:
+                self.feedback1 = nn.Linear(784, 15, bias=False)
+                self.feedback2 = nn.Linear(15, 10, bias=False)
+                self.feedback3 = nn.Linear(10, 5, bias=False)
+                self.feedback4 = nn.Linear(5, dim_out, bias=False)
+                self.DFA_feedback1 = nn.Linear(784, dim_out, bias=False)
+                self.DFA_feedback2 = nn.Linear(15, dim_out, bias=False)
+                self.DFA_feedback3 = nn.Linear(10, dim_out, bias=False)
+                self.DFA_feedback4 = nn.Linear(5, dim_out, bias=False)
+            else:
+                self.FA_feedback1 = nn.Linear(784, 170, bias=False)
+                self.FA_feedback2 = nn.Linear(170, 130, bias=False)
+                self.FA_feedback3 = nn.Linear(130, 100, bias=False)
+                self.FA_feedback4 = nn.Linear(100, 70, bias=False)
+                self.FA_feedback5 = nn.Linear(70, dim_out, bias=False)
+                self.DFA_feedback1 = nn.Linear(784, dim_out, bias=False)
+                self.DFA_feedback2 = nn.Linear(170, dim_out, bias=False)
+                self.DFA_feedback3 = nn.Linear(130, dim_out, bias=False)
+                self.DFA_feedback4 = nn.Linear(100, dim_out, bias=False)
+                self.DFA_feedback5 = nn.Linear(70, dim_out, bias=False)
         else:
             raise ValueError("Invalid type of feedback")
 
