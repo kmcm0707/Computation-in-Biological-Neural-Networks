@@ -290,7 +290,7 @@ def meta_stats(logits, params, label, y, Beta, res_dir, save=True, typeOfFeedbac
             for y_, i in zip(reversed(y), reversed(list(B))):
                 e.insert(0, torch.matmul(error_scalar, B[i]))
         elif typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
-            feedback = {name: value for name, value in params.items() if "FA_feedback" in name}
+            feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
             DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
             DFA_error = [functional.softmax(logits, dim=1) - functional.one_hot(label, num_classes=47)]
             for y_, i in zip(reversed(y), reversed(list(DFA_feedback))):

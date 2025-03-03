@@ -496,7 +496,7 @@ class MetaLearner:
                         error.insert(0, torch.matmul(error_scalar, feedback[i]))
                 elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
                     DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
-                    feedback = {name: value for name, value in params.items() if "FA_feedback" in name}
+                    feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
                     DFA_error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=47)]
                     for y, i in zip(reversed(activations), reversed(list(DFA_feedback))):
                         DFA_error.insert(
@@ -848,7 +848,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        datasetDevice="cuda:1",  # if running out of memory, change to "cpu"
+        datasetDevice="cuda:0",  # if running out of memory, change to "cpu"
         continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.DFA_grad_FA,
     )
@@ -856,7 +856,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     #   -- number of chemicals
     numberOfChemicals = 3
     # -- meta-train
-    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cpu"
     metalearning_model = MetaLearner(
         device=device,
