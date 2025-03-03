@@ -367,6 +367,20 @@ class Runner:
                     error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(0, torch.matmul(error_scalar, feedback[i]))
+                elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
+                    DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
+                    feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
+                    DFA_error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=47)]
+                    for y, i in zip(reversed(activations), reversed(list(DFA_feedback))):
+                        DFA_error.insert(
+                            0, torch.matmul(error[-1], DFA_feedback[i]) * (1 - torch.exp(-self.model.beta * y))
+                        )
+                    for y, i in zip(reversed(activations), reversed(list(feedback))):
+                        error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
+                    for i in range(len(DFA_error)):
+                        error[i] = (DFA_error[i] + error[i]) / 2
+                else:
+                    raise ValueError("Invalid type of feedback")
                 activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
                 # -- update network params
@@ -707,15 +721,15 @@ def runner_main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [
-        os.getcwd() + "/results/FA_No_Grad_Test/1/20250301-155814",
+        os.getcwd() + "/results/combined_test/1/20250303-035607",
     ]
     for i in range(2):
         for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_FA_No_Grad_Test"][i],
+                result_subdirectory=["runner_Combined"][i],
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.FA_NO_GRAD,
+                typeOfFeedback=typeOfFeedbackEnum.DFA_grad_FA,
                 modelPath=modelPath_s[i],
             )
