@@ -575,8 +575,8 @@ class MetaLearner:
                     loss_meta += self.metaLossRegularization * torch.norm(P_matrix, p=1)
 
             # -- record params
-            UpdateWeights_state_dict = copy.deepcopy(self.UpdateWeights.state_dict())
-            UpdateFeedbackWeights_state_dict = None
+            #UpdateWeights_state_dict = copy.deepcopy(self.UpdateWeights.state_dict())
+            #UpdateFeedbackWeights_state_dict = None
             if self.options.trainFeedback:
                 UpdateFeedbackWeights_state_dict = copy.deepcopy(self.UpdateFeedbackWeights.state_dict())
 
@@ -612,20 +612,20 @@ class MetaLearner:
                 with open(self.result_directory + "/params.txt", "a") as f:
                     f.writelines(line + "\n")
 
-                for key, val in UpdateWeights_state_dict.items():
-                    if (
-                        "K" in key
-                        or "P" in key
-                        or "v_vector" in key
-                        or "z_vector" in key
-                        or "y_vector" in key
-                        or "A" in key
-                        or "B" in key
-                        or "v_dict" in key
-                        or "linear" in key
-                    ):
-                        with open(self.result_directory + "/{}.txt".format(key), "a") as f:
-                            f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
+                #for key, val in UpdateWeights_state_dict.items():
+                #    if (
+                #        "K" in key
+                #        or "P" in key
+                #        or "v_vector" in key
+                #        or "z_vector" in key
+                #        or "y_vector" in key
+                #        or "A" in key
+                #        or "B" in key
+                #        or "v_dict" in key
+                #        or "linear" in key
+                #    ):
+                #        with open(self.result_directory + "/{}.txt".format(key), "a") as f:
+                #            f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
 
                 if self.options.trainFeedback:
                     for key, val in UpdateFeedbackWeights_state_dict.items():
@@ -693,7 +693,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     random.seed(seed)
 
     # -- load data
-    numWorkers = 1
+    numWorkers = 2
     epochs = 800
 
     dataset_name = "EMNIST"
@@ -739,7 +739,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=100,
+            maxTau=200,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_4,
@@ -841,7 +841,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0003,
+        lr=0.0001,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -850,16 +850,16 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        datasetDevice="cuda:0",  # if running out of memory, change to "cpu"
+        datasetDevice="cpu",  # if running out of memory, change to "cpu"
         continueTraining=None,
-        typeOfFeedback=typeOfFeedbackEnum.DFA_grad_FA,
+        typeOfFeedback=typeOfFeedbackEnum.FA,
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 3
+    numberOfChemicals = 5
     # -- meta-train
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
-    # device = "cpu"
+    #device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device = "cpu"
     metalearning_model = MetaLearner(
         device=device,
         numberOfChemicals=numberOfChemicals,
@@ -889,4 +889,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="combined_test_v2", index=i)
+        run(seed=1, display=True, result_subdirectory="5_chem_long", index=i)
