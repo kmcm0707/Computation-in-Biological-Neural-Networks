@@ -506,8 +506,8 @@ class MetaLearner:
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(
                             0,
-                            torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y))
-                            + DFA_error[index_error],
+                            (torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y))
+                            + DFA_error[index_error])/2,
                         )
                         index_error -= 1
                     """for i in range(len(DFA_error)):
@@ -858,7 +858,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice="cuda:0",  # if running out of memory, change to "cpu"
         continueTraining=None,
-        typeOfFeedback=typeOfFeedbackEnum.FA,
+        typeOfFeedback=typeOfFeedbackEnum.DFA_grad_FA,
     )
 
     #   -- number of chemicals
