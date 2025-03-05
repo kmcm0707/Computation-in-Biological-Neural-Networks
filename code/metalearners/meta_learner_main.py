@@ -575,8 +575,8 @@ class MetaLearner:
                     loss_meta += self.metaLossRegularization * torch.norm(P_matrix, p=1)
 
             # -- record params
-            #UpdateWeights_state_dict = copy.deepcopy(self.UpdateWeights.state_dict())
-            #UpdateFeedbackWeights_state_dict = None
+            UpdateWeights_state_dict = copy.deepcopy(self.UpdateWeights.state_dict())
+            UpdateFeedbackWeights_state_dict = None
             if self.options.trainFeedback:
                 UpdateFeedbackWeights_state_dict = copy.deepcopy(self.UpdateFeedbackWeights.state_dict())
 
@@ -612,20 +612,20 @@ class MetaLearner:
                 with open(self.result_directory + "/params.txt", "a") as f:
                     f.writelines(line + "\n")
 
-                #for key, val in UpdateWeights_state_dict.items():
-                #    if (
-                #        "K" in key
-                #        or "P" in key
-                #        or "v_vector" in key
-                #        or "z_vector" in key
-                #        or "y_vector" in key
-                #        or "A" in key
-                #        or "B" in key
-                #        or "v_dict" in key
-                #        or "linear" in key
-                #    ):
-                #        with open(self.result_directory + "/{}.txt".format(key), "a") as f:
-                #            f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
+                for key, val in UpdateWeights_state_dict.items():
+                    if (
+                        "K" in key
+                        or "P" in key
+                        or "v_vector" in key
+                        or "z_vector" in key
+                        or "y_vector" in key
+                        or "A" in key
+                        or "B" in key
+                        or "v_dict" in key
+                        or "linear" in key
+                    ):
+                        with open(self.result_directory + "/{}.txt".format(key), "a") as f:
+                            f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
 
                 if self.options.trainFeedback:
                     for key, val in UpdateFeedbackWeights_state_dict.items():
@@ -694,7 +694,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 800
+    epochs = 1000
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
@@ -826,7 +826,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results/DFA_test/1/20250301-165653"
+    continue_training = current_dir + "/results/5_chem_long/1/20250305-012111"
     # -- meta-learner options
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
@@ -858,7 +858,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     #   -- number of chemicals
     numberOfChemicals = 5
     # -- meta-train
-    #device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
+    # device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
     device = "cpu"
     metalearning_model = MetaLearner(
         device=device,
