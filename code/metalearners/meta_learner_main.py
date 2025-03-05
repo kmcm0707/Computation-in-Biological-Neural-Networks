@@ -858,7 +858,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice="cuda:0",  # if running out of memory, change to "cpu"
         continueTraining=None,
-        typeOfFeedback=typeOfFeedbackEnum.DFA_grad_FA,
+        typeOfFeedback=typeOfFeedbackEnum.FA,
     )
 
     #   -- number of chemicals
