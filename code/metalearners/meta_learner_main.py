@@ -505,7 +505,9 @@ class MetaLearner:
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
                     for i in range(len(DFA_error)):
-                        error[i] = (DFA_error[i] + error[i]) / 2
+                        # error[i] = (error[i] + DFA_error[i]) / 2
+                        if i != 0:
+                            error[i] = (error[i] + DFA_error[i]) / np.sqrt(2)
                 else:
                     raise ValueError("Invalid type of feedback")
 
@@ -887,4 +889,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="combined_test", index=i)
+        run(seed=1, display=True, result_subdirectory="combined_test_v2", index=i)
