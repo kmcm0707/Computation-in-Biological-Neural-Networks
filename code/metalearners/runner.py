@@ -732,7 +732,7 @@ def runner_main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [
-        os.getcwd() + "/results/combined_v3/1/20250305-205109",
+        os.getcwd() + "/results/combined_v3/1/20250306-004822",
     ]
     for i in range(2):
         for index in range(0, 27):
