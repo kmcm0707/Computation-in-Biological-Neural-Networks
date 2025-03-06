@@ -3,6 +3,7 @@ import os
 import torch
 from metalearners.meta_learner_main import main
 from metalearners.runner import runner_main
+from misc.load_from_params import load_model
 from nn.backprop import backprop_main
 
 torch.cuda.empty_cache()
@@ -12,4 +13,5 @@ if __name__ == "__main__":
     # torch.autograd.set_detect_anomaly(True)
     # main()
     runner_main()
+    # load_model()
     # backprop_main()
