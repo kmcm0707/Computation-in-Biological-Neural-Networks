@@ -503,12 +503,10 @@ class ComplexSynapse(nn.Module):
         error: list,
     ):
         """
-        :param activations: (list) model activations,
-        :param output: (tensor) model output - dimension (W_1) (per layer),
-        :param label: (tensor) model label - dimension (W_1) (per layer),
+        :param activations and output: (list) model activations and output - dimension L x (W_1, W_2) (per layer),
+        :param error: (list) model error - dimension L x (W_1, W_2) (per layer),
         :param params: (dict) model weights - dimension (W_1, W_2) (per parameter),
         :param h_parameters: (dict) model chemicals - dimension L x (W_1, W_2) (per parameter),
-        :param beta: (int) smoothness coefficient for non-linearity,
         """
 
         """for i in range(len(activations_and_output)):

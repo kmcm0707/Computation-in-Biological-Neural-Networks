@@ -569,7 +569,7 @@ def run(
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,
-            maxTau=100,
+            maxTau=200,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_4,
@@ -700,7 +700,7 @@ def run(
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 3
+    numberOfChemicals = 5
     # -- meta-train
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -732,15 +732,15 @@ def runner_main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [
-        os.getcwd() + "/results/combined_v3/1/20250306-004822",
+        os.getcwd() + "/results/5_chem_long/1/719",
     ]
     for i in range(2):
         for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_Combined_v3"][i],
+                result_subdirectory=["runner_5_chem_long"][i],
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.DFA_grad_FA,
+                typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
             )
