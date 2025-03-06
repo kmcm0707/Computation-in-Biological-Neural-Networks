@@ -506,8 +506,11 @@ class MetaLearner:
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(
                             0,
-                            (torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y))
-                            + DFA_error[index_error])/2,
+                            (
+                                torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y))
+                                + DFA_error[index_error]
+                            )
+                            / 2,
                         )
                         index_error -= 1
                     """for i in range(len(DFA_error)):
@@ -700,7 +703,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 500
+    epochs = 800
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
@@ -832,7 +835,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results/5_chem_long/1/20250305-012111"
+    continue_training = current_dir + "/results/5_chem_long/1/20250305-202955"
     # -- meta-learner options
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
@@ -847,7 +850,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0003,
+        lr=0.00009,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -856,16 +859,16 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        datasetDevice="cuda:0",  # if running out of memory, change to "cpu"
-        continueTraining=None,
-        typeOfFeedback=typeOfFeedbackEnum.DFA_grad_FA,
+        datasetDevice="cpu",  # if running out of memory, change to "cpu"
+        continueTraining=continue_training,
+        typeOfFeedback=typeOfFeedbackEnum.FA,
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 3
+    numberOfChemicals = 5
     # -- meta-train
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
-    # device = "cpu"
+    # device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device = "cpu"
     metalearning_model = MetaLearner(
         device=device,
         numberOfChemicals=numberOfChemicals,
@@ -895,4 +898,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="combined_v3", index=i)
+        run(seed=1, display=True, result_subdirectory="5_chem_long", index=i)

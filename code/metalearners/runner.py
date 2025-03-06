@@ -375,10 +375,21 @@ class Runner:
                         DFA_error.insert(
                             0, torch.matmul(error[-1], DFA_feedback[i]) * (1 - torch.exp(-self.model.beta * y))
                         )
+                    index_error = len(DFA_error) - 2
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
-                    for i in range(len(DFA_error)):
-                        error[i] = (DFA_error[i] + error[i]) / 2
+                        error.insert(
+                            0,
+                            (
+                                torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y))
+                                + DFA_error[index_error]
+                            )
+                            / 2,
+                        )
+                        index_error -= 1
+                    """for i in range(len(DFA_error)):
+                        # error[i] = (error[i] + DFA_error[i]) / 2
+                        if i != 0:
+                            error[i] = (error[i] + DFA_error[i]) / np.sqrt(2)"""
                 else:
                     raise ValueError("Invalid type of feedback")
                 activations_and_output = [*activations, functional.softmax(output, dim=1)]
@@ -721,14 +732,14 @@ def runner_main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [
-        os.getcwd() + "/results/combined_test/1/20250303-035607",
+        os.getcwd() + "/results/combined_v3/1/20250305-205109",
     ]
     for i in range(2):
         for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_Combined"][i],
+                result_subdirectory=["runner_Combined_v3"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad_FA,
                 modelPath=modelPath_s[i],
