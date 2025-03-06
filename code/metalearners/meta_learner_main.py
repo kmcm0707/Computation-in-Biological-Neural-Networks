@@ -748,7 +748,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=100,
+            maxTau=200,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_4,
@@ -835,7 +835,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
+<<<<<<< HEAD
     continue_training = current_dir + "/results/combined_v3/1/20250305-220512"
+=======
+    continue_training = current_dir + "/results/5_chem_long/1/20250305-202955"
+>>>>>>> 1ef121f (feat: contine)
     # -- meta-learner options
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
@@ -850,7 +854,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0003,
+        lr=0.00009,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -859,16 +863,26 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
+<<<<<<< HEAD
         datasetDevice="cuda:0",  # if running out of memory, change to "cpu"
         continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.DFA_grad_FA,
+=======
+        datasetDevice="cpu",  # if running out of memory, change to "cpu"
+        continueTraining=continue_training,
+        typeOfFeedback=typeOfFeedbackEnum.FA,
+>>>>>>> 1ef121f (feat: contine)
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 3
+    numberOfChemicals = 5
     # -- meta-train
     # device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
+<<<<<<< HEAD
     device = "cuda:0"
+=======
+    device = "cpu"
+>>>>>>> 1ef121f (feat: contine)
     metalearning_model = MetaLearner(
         device=device,
         numberOfChemicals=numberOfChemicals,
@@ -898,4 +912,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="combined_v3", index=i)
+        run(seed=1, display=True, result_subdirectory="5_chem_long", index=i)
