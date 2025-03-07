@@ -220,7 +220,7 @@ class ComplexSynapse(nn.Module):
                     )
                 )
             elif self.options.kMatrix == kMatrixEnum.identiy:
-                identity = torch.eye(self.number_chemicals, device=self.device) * 0.01
+                identity = torch.eye(self.number_chemicals, device=self.device) * 0.001
                 self.K_matrix = nn.Parameter(identity)
             self.all_meta_parameters.append(self.K_matrix)
 
