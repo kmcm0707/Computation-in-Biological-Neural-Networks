@@ -835,7 +835,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results/5_chem_long/1/20250305-202955"
+    continue_training = current_dir + "/results/5_chem_100/1/0250306-184506"
     # -- meta-learner options
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
@@ -860,14 +860,14 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice="cpu",  # if running out of memory, change to "cpu"
-        continueTraining=None,
+        continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.FA,
     )
 
     #   -- number of chemicals
     numberOfChemicals = 5
     # -- meta-train
-    #device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
+    # device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     device = "cpu"
     metalearning_model = MetaLearner(
         device=device,
