@@ -703,7 +703,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 500
+    epochs = 1000
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
@@ -750,12 +750,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             minTau=2,  # + 1 / 50,
             maxTau=100,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.all_ones,
+            z_vector=zVectorEnum.default,
             operator=operatorEnum.mode_4,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
-            eta=0.01,
+            eta=1,
             beta=0.01,  ## Only for v_vector=random_beta
             kMasking=False,
             individual_different_v_vector=False,  # Individual Model Only
@@ -898,4 +898,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="eta", index=i)
+        run(seed=1, display=True, result_subdirectory="non_all_ones", index=i)
