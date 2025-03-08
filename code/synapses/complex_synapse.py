@@ -173,7 +173,7 @@ class ComplexSynapse(nn.Module):
                 self.P_matrix = nn.Parameter(
                     torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device))
                 )
-                self.P_matrix[:, 0] = 0.001
+                self.P_matrix[:, 0] = 0.001 / self.options.eta
             elif self.options.pMatrix == pMatrixEnum.zero:
                 self.P_matrix = nn.Parameter(
                     torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device))
@@ -220,7 +220,7 @@ class ComplexSynapse(nn.Module):
                     )
                 )
             elif self.options.kMatrix == kMatrixEnum.identiy:
-                identity = torch.eye(self.number_chemicals, device=self.device) * 0.01
+                identity = torch.eye(self.number_chemicals, device=self.device) * 0.001
                 self.K_matrix = nn.Parameter(identity)
             self.all_meta_parameters.append(self.K_matrix)
 

@@ -569,7 +569,7 @@ def run(
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,
-            maxTau=200,
+            maxTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_4,
@@ -732,14 +732,14 @@ def runner_main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [
-        os.getcwd() + "/results/5_chem_long/1/719",
+        os.getcwd() + "/results/5_chem_100/1/1000",
     ]
     for i in range(2):
         for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_5_chem_long"][i],
+                result_subdirectory=["runner_5_chem_100_1000"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
