@@ -308,6 +308,8 @@ class IndividualSynapse(nn.Module):
             if "forward" in name:
                 h_name = name.replace("forward", "chemical").split(".")[0]
                 v_name = h_name
+                if "5" not in name:
+                    continue
                 if self.options.individual_different_v_vector == False:
                     v_name = "all"
                 chemical = h_parameters[h_name]
