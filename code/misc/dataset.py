@@ -265,8 +265,6 @@ class FashionMnistDataset(Dataset):
             corresponding labels for a given index and current training data per class.
         """
 
-        current_training_data_per_class = np.random.randint(self.minTrainingDataPerClass, self.maxTrainingDataPerClass)
-
         img = []
         for img_, label in self.combined_set:
             if label == index:
@@ -280,7 +278,6 @@ class FashionMnistDataset(Dataset):
             idx_vec[: self.maxTrainingDataPerClass],
             img[self.maxTrainingDataPerClass : self.maxTrainingDataPerClass + self.queryDataPerClass],
             idx_vec[self.maxTrainingDataPerClass : self.maxTrainingDataPerClass + self.queryDataPerClass],
-            current_training_data_per_class,
         )
 
 
