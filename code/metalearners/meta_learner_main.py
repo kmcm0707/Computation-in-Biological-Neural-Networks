@@ -707,7 +707,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     dataset_name = "FASHION-MNIST"
     minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 150
+    maxTrainingDataPerClass = 80
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
@@ -742,23 +742,23 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
-            nonLinear=nonLinearEnum.pass_through,
-            update_rules=[0, 1, 2, 3, 4, 8, 9],
+            nonLinear=nonLinearEnum.tanh,
+            update_rules=[0, 1, 2, 3, 4, 5, 8, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=50,
-            y_vector=yVectorEnum.first_one,
+            maxTau=100,
+            y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_1,
+            operator=operatorEnum.mode_4,
             train_z_vector=False,
-            mode=modeEnum.rosenbaum,
+            mode=modeEnum.all,
             v_vector=vVectorEnum.default,
             eta=1,
             beta=0.01,  ## Only for v_vector=random_beta
             kMasking=False,
-            individual_different_v_vector=True,  # Individual Model Only
+            individual_different_v_vector=False,  # Individual Model Only
             scheduler_t0=None,  # Only mode_3
         )
     elif model == modelEnum.reservoir:
@@ -841,7 +841,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P matrix (check 1.5)
         biasLossRegularization=0,
-        optimizer=optimizerEnum.radam,
+        optimizer=optimizerEnum.adam,
         model=model,
         results_subdir=result_subdirectory,
         seed=seed,
@@ -850,7 +850,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.001,
+        lr=0.0003,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -859,16 +859,16 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        datasetDevice="cuda:1",  # if running out of memory, change to "cpu"
+        datasetDevice="cuda:0",  # if running out of memory, change to "cpu"
         continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.FA,
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 1
+    numberOfChemicals = 3
     # -- meta-train
     # device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
-    device = "cuda:1"
+    device = "cuda:0"
     metalearning_model = MetaLearner(
         device=device,
         numberOfChemicals=numberOfChemicals,
@@ -898,4 +898,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rosenbaum_fashio_mnist", index=i)
+        run(seed=0, display=True, result_subdirectory="3chem_fashion_mnist", index=i)
