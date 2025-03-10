@@ -703,11 +703,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 800
+    epochs = 500
 
     dataset_name = "FASHION-MNIST"
-    minTrainingDataPerClass = 50
-    maxTrainingDataPerClass = 50
+    minTrainingDataPerClass = 30
+    maxTrainingDataPerClass = 150
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
@@ -733,7 +733,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- options
-    model = modelEnum.individal
+    model = modelEnum.complex
     modelOptions = None
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
     # beta = [1, 0.1, 0.01, 0.001, 0.0001]
@@ -742,18 +742,18 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
-            nonLinear=nonLinearEnum.tanh,
+            nonLinear=nonLinearEnum.pass_through,
             update_rules=[0, 1, 2, 3, 4, 8, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
             maxTau=50,
-            y_vector=yVectorEnum.none,
+            y_vector=yVectorEnum.first_one,
             z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_4,
+            operator=operatorEnum.mode_1,
             train_z_vector=False,
-            mode=modeEnum.all,
+            mode=modeEnum.rosenbaum,
             v_vector=vVectorEnum.default,
             eta=1,
             beta=0.01,  ## Only for v_vector=random_beta
@@ -898,4 +898,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="last_layer_only", index=i)
+        run(seed=0, display=True, result_subdirectory="rosenbaum_fashio_mnist", index=i)
