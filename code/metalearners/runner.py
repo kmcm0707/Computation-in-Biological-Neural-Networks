@@ -564,18 +564,18 @@ def run(
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
-            nonLinear=nonLinearEnum.pass_through,
+            nonLinear=nonLinearEnum.tanh,
             update_rules=[0, 1, 2, 3, 4, 5, 8, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,
             maxTau=100,
-            y_vector=yVectorEnum.first_one,
+            y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_1,
+            operator=operatorEnum.mode_4,
             train_z_vector=False,
-            mode=modeEnum.rosenbaum,
+            mode=modeEnum.all,
             v_vector=vVectorEnum.default,
             eta=1,
             beta=0,  ## Only for v_vector=random_beta
@@ -701,7 +701,7 @@ def run(
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 1
+    numberOfChemicals = 3
     # -- meta-train
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -733,14 +733,14 @@ def runner_main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [
-        os.getcwd() + "/results/rosenbaum_fashion_mnist/0/20250310-010204",
+            os.getcwd() + "/results/3chem_fashion_mnist/0/20250310-035602",
     ]
     for i in range(2):
         for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_rosenbaum_fashion_mnist"][i],
+                result_subdirectory=["runner_3chem_fashion_mnist"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
