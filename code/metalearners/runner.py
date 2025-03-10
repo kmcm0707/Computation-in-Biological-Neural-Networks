@@ -497,7 +497,7 @@ def run(
     numWorkers = 3
     epochs = 50
 
-    dataset_name = "EMNIST"
+    dataset_name = "FASHION-MNIST"
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
     trainingDataPerClass = [
@@ -570,11 +570,11 @@ def run(
             kMatrix=kMatrixEnum.zero,
             minTau=2,
             maxTau=100,
-            y_vector=yVectorEnum.none,
+            y_vector=yVectorEnum.first_one,
             z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_4,
+            operator=operatorEnum.mode_1,
             train_z_vector=False,
-            mode=modeEnum.all,
+            mode=modeEnum.rosenbaum,
             v_vector=vVectorEnum.default,
             eta=1,
             beta=0,  ## Only for v_vector=random_beta
@@ -700,7 +700,7 @@ def run(
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 1
     # -- meta-train
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -732,14 +732,14 @@ def runner_main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [
-        os.getcwd() + "/results/5_chem_100/1/1000",
+        os.getcwd() + "/results/rosenbaum_fashion_mnist/020250310-010204",
     ]
     for i in range(2):
         for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_5_chem_100_1000"][i],
+                result_subdirectory=["runner_rosenbaum_fashion_mnist"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
