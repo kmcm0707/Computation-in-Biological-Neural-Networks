@@ -224,6 +224,7 @@ class FashionMnistDataset(Dataset):
             [
                 transforms.Resize((dimensionOfImage, dimensionOfImage)),
                 transforms.ToTensor(),
+                transforms.Normalize((0.5,), (0.5,)),
             ]
         )
 
@@ -271,9 +272,9 @@ class FashionMnistDataset(Dataset):
         query_idx = np.random.choice(query_idx, self.queryDataPerClass, False)
 
         return (
-            self.dataset.data[train_idx].float() / 255,
+            self.dataset.data[train_idx],  # .float() / 255,
             torch.tensor([index] * self.maxTrainingDataPerClass),
-            self.train_dataset.data[query_idx].float() / 255,
+            self.train_dataset.data[query_idx],  # .float() / 255,
             torch.tensor([index] * self.queryDataPerClass),
         )
 

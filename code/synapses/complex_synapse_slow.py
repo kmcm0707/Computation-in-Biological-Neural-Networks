@@ -6,7 +6,6 @@ import torch
 from options.complex_options import (
     complexOptions,
     kMatrixEnum,
-    modeEnum,
     operatorEnum,
     pMatrixEnum,
     vVectorEnum,
@@ -34,7 +33,6 @@ class ComplexSynapseSlow(nn.Module):
         """
         Initialize the complex synapse model.
         :param device: (str) The processing device to use. Default is 'cpu',
-        :param mode: (str) The update rule to use. Default is 'rosenbaum'.
         :param numberOfChemicals: (int) The number of chemicals to use. Default is 1,
         :param params: (dict) The model parameters. Default is an empty dictionary,
         :param complexOptions: (complexOptions) The complex options. Default is None,
@@ -276,16 +274,6 @@ class ComplexSynapseSlow(nn.Module):
         :param params: (dict) model weights - dimension (W_1, W_2) (per parameter),
         :param h_parameters: (dict) model chemicals - dimension L x (W_1, W_2) (per parameter),
         """
-
-        """for i in range(len(activations_and_output)):
-            # activations_and_output[i] = activations_and_output[i] / torch.norm(activations_and_output[i], p=2)
-            activations_and_output[i] = activations_and_output[i] / (
-                torch.max(torch.abs(activations_and_output[i])) + 1e-5
-            )
-
-        for i in range(len(error)):
-            # error[i] = error[i] / torch.norm(error[i], p=2)
-            error[i] = error[i] / (torch.max(torch.abs(error[i])) + 1e-5)"""
 
         i = 0
         for name, parameter in params.items():

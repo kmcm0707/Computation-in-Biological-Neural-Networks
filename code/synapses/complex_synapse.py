@@ -751,6 +751,7 @@ class ComplexSynapse(nn.Module):
 
                     params[name].adapt = self.adaptionPathway
 
+    @torch.no_grad()
     def calculate_update_vector(self, error, activations_and_output, parameter, i) -> torch.Tensor:
         """
         Calculate the update vector for the complex synapse model.
@@ -759,7 +760,9 @@ class ComplexSynapse(nn.Module):
         :param parameter: (tensor) model parameter - dimension (W_1, W_2),
         :param i: (int) index of the parameter.
         """
-        update_vector = torch.zeros((10, parameter.shape[0], parameter.shape[1]), device=self.device)
+        update_vector = torch.zeros(
+            (10, parameter.shape[0], parameter.shape[1]), device=self.device, requires_grad=False
+        )
 
         if self.update_rules[0]:
             update_vector[0] = -torch.matmul(error[i + 1].T, activations_and_output[i])  # Pseudo-gradient
