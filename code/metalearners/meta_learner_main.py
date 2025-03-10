@@ -706,8 +706,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     epochs = 500
 
     dataset_name = "FASHION-MNIST"
-    minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 150
+    minTrainingDataPerClass = 50
+    maxTrainingDataPerClass = 50
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":

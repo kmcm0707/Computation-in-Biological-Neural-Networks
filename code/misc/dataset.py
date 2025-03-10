@@ -224,19 +224,16 @@ class FashionMnistDataset(Dataset):
             [
                 transforms.Resize((dimensionOfImage, dimensionOfImage)),
                 transforms.ToTensor(),
-                transforms.Normalize((0.5,), (0.5,)),
             ]
         )
 
-        # -- download
-        train_dataset = torchvision.datasets.FashionMNIST(
+        # -- download data
+        self.dataset = torchvision.datasets.FashionMNIST(
             root=self.fashion_mnist_dir, download=True, train=True, transform=self.transform
         )
-        test_dataset = torchvision.datasets.FashionMNIST(
+        self.train_dataset = torchvision.datasets.FashionMNIST(
             root=self.fashion_mnist_dir, download=True, train=False, transform=self.transform
         )
-
-        self.combined_set = torch.utils.data.ConcatDataset([train_dataset, test_dataset])
 
     def __len__(self):
         """
@@ -265,19 +262,19 @@ class FashionMnistDataset(Dataset):
             corresponding labels for a given index and current training data per class.
         """
 
-        img = []
-        for img_, label in self.combined_set:
-            if label == index:
-                img.append(img_)
+        train_idx = self.dataset.targets == index
+        train_idx = np.where(train_idx)[0]
+        query_idx = self.train_dataset.targets == index
+        query_idx = np.where(query_idx)[0]
 
-        img = torch.cat(img)
-        idx_vec = index * torch.ones(self.maxTrainingDataPerClass + self.queryDataPerClass, dtype=int)
+        train_idx = np.random.choice(train_idx, self.maxTrainingDataPerClass, False)
+        query_idx = np.random.choice(query_idx, self.queryDataPerClass, False)
 
         return (
-            img[: self.maxTrainingDataPerClass],
-            idx_vec[: self.maxTrainingDataPerClass],
-            img[self.maxTrainingDataPerClass : self.maxTrainingDataPerClass + self.queryDataPerClass],
-            idx_vec[self.maxTrainingDataPerClass : self.maxTrainingDataPerClass + self.queryDataPerClass],
+            self.dataset.data[train_idx].float() / 255,
+            torch.tensor([index] * self.maxTrainingDataPerClass),
+            self.train_dataset.data[query_idx].float() / 255,
+            torch.tensor([index] * self.queryDataPerClass),
         )
 
 
