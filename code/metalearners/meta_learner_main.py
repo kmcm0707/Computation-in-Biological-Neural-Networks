@@ -725,6 +725,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTrainingDataPerClass=maxTrainingDataPerClass,
             queryDataPerClass=queryDataPerClass,
             dimensionOfImage=28,
+            all_classes=True,
         )
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
@@ -859,8 +860,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        datasetDevice="cuda:0",  # if running out of memory, change to "cpu"
-        continueTraining=continue_training,
+        datasetDevice="cuda:1",  # if running out of memory, change to "cpu"
+        continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.FA,
     )
 
@@ -868,7 +869,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     numberOfChemicals = 3
     # -- meta-train
     # device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
-    device = "cuda:0"
+    device = "cuda:1"
     metalearning_model = MetaLearner(
         device=device,
         numberOfChemicals=numberOfChemicals,
@@ -898,4 +899,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="3chem_fashion_mnist", index=i)
+        run(seed=0, display=True, result_subdirectory="3chem_fashion_mnist_fix", index=i)
