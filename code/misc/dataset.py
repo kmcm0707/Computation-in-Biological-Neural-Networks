@@ -230,8 +230,8 @@ class FashionMnistDataset(Dataset):
         self.transform = transforms.Compose(
             [
                 transforms.Resize((dimensionOfImage, dimensionOfImage)),
-                transforms.ToTensor(),
-                # transforms.Normalize((0.5,), (0.5,)),
+                # transforms.ToTensor(),
+                transforms.Normalize((0.5,), (0.5,)),
             ]
         )
 
@@ -283,10 +283,20 @@ class FashionMnistDataset(Dataset):
         train_idx = np.random.choice(train_idx, self.maxTrainingDataPerClass, False)
         query_idx = np.random.choice(query_idx, self.queryDataPerClass, False)
 
+        transformed_data = []
+        for idx in train_idx:
+            transformed_data.append(self.transform(self.train_dataset.data[idx].float().unsqueeze_(0) / 255))
+        transformed_data = torch.cat(transformed_data)
+
+        q_transformed_data = []
+        for idx in query_idx:
+            q_transformed_data.append(self.transform(self.test_dataset.data[idx].float().unsqueeze_(0) / 255))
+        q_transformed_data = torch.cat(q_transformed_data)
+
         return (
-            self.train_dataset.data[train_idx].float() / 255,
+            transformed_data,  # .float() / 255,
             torch.tensor([index] * self.maxTrainingDataPerClass),
-            self.test_dataset.data[query_idx].float() / 255,
+            q_transformed_data,  # .float() / 255,
             torch.tensor([index] * self.queryDataPerClass),
         )
 
