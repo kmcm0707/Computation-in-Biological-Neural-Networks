@@ -197,7 +197,12 @@ class FashionMnistDataset(Dataset):
     """
 
     def __init__(
-        self, minTrainingDataPerClass: int, maxTrainingDataPerClass: int, queryDataPerClass: int, dimensionOfImage: int
+        self,
+        minTrainingDataPerClass: int,
+        maxTrainingDataPerClass: int,
+        queryDataPerClass: int,
+        dimensionOfImage: int,
+        all_classes: bool = False,
     ):
         """
             Initialize the FashionMnistDataset class.
@@ -218,6 +223,8 @@ class FashionMnistDataset(Dataset):
         self.minTrainingDataPerClass = minTrainingDataPerClass
         self.maxTrainingDataPerClass = maxTrainingDataPerClass
         self.queryDataPerClass = queryDataPerClass
+        self.all_classes = all_classes
+        self.current_idx = 0
 
         # -- process data
         self.transform = transforms.Compose(
@@ -229,10 +236,10 @@ class FashionMnistDataset(Dataset):
         )
 
         # -- download data
-        self.dataset = torchvision.datasets.FashionMNIST(
+        self.train_dataset = torchvision.datasets.FashionMNIST(
             root=self.fashion_mnist_dir, download=True, train=True, transform=self.transform
         )
-        self.train_dataset = torchvision.datasets.FashionMNIST(
+        self.test_dataset = torchvision.datasets.FashionMNIST(
             root=self.fashion_mnist_dir, download=True, train=False, transform=self.transform
         )
 
@@ -262,19 +269,24 @@ class FashionMnistDataset(Dataset):
         :return: tuple: A tuple of tensors containing training and query images and
             corresponding labels for a given index and current training data per class.
         """
+        if self.all_classes:
+            index = self.current_idx
+            self.current_idx += 1
+            if self.current_idx == 10:
+                self.current_idx = 0
 
-        train_idx = self.dataset.targets == index
+        train_idx = self.train_dataset.targets == torch.tensor(index)
         train_idx = np.where(train_idx)[0]
-        query_idx = self.train_dataset.targets == index
+        query_idx = self.test_dataset.targets == index
         query_idx = np.where(query_idx)[0]
 
         train_idx = np.random.choice(train_idx, self.maxTrainingDataPerClass, False)
         query_idx = np.random.choice(query_idx, self.queryDataPerClass, False)
 
         return (
-            self.dataset.data[train_idx].float() / 255,
+            self.train_dataset.data[train_idx].float() / 255,
             torch.tensor([index] * self.maxTrainingDataPerClass),
-            self.train_dataset.data[query_idx].float() / 255,
+            self.test_dataset.data[query_idx].float() / 255,
             torch.tensor([index] * self.queryDataPerClass),
         )
 

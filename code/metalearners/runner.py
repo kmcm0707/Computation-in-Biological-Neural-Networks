@@ -494,7 +494,7 @@ def run(
     random.seed(seed)
 
     # -- load data
-    numWorkers = 3
+    numWorkers = 0
     epochs = 50
 
     dataset_name = "FASHION-MNIST"
@@ -550,6 +550,7 @@ def run(
             maxTrainingDataPerClass=maxTrainingDataPerClass,
             queryDataPerClass=queryDataPerClass,
             dimensionOfImage=28,
+            all_classes=True,
         )
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
@@ -732,7 +733,7 @@ def runner_main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [
-        os.getcwd() + "/results/rosenbaum_fashion_mnist/020250310-010204",
+        os.getcwd() + "/results/rosenbaum_fashion_mnist/0/20250310-010204",
     ]
     for i in range(2):
         for index in range(0, 27):
