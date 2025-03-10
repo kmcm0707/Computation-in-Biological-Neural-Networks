@@ -564,7 +564,7 @@ def run(
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
-            nonLinear=nonLinearEnum.tanh,
+            nonLinear=nonLinearEnum.pass_through,
             update_rules=[0, 1, 2, 3, 4, 5, 8, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,

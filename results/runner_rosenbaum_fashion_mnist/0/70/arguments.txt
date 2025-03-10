@@ -1,0 +1,37 @@
+Number of chemicals: 1
+Number of query data per class: 20
+model: modelEnum.complex
+modelPath: /homes/kcm40/kcm40/Computation-in-Biological-Neural-Networks/results/rosenbaum_fashion_mnist/0/20250310-010204
+small: False
+seed: 0
+save_results: True
+results_subdir: runner_rosenbaum_fashion_mnist
+metatrain_dataset: <torch.utils.data.dataloader.DataLoader object at 0x7f789116c1f0>
+display: True
+numberOfClasses: 10
+dataset_name: FASHION-MNIST
+chemicalInitialization: chemicalEnum.same
+trainFeedback: False
+feedbackModel: modelEnum.complex
+minTrainingDataPerClass: 70
+maxTrainingDataPerClass: 70
+queryDataPerClass: 20
+typeOfFeedback: typeOfFeedbackEnum.FA
+nonLinear: <function pass_through at 0x7f789c1a91b0>
+bias: False
+update_rules: [0, 1, 2, 3, 4, 5, 8, 9]
+pMatrix: pMatrixEnum.first_col
+kMatrix: kMatrixEnum.zero
+minTau: 2
+maxTau: 100
+y_vector: yVectorEnum.first_one
+z_vector: zVectorEnum.all_ones
+operator: operatorEnum.mode_1
+train_z_vector: False
+mode: modeEnum.rosenbaum
+v_vector: vVectorEnum.default
+eta: 1
+beta: 0
+kMasking: False
+individual_different_v_vector: False
+scheduler_t0: None
