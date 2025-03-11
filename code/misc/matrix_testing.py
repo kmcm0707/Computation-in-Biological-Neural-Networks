@@ -71,6 +71,17 @@ if __name__ == "__main__":
     z_vector = 1 / tau_vector
     y_vector = 1 - z_vector
 
-    print(tau_vector)
+    """print(tau_vector)
     print(z_vector)
-    print(y_vector)
+    print(y_vector)"""
+
+    test_matrix_2 = nn.Parameter(torch.nn.init.xavier_uniform_(torch.empty(size=(3, 2, 2), device="cpu"))) * 0.1
+    test_matrix = nn.Parameter(torch.nn.init.xavier_uniform_(torch.empty(size=(2, 2), device="cpu")))
+    test_matrix_norm = torch.norm(test_matrix, p=2)
+    test_matrix_2_norm = torch.linalg.norm(test_matrix_2, ord=2, dim=(1, 2))
+    divesor = test_matrix_norm / test_matrix_2_norm
+    print(test_matrix_norm)
+    print(test_matrix_2_norm)
+    print(divesor)
+    fixed_matrix = test_matrix_2 * divesor[:, None, None]
+    print(torch.linalg.norm(fixed_matrix, ord=2, dim=(1, 2)))

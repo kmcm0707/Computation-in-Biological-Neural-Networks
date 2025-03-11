@@ -531,6 +531,7 @@ class ComplexSynapse(nn.Module):
                     # Equation 1: h(s+1) = yh(s) + (1/\eta) * zf(Kh(s) + \eta * P * F(Parameter) + b)
                     # Equation 2: w(s) = v * h(s)
                     update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i)
+                    parameter_norm = torch.norm(parameter, p=2)
                     # update_vector = update_vector / (torch.amax(update_vector, dim=(1, 2)) + 1e-5)[:, None, None]
                     # update_vector = update_vector / (torch.norm(update_vector, dim=(1, 2), p=2) + 1e-5)[:, None, None]
 
@@ -543,6 +544,7 @@ class ComplexSynapse(nn.Module):
                         or self.operator == operatorEnum.attention_2
                         or self.operator == operatorEnum.full_attention
                         or self.operator == operatorEnum.mode_4
+                        or self.operator == operatorEnum.mode_5
                         or self.operator == operatorEnum.compressed_full_attention
                         or self.operator == operatorEnum.v_linear
                         or self.operator == operatorEnum.compressed_v_linear
@@ -556,6 +558,10 @@ class ComplexSynapse(nn.Module):
                                 + self.bias_dictionary[h_name]  # [:, None, None]
                             ),
                         )
+                        if self.operator == operatorEnum.mode_5:
+                            chemical_norms = torch.norm(chemical, p=2, dim=(1, 2))
+                            multiplier = parameter_norm / (chemical_norms + 1e-5)
+                            new_chemical = new_chemical * multiplier[:, None, None]
                     elif self.operator == operatorEnum.sub or self.operator == operatorEnum.sub_4:
                         # Equation 1 - operator = sub: h(s+1) = yh(s) + sign(h(s)) * z( f( sign(h(s)) * (Kh(s) + \theta * F(Parameter) + b) ))
                         new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.sign(
@@ -720,7 +726,11 @@ class ComplexSynapse(nn.Module):
                             (self.number_chemicals, update_vector.shape[1], update_vector.shape[2]),
                         )
                         new_value = torch.einsum("ijk,ijk->jk", v_softmax, h_parameters[h_name])
-                    elif self.operator == operatorEnum.mode_4 or self.operator == operatorEnum.sub_4:
+                    elif (
+                        self.operator == operatorEnum.mode_4
+                        or self.operator == operatorEnum.sub_4
+                        or self.operator == operatorEnum.mode_5
+                    ):
                         v_vector_softmax = torch.nn.functional.softmax(self.v_vector, dim=1)
                         new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)
                     else:
@@ -759,9 +769,7 @@ class ComplexSynapse(nn.Module):
         :param parameter: (tensor) model parameter - dimension (W_1, W_2),
         :param i: (int) index of the parameter.
         """
-        update_vector = torch.zeros(
-            (10, parameter.shape[0], parameter.shape[1]), device=self.device
-        )
+        update_vector = torch.zeros((10, parameter.shape[0], parameter.shape[1]), device=self.device)
 
         if self.update_rules[0]:
             update_vector[0] = -torch.matmul(error[i + 1].T, activations_and_output[i])  # Pseudo-gradient
