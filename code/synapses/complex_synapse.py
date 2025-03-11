@@ -559,7 +559,7 @@ class ComplexSynapse(nn.Module):
                             ),
                         )
                         if self.operator == operatorEnum.mode_5:
-                            chemical_norms = torch.norm(chemical, p=2, dim=(1, 2))
+                            chemical_norms = torch.norm(new_chemical, p=2, dim=(1, 2))
                             multiplier = parameter_norm / (chemical_norms + 1e-5)
                             new_chemical = new_chemical * multiplier[:, None, None]
                     elif self.operator == operatorEnum.sub or self.operator == operatorEnum.sub_4:
