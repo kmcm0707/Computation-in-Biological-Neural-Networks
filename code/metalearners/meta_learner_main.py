@@ -703,7 +703,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 500
+    epochs = 345
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
@@ -744,7 +744,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4, 8, 9],  # 5,
+            update_rules=[0, 1, 2, 3, 4, 5, 8, 9],  # 5,
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
@@ -899,4 +899,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="BCM_test", index=i)
+        run(seed=0, display=True, result_subdirectory="normalise_weights", index=i)

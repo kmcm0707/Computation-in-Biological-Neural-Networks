@@ -125,8 +125,8 @@ class ComplexSynapse(nn.Module):
                 """self.bias_dictionary[h_name] = nn.Parameter(
                     torch.tensor([0.0] * self.number_chemicals, device=self.device)
                 )"""
-                print("BCM")
-                self.bcm_dict[h_name] = torch.tensor([0.0] * parameter.shape[0], device=self.device)
+                """print("BCM")
+                self.bcm_dict[h_name] = torch.tensor([0.0] * parameter.shape[0], device=self.device)"""
 
         if self.options.bias:
             self.all_bias_parameters.extend(self.bias_dictionary.values())
@@ -857,18 +857,18 @@ class ComplexSynapse(nn.Module):
                 )
 
             if self.update_rules[9]:
-                """update_vector[9] = torch.matmul(
+                update_vector[9] = torch.matmul(
                     activations_and_output[i + 1].T, activations_and_output[i]
                 ) - torch.matmul(
                     torch.matmul(activations_and_output[i + 1].T, activations_and_output[i + 1]),
                     parameter,
-                )  # Oja's rule"""
-                update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) * (
+                )  # Oja's rule
+                """update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) * (
                     (activations_and_output[i + 1].squeeze(0) - self.bcm_dict[h_name])[:, None]
                 )
                 self.bcm_dict[h_name] = (
                     0.001 * (activations_and_output[i + 1].squeeze(0) ** 2 - self.bcm_dict[h_name])
                     + self.bcm_dict[h_name]
-                )
+                )"""
 
         return update_vector
