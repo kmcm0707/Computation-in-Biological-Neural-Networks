@@ -284,6 +284,9 @@ class ComplexSynapse(nn.Module):
         self.z_vector = self.z_vector.to(self.device)
         self.z_vector = nn.Parameter(self.z_vector)
 
+        print("BCM")
+        self.bcm = torch.tensor([0], device=self.device)
+
         if self.options.train_z_vector:
             self.all_meta_parameters.append(self.z_vector)
 
@@ -531,7 +534,6 @@ class ComplexSynapse(nn.Module):
                     # Equation 1: h(s+1) = yh(s) + (1/\eta) * zf(Kh(s) + \eta * P * F(Parameter) + b)
                     # Equation 2: w(s) = v * h(s)
                     update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i)
-                    parameter_norm = torch.norm(parameter, p=2)
                     # update_vector = update_vector / (torch.amax(update_vector, dim=(1, 2)) + 1e-5)[:, None, None]
                     # update_vector = update_vector / (torch.norm(update_vector, dim=(1, 2), p=2) + 1e-5)[:, None, None]
 
@@ -559,6 +561,7 @@ class ComplexSynapse(nn.Module):
                             ),
                         )
                         if self.operator == operatorEnum.mode_5:
+                            parameter_norm = torch.norm(parameter, p=2)
                             chemical_norms = torch.norm(new_chemical, p=2, dim=(1, 2))
                             multiplier = parameter_norm / (chemical_norms + 1e-5)
                             new_chemical = new_chemical * multiplier[:, None, None]  # chemical_norms[:, None, None]
@@ -853,9 +856,13 @@ class ComplexSynapse(nn.Module):
             )
 
         if self.update_rules[9]:
-            update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) - torch.matmul(
+            """update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) - torch.matmul(
                 torch.matmul(activations_and_output[i + 1].T, activations_and_output[i + 1]),
                 parameter,
-            )  # Oja's rule
+            )  # Oja's rule"""
+            update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) * (
+                torch.dot(activations_and_output[i + 1], activations_and_output[i + 1]) - self.bcm
+            )
+            self.bcm += 0.2 * (torch.dot(activations_and_output[i + 1], activations_and_output[i + 1]) - self.bcm)
 
         return update_vector
