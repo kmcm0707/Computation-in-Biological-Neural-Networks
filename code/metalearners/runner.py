@@ -497,7 +497,7 @@ def run(
     numWorkers = 0
     epochs = 50
 
-    dataset_name = "FASHION-MNIST"
+    dataset_name = "EMNIST"
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
     trainingDataPerClass = [
@@ -573,7 +573,7 @@ def run(
             maxTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_4,
+            operator=operatorEnum.mode_5,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -732,15 +732,13 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [
-            os.getcwd() + "/results/lr5",
-    ]
+    modelPath_s = [os.getcwd() + "/results/normalise_weights/0/20250312-150011"]
     for i in range(2):
         for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_3chem_fashion_mnist2"][i],
+                result_subdirectory=["runner_normalised_weight"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
