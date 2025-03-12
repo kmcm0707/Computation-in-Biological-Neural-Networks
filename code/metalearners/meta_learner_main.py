@@ -752,7 +752,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_4,  # mode_5,
+            operator=operatorEnum.mode_5,  # mode_5,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,

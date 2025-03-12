@@ -58,6 +58,8 @@ class ComplexSynapse(nn.Module):
         self.all_bias_parameters = nn.ParameterList([])  # All bias parameters if they are used
         self.number_chemicals = numberOfChemicals  # L
 
+        self.bcm_dict = {}
+
         self.non_linearity = complexOptions.nonLinear
 
         self.update_rules = [False] * 10
@@ -123,6 +125,8 @@ class ComplexSynapse(nn.Module):
                 """self.bias_dictionary[h_name] = nn.Parameter(
                     torch.tensor([0.0] * self.number_chemicals, device=self.device)
                 )"""
+                print("BCM")
+                self.bcm_dict[h_name] = torch.tensor([0.0] * parameter.shape[0], device=self.device)
 
         if self.options.bias:
             self.all_bias_parameters.extend(self.bias_dictionary.values())
@@ -283,9 +287,6 @@ class ComplexSynapse(nn.Module):
         self.y_vector = nn.Parameter(self.y_vector)
         self.z_vector = self.z_vector.to(self.device)
         self.z_vector = nn.Parameter(self.z_vector)
-
-        print("BCM")
-        self.bcm = torch.tensor([0.0], device=self.device, requires_grad=True, dtype=torch.float32)
 
         if self.options.train_z_vector:
             self.all_meta_parameters.append(self.z_vector)
@@ -533,7 +534,7 @@ class ComplexSynapse(nn.Module):
                 if parameter.adapt == self.adaptionPathway and "weight" in name:
                     # Equation 1: h(s+1) = yh(s) + (1/\eta) * zf(Kh(s) + \eta * P * F(Parameter) + b)
                     # Equation 2: w(s) = v * h(s)
-                    update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i)
+                    update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i, h_name)
                     # update_vector = update_vector / (torch.amax(update_vector, dim=(1, 2)) + 1e-5)[:, None, None]
                     # update_vector = update_vector / (torch.norm(update_vector, dim=(1, 2), p=2) + 1e-5)[:, None, None]
 
@@ -764,7 +765,7 @@ class ComplexSynapse(nn.Module):
 
                     params[name].adapt = self.adaptionPathway
 
-    def calculate_update_vector(self, error, activations_and_output, parameter, i) -> torch.Tensor:
+    def calculate_update_vector(self, error, activations_and_output, parameter, i, h_name) -> torch.Tensor:
         """
         Calculate the update vector for the complex synapse model.
         :param error: (list) model error,
@@ -863,13 +864,11 @@ class ComplexSynapse(nn.Module):
                     parameter,
                 )  # Oja's rule"""
                 update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) * (
-                    torch.dot(activations_and_output[i + 1].squeeze(0), activations_and_output[i + 1].squeeze(0))
-                    - self.bcm
+                    (activations_and_output[i + 1].squeeze(0) - self.bcm_dict[h_name])[:, None]
                 )
-                temp = (2 * self.P_matrix[0, 0] + 0.01) * (
-                    torch.dot(activations_and_output[i + 1].squeeze(0), activations_and_output[i + 1].squeeze(0))
-                    - self.bcm
-                ) + self.bcm
-                self.bcm = temp
+                self.bcm_dict[h_name] = (
+                    0.001 * (activations_and_output[i + 1].squeeze(0) ** 2 - self.bcm_dict[h_name])
+                    + self.bcm_dict[h_name]
+                )
 
         return update_vector
