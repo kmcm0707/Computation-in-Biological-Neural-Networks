@@ -285,7 +285,7 @@ class ComplexSynapse(nn.Module):
         self.z_vector = nn.Parameter(self.z_vector)
 
         print("BCM")
-        self.bcm = torch.tensor([0], device=self.device)
+        self.bcm = torch.tensor([0.0], device=self.device, requires_grad=True, dtype=torch.float32)
 
         if self.options.train_z_vector:
             self.all_meta_parameters.append(self.z_vector)
@@ -773,99 +773,103 @@ class ComplexSynapse(nn.Module):
         :param i: (int) index of the parameter.
         """
         update_vector = torch.zeros((10, parameter.shape[0], parameter.shape[1]), device=self.device)
+        with torch.no_grad():
+            if self.update_rules[0]:
+                update_vector[0] = -torch.matmul(error[i + 1].T, activations_and_output[i])  # Pseudo-gradient
 
-        if self.update_rules[0]:
-            update_vector[0] = -torch.matmul(error[i + 1].T, activations_and_output[i])  # Pseudo-gradient
+            if self.update_rules[1]:
+                update_vector[1] = -torch.matmul(activations_and_output[i + 1].T, error[i])
 
-        if self.update_rules[1]:
-            update_vector[1] = -torch.matmul(activations_and_output[i + 1].T, error[i])
+            if self.update_rules[2]:
+                update_vector[2] = -torch.matmul(error[i + 1].T, error[i])  # eHebb rule
 
-        if self.update_rules[2]:
-            update_vector[2] = -torch.matmul(error[i + 1].T, error[i])  # eHebb rule
+            if self.update_rules[3]:
+                update_vector[3] = -parameter
 
-        if self.update_rules[3]:
-            update_vector[3] = -parameter
+            if self.update_rules[4]:
+                update_vector[4] = -torch.matmul(torch.ones(size=(parameter.shape[0], 1), device=self.device), error[i])
 
-        if self.update_rules[4]:
-            update_vector[4] = -torch.matmul(torch.ones(size=(parameter.shape[0], 1), device=self.device), error[i])
-
-        if self.update_rules[5]:
-            """update_vector[5] = -torch.matmul(
-                torch.matmul(
-                    torch.matmul(
-                        error[i + 1].T,
-                        torch.ones(size=(1, parameter.shape[0]), device=self.device),
-                    ),
-                    activations_and_output[i + 1].T,
-                ),
-                activations_and_output[i],
-            )  # = ERROR on high learning rate"""
-            """normalised_weight = torch.nn.functional.normalize(parameter.clone(), p=2, dim=1)
-            squeeze_activations = activations_and_output[i].clone().squeeze(0)
-            normalised_activation = torch.nn.functional.normalize(squeeze_activations, p=2, dim=0)
-            output = torch.matmul(normalised_activation, normalised_weight.T)
-            max_index_output = torch.argmax(output)  # max index of the output
-            update_vector[5][:, max_index_output] = normalised_activation[i] - normalised_weight[:, max_index_output]"""
-            softmax_output = torch.nn.functional.softmax(
-                torch.matmul(activations_and_output[i + 1].squeeze(0), parameter), dim=0
-            )
-            diff = parameter - activations_and_output[i].squeeze(0)[None, :]
-            update_vector[5] = -torch.matmul(diff, softmax_output[:, None])
-
-        if self.update_rules[6]:
-            """update_vector[6] = -torch.matmul(
-                torch.matmul(
+            if self.update_rules[5]:
+                """update_vector[5] = -torch.matmul(
                     torch.matmul(
                         torch.matmul(
-                            activations_and_output[i + 1].T,
-                            activations_and_output[i + 1],
+                            error[i + 1].T,
+                            torch.ones(size=(1, parameter.shape[0]), device=self.device),
                         ),
-                        parameter,
+                        activations_and_output[i + 1].T,
                     ),
-                    error[i].T,
-                ),
-                error[i],
-            )  # - ERROR"""
-            """update_vector[6] = -torch.matmul(
-                torch.nn.functional.sigmoid(activations_and_output[i + 1].T),
-                torch.nn.functional.sigmoid(activations_and_output[i]),
-            )"""
+                    activations_and_output[i],
+                )  # = ERROR on high learning rate"""
+                """normalised_weight = torch.nn.functional.normalize(parameter.clone(), p=2, dim=1)
+                squeeze_activations = activations_and_output[i].clone().squeeze(0)
+                normalised_activation = torch.nn.functional.normalize(squeeze_activations, p=2, dim=0)
+                output = torch.matmul(normalised_activation, normalised_weight.T)
+                max_index_output = torch.argmax(output)  # max index of the output
+                update_vector[5][:, max_index_output] = normalised_activation[i] - normalised_weight[:, max_index_output]"""
+                softmax_output = torch.nn.functional.softmax(
+                    torch.matmul(activations_and_output[i + 1].squeeze(0), parameter), dim=0
+                )
+                diff = parameter - activations_and_output[i].squeeze(0)[None, :]
+                update_vector[5] = -torch.matmul(diff, softmax_output[:, None])
 
-        if self.update_rules[7]:
-            update_vector[7] = -torch.matmul(
-                torch.matmul(
+            if self.update_rules[6]:
+                """update_vector[6] = -torch.matmul(
                     torch.matmul(
-                        torch.matmul(error[i + 1].T, activations_and_output[i + 1]),
-                        parameter,
+                        torch.matmul(
+                            torch.matmul(
+                                activations_and_output[i + 1].T,
+                                activations_and_output[i + 1],
+                            ),
+                            parameter,
+                        ),
+                        error[i].T,
                     ),
-                    error[i].T,
-                ),
-                activations_and_output[i],
-            )  # - Maybe be bad
+                    error[i],
+                )  # - ERROR"""
+                """update_vector[6] = -torch.matmul(
+                    torch.nn.functional.sigmoid(activations_and_output[i + 1].T),
+                    torch.nn.functional.sigmoid(activations_and_output[i]),
+                )"""
 
-        if self.update_rules[8]:
-            update_vector[8] = -torch.matmul(
-                torch.matmul(
+            if self.update_rules[7]:
+                update_vector[7] = -torch.matmul(
                     torch.matmul(
-                        torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]),
-                        parameter.T,
+                        torch.matmul(
+                            torch.matmul(error[i + 1].T, activations_and_output[i + 1]),
+                            parameter,
+                        ),
+                        error[i].T,
                     ),
-                    error[i + 1].T,
-                ),
-                error[i],
-            )
+                    activations_and_output[i],
+                )  # - Maybe be bad
 
-        if self.update_rules[9]:
-            """update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) - torch.matmul(
-                torch.matmul(activations_and_output[i + 1].T, activations_and_output[i + 1]),
-                parameter,
-            )  # Oja's rule"""
-            update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) * (
-                torch.dot(activations_and_output[i + 1].squeeze(0), activations_and_output[i + 1].squeeze(0).squeeze(0))
-                - self.bcm
-            )
-            self.bcm += 0.2 * (
-                torch.dot(activations_and_output[i + 1].squeeze(0), activations_and_output[i + 1].squeeze(0)) - self.bcm
-            )
+            if self.update_rules[8]:
+                update_vector[8] = -torch.matmul(
+                    torch.matmul(
+                        torch.matmul(
+                            torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]),
+                            parameter.T,
+                        ),
+                        error[i + 1].T,
+                    ),
+                    error[i],
+                )
+
+            if self.update_rules[9]:
+                """update_vector[9] = torch.matmul(
+                    activations_and_output[i + 1].T, activations_and_output[i]
+                ) - torch.matmul(
+                    torch.matmul(activations_and_output[i + 1].T, activations_and_output[i + 1]),
+                    parameter,
+                )  # Oja's rule"""
+                update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) * (
+                    torch.dot(activations_and_output[i + 1].squeeze(0), activations_and_output[i + 1].squeeze(0))
+                    - self.bcm
+                )
+                temp = (2 * self.P_matrix[0, 0] + 0.01) * (
+                    torch.dot(activations_and_output[i + 1].squeeze(0), activations_and_output[i + 1].squeeze(0))
+                    - self.bcm
+                ) + self.bcm
+                self.bcm = temp
 
         return update_vector
