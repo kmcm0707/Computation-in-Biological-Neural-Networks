@@ -1,23 +1,30 @@
 Number of chemicals: 3
 Number of query data per class: 20
 model: modelEnum.complex
-modelPath: /homes/kcm40/kcm40/Computation-in-Biological-Neural-Networks/results/normalise_weights_fix/0/20250313-054852
 small: False
+scheduler: schedulerEnum.none
+metaLossRegularization: 0
+biasLossRegularization: 0
+optimizer: optimizerEnum.adam
 seed: 0
+raytune: False
 save_results: True
-results_subdir: runner_normalise_weights_fix
-metatrain_dataset: <torch.utils.data.dataloader.DataLoader object at 0x7fcab6672050>
+results_subdir: normalise_weights_fix
+metatrain_dataset: <torch.utils.data.dataloader.DataLoader object at 0x7f37debd0c70>
 display: True
+lr: 0.0003
 numberOfClasses: 5
 dataset_name: EMNIST
 chemicalInitialization: chemicalEnum.same
 trainFeedback: False
 feedbackModel: modelEnum.complex
-minTrainingDataPerClass: 20
-maxTrainingDataPerClass: 20
+minTrainingDataPerClass: 30
+maxTrainingDataPerClass: 110
 queryDataPerClass: 20
+datasetDevice: cuda:1
+continueTraining: None
 typeOfFeedback: typeOfFeedbackEnum.FA
-nonLinear: <function tanh at 0x7fcad5610e50>
+nonLinear: <function tanh at 0x7f37fd898e50>
 bias: False
 update_rules: [0, 1, 2, 3, 4, 5, 8, 9]
 pMatrix: pMatrixEnum.first_col
@@ -26,12 +33,12 @@ minTau: 2
 maxTau: 100
 y_vector: yVectorEnum.none
 z_vector: zVectorEnum.all_ones
-operator: operatorEnum.mode_5
+operator: operatorEnum.mode_6
 train_z_vector: False
 mode: modeEnum.all
 v_vector: vVectorEnum.default
 eta: 1
-beta: 0
+beta: 0.01
 kMasking: False
 individual_different_v_vector: False
 scheduler_t0: None

@@ -58,6 +58,7 @@ class operatorEnum(Enum):
     mode_3 = "mode_3"
     mode_4 = "mode_4"
     mode_5 = "mode_5"
+    mode_6 = "mode_6"
     sub = "sub"
     sub_4 = "sub_4"
     attention = "attention"
