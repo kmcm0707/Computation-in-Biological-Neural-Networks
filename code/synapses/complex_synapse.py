@@ -811,9 +811,17 @@ class ComplexSynapse(nn.Module):
             """softmax_output = torch.nn.functional.softmax(
                 torch.matmul(activations_and_output[i + 1].squeeze(0), parameter), dim=0
             )"""
-            softmax_output = torch.nn.functional.softmax(activations_and_output[i + 1].squeeze(0), dim=0)
-            diff = parameter - activations_and_output[i].squeeze(0)[None, :]
+            normalised_weight = torch.nn.functional.normalize(parameter.clone(), p=2, dim=1)
+            squeeze_activations = activations_and_output[i].clone().squeeze(0)
+            normalised_activation = torch.nn.functional.normalize(squeeze_activations, p=2, dim=0)
+            output = torch.nn.functional.softplus(
+                torch.matmul(normalised_activation, normalised_weight.T),
+                beta=10.0,
+            )
+            softmax_output = torch.nn.functional.softmax(output, dim=0)
+            diff = normalised_weight - normalised_activation
             update_vector[5] = -(diff * softmax_output[:, None])
+            exit()
             """norm_uv = torch.norm(update_vector[5], p=2)
             norm_diff = torch.norm(diff, p=2)
             norm_activation = torch.norm(activations_and_output[i].squeeze(0), p=2)

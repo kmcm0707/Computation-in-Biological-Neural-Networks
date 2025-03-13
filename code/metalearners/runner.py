@@ -732,15 +732,14 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/normalise_weights/0/3chem_new5"]
+    modelPath_s = [os.getcwd() + "/results/normalise_weights/0/3_chem_no_broken_5"]
     for i in range(2):
-        for index in range(0, 27):
+        for index in range(23, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_normalised_weight_3chem_new5"][i],
+                result_subdirectory=["testing/a"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
             )
-            exit()
