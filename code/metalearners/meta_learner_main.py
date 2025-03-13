@@ -860,16 +860,16 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        datasetDevice="cuda:0",  # if running out of memory, change to "cpu"
+        datasetDevice="cuda:1",  # if running out of memory, change to "cpu"
         continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.FA,
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 3
+    numberOfChemicals = 5
     # -- meta-train
     # device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
-    device = "cuda:5"
+    device = "cuda:1"
     metalearning_model = MetaLearner(
         device=device,
         numberOfChemicals=numberOfChemicals,
