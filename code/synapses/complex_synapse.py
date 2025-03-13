@@ -821,7 +821,6 @@ class ComplexSynapse(nn.Module):
             softmax_output = torch.nn.functional.softmax(output, dim=0)
             diff = normalised_weight - normalised_activation
             update_vector[5] = -(diff * softmax_output[:, None])
-            exit()
             """norm_uv = torch.norm(update_vector[5], p=2)
             norm_diff = torch.norm(diff, p=2)
             norm_activation = torch.norm(activations_and_output[i].squeeze(0), p=2)

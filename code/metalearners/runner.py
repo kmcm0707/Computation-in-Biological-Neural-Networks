@@ -494,8 +494,8 @@ def run(
     random.seed(seed)
 
     # -- load data
-    numWorkers = 0
-    epochs = 1
+    numWorkers = 2
+    epochs = 50
 
     dataset_name = "EMNIST"
     numberOfClasses = None
@@ -738,7 +738,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["testing/a"][i],
+                result_subdirectory=["runner_normalised_weight_3chem_new5a"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
