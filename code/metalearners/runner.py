@@ -565,7 +565,7 @@ def run(
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4, 5, 8, 9],
+            update_rules=[0, 1, 2, 3, 4, 8, 9], #5
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
@@ -703,7 +703,7 @@ def run(
     #   -- number of chemicals
     numberOfChemicals = 5
     # -- meta-train
-    device = "cuda:1" if torch.cuda.is_available() else "cpu"
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
     runner = Runner(
         device=device,
@@ -732,13 +732,13 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/normalise_weights/0/5_cehm_800"]
+    modelPath_s = [os.getcwd() + "/results/normalise_weights/0/5_chem_800"]
     for i in range(2):
-        for index in range(0, 27):
+        for index in range(19, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_normalised_weight_5_chem_800"][i],
+                result_subdirectory=["runner_normalised_weight_5_chem_800_check"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
