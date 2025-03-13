@@ -738,13 +738,13 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/normalise_weights_rule_5_fix_2/0/20250313-040423"]
+    modelPath_s = [os.getcwd() + "/results/normalise_weights_fix/0/20250313-054852"]
     for i in range(2):
         for index in range(1, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_normalise_weights_rule_5_fix_2"][i],
+                result_subdirectory=["runner_normalise_weights_fix"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
