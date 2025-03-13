@@ -1,4 +1,5 @@
 import math
+import os
 from typing import Literal
 
 import numpy as np
@@ -806,12 +807,33 @@ class ComplexSynapse(nn.Module):
             normalised_activation = torch.nn.functional.normalize(squeeze_activations, p=2, dim=0)
             output = torch.matmul(normalised_activation, normalised_weight.T)
             max_index_output = torch.argmax(output)  # max index of the output
-            update_vector[5][:, max_index_output] = normalised_activation[i] - normalised_weight[:, max_index_output]"""
-            softmax_output = torch.nn.functional.softmax(
+            update_vector[5][:, max_index_output] = -torch.matmul(diff, softmax_output[:, None])"""
+            """softmax_output = torch.nn.functional.softmax(
                 torch.matmul(activations_and_output[i + 1].squeeze(0), parameter), dim=0
-            )
+            )"""
+            softmax_output = torch.nn.functional.softmax(activations_and_output[i + 1].squeeze(0), dim=0)
             diff = parameter - activations_and_output[i].squeeze(0)[None, :]
-            update_vector[5] = -torch.matmul(diff, softmax_output[:, None])
+            update_vector[5] = -(diff * softmax_output[:, None])
+            """norm_uv = torch.norm(update_vector[5], p=2)
+            norm_diff = torch.norm(diff, p=2)
+            norm_activation = torch.norm(activations_and_output[i].squeeze(0), p=2)
+            softmax_output_norm = torch.norm(softmax_output, p=2)
+            line = (
+                "time: "
+                + str(self.time_index)
+                + "update vector norm: "
+                + str(norm_uv)
+                + " diff norm: "
+                + str(norm_diff)
+                + " activation norm: "
+                + str(norm_activation)
+                + " softmax output: "
+                + str(softmax_output_norm)
+            )
+            current_cwd = os.getcwd()
+            with open(current_cwd + "/check.txt", "a+") as f:
+                print(line)
+                f.writelines(line + "\n")"""
 
         if self.update_rules[6]:
             """update_vector[6] = -torch.matmul(

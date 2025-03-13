@@ -495,7 +495,7 @@ def run(
 
     # -- load data
     numWorkers = 0
-    epochs = 50
+    epochs = 1
 
     dataset_name = "EMNIST"
     numberOfClasses = None
@@ -703,7 +703,7 @@ def run(
     #   -- number of chemicals
     numberOfChemicals = 5
     # -- meta-train
-    device = "cuda:1" if torch.cuda.is_available() else "cpu"
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
     runner = Runner(
         device=device,
@@ -732,9 +732,9 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/normalise_weights/0/5_cehm_800"]
+    modelPath_s = [os.getcwd() + "/results/normalise_weights/0/5_chem_800"]
     for i in range(2):
-        for index in range(0, 27):
+        for index in range(24, 27):
             run(
                 seed=0,
                 display=True,
@@ -743,3 +743,4 @@ def runner_main():
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
             )
+            exit()
