@@ -310,6 +310,7 @@ class Runner:
             # Using a clone of the model parameters to allow for in-place operations
             # Maintains the computational graph for the model as .detach() is not used
             parameters, h_parameters, feedback_params = self.reinitialize()
+
             if (
                 self.options.chemicalInitialization != chemicalEnum.zero
                 and self.modelOptions.operator != operatorEnum.mode_3
@@ -317,7 +318,9 @@ class Runner:
                 self.UpdateWeights.initial_update(parameters, h_parameters)
                 if self.options.trainFeedback and self.feedbackModelOptions.operator != operatorEnum.mode_3:
                     self.UpdateFeedbackWeights.initial_update(parameters, feedback_params)
-
+            for key in parameters:
+                if "forward" in key:
+                    print(torch.norm(parameters[key]))
             # -- reset time index
             self.UpdateWeights.reset_time_index()
             if self.options.trainFeedback:
@@ -417,6 +420,9 @@ class Runner:
                     # -- update feedback time index
                     self.UpdateFeedbackWeights.update_time_index()
 
+            for key in parameters:
+                if "forward" in key:
+                    print(torch.norm(parameters[key]))
             """ meta test"""
             # -- predict
             y, logits = None, None
@@ -734,7 +740,7 @@ def runner_main():
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [os.getcwd() + "/results/normalise_weights_rule_5_fix_2/0/20250313-040423"]
     for i in range(2):
-        for index in range(0, 27):
+        for index in range(1, 27):
             run(
                 seed=0,
                 display=True,

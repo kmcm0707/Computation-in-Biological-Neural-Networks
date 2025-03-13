@@ -899,4 +899,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="normalise_weights_rule_5_fix_2", index=i)
+        run(seed=0, display=True, result_subdirectory="normalise_weights_fix", index=i)
