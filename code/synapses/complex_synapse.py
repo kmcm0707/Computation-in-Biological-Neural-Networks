@@ -841,6 +841,11 @@ class ComplexSynapse(nn.Module):
             # squeeze_activations = activations_and_output[i].clone().squeeze(0)
             # normalised_activation = torch.nn.functional.normalize(squeeze_activations, p=2, dim=0)
             """output = torch.nn.functional.softplus(
+            #diff = parameter - activations_and_output[i].squeeze(0)
+            normalised_weight = torch.nn.functional.normalize(parameter.clone(), p=2, dim=1)
+            squeeze_activations = activations_and_output[i].clone().squeeze(0)
+            normalised_activation = torch.nn.functional.normalize(squeeze_activations, p=2, dim=0)
+            output = torch.nn.functional.softplus(
                 torch.matmul(normalised_activation, normalised_weight.T),
                 beta=10.0,
             )
