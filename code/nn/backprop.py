@@ -10,7 +10,7 @@ from typing import Literal
 
 import numpy as np
 import torch
-from misc.dataset import DataProcess, EmnistDataset
+from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset
 from misc.utils import Plot, log, meta_stats
 from ray import train, tune
 from torch import nn, optim
@@ -285,17 +285,33 @@ def run(
 
     # -- load data
     numWorkers = 6
-    epochs = 50
-    number_of_classes = 5
+    epochs = 2
+    numberOfClasses = 5
     trainingDataPerClass = trainingDataPerClass
-    dataset = EmnistDataset(
-        minTrainingDataPerClass=trainingDataPerClass,
-        maxTrainingDataPerClass=trainingDataPerClass,
-        queryDataPerClass=20,
-        dimensionOfImage=28,
-    )
+    dimOut = 47
+    dataset_name = "FASHION-MNIST"
+
+    if dataset_name == "EMNIST":
+        numberOfClasses = 5
+        dataset = EmnistDataset(
+            minTrainingDataPerClass=trainingDataPerClass,
+            maxTrainingDataPerClass=trainingDataPerClass,
+            queryDataPerClass=20,
+            dimensionOfImage=28,
+        )
+        dimOut = 47
+    elif dataset_name == "FASHION-MNIST":
+        numberOfClasses = 10
+        dataset = FashionMnistDataset(
+            minTrainingDataPerClass=trainingDataPerClass,
+            maxTrainingDataPerClass=trainingDataPerClass,
+            queryDataPerClass=20,
+            dimensionOfImage=28,
+            all_classes=True,
+        )
+        dimOut = 10
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * 5)
-    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=number_of_classes, drop_last=True)
+    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True)
 
     metalearning_model = MetaLearner(
         device="cuda:0",
@@ -303,7 +319,7 @@ def run(
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         seed=seed,
-        number_of_classes=number_of_classes,
+        number_of_classes=numberOfClasses,
         trainingDataPerClass=trainingDataPerClass,
     )
     metalearning_model.train()
