@@ -134,17 +134,10 @@ class MetaLearner:
         elif metaLearnerOptions.optimizer == optimizerEnum.adam:
             self.UpdateMetaParameters = optim.Adam(
                 [
-<<<<<<< HEAD
                     # {
                     #    "params": bias_parameters,
                     #    "weight_decay": self.biasLossRegularization,
                     # },
-=======
-                   # {
-                   #     "params": bias_parameters,
-                   #     "weight_decay": self.biasLossRegularization,
-                   # },
->>>>>>> 985a424c (feat: res)
                     {
                         "params": meta_parameters,
                         # "weight_decay": self.metaLossRegularization,
@@ -754,7 +747,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4,5, 8, 9],  # 5,
+            update_rules=[0, 1, 2, 3, 4, 5, 8, 9],  # 5,
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
