@@ -737,13 +737,13 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/normalise_mode_6_5_chem/0/20250313-215707"]
+    modelPath_s = [os.getcwd() + "/results/normalise_mode_6_5_chem/0/20250314-063015"]
     for i in range(2):
         for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_5_chem_mode_6"][i],
+                result_subdirectory=["runner_5_chem_mode_6_800"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],

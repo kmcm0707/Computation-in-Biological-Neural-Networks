@@ -59,11 +59,7 @@ class ComplexSynapse(nn.Module):
         # self.all_bias_parameters = nn.ParameterList([])  # All bias parameters if they are used
         self.number_chemicals = numberOfChemicals  # L
 
-<<<<<<< HEAD
         # self.bcm_dict = {}
-=======
-        #self.bcm_dict = {}
->>>>>>> 985a424c (feat: res)
 
         self.non_linearity = complexOptions.nonLinear
 
@@ -103,7 +99,6 @@ class ComplexSynapse(nn.Module):
                 h_name = name.replace(self.adaptionPathway, "chemical").split(".")[0]
                 if self.adaptionPathway == "feedback":
                     h_name = "feedback_" + h_name
-<<<<<<< HEAD
                 """self.bias_dictionary[h_name] = nn.Parameter(
                     torch.nn.init.zeros_(
                         torch.empty(
@@ -118,22 +113,6 @@ class ComplexSynapse(nn.Module):
                     )
                 )"""
                 """if self.options.operator == operatorEnum.v_linear:
-=======
-                #self.bias_dictionary[h_name] = nn.Parameter(
-                #    torch.nn.init.zeros_(
-                #        torch.empty(
-                #            size=(
-                #                self.number_chemicals,
-                #                parameter.shape[0],
-                #                parameter.shape[1],
-                #            ),
-                #            device=self.device,
-                #            requires_grad=True,
-                #        )
-                #    )
-                #)
-                if self.options.operator == operatorEnum.v_linear:
->>>>>>> 985a424c (feat: res)
                     self.v_dict[h_name] = (
                         torch.ones(
                             size=(
@@ -585,11 +564,7 @@ class ComplexSynapse(nn.Module):
                             self.non_linearity(
                                 torch.einsum("ic,ijk->cjk", self.K_matrix, chemical)  # self.K_mask * self.K_matrix
                                 + torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
-<<<<<<< HEAD
                                 # + self.bias_dictionary[h_name]  # [:, None, None]
-=======
-                                #+ self.bias_dictionary[h_name]  # [:, None, None]
->>>>>>> 985a424c (feat: res)
                             ),
                         )
                         if self.operator == operatorEnum.mode_5 or self.operator == operatorEnum.mode_6:
