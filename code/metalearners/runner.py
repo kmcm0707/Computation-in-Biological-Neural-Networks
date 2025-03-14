@@ -743,7 +743,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_5_chem_mode_6_800"][i],
+                result_subdirectory=["runner_5_chem_mode_6_800_2"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
