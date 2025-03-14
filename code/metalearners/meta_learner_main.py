@@ -707,7 +707,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 110
+    maxTrainingDataPerClass = 100
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
@@ -855,21 +855,21 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
-        trainFeedback=False,
+        trainFeedback=True,
         feedbackModel=feedbackModel,
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        datasetDevice="cuda:1",  # if running out of memory, change to "cpu"
+        datasetDevice="cpu",  # if running out of memory, change to "cpu"
         continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.FA,
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 3
     # -- meta-train
     # device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
-    device = "cuda:1"
+    device = "cpu"
     metalearning_model = MetaLearner(
         device=device,
         numberOfChemicals=numberOfChemicals,
