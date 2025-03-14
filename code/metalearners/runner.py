@@ -502,7 +502,6 @@ def run(
     numWorkers = 2
     epochs = 50
 
-    dataset_name = "EMNIST"
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
     trainingDataPerClass = [
@@ -539,6 +538,7 @@ def run(
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -697,7 +697,7 @@ def run(
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
-        trainFeedback=True,
+        trainFeedback=False,
         feedbackModel=feedbackModel,
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
@@ -739,11 +739,11 @@ def runner_main():
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [os.getcwd() + "/results/normalise_weight_mode_6/0/20250313-054852"]
     for i in range(2):
-        for index in range(2, 27):
+        for index in range(22, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_test"][i],
+                result_subdirectory=["runner_fashion_mnist"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],

@@ -76,6 +76,7 @@ class MetaLearnerOptions:
         datasetDevice: Literal["cpu", "cuda"] = "cuda",
         continueTraining: str | None = None,
         typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
+        dimOut: int = 47,
     ):
 
         self.model = model
@@ -102,6 +103,7 @@ class MetaLearnerOptions:
         self.datasetDevice = datasetDevice
         self.continueTraining = continueTraining
         self.typeOfFeedback = typeOfFeedback
+        self.dimOut = dimOut
 
     def __str__(self):
         string = ""

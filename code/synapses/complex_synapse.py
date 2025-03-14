@@ -55,11 +55,11 @@ class ComplexSynapse(nn.Module):
         self.v_vector = nn.Parameter()  # v - L
         self.P_matrix = nn.Parameter()  # \theta - Lx10
         self.all_meta_parameters = nn.ParameterList([])  # All updatable meta-parameters except bias
-        self.bias_dictionary = torch.nn.ParameterDict()  # All bias parameters
-        self.all_bias_parameters = nn.ParameterList([])  # All bias parameters if they are used
+        # self.bias_dictionary = torch.nn.ParameterDict()  # All bias parameters
+        # self.all_bias_parameters = nn.ParameterList([])  # All bias parameters if they are used
         self.number_chemicals = numberOfChemicals  # L
 
-        self.bcm_dict = {}
+        # self.bcm_dict = {}
 
         self.non_linearity = complexOptions.nonLinear
 
@@ -99,7 +99,7 @@ class ComplexSynapse(nn.Module):
                 h_name = name.replace(self.adaptionPathway, "chemical").split(".")[0]
                 if self.adaptionPathway == "feedback":
                     h_name = "feedback_" + h_name
-                self.bias_dictionary[h_name] = nn.Parameter(
+                """self.bias_dictionary[h_name] = nn.Parameter(
                     torch.nn.init.zeros_(
                         torch.empty(
                             size=(
@@ -111,8 +111,8 @@ class ComplexSynapse(nn.Module):
                             requires_grad=True,
                         )
                     )
-                )
-                if self.options.operator == operatorEnum.v_linear:
+                )"""
+                """if self.options.operator == operatorEnum.v_linear:
                     self.v_dict[h_name] = (
                         torch.ones(
                             size=(
@@ -124,7 +124,7 @@ class ComplexSynapse(nn.Module):
                             requires_grad=False,
                         )
                         / self.number_chemicals
-                    )
+                    )"""
                 """self.bias_dictionary[h_name] = nn.Parameter(
                     torch.tensor([0.0] * self.number_chemicals, device=self.device)
                 )"""
@@ -133,7 +133,8 @@ class ComplexSynapse(nn.Module):
                 self.saved_norm[h_name] = torch.norm(parameter, p=2)
 
         if self.options.bias:
-            self.all_bias_parameters.extend(self.bias_dictionary.values())
+            raise ("Bias Disabled")
+            # self.all_bias_parameters.extend(self.bias_dictionary.values())
 
         ## Initialize the P and K matrices
         if self.mode == modeEnum.rosenbaum or self.mode == modeEnum.all_rosenbaum:
@@ -235,11 +236,11 @@ class ComplexSynapse(nn.Module):
         self.all_meta_parameters.append(self.P_matrix)
 
         ## K Mask
-        if self.options.kMasking:
+        """if self.options.kMasking:
             identity = torch.eye(self.number_chemicals, device=self.device)
             self.K_mask = torch.ones(self.number_chemicals, self.number_chemicals, device=self.device) - identity
         else:
-            self.K_mask = torch.ones(self.number_chemicals, self.number_chemicals, device=self.device)
+            self.K_mask = torch.ones(self.number_chemicals, self.number_chemicals, device=self.device)"""
 
         self.z_vector = torch.tensor([0] * self.number_chemicals, device=self.device)
         self.y_vector = torch.tensor([0] * self.number_chemicals, device=self.device)
@@ -561,9 +562,9 @@ class ComplexSynapse(nn.Module):
                             "i,ijk->ijk",
                             self.z_vector,
                             self.non_linearity(
-                                torch.einsum("ic,ijk->cjk", self.K_mask * self.K_matrix, chemical)
+                                torch.einsum("ic,ijk->cjk", self.K_matrix, chemical)  # self.K_mask * self.K_matrix
                                 + torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
-                                + self.bias_dictionary[h_name]  # [:, None, None]
+                                # + self.bias_dictionary[h_name]  # [:, None, None]
                             ),
                         )
                         if self.operator == operatorEnum.mode_5 or self.operator == operatorEnum.mode_6:
@@ -834,15 +835,17 @@ class ComplexSynapse(nn.Module):
             """softmax_output = torch.nn.functional.softmax(
                 torch.matmul(activations_and_output[i + 1].squeeze(0), parameter), dim=0
             )"""
-            normalised_weight = torch.nn.functional.normalize(parameter.clone(), p=2, dim=1)
-            squeeze_activations = activations_and_output[i].clone().squeeze(0)
-            normalised_activation = torch.nn.functional.normalize(squeeze_activations, p=2, dim=0)
-            output = torch.nn.functional.softplus(
+            softmax_output = torch.nn.functional.softmax(activations_and_output[i + 1].squeeze(0), dim=0)
+            diff = parameter - activations_and_output[i].squeeze(0)[None, :]
+            # normalised_weight = torch.nn.functional.normalize(parameter.clone(), p=2, dim=1)
+            # squeeze_activations = activations_and_output[i].clone().squeeze(0)
+            # normalised_activation = torch.nn.functional.normalize(squeeze_activations, p=2, dim=0)
+            """output = torch.nn.functional.softplus(
                 torch.matmul(normalised_activation, normalised_weight.T),
                 beta=10.0,
             )
-            softmax_output = torch.nn.functional.softmax(output, dim=0)
-            diff = normalised_weight - normalised_activation
+            softmax_output = torch.nn.functional.softmax(output, dim=0)"""
+            # diff = normalised_weight - normalised_activation
             update_vector[5] = -(diff * softmax_output[:, None])
             """norm_uv = torch.norm(update_vector[5], p=2)
             norm_diff = torch.norm(diff, p=2)

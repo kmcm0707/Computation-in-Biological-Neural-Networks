@@ -108,20 +108,20 @@ class MetaLearner:
         lr = metaLearnerOptions.lr
 
         # -- optimizer
-        bias_parameters = list(self.UpdateWeights.all_bias_parameters.parameters())
+        # bias_parameters = list(self.UpdateWeights.all_bias_parameters.parameters())
         meta_parameters = list(self.UpdateWeights.all_meta_parameters.parameters())
         if self.options.trainFeedback:
-            bias_parameters = bias_parameters + list(self.UpdateFeedbackWeights.all_bias_parameters.parameters())
+            # bias_parameters = bias_parameters + list(self.UpdateFeedbackWeights.all_bias_parameters.parameters())
             meta_parameters = meta_parameters + list(self.UpdateFeedbackWeights.all_meta_parameters.parameters())
 
         self.UpdateMetaParameters: Union[optim.SGD, optim.Adam, optim.AdamW, optim.NAdam, optim.RAdam, None] = None
         if metaLearnerOptions.optimizer == optimizerEnum.sgd:
             self.UpdateMetaParameters = optim.SGD(
                 [
-                    {
-                        "params": bias_parameters,
-                        "weight_decay": self.biasLossRegularization,
-                    },
+                    # {
+                    #    "params": bias_parameters,
+                    #    "weight_decay": self.biasLossRegularization,
+                    # },
                     {
                         "params": meta_parameters,
                         # "weight_decay": self.metaLossRegularization,
@@ -134,10 +134,10 @@ class MetaLearner:
         elif metaLearnerOptions.optimizer == optimizerEnum.adam:
             self.UpdateMetaParameters = optim.Adam(
                 [
-                    {
-                        "params": bias_parameters,
-                        "weight_decay": self.biasLossRegularization,
-                    },
+                    # {
+                    #    "params": bias_parameters,
+                    #    "weight_decay": self.biasLossRegularization,
+                    # },
                     {
                         "params": meta_parameters,
                         # "weight_decay": self.metaLossRegularization,
@@ -148,10 +148,10 @@ class MetaLearner:
         elif metaLearnerOptions.optimizer == optimizerEnum.adamW:
             self.UpdateMetaParameters = optim.AdamW(
                 [
-                    {
-                        "params": bias_parameters,
-                        "weight_decay": self.biasLossRegularization,
-                    },
+                    # {
+                    #    "params": bias_parameters,
+                    #    "weight_decay": self.biasLossRegularization,
+                    # },
                     {
                         "params": meta_parameters,
                         # "weight_decay": self.metaLossRegularization,
@@ -162,10 +162,10 @@ class MetaLearner:
         elif metaLearnerOptions.optimizer == optimizerEnum.nadam:
             self.UpdateMetaParameters = optim.NAdam(
                 [
-                    {
-                        "params": bias_parameters,
-                        "weight_decay": self.biasLossRegularization,
-                    },
+                    # {
+                    #    "params": bias_parameters,
+                    #    "weight_decay": self.biasLossRegularization,
+                    # },
                     {
                         "params": meta_parameters,
                         # "weight_decay": self.metaLossRegularization,
@@ -176,10 +176,10 @@ class MetaLearner:
         elif metaLearnerOptions.optimizer == optimizerEnum.radam:
             self.UpdateMetaParameters = optim.RAdam(
                 [
-                    {
-                        "params": bias_parameters,
-                        "weight_decay": self.biasLossRegularization,
-                    },
+                    # {
+                    #    "params": bias_parameters,
+                    #    "weight_decay": self.biasLossRegularization,
+                    # },
                     {
                         "params": meta_parameters,
                         # "weight_decay": self.metaLossRegularization,
@@ -287,6 +287,7 @@ class MetaLearner:
             small=self.options.small,
             train_feedback=self.options.trainFeedback,
             typeOfFeedback=self.options.typeOfFeedback,
+            dim_out=self.options.dimOut,
         )
 
         # -- learning flags
@@ -708,6 +709,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     minTrainingDataPerClass = 30
     maxTrainingDataPerClass = 100
     queryDataPerClass = 20
+    dimOut = 47
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -717,6 +719,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             queryDataPerClass=queryDataPerClass,
             dimensionOfImage=28,
         )
+        dimOut = 47
     elif dataset_name == "FASHION-MNIST":
         numberOfClasses = 10
         dataset = FashionMnistDataset(
@@ -726,6 +729,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             dimensionOfImage=28,
             all_classes=True,
         )
+        dimOut = 10
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
     metatrain_dataset = DataLoader(
@@ -862,6 +866,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         datasetDevice="cpu",  # if running out of memory, change to "cpu"
         continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.FA,
+        dimOut=dimOut,
     )
 
     #   -- number of chemicals

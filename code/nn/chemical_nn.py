@@ -8,7 +8,7 @@ from options.meta_learner_options import typeOfFeedbackEnum
 class ChemicalNN(nn.Module):
     """
 
-    Rosenbaum Neural Network class.
+    Chemical Neural Network class.
 
     """
 
@@ -19,6 +19,7 @@ class ChemicalNN(nn.Module):
         small: bool = False,
         train_feedback: bool = False,
         typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
+        dim_out: int = 47,
     ):
 
         # Initialize the parent class
@@ -37,20 +38,20 @@ class ChemicalNN(nn.Module):
             raise ValueError("Small and train_feedback cannot be used together")
 
         # Model
-        dim_out = 47
+        self.dim_out = dim_out
 
         if self.small:
             self.forward1 = nn.Linear(784, 15, bias=False)
             self.forward2 = nn.Linear(15, 10, bias=False)
             self.forward3 = nn.Linear(10, 5, bias=False)
-            self.forward4 = nn.Linear(5, dim_out, bias=False)
+            self.forward4 = nn.Linear(5, self.dim_out, bias=False)
             """self.forward_layers = nn.ModuleList([self.forward1, self.forward2, self.forward3, self.forward4])"""
         else:
             self.forward1 = nn.Linear(784, 170, bias=False)
             self.forward2 = nn.Linear(170, 130, bias=False)
             self.forward3 = nn.Linear(130, 100, bias=False)
             self.forward4 = nn.Linear(100, 70, bias=False)
-            self.forward5 = nn.Linear(70, dim_out, bias=False)
+            self.forward5 = nn.Linear(70, self.dim_out, bias=False)
             """self.forward_layers = nn.ModuleList([self.forward1, self.forward2, self.forward3, self.forward4, self.forward5])"""
 
         # Feedback pathway for plasticity
@@ -60,26 +61,26 @@ class ChemicalNN(nn.Module):
                 self.feedback1 = nn.Linear(784, 15, bias=False)
                 self.feedback2 = nn.Linear(15, 10, bias=False)
                 self.feedback3 = nn.Linear(10, 5, bias=False)
-                self.feedback4 = nn.Linear(5, dim_out, bias=False)
+                self.feedback4 = nn.Linear(5, self.dim_out, bias=False)
             else:
                 self.feedback1 = nn.Linear(784, 170, bias=False)
                 self.feedback2 = nn.Linear(170, 130, bias=False)
                 self.feedback3 = nn.Linear(130, 100, bias=False)
                 self.feedback4 = nn.Linear(100, 70, bias=False)
-                self.feedback5 = nn.Linear(70, dim_out, bias=False)
+                self.feedback5 = nn.Linear(70, self.dim_out, bias=False)
         # Direct feedback alignment
         elif self.typeOfFeedback == typeOfFeedbackEnum.DFA or self.typeOfFeedback == typeOfFeedbackEnum.DFA_grad:
             if self.small:
-                self.feedback1 = nn.Linear(784, dim_out, bias=False)
-                self.feedback2 = nn.Linear(15, dim_out, bias=False)
-                self.feedback3 = nn.Linear(10, dim_out, bias=False)
-                self.feedback4 = nn.Linear(5, dim_out, bias=False)
+                self.feedback1 = nn.Linear(784, self.dim_out, bias=False)
+                self.feedback2 = nn.Linear(15, self.dim_out, bias=False)
+                self.feedback3 = nn.Linear(10, self.dim_out, bias=False)
+                self.feedback4 = nn.Linear(5, self.dim_out, bias=False)
             else:
-                self.feedback1 = nn.Linear(784, dim_out, bias=False)
-                self.feedback2 = nn.Linear(170, dim_out, bias=False)
-                self.feedback3 = nn.Linear(130, dim_out, bias=False)
-                self.feedback4 = nn.Linear(100, dim_out, bias=False)
-                self.feedback5 = nn.Linear(70, dim_out, bias=False)
+                self.feedback1 = nn.Linear(784, self.dim_out, bias=False)
+                self.feedback2 = nn.Linear(170, self.dim_out, bias=False)
+                self.feedback3 = nn.Linear(130, self.dim_out, bias=False)
+                self.feedback4 = nn.Linear(100, self.dim_out, bias=False)
+                self.feedback5 = nn.Linear(70, self.dim_out, bias=False)
         elif self.typeOfFeedback == typeOfFeedbackEnum.scalar:
             if self.small:
                 self.feedback1 = nn.Linear(784, 1, bias=False)
@@ -97,22 +98,22 @@ class ChemicalNN(nn.Module):
                 self.feedback1 = nn.Linear(784, 15, bias=False)
                 self.feedback2 = nn.Linear(15, 10, bias=False)
                 self.feedback3 = nn.Linear(10, 5, bias=False)
-                self.feedback4 = nn.Linear(5, dim_out, bias=False)
-                self.DFA_feedback1 = nn.Linear(784, dim_out, bias=False)
-                self.DFA_feedback2 = nn.Linear(15, dim_out, bias=False)
-                self.DFA_feedback3 = nn.Linear(10, dim_out, bias=False)
-                self.DFA_feedback4 = nn.Linear(5, dim_out, bias=False)
+                self.feedback4 = nn.Linear(5, self.dim_out, bias=False)
+                self.DFA_feedback1 = nn.Linear(784, self.dim_out, bias=False)
+                self.DFA_feedback2 = nn.Linear(15, self.dim_out, bias=False)
+                self.DFA_feedback3 = nn.Linear(10, self.dim_out, bias=False)
+                self.DFA_feedback4 = nn.Linear(5, self.dim_out, bias=False)
             else:
                 self.feedback_FA1 = nn.Linear(784, 170, bias=False)
                 self.feedback_FA2 = nn.Linear(170, 130, bias=False)
                 self.feedback_FA3 = nn.Linear(130, 100, bias=False)
                 self.feedback_FA4 = nn.Linear(100, 70, bias=False)
-                self.feedback_FA5 = nn.Linear(70, dim_out, bias=False)
-                self.DFA_feedback1 = nn.Linear(784, dim_out, bias=False)
-                self.DFA_feedback2 = nn.Linear(170, dim_out, bias=False)
-                self.DFA_feedback3 = nn.Linear(130, dim_out, bias=False)
-                self.DFA_feedback4 = nn.Linear(100, dim_out, bias=False)
-                self.DFA_feedback5 = nn.Linear(70, dim_out, bias=False)
+                self.feedback_FA5 = nn.Linear(70, self.dim_out, bias=False)
+                self.DFA_feedback1 = nn.Linear(784, self.dim_out, bias=False)
+                self.DFA_feedback2 = nn.Linear(170, self.dim_out, bias=False)
+                self.DFA_feedback3 = nn.Linear(130, self.dim_out, bias=False)
+                self.DFA_feedback4 = nn.Linear(100, self.dim_out, bias=False)
+                self.DFA_feedback5 = nn.Linear(70, self.dim_out, bias=False)
         else:
             raise ValueError("Invalid type of feedback")
 
@@ -128,14 +129,14 @@ class ChemicalNN(nn.Module):
             self.chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 15, 784), device=self.device))
             self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 10, 15), device=self.device))
             self.chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 5, 10), device=self.device))
-            self.chemical4 = nn.Parameter(torch.zeros(size=(numberOfChemicals, dim_out, 5), device=self.device))
+            self.chemical4 = nn.Parameter(torch.zeros(size=(numberOfChemicals, self.dim_out, 5), device=self.device))
             self.chemicals = nn.ParameterList([self.chemical1, self.chemical2, self.chemical3, self.chemical4])
         else:
             self.chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 170, 784), device=self.device))
             self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 130, 170), device=self.device))
             self.chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 100, 130), device=self.device))
             self.chemical4 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 70, 100), device=self.device))
-            self.chemical5 = nn.Parameter(torch.zeros(size=(numberOfChemicals, dim_out, 70), device=self.device))
+            self.chemical5 = nn.Parameter(torch.zeros(size=(numberOfChemicals, self.dim_out, 70), device=self.device))
             self.chemicals = nn.ParameterList(
                 [self.chemical1, self.chemical2, self.chemical3, self.chemical4, self.chemical5]
             )
