@@ -112,8 +112,13 @@ class Runner:
         self.UpdateWeights.load_state_dict(state_dict)
         if self.options.trainFeedback:
             feedback_state_dict = torch.load(
-                self.options.modelPath + "/UpdateFeedbackWeights.pth", weights_only=True, map_location=self.device
-            )
+                self.options.modelPath + "/UpdateWeights.pth", weights_only=True, map_location=self.device
+            )  # UpdateFeedbackWeights
+            for key, val in self.UpdateWeights.named_parameters():
+                if "bias_dictionary.chemical" in key:
+                    name = "bias_dictionary.feedback_chemical" + key[-1]
+                    feedback_state_dict[name] = feedback_state_dict[key].clone()
+                    feedback_state_dict.pop(key)
             if self.options.feedbackModel == modelEnum.individual:
                 if "v_vector" in feedback_state_dict:
                     feedback_state_dict["v_dictionary.all"] = feedback_state_dict["v_vector"].clone()
@@ -318,9 +323,6 @@ class Runner:
                 self.UpdateWeights.initial_update(parameters, h_parameters)
                 if self.options.trainFeedback and self.feedbackModelOptions.operator != operatorEnum.mode_3:
                     self.UpdateFeedbackWeights.initial_update(parameters, feedback_params)
-            for key in parameters:
-                if "forward" in key:
-                    print(torch.norm(parameters[key]))
             # -- reset time index
             self.UpdateWeights.reset_time_index()
             if self.options.trainFeedback:
@@ -420,9 +422,6 @@ class Runner:
                     # -- update feedback time index
                     self.UpdateFeedbackWeights.update_time_index()
 
-            for key in parameters:
-                if "forward" in key:
-                    print(torch.norm(parameters[key]))
             """ meta test"""
             # -- predict
             y, logits = None, None
@@ -579,7 +578,7 @@ def run(
             maxTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_5,
+            operator=operatorEnum.mode_6,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -698,7 +697,7 @@ def run(
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
-        trainFeedback=False,
+        trainFeedback=True,
         feedbackModel=feedbackModel,
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
@@ -738,13 +737,13 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/normalise_weights_fix/0/20250313-054852"]
+    modelPath_s = [os.getcwd() + "/results/normalise_weight_mode_6/0/20250313-054852"]
     for i in range(2):
-        for index in range(1, 27):
+        for index in range(2, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_normalise_weights_fix"][i],
+                result_subdirectory=["runner_test"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],

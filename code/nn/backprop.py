@@ -93,10 +93,11 @@ class MetaLearner:
 
         # -- data params
         self.trainingDataPerClass = trainingDataPerClass
-        self.queryDataPerClass = 10
+        self.queryDataPerClass = 20
         self.metatrain_dataset = metatrain_dataset
         self.data_process = DataProcess(
-            trainingDataPerClass=self.trainingDataPerClass,
+            minTrainingDataPerClass=self.trainingDataPerClass,
+            maxTrainingDataPerClass=self.trainingDataPerClass,
             queryDataPerClass=self.queryDataPerClass,
             dimensionOfImage=28,
             device=self.device,
@@ -122,9 +123,7 @@ class MetaLearner:
         if self.save_results:
             self.result_directory = os.getcwd() + "/results"
             os.makedirs(self.result_directory, exist_ok=True)
-            self.result_directory += (
-                "/" + result_subdirectory + "/" + str(seed) + "/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-            )
+            self.result_directory += "/" + result_subdirectory + "/" + str(seed) + "/" + str(self.trainingDataPerClass)
             try:
                 os.makedirs(self.result_directory, exist_ok=False)
                 with open(self.result_directory + "/arguments.txt", "w") as f:
@@ -161,9 +160,6 @@ class MetaLearner:
         :return: model with flags , "adapt", set for its parameters
         """
         model = RosenbaumNN(self.device)
-        model.apply(self.weights_init)
-        self.UnOptimizedmodelStateDict = copy.deepcopy(model.state_dict())
-
         return model
 
     @staticmethod
@@ -203,11 +199,11 @@ class MetaLearner:
 
             # -- re initialize model
             self.model.train()
-            self.model.load_state_dict(copy.deepcopy(self.UnOptimizedmodelStateDict), strict=True)
+            self.model.apply(self.weights_init)
             self.UpdateParameters = optim.Adam(self.model.parameters(), lr=1e-3)
 
             # -- training data
-            x_trn, y_trn, x_qry, y_qry = self.data_process(data, self.number_of_classes)
+            x_trn, y_trn, x_qry, y_qry, current_training_data = self.data_process(data, self.number_of_classes)
 
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
@@ -220,28 +216,25 @@ class MetaLearner:
 
                 # -- backprop
                 self.UpdateParameters.zero_grad()
-                loss_meta = loss_adapt
-                loss_meta.backward()
+                loss_adapt.backward()
                 self.UpdateParameters.step()
 
-            """ meta update """
             # -- predict
             self.model.eval()
             y, logits = self.model(x_qry)
 
-            # -- compute and store meta stats
+            # -- compute and store stats
             pred = torch.argmax(logits, dim=1)
             acc = torch.eq(pred, y_qry.ravel()).sum().item() / len(y_qry.ravel())
             loss_meta = self.loss_func(logits, y_qry.ravel())
-
-            # -- gradient clipping
-            # torch.nn.utils.clip_grad_norm_(self.UpdateWeights.parameters(), 0.5)
 
             # -- log
             if self.save_results:
                 log([loss_meta.item()], self.result_directory + "/loss_meta.txt")
 
-            line = "Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}".format(eps + 1, loss_meta.item(), acc)
+            line = "Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}\t Current training data: {}".format(
+                eps + 1, loss_meta.item(), acc, current_training_data
+            )
             if self.display:
                 print(line)
 
@@ -255,19 +248,20 @@ class MetaLearner:
         # -- plot
         if self.save_results:
             self.summary_writer.close()
-            self.plot()
 
         # -- save
-        if self.save_results:
+        """if self.save_results:
             torch.save(
                 self.UpdateWeights.state_dict(),
                 self.result_directory + "/UpdateWeights.pth",
             )
-            torch.save(self.model.state_dict(), self.result_directory + "/model.pth")
+            torch.save(self.model.state_dict(), self.result_directory + "/model.pth")"""
         print("Meta-training complete.")
 
 
-def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -> None:
+def run(
+    seed: int, display: bool = True, result_subdirectory: str = "testing", trainingDataPerClass: int = "50"
+) -> None:
     """
         Main function for Meta-learning the plasticity rule.
 
@@ -291,15 +285,20 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing") -
 
     # -- load data
     numWorkers = 6
-    epochs = 200
-    number_of_classes = 47
-    trainingDataPerClass = 90
-    dataset = EmnistDataset(trainingDataPerClass=trainingDataPerClass, queryDataPerClass=10, dimensionOfImage=28)
+    epochs = 50
+    number_of_classes = 5
+    trainingDataPerClass = trainingDataPerClass
+    dataset = EmnistDataset(
+        minTrainingDataPerClass=trainingDataPerClass,
+        maxTrainingDataPerClass=trainingDataPerClass,
+        queryDataPerClass=20,
+        dimensionOfImage=28,
+    )
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * 5)
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=number_of_classes, drop_last=True)
 
     metalearning_model = MetaLearner(
-        device="cpu",
+        device="cuda:0",
         result_subdirectory=result_subdirectory,
         save_results=True,
         metatrain_dataset=metatrain_dataset,
@@ -325,15 +324,39 @@ def backprop_main():
     :return: None
     """
     # -- run
-    run(1, True, "testing")
-    """if Args.Pool > 1:
-        with Pool(Args.Pool) as P:
-            P.starmap(run, zip([0] * Args.Pool, [False]*Args.Pool, results_directory, non_linearity, chemicals))
-            P.close()
-            P.join()
-    else:
-        run(0)"""
-
-
-def pass_through(input):
-    return input
+    trainingDataPerClass = [
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        70,
+        80,
+        90,
+        100,
+        110,
+        120,
+        130,
+        140,
+        150,
+        160,
+        170,
+        180,
+        190,
+        200,
+        225,
+        250,
+        275,
+        300,
+        325,
+        350,
+        375,
+    ]
+    for trainingData in trainingDataPerClass:
+        run(
+            seed=0,
+            display=True,
+            result_subdirectory="runner_backprop",
+            trainingDataPerClass=trainingData,
+        )

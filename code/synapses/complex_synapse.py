@@ -800,7 +800,13 @@ class ComplexSynapse(nn.Module):
             update_vector[1] = -torch.matmul(activations_and_output[i + 1].T, error[i])
 
         if self.update_rules[2]:
-            update_vector[2] = -torch.matmul(error[i + 1].T, error[i])  # eHebb rule
+            update_vector[2] = -(
+                torch.matmul(error[i + 1].T, error[i])
+                - torch.matmul(
+                    parameter,
+                    torch.matmul(error[i].T, error[i]),
+                )
+            )  # eHebb rule
 
         if self.update_rules[3]:
             update_vector[3] = -parameter
