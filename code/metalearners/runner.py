@@ -535,10 +535,10 @@ def run(
     ]
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
-    minTrainingDataPerClass = 200  # trainingDataPerClass[index]
-    maxTrainingDataPerClass = 200  # trainingDataPerClass[index]
+    minTrainingDataPerClass = trainingDataPerClass[index]
+    maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "FASHION-MNIST"
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -737,13 +737,13 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/normalise_mode_6_5_chem/0/20250314-063015"]
+    modelPath_s = [os.getcwd() + "/results/normalise_mode_6_5_chem/0/20250315-195902"]
     for i in range(2):
         for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_5_chem_mode_6_800_2"][i],
+                result_subdirectory=["runner_5_chem_mode_6_800_min_tau_500"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
