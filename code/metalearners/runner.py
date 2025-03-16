@@ -324,6 +324,7 @@ class Runner:
                 self.UpdateWeights.initial_update(parameters, h_parameters)
                 if self.options.trainFeedback and self.feedbackModelOptions.operator != operatorEnum.mode_3:
                     self.UpdateFeedbackWeights.initial_update(parameters, feedback_params)
+
             # -- reset time index
             self.UpdateWeights.reset_time_index()
             if self.options.trainFeedback:
@@ -353,7 +354,7 @@ class Runner:
                 output = logits
                 params = parameters
                 feedback = {name: value for name, value in params.items() if "feedback" in name}
-                error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=47)]
+                error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=self.options.dimOut)]
                 # add the error for all the layers
                 if self.options.typeOfFeedback == typeOfFeedbackEnum.FA:
                     # add the error for all the layers
@@ -376,7 +377,9 @@ class Runner:
                 elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
                     DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
                     feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
-                    DFA_error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=47)]
+                    DFA_error = [
+                        functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=self.options.dimOut)
+                    ]
                     for y, i in zip(reversed(activations), reversed(list(DFA_feedback))):
                         DFA_error.insert(
                             0, torch.matmul(error[-1], DFA_feedback[i]) * (1 - torch.exp(-self.model.beta * y))
@@ -424,6 +427,9 @@ class Runner:
                     self.UpdateFeedbackWeights.update_time_index()
 
             """ meta test"""
+            for key, val in parameters.items():
+                print("Before")
+                print(torch.norm(val))
             # -- predict
             y, logits = None, None
             if self.options.trainFeedback:
@@ -536,10 +542,10 @@ def run(
     ]
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
-    minTrainingDataPerClass = 500  # trainingDataPerClass[index]
-    maxTrainingDataPerClass = 500  # trainingDataPerClass[index]
+    minTrainingDataPerClass = 20  # trainingDataPerClass[index]
+    maxTrainingDataPerClass = 20  # trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "FASHION-MNIST"
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -578,7 +584,7 @@ def run(
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,
-            maxTau=500,
+            maxTau=1000,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_6,

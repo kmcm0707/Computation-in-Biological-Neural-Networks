@@ -475,7 +475,7 @@ class MetaLearner:
                 output = logits
                 params = parameters
                 feedback = {name: value for name, value in params.items() if "feedback" in name}
-                error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=47)]
+                error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=self.options.dimOut)]
                 if self.options.typeOfFeedback == typeOfFeedbackEnum.FA:
                     # add the error for all the layers
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
@@ -497,7 +497,9 @@ class MetaLearner:
                 elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
                     DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
                     feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
-                    DFA_error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=47)]
+                    DFA_error = [
+                        functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=self.options.dimOut)
+                    ]
                     for y, i in zip(reversed(activations), reversed(list(DFA_feedback))):
                         DFA_error.insert(
                             0, torch.matmul(error[-1], DFA_feedback[i]) * (1 - torch.exp(-self.model.beta * y))
@@ -709,7 +711,6 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     minTrainingDataPerClass = 30
     maxTrainingDataPerClass = 70
     queryDataPerClass = 20
-    dimOut = 47
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -903,4 +904,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="normalise_mode_6_5_chem", index=i)
+        run(seed=0, display=True, result_subdirectory="normalise_mode_6_fix", index=i)
