@@ -716,7 +716,7 @@ def run(
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 7
+    numberOfChemicals = 5
     # -- meta-train
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -747,13 +747,13 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/normalise_mode_6_5_chem/0/20250315-233316"]
+    modelPath_s = [os.getcwd() + "/results/normalise_mode_6_5_chem/0/20250315-221649"]
     for i in range(2):
         for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_7_chem_mode_6_800_min_tau_500_2"][i],
+                result_subdirectory=["runner_5_chem_mode_6_800_min_tau_1000"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
