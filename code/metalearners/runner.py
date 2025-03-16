@@ -542,8 +542,8 @@ def run(
     ]
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
-    minTrainingDataPerClass = 20  # trainingDataPerClass[index]
-    maxTrainingDataPerClass = 20  # trainingDataPerClass[index]
+    minTrainingDataPerClass = trainingDataPerClass[index]
+    maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
     dataset_name = "EMNIST"
 
@@ -753,7 +753,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_7_chem_mode_6_800_min_tau_500"][i],
+                result_subdirectory=["runner_7_chem_mode_6_800_min_tau_500_2"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
