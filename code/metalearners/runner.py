@@ -610,7 +610,7 @@ def run(
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,
-            maxTau=1000,
+            maxTau=500,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_6,
@@ -742,7 +742,7 @@ def run(
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 7
     # -- meta-train
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
