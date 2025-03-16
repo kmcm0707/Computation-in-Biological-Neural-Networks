@@ -774,6 +774,7 @@ class ComplexSynapse(nn.Module):
                     h_name = "feedback_" + h_name
                 if parameter.adapt == self.adaptionPathway and "weight" in name:
                     # Equation 2: w(s) = v * h(s)
+                    # if self.operator == operatorEnum.mode_7:
                     self.saved_norm[h_name] = torch.norm(parameter, p=2)
                     new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
                     if self.operator == operatorEnum.mode_5 or self.operator == operatorEnum.mode_6:

@@ -427,9 +427,6 @@ class Runner:
                     self.UpdateFeedbackWeights.update_time_index()
 
             """ meta test"""
-            for key, val in parameters.items():
-                print("Before")
-                print(torch.norm(val))
             # -- predict
             y, logits = None, None
             if self.options.trainFeedback:
@@ -565,6 +562,35 @@ def run(
             dimensionOfImage=28,
             all_classes=True,
         )
+        trainingDataPerClass = [
+            10,
+            50,
+            100,
+            150,
+            200,
+            250,
+            300,
+            350,
+            400,
+            450,
+            500,
+            550,
+            600,
+            650,
+            700,
+            750,
+            800,
+            850,
+            900,
+            950,
+            1000,
+            1050,
+            1100,
+            1150,
+            1200,
+            1250,
+            1300,
+        ]
         dimOut = 10
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
@@ -747,13 +773,13 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/normalise_mode_6_5_chem/0/20250315-221649"]
+    modelPath_s = [os.getcwd() + "/results/normalise_mode_6_fix/0/20250316-132936"]
     for i in range(2):
         for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_5_chem_mode_6_800_min_tau_1000"][i],
+                result_subdirectory=["runner_7_chem_mode_6_800_min_tau_500"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
