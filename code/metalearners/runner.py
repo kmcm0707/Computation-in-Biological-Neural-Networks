@@ -575,7 +575,7 @@ def run(
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,
-            maxTau=100,
+            maxTau=500,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_6,
