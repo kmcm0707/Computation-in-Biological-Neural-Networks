@@ -251,7 +251,7 @@ def accuracy(logits, label):
     return torch.eq(pred, label).sum().item() / len(label)
 
 
-def meta_stats(logits, params, label, y, Beta, res_dir, save=True, typeOfFeedback=typeOfFeedbackEnum.FA):
+def meta_stats(logits, params, label, y, Beta, res_dir, save=True, typeOfFeedback=typeOfFeedbackEnum.FA, dimOut=47):
     """
         Compute meta statistics.
 
@@ -272,7 +272,7 @@ def meta_stats(logits, params, label, y, Beta, res_dir, save=True, typeOfFeedbac
         # -- modulatory signal
         B = dict({k: v for k, v in params.items() if "feedback" in k})
 
-        e = [functional.softmax(logits, dim=1) - functional.one_hot(label, num_classes=47)]
+        e = [functional.softmax(logits, dim=1) - functional.one_hot(label, num_classes=dimOut)]
         if typeOfFeedback == typeOfFeedbackEnum.FA:
             for y_, i in zip(reversed(y), reversed(list(B))):
                 e.insert(0, torch.matmul(e[0], B[i]) * (1 - torch.exp(-Beta * y_)))
@@ -292,7 +292,7 @@ def meta_stats(logits, params, label, y, Beta, res_dir, save=True, typeOfFeedbac
         elif typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
             feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
             DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
-            DFA_error = [functional.softmax(logits, dim=1) - functional.one_hot(label, num_classes=47)]
+            DFA_error = [functional.softmax(logits, dim=1) - functional.one_hot(label, num_classes=dimOut)]
             for y_, i in zip(reversed(y), reversed(list(DFA_feedback))):
                 DFA_error.insert(0, torch.matmul(e[-1], DFA_feedback[i]) * (1 - torch.exp(Beta * y_)))
             for y_, i in zip(reversed(y), reversed(list(feedback))):

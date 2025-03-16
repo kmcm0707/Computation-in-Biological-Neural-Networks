@@ -446,6 +446,7 @@ class Runner:
                 self.result_directory,
                 self.save_results,
                 typeOfFeedback=self.options.typeOfFeedback,
+                dimOut=self.options.dimOut,
             )
 
             # -- log
@@ -504,7 +505,7 @@ def run(
 
     # -- load data
     numWorkers = 2
-    epochs = 50
+    epochs = 3
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
@@ -537,12 +538,41 @@ def run(
         350,
         375,
     ]
+    """trainingDataPerClass = [
+        10,
+        50,
+        100,
+        150,
+        200,
+        250,
+        300,
+        350,
+        400,
+        450,
+        500,
+        550,
+        600,
+        650,
+        700,
+        750,
+        800,
+        850,
+        900,
+        950,
+        1000,
+        1050,
+        1100,
+        1150,
+        1200,
+        1250,
+        1300,
+    ]"""
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
-    minTrainingDataPerClass = trainingDataPerClass[index]
-    maxTrainingDataPerClass = trainingDataPerClass[index]
+    minTrainingDataPerClass = 300  # trainingDataPerClass[index]
+    maxTrainingDataPerClass = 300  # trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "EMNIST"
+    dataset_name = "FASHION-MNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -562,36 +592,7 @@ def run(
             dimensionOfImage=28,
             all_classes=True,
         )
-        trainingDataPerClass = [
-            10,
-            50,
-            100,
-            150,
-            200,
-            250,
-            300,
-            350,
-            400,
-            450,
-            500,
-            550,
-            600,
-            650,
-            700,
-            750,
-            800,
-            850,
-            900,
-            950,
-            1000,
-            1050,
-            1100,
-            1150,
-            1200,
-            1250,
-            1300,
-        ]
-        dimOut = 10
+        dimOut = 47
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
     metatrain_dataset = DataLoader(
@@ -610,7 +611,7 @@ def run(
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,
-            maxTau=1000,
+            maxTau=500,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_6,
@@ -742,7 +743,7 @@ def run(
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 7
     # -- meta-train
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -779,7 +780,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_7_chem_mode_6_800_min_tau_500"][i],
+                result_subdirectory=["test"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
