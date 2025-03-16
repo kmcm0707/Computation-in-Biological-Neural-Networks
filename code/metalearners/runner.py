@@ -207,6 +207,7 @@ class Runner:
             small=self.options.small,
             train_feedback=self.options.trainFeedback,
             typeOfFeedback=self.options.typeOfFeedback,
+            dim_out=self.options.dimOut,
         )
 
         # -- learning flags
@@ -535,10 +536,10 @@ def run(
     ]
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
-    minTrainingDataPerClass = trainingDataPerClass[index]
-    maxTrainingDataPerClass = trainingDataPerClass[index]
+    minTrainingDataPerClass = 500  # trainingDataPerClass[index]
+    maxTrainingDataPerClass = 500  # trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "EMNIST"
+    dataset_name = "FASHION-MNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -548,6 +549,7 @@ def run(
             queryDataPerClass=queryDataPerClass,
             dimensionOfImage=28,
         )
+        dimOut = 47
     elif dataset_name == "FASHION-MNIST":
         numberOfClasses = 10
         dataset = FashionMnistDataset(
@@ -557,6 +559,7 @@ def run(
             dimensionOfImage=28,
             all_classes=True,
         )
+        dimOut = 10
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
     metatrain_dataset = DataLoader(
@@ -703,6 +706,7 @@ def run(
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         typeOfFeedback=typeOfFeedback,
+        dimOut=dimOut,
     )
 
     #   -- number of chemicals

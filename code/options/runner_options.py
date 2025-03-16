@@ -29,6 +29,7 @@ class RunnerOptions:
         maxTrainingDataPerClass: int = 60,
         queryDataPerClass: int = 10,
         typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
+        dimOut: int = 47,
     ):
 
         self.model = model
@@ -48,6 +49,7 @@ class RunnerOptions:
         self.maxTrainingDataPerClass = maxTrainingDataPerClass
         self.queryDataPerClass = queryDataPerClass
         self.typeOfFeedback = typeOfFeedback
+        self.dimOut = dimOut
 
     def __str__(self):
         string = ""
