@@ -80,10 +80,10 @@ class MetaLearnerOptions:
         dimOut: int = 47,
         loadModel: str | None = None,
     ):
-
-        assert (
-            trainSameFeedback and trainSeperateFeedback
-        ), "Both trainSameFeedback and trainSeperateFeedback cannot be True"
+        #print(trainSameFeedback)
+        #assert (
+        #    trainSameFeedback == True and trainSeperateFeedback== True
+        #), "Both trainSameFeedback and trainSeperateFeedback cannot be True"
 
         self.model = model
         self.small = small
