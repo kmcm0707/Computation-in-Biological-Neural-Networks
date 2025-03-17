@@ -68,8 +68,9 @@ class MetaLearnerOptions:
         numberOfClasses: int = 5,
         dataset_name: Literal["EMNIST", "FASHION-MNIST"] = "FASHION-MNIST",
         chemicalInitialization: chemicalEnum = chemicalEnum.same,
-        trainFeedback: bool = False,
-        feedbackModel: modelEnum = modelEnum.complex,
+        trainSeperateFeedback: bool = False,
+        feedbackSeperateModel: modelEnum = modelEnum.complex,
+        trainSameFeedback: bool = False,
         minTrainingDataPerClass: int = 50,
         maxTrainingDataPerClass: int = 50,
         queryDataPerClass: int = 10,
@@ -77,7 +78,12 @@ class MetaLearnerOptions:
         continueTraining: str | None = None,
         typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
         dimOut: int = 47,
+        loadModel: str | None = None,
     ):
+
+        assert (
+            trainSameFeedback and trainSeperateFeedback
+        ), "Both trainSameFeedback and trainSeperateFeedback cannot be True"
 
         self.model = model
         self.small = small
@@ -95,8 +101,9 @@ class MetaLearnerOptions:
         self.numberOfClasses = numberOfClasses
         self.dataset_name = dataset_name
         self.chemicalInitialization = chemicalInitialization
-        self.trainFeedback = trainFeedback
-        self.feedbackModel = feedbackModel
+        self.trainSeperateFeedback = trainSeperateFeedback
+        self.feedbackSeperateModel = feedbackSeperateModel
+        self.trainSameFeedback = trainSameFeedback
         self.minTrainingDataPerClass = minTrainingDataPerClass
         self.maxTrainingDataPerClass = maxTrainingDataPerClass
         self.queryDataPerClass = queryDataPerClass
@@ -104,6 +111,7 @@ class MetaLearnerOptions:
         self.continueTraining = continueTraining
         self.typeOfFeedback = typeOfFeedback
         self.dimOut = dimOut
+        self.loadModel = loadModel
 
     def __str__(self):
         string = ""

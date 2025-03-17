@@ -100,7 +100,7 @@ class MetaLearner:
         self.UpdateWeights = self.chemical_model_setter(
             options=self.modelOptions, adaptionPathway="forward", typeOfModel=self.options.model
         )
-        if self.options.trainFeedback:
+        if self.options.trainSeperateFeedback:
             self.UpdateFeedbackWeights = self.chemical_model_setter(
                 options=self.feedbackModelOptions, adaptionPathway="feedback", typeOfModel=self.options.feedbackModel
             )
@@ -110,7 +110,7 @@ class MetaLearner:
         # -- optimizer
         # bias_parameters = list(self.UpdateWeights.all_bias_parameters.parameters())
         meta_parameters = list(self.UpdateWeights.all_meta_parameters.parameters())
-        if self.options.trainFeedback:
+        if self.options.trainSeperateFeedback:
             # bias_parameters = bias_parameters + list(self.UpdateFeedbackWeights.all_bias_parameters.parameters())
             meta_parameters = meta_parameters + list(self.UpdateFeedbackWeights.all_meta_parameters.parameters())
 
@@ -226,7 +226,7 @@ class MetaLearner:
                 f.writelines("Number of query data per class: {}\n".format(self.queryDataPerClass))
                 f.writelines(str(metaLearnerOptions))
                 f.writelines(str(modelOptions))
-                if self.options.trainFeedback:
+                if self.options.trainSeperateFeedback:
                     f.writelines(str(feedbackModelOptions))
 
             self.average_window = 10
@@ -285,7 +285,7 @@ class MetaLearner:
             self.device,
             self.numberOfChemicals,
             small=self.options.small,
-            train_feedback=self.options.trainFeedback,
+            train_feedback=self.options.trainSeperateFeedback or self.options.trainSameFeedback,
             typeOfFeedback=self.options.typeOfFeedback,
             dim_out=self.options.dimOut,
         )
@@ -295,7 +295,10 @@ class MetaLearner:
             if "forward" in key:
                 val.adapt = "forward"
             elif "feedback" in key:
-                val.adapt, val.requires_grad = "feedback", self.options.trainFeedback
+                val.adapt, val.requires_grad = (
+                    "feedback",
+                    self.options.trainSeperateFeedback or self.options.trainSameFeedback,
+                )
 
         return model
 
@@ -345,7 +348,7 @@ class MetaLearner:
         # -- initialize weights
         self.model.apply(self.weights_init)
         self.chemical_init(self.model.chemicals)
-        if self.options.trainFeedback:
+        if self.options.trainSeperateFeedback or self.options.trainSameFeedback:
             self.chemical_init(self.model.feedback_chemicals)
 
         # -- module parameters
@@ -361,7 +364,7 @@ class MetaLearner:
             if "chemical" in key and "feedback" not in key
         }
         feedback_h_params = None
-        if self.options.trainFeedback:
+        if self.options.trainSeperateFeedback or self.options.trainSameFeedback:
             feedback_h_params = {
                 key: val.clone()
                 for key, val in dict(self.model.named_parameters()).items()
@@ -400,7 +403,7 @@ class MetaLearner:
             self.UpdateMetaParameters.load_state_dict(
                 torch.load(self.options.continueTraining + "/UpdateMetaParameters.pth", weights_only=True)
             )
-            if self.options.trainFeedback:
+            if self.options.trainSeperateFeedback:
                 self.UpdateFeedbackWeights.load_state_dict(
                     torch.load(self.options.continueTraining + "/UpdateFeedbackWeights.pth", weights_only=True)
                 )
@@ -410,7 +413,7 @@ class MetaLearner:
         # -- set model to training mode
         self.model.train()
         self.UpdateWeights.train()
-        if self.options.trainFeedback:
+        if self.options.trainSeperateFeedback:
             self.UpdateFeedbackWeights.train()
 
         x_qry = None
@@ -439,12 +442,14 @@ class MetaLearner:
                 and self.modelOptions.operator != operatorEnum.mode_3
             ):
                 self.UpdateWeights.initial_update(parameters, h_parameters)
-                if self.options.trainFeedback and self.feedbackModelOptions.operator != operatorEnum.mode_3:
+                if self.options.trainSeperateFeedback and self.feedbackModelOptions.operator != operatorEnum.mode_3:
                     self.UpdateFeedbackWeights.initial_update(parameters, feedback_params)
+                if self.options.trainSameFeedback and self.modelOptions.operator != operatorEnum.mode_3:
+                    self.UpdateWeights.initial_update(parameters, feedback_params, override_adaption_pathway="feedback")
 
             # -- reset time index
             self.UpdateWeights.reset_time_index()
-            if self.options.trainFeedback:
+            if self.options.trainSeperateFeedback:
                 self.UpdateFeedbackWeights.reset_time_index()
 
             # -- training data
@@ -461,7 +466,7 @@ class MetaLearner:
 
                 # -- predict
                 y, logits = None, None
-                if self.options.trainFeedback:
+                if self.options.trainSeperateFeedback or self.options.trainSameFeedback:
                     y, logits = torch.func.functional_call(
                         self.model, (parameters, h_parameters, feedback_params), x.unsqueeze(0).unsqueeze(0)
                     )
@@ -532,11 +537,21 @@ class MetaLearner:
                     activations_and_output=activations_and_output,
                 )
 
+                # -- update same model feedback params
+                if self.options.trainSeperateFeedback:
+                    self.UpdateWeights(
+                        params=parameters,
+                        h_parameters=feedback_params,
+                        error=error,
+                        activations_and_output=activations_and_output,
+                        override_adaption_pathway="feedback",
+                    )
+
                 # -- update time index
                 self.UpdateWeights.update_time_index()
 
-                # -- update feedback params
-                if self.options.trainFeedback:
+                # -- update seperate model feedback params
+                if self.options.trainSeperateFeedback:
                     self.UpdateFeedbackWeights(
                         params=parameters,
                         h_parameters=feedback_params,
@@ -544,7 +559,7 @@ class MetaLearner:
                         activations_and_output=activations_and_output,
                     )
 
-                    # -- update feedback time index
+                    # -- update seperate model feedback time index
                     self.UpdateFeedbackWeights.update_time_index()
 
             """ meta update """
@@ -554,7 +569,7 @@ class MetaLearner:
 
             # -- predict
             y, logits = None, None
-            if self.options.trainFeedback:
+            if self.options.trainSeperateFeedback or self.options.trainSameFeedback:
                 y, logits = torch.func.functional_call(self.model, (parameters, h_parameters, feedback_params), x_qry)
             else:
                 y, logits = torch.func.functional_call(self.model, (parameters, h_parameters), x_qry)
@@ -581,14 +596,14 @@ class MetaLearner:
             if self.metaLossRegularization > 0:
                 P_matrix = self.UpdateWeights.P_matrix
                 loss_meta += self.metaLossRegularization * torch.norm(P_matrix, p=1)
-                if self.options.trainFeedback:
+                if self.options.trainSeperateFeedback:
                     P_matrix = self.UpdateFeedbackWeights.P_matrix
                     loss_meta += self.metaLossRegularization * torch.norm(P_matrix, p=1)
 
             # -- record params
             UpdateWeights_state_dict = copy.deepcopy(self.UpdateWeights.state_dict())
             UpdateFeedbackWeights_state_dict = None
-            if self.options.trainFeedback:
+            if self.options.trainSeperateFeedback:
                 UpdateFeedbackWeights_state_dict = copy.deepcopy(self.UpdateFeedbackWeights.state_dict())
 
             # -- backprop
@@ -638,7 +653,7 @@ class MetaLearner:
                         with open(self.result_directory + "/{}.txt".format(key), "a") as f:
                             f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
 
-                if self.options.trainFeedback:
+                if self.options.trainSeperateFeedback:
                     for key, val in UpdateFeedbackWeights_state_dict.items():
                         if (
                             "K" in key
@@ -674,7 +689,7 @@ class MetaLearner:
             torch.save(self.UpdateWeights.state_dict(), self.result_directory + "/UpdateWeights.pth")
             torch.save(self.model.state_dict(), self.result_directory + "/model.pth")
             torch.save(self.UpdateMetaParameters.state_dict(), self.result_directory + "/UpdateMetaParameters.pth")
-            if self.options.trainFeedback:
+            if self.options.trainSeperateFeedback:
                 torch.save(
                     self.UpdateFeedbackWeights.state_dict(), self.result_directory + "/UpdateFeedbackWeights.pth"
                 )
@@ -859,8 +874,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
-        trainFeedback=False,
-        feedbackModel=feedbackModel,
+        trainSeperateFeedback=False,
+        feedbackSeperateModel=feedbackModel,
+        trainSameFeedback=False,
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
