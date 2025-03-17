@@ -745,7 +745,7 @@ def run(
     #   -- number of chemicals
     numberOfChemicals = 5
     # -- meta-train
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    device = "cuda:1" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
     runner = Runner(
         device=device,
