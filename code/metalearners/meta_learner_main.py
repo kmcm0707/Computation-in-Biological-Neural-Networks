@@ -771,7 +771,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=500,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_5,  # mode_5,
+            operator=operatorEnum.mode_6,  # mode_5,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -882,7 +882,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice="cuda:1",  # if running out of memory, change to "cpu"
         continueTraining=None,
-        typeOfFeedback=typeOfFeedbackEnum.FA,
+        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
     )
 
@@ -920,4 +920,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="normalise_mode_5_fix", index=i)
+        run(seed=0, display=True, result_subdirectory="normalise_mode_6_DFA", index=i)
