@@ -559,6 +559,7 @@ class ComplexSynapse(nn.Module):
                         or self.operator == operatorEnum.mode_4
                         or self.operator == operatorEnum.mode_5
                         or self.operator == operatorEnum.mode_6
+                        or self.operator == operatorEnum.mode_7
                         or self.operator == operatorEnum.compressed_full_attention
                         or self.operator == operatorEnum.v_linear
                         or self.operator == operatorEnum.compressed_v_linear
@@ -579,6 +580,8 @@ class ComplexSynapse(nn.Module):
                             new_chemical = (
                                 new_chemical * multiplier[:, None, None]
                             )  # chemical_norms[:, None, None] (mode 5 v2 is commented out)
+                        elif self.operator == operatorEnum.mode_7:
+                            new_chemical = torch.nn.functional.normalize(new_chemical, p=2, dim=1)
                     elif self.operator == operatorEnum.sub or self.operator == operatorEnum.sub_4:
                         # Equation 1 - operator = sub: h(s+1) = yh(s) + sign(h(s)) * z( f( sign(h(s)) * (Kh(s) + \theta * F(Parameter) + b) ))
                         new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.sign(
@@ -748,6 +751,7 @@ class ComplexSynapse(nn.Module):
                         or self.operator == operatorEnum.sub_4
                         or self.operator == operatorEnum.mode_5
                         or self.operator == operatorEnum.mode_6
+                        or self.operator == operatorEnum.mode_7
                     ):
                         v_vector_softmax = torch.nn.functional.softmax(self.v_vector, dim=1)
                         new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)
@@ -755,7 +759,9 @@ class ComplexSynapse(nn.Module):
                             parameter_norm = self.saved_norm[h_name]
                             current_norm = torch.norm(new_value, p=2)
                             multiplier = parameter_norm / current_norm
-                            new_value = new_value * multiplier
+                            # new_value = new_value * multiplier
+                        elif self.operator == operatorEnum.mode_7:
+                            new_value = torch.nn.functional.normalize(new_value, p=2, dim=0)
                     else:
                         new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
 
@@ -789,7 +795,11 @@ class ComplexSynapse(nn.Module):
                     # if self.operator == operatorEnum.mode_7:
                     self.saved_norm[h_name] = torch.norm(parameter, p=2)
                     new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
-                    if self.operator == operatorEnum.mode_5 or self.operator == operatorEnum.mode_6:
+                    if (
+                        self.operator == operatorEnum.mode_5
+                        or self.operator == operatorEnum.mode_6
+                        or self.operator == operatorEnum.mode_7
+                    ):
                         parameter_norm = self.saved_norm[h_name]
                         current_norm = torch.norm(new_value, p=2)
                         multiplier = parameter_norm / current_norm
@@ -855,7 +865,7 @@ class ComplexSynapse(nn.Module):
             # squeeze_activations = activations_and_output[i].clone().squeeze(0)
             # normalised_activation = torch.nn.functional.normalize(squeeze_activations, p=2, dim=0)
             # diff = parameter - activations_and_output[i].squeeze(0)
-            normalised_weight = torch.nn.functional.normalize(parameter, p=2, dim=1)
+            normalised_weight = torch.nn.functional.normalize(parameter, p=2, dim=0)
             squeeze_activations = activations_and_output[i].squeeze(0)
             normalised_activation = torch.nn.functional.normalize(squeeze_activations, p=2, dim=0)
             output = torch.nn.functional.softplus(

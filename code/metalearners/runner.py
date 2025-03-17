@@ -614,7 +614,7 @@ def run(
             maxTau=500,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_5,
+            operator=operatorEnum.mode_7,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -776,7 +776,7 @@ def runner_main():
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [os.getcwd() + "/results/normalise_mode_5_fix/0/20250316-211830"]
     for i in range(2):
-        for index in range(0, 27):
+        for index in range(1, 27):
             run(
                 seed=0,
                 display=True,
