@@ -780,7 +780,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_normalise_mode_5_5_chem_500"][i],
+                result_subdirectory=["runner_normalise_mode_5_5_chem_500_dropour"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],

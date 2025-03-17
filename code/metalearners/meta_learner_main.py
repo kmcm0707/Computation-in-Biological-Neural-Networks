@@ -920,4 +920,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="normalise_mode_6_DFA", index=i)
+        run(seed=0, display=True, result_subdirectory="normalise_mode_7_FA_dropout_test", index=i)
