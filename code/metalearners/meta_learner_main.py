@@ -408,7 +408,7 @@ class MetaLearner:
                     torch.load(self.options.continueTraining + "/UpdateFeedbackWeights.pth", weights_only=True)
                 )
             z = np.loadtxt(self.options.continueTraining + "/acc_meta.txt")
-            last_trained_epoch = z.shape[0]
+            #last_trained_epoch = z.shape[0]
 
         # -- set model to training mode
         self.model.train()
@@ -722,12 +722,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 1000
+    epochs = 300
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 90
-    queryDataPerClass = 20
+    maxTrainingDataPerClass = 50
+    queryDataPerClass = 10
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -857,7 +857,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results/normalise_mode_6_5_chem/0/20250315-195902"
+    #ontinue_training = current_dir + "/results/normalise_mode_6_5_chem/0/20250315-195902"
+    continue_training = current_dir + "/results/mode_7_FA_dropout_test/0/20250317-222653"
     # -- meta-learner options
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
@@ -872,7 +873,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0001,
+        lr=0.0003,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -882,17 +883,17 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        datasetDevice="cpu",  # if running out of memory, change to "cpu"
+        datasetDevice="cuda:1",  # if running out of memory, change to "cpu"
         continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.FA,
         dimOut=dimOut,
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 3
     # -- meta-train
     # device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
-    device = "cpu"
+    device = "cuda:1"
     metalearning_model = MetaLearner(
         device=device,
         numberOfChemicals=numberOfChemicals,
