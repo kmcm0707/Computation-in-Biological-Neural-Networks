@@ -166,7 +166,7 @@ class ChemicalNN(nn.Module):
         self.activation = nn.Softplus(beta=self.beta)
 
         # Dropout
-        self.dropout = nn.Dropout(p=0.2)
+        # self.dropout = nn.Dropout(p=0.2)
 
     # @torch.compile
     def forward(self, x):
@@ -174,25 +174,25 @@ class ChemicalNN(nn.Module):
 
         y1 = self.forward1(y0)
         y1 = self.activation(y1)
-        y1 = self.dropout(y1)
+        # y1 = self.dropout(y1)
 
         # y1 = self.layer_norm1(y1)
 
         y2 = self.forward2(y1)
         y2 = self.activation(y2)
-        y2 = self.dropout(y2)
+        # y2 = self.dropout(y2)
         # y2 = self.layer_norm2(y2)
 
         y3 = self.forward3(y2)
         y3 = self.activation(y3)
-        y3 = self.dropout(y3)
+        # y3 = self.dropout(y3)
         # y3 = self.layer_norm3(y3)
 
         y4 = self.forward4(y3)
 
         if not self.small:
             y4 = self.activation(y4)
-            y4 = self.dropout(y4)
+            # y4 = self.dropout(y4)
             # y4 = self.layer_norm4(y4)
             # y4 = self.layer_norm4(y4)
             y5 = self.forward5(y4)
