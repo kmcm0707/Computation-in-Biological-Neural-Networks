@@ -24,6 +24,7 @@ class RunnerOptions:
         dataset_name: Literal["EMNIST", "FASHION-MNIST"] = "FASHION-MNIST",
         chemicalInitialization: chemicalEnum = chemicalEnum.same,
         trainFeedback: bool = False,
+        trainSameFeedback: bool = False,
         feedbackModel: modelEnum = modelEnum.complex,
         minTrainingDataPerClass: int = 40,
         maxTrainingDataPerClass: int = 60,
@@ -44,6 +45,7 @@ class RunnerOptions:
         self.dataset_name = dataset_name
         self.chemicalInitialization = chemicalInitialization
         self.trainFeedback = trainFeedback
+        self.trainSameFeedback = trainSameFeedback
         self.feedbackModel = feedbackModel
         self.minTrainingDataPerClass = minTrainingDataPerClass
         self.maxTrainingDataPerClass = maxTrainingDataPerClass
