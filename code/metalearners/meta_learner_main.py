@@ -539,7 +539,7 @@ class MetaLearner:
                 )
 
                 # -- update same model feedback params
-                if self.options.trainSeparateFeedback:
+                if self.options.trainSameFeedback:
                     self.UpdateWeights(
                         params=parameters,
                         h_parameters=feedback_params,
