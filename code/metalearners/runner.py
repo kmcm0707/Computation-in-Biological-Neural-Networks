@@ -428,6 +428,7 @@ class Runner:
 
             """ meta test"""
             # -- predict
+            self.model.eval()
             y, logits = None, None
             if self.options.trainFeedback:
                 y, logits = torch.func.functional_call(self.model, (parameters, h_parameters, feedback_params), x_qry)
@@ -776,11 +777,11 @@ def runner_main():
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [os.getcwd() + "/results/normalise_mode_5_fix/0/20250316-211830"]
     for i in range(2):
-        for index in range(1, 27):
+        for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_normalise_mode_5_5_chem_500_dropour"][i],
+                result_subdirectory=["runner_normalise_mode_5_5_chem_500_dropout"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
