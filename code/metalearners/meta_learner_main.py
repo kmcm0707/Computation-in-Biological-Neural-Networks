@@ -400,9 +400,9 @@ class MetaLearner:
             self.UpdateWeights.load_state_dict(
                 torch.load(self.options.continueTraining + "/UpdateWeights.pth", weights_only=True)
             )
-            self.UpdateMetaParameters.load_state_dict(
-                torch.load(self.options.continueTraining + "/UpdateMetaParameters.pth", weights_only=True)
-            )
+            #self.UpdateMetaParameters.load_state_dict(
+            #    torch.load(self.options.continueTraining + "/UpdateMetaParameters.pth", weights_only=True)
+            #)
             if self.options.trainSeparateFeedback:
                 self.UpdateFeedbackWeights.load_state_dict(
                     torch.load(self.options.continueTraining + "/UpdateFeedbackWeights.pth", weights_only=True)
@@ -721,12 +721,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     random.seed(seed)
 
     # -- load data
-    numWorkers = 2
+    numWorkers = 0
     epochs = 300
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 50
+    maxTrainingDataPerClass = 40
     queryDataPerClass = 10
 
     if dataset_name == "EMNIST":
@@ -857,8 +857,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    #ontinue_training = current_dir + "/results/normalise_mode_6_5_chem/0/20250315-195902"
-    continue_training = current_dir + "/results/mode_7_FA_dropout_test/0/20250317-222653"
+    continue_training = current_dir + "/results/normalise_mode_6_5_chem/0/20250315-195902"
+    #continue_training = current_dir + "/results/mode_7_FA_dropout_test/0/20250317-222653"
     # -- meta-learner options
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
@@ -873,7 +873,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0003,
+        lr=0.00009,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -890,7 +890,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 3
+    numberOfChemicals = 5
     # -- meta-train
     # device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     device = "cuda:1"
