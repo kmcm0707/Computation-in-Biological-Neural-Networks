@@ -563,6 +563,7 @@ class MetaLearner:
                     self.UpdateFeedbackWeights.update_time_index()
 
             """ meta update """
+            self.model.eval()
             # -- fix device
             if self.device != self.options.datasetDevice:
                 x_qry, y_qry = x_qry.to(self.device), y_qry.to(self.device)
