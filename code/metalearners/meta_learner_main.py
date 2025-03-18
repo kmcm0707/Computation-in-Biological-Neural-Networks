@@ -436,6 +436,7 @@ class MetaLearner:
             # -- initialize
             # Using a clone of the model parameters to allow for in-place operations
             # Maintains the computational graph for the model as .detach() is not used
+            self.model.train()
             parameters, h_parameters, feedback_params = self.reinitialize()
             if (
                 self.options.chemicalInitialization != chemicalEnum.zero
@@ -921,4 +922,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_7_FA_dropout_test", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_7_FA_droput_non_broken", index=i)

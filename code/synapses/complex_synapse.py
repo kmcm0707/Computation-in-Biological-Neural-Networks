@@ -759,7 +759,7 @@ class ComplexSynapse(nn.Module):
                             parameter_norm = self.saved_norm[h_name]
                             current_norm = torch.norm(new_value, p=2)
                             multiplier = parameter_norm / current_norm
-                            # new_value = new_value * multiplier
+                            new_value = new_value * multiplier
                         elif self.operator == operatorEnum.mode_7:
                             new_value = torch.nn.functional.normalize(new_value, p=2, dim=0)
                     else:
