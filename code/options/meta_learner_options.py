@@ -62,7 +62,7 @@ class MetaLearnerOptions:
         small: bool = False,
         raytune: bool = False,
         save_results: bool = True,
-        metatrain_dataset: str | None = None,
+        metatrain_dataset: str = None,
         display: bool = True,
         lr: float = 1e-3,
         numberOfClasses: int = 5,
@@ -75,10 +75,10 @@ class MetaLearnerOptions:
         maxTrainingDataPerClass: int = 50,
         queryDataPerClass: int = 10,
         datasetDevice: Literal["cpu", "cuda"] = "cuda",
-        continueTraining: str | None = None,
+        continueTraining: str = None,
         typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
         dimOut: int = 47,
-        loadModel: str | None = None,
+        loadModel: str = None,
     ):
         # print(trainSameFeedback)
         # assert (

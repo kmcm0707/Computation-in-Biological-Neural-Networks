@@ -400,15 +400,15 @@ class MetaLearner:
             self.UpdateWeights.load_state_dict(
                 torch.load(self.options.continueTraining + "/UpdateWeights.pth", weights_only=True)
             )
-            #self.UpdateMetaParameters.load_state_dict(
+            # self.UpdateMetaParameters.load_state_dict(
             #    torch.load(self.options.continueTraining + "/UpdateMetaParameters.pth", weights_only=True)
-            #)
+            # )
             if self.options.trainSeparateFeedback:
                 self.UpdateFeedbackWeights.load_state_dict(
                     torch.load(self.options.continueTraining + "/UpdateFeedbackWeights.pth", weights_only=True)
                 )
             z = np.loadtxt(self.options.continueTraining + "/acc_meta.txt")
-            #last_trained_epoch = z.shape[0]
+            # last_trained_epoch = z.shape[0]
 
         # -- set model to training mode
         self.model.train()
@@ -726,7 +726,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 40
+    maxTrainingDataPerClass = 110
     queryDataPerClass = 10
 
     if dataset_name == "EMNIST":
@@ -765,15 +765,15 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4, 5, 8, 9],  # 5,
+            update_rules=[0, 1, 2, 3, 4, 5, 8, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
             maxTau=500,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_7,  # mode_5,
+            z_vector=zVectorEnum.default,
+            operator=operatorEnum.mode_4,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -858,7 +858,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
     continue_training = current_dir + "/results/normalise_mode_6_5_chem/0/20250315-195902"
-    #continue_training = current_dir + "/results/mode_7_FA_dropout_test/0/20250317-222653"
+    # continue_training = current_dir + "/results/mode_7_FA_dropout_test/0/20250317-222653"
     # -- meta-learner options
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
@@ -873,24 +873,24 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.00009,
+        lr=0.0003,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
         trainSeparateFeedback=False,
         feedbackSeparateModel=feedbackModel,
-        trainSameFeedback=True,
+        trainSameFeedback=False,
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice="cuda:1",  # if running out of memory, change to "cpu"
-        continueTraining=continue_training,
+        continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.FA,
         dimOut=dimOut,
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 3
     # -- meta-train
     # device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     device = "cuda:1"
@@ -923,4 +923,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_7_feedback_trained", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_4_K_identity_1", index=i)

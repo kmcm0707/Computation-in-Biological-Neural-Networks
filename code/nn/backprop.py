@@ -287,7 +287,7 @@ def run(
 
     # -- load data
     numWorkers = 6
-    epochs = 2
+    epochs = 20
     numberOfClasses = 5
     trainingDataPerClass = trainingDataPerClass
     dimOut = 47
@@ -312,7 +312,7 @@ def run(
             all_classes=True,
         )
         dimOut = 10
-    sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * 5)
+    sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True)
 
     metalearning_model = MetaLearner(
