@@ -518,7 +518,7 @@ def run(
     random.seed(seed)
 
     # -- load data
-    numWorkers = 2
+    numWorkers = 4
     epochs = 20
 
     numberOfClasses = None
@@ -570,16 +570,16 @@ def run(
         700,
         750,
         800,
-        850,
-        900,
-        950,
-        1000,
-        1050,
-        1100,
-        1150,
-        1200,
-        1250,
-        1300,
+        #850,
+        #900,
+        #950,
+        #1000,
+        #1050,
+        #1100,
+        #1150,
+        #1200,
+        #1250,
+        #1300,
     ]
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
@@ -629,7 +629,7 @@ def run(
             maxTau=500,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_7,
+            operator=operatorEnum.mode_6,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -761,7 +761,7 @@ def run(
     #   -- number of chemicals
     numberOfChemicals = 5
     # -- meta-train
-    device = "cuda:1" if torch.cuda.is_available() else "cpu"
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
     runner = Runner(
         device=device,
@@ -790,13 +790,13 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/mode_7_feedback_trained/0/20250318-191214"]
+    modelPath_s = [os.getcwd() + "/results/mode_6_feedback_trained/0/20250319-124228"]
     for i in range(2):
         for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_7_feedback_fashion"][i],
+                result_subdirectory=["runner_mode_6_feedback_fashion_finetuned"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
