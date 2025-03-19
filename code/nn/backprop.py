@@ -25,7 +25,7 @@ class RosenbaumNN(nn.Module):
 
     """
 
-    def __init__(self, device: Literal["cpu", "cuda"] = "cpu"):
+    def __init__(self, device: Literal["cpu", "cuda"] = "cpu", dim_out: int = 47):
 
         # Initialize the parent class
         super(RosenbaumNN, self).__init__()
@@ -34,7 +34,7 @@ class RosenbaumNN(nn.Module):
         self.device = device
 
         # Model
-        dim_out = 47
+        dim_out = dim_out
         self.forward1 = nn.Linear(784, 170, bias=False)
         self.forward2 = nn.Linear(170, 130, bias=False)
         self.forward3 = nn.Linear(130, 100, bias=False)
@@ -86,10 +86,12 @@ class MetaLearner:
         seed: int = 0,
         number_of_classes: int = 5,
         trainingDataPerClass: int = 50,
+        dimOut: int = 47,
     ):
 
         # -- processor params
         self.device = torch.device(device)
+        self.dimOut = dimOut
 
         # -- data params
         self.trainingDataPerClass = trainingDataPerClass
@@ -159,7 +161,7 @@ class MetaLearner:
         :param args: (argparse.Namespace) The command-line arguments.
         :return: model with flags , "adapt", set for its parameters
         """
-        model = RosenbaumNN(self.device)
+        model = RosenbaumNN(self.device, self.dimOut)
         return model
 
     @staticmethod
@@ -321,6 +323,7 @@ def run(
         seed=seed,
         number_of_classes=numberOfClasses,
         trainingDataPerClass=trainingDataPerClass,
+        dimOut=dimOut,
     )
     metalearning_model.train()
 
@@ -340,7 +343,7 @@ def backprop_main():
     :return: None
     """
     # -- run
-    trainingDataPerClass = [
+    """trainingDataPerClass = [
         10,
         20,
         30,
@@ -368,11 +371,40 @@ def backprop_main():
         325,
         350,
         375,
+    ]"""
+    trainingDataPerClass = [
+        10,
+        50,
+        100,
+        150,
+        200,
+        250,
+        300,
+        350,
+        400,
+        450,
+        500,
+        550,
+        600,
+        650,
+        700,
+        750,
+        800,
+        850,
+        900,
+        950,
+        1000,
+        1050,
+        1100,
+        1150,
+        1200,
+        1250,
+        1300,
     ]
     for trainingData in trainingDataPerClass:
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_backprop",
+            result_subdirectory="runner_backprop_fashion",
             trainingDataPerClass=trainingData,
         )
