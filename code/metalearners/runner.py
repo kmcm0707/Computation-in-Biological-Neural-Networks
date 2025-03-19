@@ -585,7 +585,7 @@ def run(
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
-    queryDataPerClass = 50
+    queryDataPerClass = 20
     dataset_name = "FASHION-MNIST"
 
     if dataset_name == "EMNIST":
