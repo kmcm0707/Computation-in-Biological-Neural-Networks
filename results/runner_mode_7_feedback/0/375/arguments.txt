@@ -1,0 +1,39 @@
+Number of chemicals: 5
+Number of query data per class: 50
+model: modelEnum.complex
+modelPath: /homes/kcm40/kcm40/Computation-in-Biological-Neural-Networks/results/mode_7_feedback_trained/0/20250318-191214
+small: False
+seed: 0
+save_results: True
+results_subdir: runner_mode_7_feedback
+metatrain_dataset: <torch.utils.data.dataloader.DataLoader object at 0x7f6930561b10>
+display: True
+numberOfClasses: 5
+dataset_name: EMNIST
+chemicalInitialization: chemicalEnum.same
+trainFeedback: False
+trainSameFeedback: True
+feedbackModel: modelEnum.complex
+minTrainingDataPerClass: 375
+maxTrainingDataPerClass: 375
+queryDataPerClass: 50
+typeOfFeedback: typeOfFeedbackEnum.FA
+dimOut: 47
+nonLinear: <function tanh at 0x7f694b1b8dc0>
+bias: False
+update_rules: [0, 1, 2, 3, 4, 5, 8, 9]
+pMatrix: pMatrixEnum.first_col
+kMatrix: kMatrixEnum.zero
+minTau: 2
+maxTau: 500
+y_vector: yVectorEnum.none
+z_vector: zVectorEnum.all_ones
+operator: operatorEnum.mode_7
+train_z_vector: False
+mode: modeEnum.all
+v_vector: vVectorEnum.default
+eta: 1
+beta: 0
+kMasking: False
+individual_different_v_vector: False
+scheduler_t0: None

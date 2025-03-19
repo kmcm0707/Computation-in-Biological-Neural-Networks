@@ -519,11 +519,11 @@ def run(
 
     # -- load data
     numWorkers = 2
-    epochs = 50
+    epochs = 20
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    trainingDataPerClass = [
+    """trainingDataPerClass = [
         10,
         20,
         30,
@@ -551,8 +551,8 @@ def run(
         325,
         350,
         375,
-    ]
-    """trainingDataPerClass = [
+    ]"""
+    trainingDataPerClass = [
         10,
         50,
         100,
@@ -580,7 +580,7 @@ def run(
         1200,
         1250,
         1300,
-    ]"""
+    ]
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
@@ -796,7 +796,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_7_feedback"][i],
+                result_subdirectory=["runner_mode_7_feedback_fashion"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
