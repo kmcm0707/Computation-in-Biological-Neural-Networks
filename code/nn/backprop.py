@@ -405,6 +405,6 @@ def backprop_main():
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_backprop_fashion",
+            result_subdirectory="runner_backprop_fashion_3",
             trainingDataPerClass=trainingData,
         )

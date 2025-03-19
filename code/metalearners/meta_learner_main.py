@@ -893,7 +893,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     numberOfChemicals = 3
     # -- meta-train
     # device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
-    device = "cuda:1"
+    device = "cuda:0"
     metalearning_model = MetaLearner(
         device=device,
         numberOfChemicals=numberOfChemicals,
@@ -923,4 +923,8 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
+<<<<<<< HEAD
         run(seed=0, display=True, result_subdirectory="mode_4_K_identity_1", index=i)
+=======
+        run(seed=0, display=True, result_subdirectory="mode_6_feedback_trained", index=i)
+>>>>>>> 902ec9d03985a53f0606a1db638e09e8bc447e1b

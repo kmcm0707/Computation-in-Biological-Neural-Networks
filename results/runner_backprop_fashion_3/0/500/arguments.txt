@@ -1,0 +1,4 @@
+Seed: 0
+Model: backprop
+Number of training data per class: 500
+Number of query data per class: 20
