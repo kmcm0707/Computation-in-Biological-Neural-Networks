@@ -62,28 +62,28 @@ class MetaLearnerOptions:
         small: bool = False,
         raytune: bool = False,
         save_results: bool = True,
-        metatrain_dataset: str | None = None,
+        metatrain_dataset: str = None,
         display: bool = True,
         lr: float = 1e-3,
         numberOfClasses: int = 5,
         dataset_name: Literal["EMNIST", "FASHION-MNIST"] = "FASHION-MNIST",
         chemicalInitialization: chemicalEnum = chemicalEnum.same,
-        trainSeperateFeedback: bool = False,
-        feedbackSeperateModel: modelEnum = modelEnum.complex,
+        trainSeparateFeedback: bool = False,
+        feedbackSeparateModel: modelEnum = modelEnum.complex,
         trainSameFeedback: bool = False,
         minTrainingDataPerClass: int = 50,
         maxTrainingDataPerClass: int = 50,
         queryDataPerClass: int = 10,
         datasetDevice: Literal["cpu", "cuda"] = "cuda",
-        continueTraining: str | None = None,
+        continueTraining: str = None,
         typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
         dimOut: int = 47,
-        loadModel: str | None = None,
+        loadModel: str = None,
     ):
-        #print(trainSameFeedback)
-        #assert (
+        # print(trainSameFeedback)
+        # assert (
         #    trainSameFeedback == True and trainSeperateFeedback== True
-        #), "Both trainSameFeedback and trainSeperateFeedback cannot be True"
+        # ), "Both trainSameFeedback and trainSeperateFeedback cannot be True"
 
         self.model = model
         self.small = small
@@ -101,8 +101,8 @@ class MetaLearnerOptions:
         self.numberOfClasses = numberOfClasses
         self.dataset_name = dataset_name
         self.chemicalInitialization = chemicalInitialization
-        self.trainSeperateFeedback = trainSeperateFeedback
-        self.feedbackSeperateModel = feedbackSeperateModel
+        self.trainSeparateFeedback = trainSeparateFeedback
+        self.feedbackSeparateModel = feedbackSeparateModel
         self.trainSameFeedback = trainSameFeedback
         self.minTrainingDataPerClass = minTrainingDataPerClass
         self.maxTrainingDataPerClass = maxTrainingDataPerClass

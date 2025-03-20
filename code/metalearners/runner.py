@@ -112,7 +112,7 @@ class Runner:
         self.UpdateWeights.load_state_dict(state_dict)
         if self.options.trainFeedback:
             feedback_state_dict = torch.load(
-                self.options.modelPath + "/UpdateWeights.pth", weights_only=True, map_location=self.device
+                self.options.modelPath + "/UpdateFeedbackWeights.pth", weights_only=True, map_location=self.device
             )  # UpdateFeedbackWeights
             for key, val in self.UpdateWeights.named_parameters():
                 if "bias_dictionary.chemical" in key:
@@ -205,7 +205,7 @@ class Runner:
             self.device,
             self.numberOfChemicals,
             small=self.options.small,
-            train_feedback=self.options.trainFeedback,
+            train_feedback=self.options.trainFeedback or self.options.trainSameFeedback,
             typeOfFeedback=self.options.typeOfFeedback,
             dim_out=self.options.dimOut,
         )
@@ -215,7 +215,7 @@ class Runner:
             if "forward" in key:
                 val.adapt = "forward"
             elif "feedback" in key:
-                val.adapt, val.requires_grad = "feedback", self.options.trainFeedback
+                val.adapt, val.requires_grad = "feedback", self.options.trainFeedback or self.options.trainSameFeedback
 
         return model
 
@@ -265,7 +265,7 @@ class Runner:
         # -- initialize weights
         self.model.apply(self.weights_init)
         self.chemical_init(self.model.chemicals)
-        if self.options.trainFeedback:
+        if self.options.trainFeedback or self.options.trainSameFeedback:
             self.chemical_init(self.model.feedback_chemicals)
 
         # -- module parameters
@@ -281,7 +281,7 @@ class Runner:
             if "chemical" in key and "feedback" not in key
         }
         feedback_h_params = None
-        if self.options.trainFeedback:
+        if self.options.trainFeedback or self.options.trainSameFeedback:
             feedback_h_params = {
                 key: val.clone()
                 for key, val in dict(self.model.named_parameters()).items()
@@ -325,6 +325,8 @@ class Runner:
                 self.UpdateWeights.initial_update(parameters, h_parameters)
                 if self.options.trainFeedback and self.feedbackModelOptions.operator != operatorEnum.mode_3:
                     self.UpdateFeedbackWeights.initial_update(parameters, feedback_params)
+                if self.options.trainSameFeedback and self.modelOptions.operator != operatorEnum.mode_3:
+                    self.UpdateWeights.initial_update(parameters, feedback_params, override_adaption_pathway="feedback")
 
             # -- reset time index
             self.UpdateWeights.reset_time_index()
@@ -341,7 +343,7 @@ class Runner:
 
                 # -- predict
                 y, logits = None, None
-                if self.options.trainFeedback:
+                if self.options.trainFeedback or self.options.trainSameFeedback:
                     y, logits = torch.func.functional_call(
                         self.model, (parameters, h_parameters, feedback_params), x.unsqueeze(0).unsqueeze(0)
                     )
@@ -412,6 +414,16 @@ class Runner:
                     activations_and_output=activations_and_output,
                 )
 
+                # -- update same model feedback params
+                if self.options.trainSameFeedback:
+                    self.UpdateWeights(
+                        params=parameters,
+                        h_parameters=feedback_params,
+                        error=error,
+                        activations_and_output=activations_and_output,
+                        override_adaption_pathway="feedback",
+                    )
+
                 # -- update time index
                 self.UpdateWeights.update_time_index()
 
@@ -431,7 +443,7 @@ class Runner:
             # -- predict
             self.model.eval()
             y, logits = None, None
-            if self.options.trainFeedback:
+            if self.options.trainFeedback or self.options.trainSameFeedback:
                 y, logits = torch.func.functional_call(self.model, (parameters, h_parameters, feedback_params), x_qry)
             else:
                 y, logits = torch.func.functional_call(self.model, (parameters, h_parameters), x_qry)
@@ -506,12 +518,12 @@ def run(
     random.seed(seed)
 
     # -- load data
-    numWorkers = 2
-    epochs = 50
+    numWorkers = 4
+    epochs = 20
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    trainingDataPerClass = [
+    """trainingDataPerClass = [
         10,
         20,
         30,
@@ -539,10 +551,10 @@ def run(
         325,
         350,
         375,
-    ]
-    """trainingDataPerClass = [
-        # 10,
-        # 50,
+    ]"""
+    trainingDataPerClass = [
+        10,
+        50,
         100,
         150,
         200,
@@ -558,23 +570,23 @@ def run(
         700,
         750,
         800,
-        850,
-        900,
-        950,
-        1000,
-        1050,
-        1100,
-        1150,
-        1200,
-        1250,
-        1300,
-    ]"""
+        # 850,
+        # 900,
+        # 950,
+        # 1000,
+        # 1050,
+        # 1100,
+        # 1150,
+        # 1200,
+        # 1250,
+        # 1300,
+    ]
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "EMNIST"
+    dataset_name = "FASHION-MNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -595,6 +607,7 @@ def run(
             all_classes=True,
         )
         dimOut = 10
+        epochs = 20
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
     metatrain_dataset = DataLoader(
@@ -616,7 +629,7 @@ def run(
             maxTau=500,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_7,
+            operator=operatorEnum.mode_6,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -736,6 +749,7 @@ def run(
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
         trainFeedback=False,
+        trainSameFeedback=True,
         feedbackModel=feedbackModel,
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
@@ -776,13 +790,13 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/normalise_mode_5_fix/0/20250316-211830"]
+    modelPath_s = [os.getcwd() + "/results/mode_6_feedback_trained/0/20250319-124228"]
     for i in range(2):
         for index in range(22, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["t"][i],
+                result_subdirectory=["runner_mode_6_feedback_fashion_finetuned"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
