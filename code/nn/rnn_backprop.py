@@ -38,7 +38,8 @@ class RosenbaumRNN(nn.Module):
 
         # -- layers
         self.RNN1 = nn.RNNCell(input_size=self.dim_in, hidden_size=128, bias=False)
-        self.RNN2 = nn.RNNCell(input_size=128, hidden_size=dim_out, bias=False)
+        self.RNN2 = nn.RNNCell(input_size=128, hidden_size=128, bias=False)
+        self.forward1 = nn.Linear(128, dim_out)
 
         # -- hidden states
         self.hx1 = torch.zeros(1, 128).to(self.device)
@@ -51,12 +52,13 @@ class RosenbaumRNN(nn.Module):
 
         self.hx1 = self.RNN1(x, self.hx1)
         self.hx2 = self.RNN2(self.hx1, self.hx2)
+        x = self.forward1(self.hx2)
 
-        return (x, self.hx1, self.hx2), self.hx2
+        return (x, self.hx1, self.hx2), self.forward1
 
     def reset_hidden(self, batch_size):
         self.hx1 = torch.zeros(batch_size, 128).to(self.device)
-        self.hx2 = torch.zeros(batch_size, self.dim_out).to(self.device)
+        self.hx2 = torch.zeros(batch_size, 128).to(self.device)
 
 
 class RnnMetaLearner:
@@ -99,8 +101,8 @@ class RnnMetaLearner:
 
         # -- model params
         if self.device == "cpu":  # Remove if using a newer GPU
-            self.UnOptimizedmodel = self.load_model().to(self.device)
-            self.model = torch.compile(self.UnOptimizedmodel, mode="reduce-overhead")
+            self.UnOptimizedModel = self.load_model().to(self.device)
+            self.model = torch.compile(self.UnOptimizedModel, mode="reduce-overhead")
         else:
             self.model = self.load_model().to(self.device)
 
@@ -163,6 +165,10 @@ class RnnMetaLearner:
             # -- weights_hh
             nn.init.xavier_uniform_(modules.weight_hh)
             # -- bias
+            if modules.bias:
+                nn.init.xavier_uniform_(modules.bias)
+        if isinstance(modules, nn.Linear):
+            nn.init.xavier_uniform_(modules.weight)
             if modules.bias:
                 nn.init.xavier_uniform_(modules.bias)
 
@@ -353,7 +359,6 @@ def rnn_backprop_main():
         28,
         56,
         112,
-        224,
         392,
         784,
     ]
