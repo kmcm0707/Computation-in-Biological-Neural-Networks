@@ -12,7 +12,6 @@ import numpy as np
 import torch
 from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset
 from misc.utils import Plot, log, meta_stats
-from ray import train, tune
 from torch import nn, optim
 from torch.utils.data import DataLoader, RandomSampler
 from torch.utils.tensorboard import SummaryWriter
@@ -37,10 +36,9 @@ class RosenbaumRNN(nn.Module):
         self.dim_in = dim_in
         self.dim_out = dim_out
 
-        # -- layer 1
+        # -- layers
         self.RNN1 = nn.RNNCell(input_size=self.dim_in, hidden_size=128, bias=False)
-        self.RNN2 = nn.RNNCell(input_size=128, hidden_size=128, bias=False)
-        self.forward1 = nn.Linear(128, dim_out, bias=False)
+        self.RNN2 = nn.RNNCell(input_size=128, hidden_size=dim_out, bias=False)
 
         # -- hidden states
         self.hx1 = torch.zeros(1, 128).to(self.device)
@@ -53,13 +51,12 @@ class RosenbaumRNN(nn.Module):
 
         self.hx1 = self.RNN1(x, self.hx1)
         self.hx2 = self.RNN2(self.hx1, self.hx2)
-        y3 = self.forward1(self.hx2)
 
-        return (x, self.hx1, self.hx2), y3
+        return (x, self.hx1, self.hx2), self.hx2
 
     def reset_hidden(self, batch_size):
         self.hx1 = torch.zeros(batch_size, 128).to(self.device)
-        self.hx2 = torch.zeros(batch_size, 128).to(self.device)
+        self.hx2 = torch.zeros(batch_size, self.dim_out).to(self.device)
 
 
 class RnnMetaLearner:
@@ -167,12 +164,6 @@ class RnnMetaLearner:
             nn.init.xavier_uniform_(modules.weight_hh)
             # -- bias
             if modules.bias:
-                nn.init.xavier_uniform_(modules.bias)
-        elif isinstance(modules, nn.Linear):
-            # -- weights
-            nn.init.xavier_uniform_(modules.weight)
-            # -- bias
-            if modules.bias is not None:
                 nn.init.xavier_uniform_(modules.bias)
 
     def train(self):
@@ -300,7 +291,7 @@ def run(
 
     # -- load data
     numWorkers = 6
-    epochs = 20
+    epochs = 10
     numberOfClasses = 5
     trainingDataPerClass = trainingDataPerClass
     dimOut = 47
@@ -358,11 +349,11 @@ def rnn_backprop_main():
     """
     # -- run
     dimIn = [
-        #14,
-        #28,
-        #56,
-        #112,
-        #224,
+        # 14,
+        28,
+        56,
+        112,
+        224,
         392,
         784,
     ]
@@ -405,20 +396,13 @@ def rnn_backprop_main():
         70,
         80,
         90,
-        100,
-        120,
-        140,
-        160,
-        180,
-        190,
-        200,
     ]
     for dim in dimIn:
         for trainingData in trainingDataPerClass:
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_rnn_backprop/{}".format(dim),
+                result_subdirectory="runner_rnn_backprop_2/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )

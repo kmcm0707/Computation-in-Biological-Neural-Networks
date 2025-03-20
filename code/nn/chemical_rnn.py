@@ -13,9 +13,10 @@ class chemicalRnn(nn.Module):
     def __init__(
         self,
         device: Literal["cpu", "cuda"] = "cpu",
-        numberOfChemicals: int = 1,
-        train_feedback: bool = False,
-        typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
+        numberOfSlowChemicals: int = 1,
+        numberOfFastChemicals: int = 1,
+        typOfSlowChemicalFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.DFA,
+        typeOfFastChemicalFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.DFA,
         dim_in: int = 1,
         dim_out: int = 1,
     ):
@@ -24,10 +25,25 @@ class chemicalRnn(nn.Module):
 
         # Set the device
         self.device = device
-        self.train_feedback = train_feedback
-        self.typeOfFeedback = typeOfFeedback
-        self.numberOfChemicals = numberOfChemicals
+
+        # Set the number of slow and fast chemicals
+        self.numberOfSlowChemicals = numberOfSlowChemicals
+        self.numberOfFastChemicals = numberOfFastChemicals
+
+        # Set the type of feedback for the slow and fast chemicals
+        self.typOfSlowChemicalFeedback = typOfSlowChemicalFeedback
+        self.typeOfFastChemicalFeedback = typeOfFastChemicalFeedback
+
+        # Set the input and output dimensions
         self.dim_in = dim_in
         self.dim_out = dim_out
 
         # Model
+        self.RNN1 = nn.RNNCell(input_size=self.dim_in, hidden_size=128, bias=False)
+        self.RNN2 = nn.RNNCell(input_size=128, hidden_size=dim_out, bias=False)
+
+        # Hidden states
+        self.hx1 = torch.zeros(1, 128).to(self.device)
+        self.hx2 = torch.zeros(1, 128).to(self.device)
+
+        # Chemicals

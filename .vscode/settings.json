@@ -6,6 +6,8 @@
         "Hebb",
         "metalearners",
         "metatrain",
+        "nadam",
+        "radam",
         "rosenbaum",
         "Unoptimized",
         "unsqeezed",

@@ -29,7 +29,6 @@ from options.meta_learner_options import (
     chemicalEnum,
     modelEnum,
     optimizerEnum,
-    schedulerEnum,
     typeOfFeedbackEnum,
 )
 from options.reservoir_options import (
@@ -38,18 +37,16 @@ from options.reservoir_options import (
     vVectorReservoirEnum,
     yReservoirEnum,
 )
+from options.rnn_meta_learner_options import RnnMetaLearnerOptions
 from ray import train
-from synapses.benna_synapse import BennaSynapse
-from synapses.complex_synapse import ComplexSynapse
-from synapses.individual_synapse import IndividualSynapse
-from synapses.reservoir_synapse import ReservoirSynapse
+from synapses.complex_rnn import ComplexRnn
 from torch import nn, optim
 from torch.nn import functional
 from torch.utils.data import DataLoader, RandomSampler
 from torch.utils.tensorboard import SummaryWriter
 
 
-class MetaLearner:
+class RnnMetaLearner:
     """
 
     Meta-learner class.
@@ -60,24 +57,22 @@ class MetaLearner:
         self,
         device: Literal["cpu", "cuda"] = "cpu",
         numberOfChemicals: int = 1,
-        metaLearnerOptions: MetaLearnerOptions = None,
+        rnnMetaLearnerOptions: RnnMetaLearnerOptions = None,
         modelOptions: Union[complexOptions, reservoirOptions] = None,
-        feedbackModelOptions: Union[complexOptions, reservoirOptions] = None,
     ):
 
         # -- processor params
         self.str_device = device
         self.device = torch.device(device)
         self.modelOptions = modelOptions
-        self.options = metaLearnerOptions
-        self.feedbackModelOptions = feedbackModelOptions
+        self.options = rnnMetaLearnerOptions
 
         # -- data params
-        self.queryDataPerClass = metaLearnerOptions.queryDataPerClass
-        self.metatrain_dataset = metaLearnerOptions.metatrain_dataset
+        self.queryDataPerClass = self.options.queryDataPerClass
+        self.metatrain_dataset = self.options.metatrain_dataset
         self.data_process = DataProcess(
-            minTrainingDataPerClass=metaLearnerOptions.minTrainingDataPerClass,
-            maxTrainingDataPerClass=metaLearnerOptions.maxTrainingDataPerClass,
+            minTrainingDataPerClass=self.options.minTrainingDataPerClass,
+            maxTrainingDataPerClass=self.options.maxTrainingDataPerClass,
             queryDataPerClass=self.queryDataPerClass,
             dimensionOfImage=28,
             device=torch.device(self.options.datasetDevice),
@@ -91,98 +86,78 @@ class MetaLearner:
             self.model = self.load_model().to(self.device)
 
         # -- optimization params
-        self.metaLossRegularization = metaLearnerOptions.metaLossRegularization
-        self.biasLossRegularization = metaLearnerOptions.biasLossRegularization
-
         self.loss_func = nn.CrossEntropyLoss()
 
         # -- set chemical model
         self.UpdateWeights = self.chemical_model_setter(
             options=self.modelOptions, adaptionPathway="forward", typeOfModel=self.options.model
         )
-        if self.options.trainFeedback:
-            self.UpdateFeedbackWeights = self.chemical_model_setter(
-                options=self.feedbackModelOptions, adaptionPathway="feedback", typeOfModel=self.options.feedbackModel
-            )
 
-        lr = metaLearnerOptions.lr
+        lr = self.options.lr
 
         # -- optimizer
         bias_parameters = list(self.UpdateWeights.all_bias_parameters.parameters())
         meta_parameters = list(self.UpdateWeights.all_meta_parameters.parameters())
-        if self.options.trainFeedback:
-            bias_parameters = bias_parameters + list(self.UpdateFeedbackWeights.all_bias_parameters.parameters())
-            meta_parameters = meta_parameters + list(self.UpdateFeedbackWeights.all_meta_parameters.parameters())
 
         self.UpdateMetaParameters: Union[optim.SGD, optim.Adam, optim.AdamW, optim.NAdam, optim.RAdam, None] = None
-        if metaLearnerOptions.optimizer == optimizerEnum.sgd:
+        if self.options.optimizer == optimizerEnum.sgd:
             self.UpdateMetaParameters = optim.SGD(
                 [
                     {
                         "params": bias_parameters,
-                        "weight_decay": self.biasLossRegularization,
                     },
                     {
                         "params": meta_parameters,
-                        # "weight_decay": self.metaLossRegularization,
                     },
                 ],
                 lr=lr,
                 momentum=0.8,
                 nesterov=True,
             )
-        elif metaLearnerOptions.optimizer == optimizerEnum.adam:
+        elif self.options.optimizer == optimizerEnum.adam:
             self.UpdateMetaParameters = optim.Adam(
                 [
                     {
                         "params": bias_parameters,
-                        "weight_decay": self.biasLossRegularization,
                     },
                     {
                         "params": meta_parameters,
-                        # "weight_decay": self.metaLossRegularization,
                     },
                 ],
                 lr=lr,
             )
-        elif metaLearnerOptions.optimizer == optimizerEnum.adamW:
+        elif self.options.optimizer == optimizerEnum.adamW:
             self.UpdateMetaParameters = optim.AdamW(
                 [
                     {
                         "params": bias_parameters,
-                        "weight_decay": self.biasLossRegularization,
                     },
                     {
                         "params": meta_parameters,
-                        # "weight_decay": self.metaLossRegularization,
                     },
                 ],
                 lr=lr,
             )
-        elif metaLearnerOptions.optimizer == optimizerEnum.nadam:
+        elif self.options.optimizer == optimizerEnum.nadam:
             self.UpdateMetaParameters = optim.NAdam(
                 [
                     {
                         "params": bias_parameters,
-                        "weight_decay": self.biasLossRegularization,
                     },
                     {
                         "params": meta_parameters,
-                        # "weight_decay": self.metaLossRegularization,
                     },
                 ],
                 lr=lr,
             )
-        elif metaLearnerOptions.optimizer == optimizerEnum.radam:
+        elif self.options.optimizer == optimizerEnum.radam:
             self.UpdateMetaParameters = optim.RAdam(
                 [
                     {
                         "params": bias_parameters,
-                        "weight_decay": self.biasLossRegularization,
                     },
                     {
                         "params": meta_parameters,
-                        # "weight_decay": self.metaLossRegularization,
                     },
                 ],
                 lr=lr,
@@ -190,33 +165,18 @@ class MetaLearner:
         else:
             raise ValueError("Optimizer not recognized.")
 
-        # -- scheduler
-        self.scheduler: Union[
-            optim.lr_scheduler.ExponentialLR, optim.lr_scheduler.StepLR, optim.lr_scheduler.ConstantLR, None
-        ] = None
-        if metaLearnerOptions.scheduler == schedulerEnum.exponential:
-            self.scheduler = optim.lr_scheduler.ExponentialLR(optimizer=self.UpdateMetaParameters, gamma=0.95)
-        elif metaLearnerOptions.scheduler == schedulerEnum.linear:
-            self.scheduler = optim.lr_scheduler.StepLR(optimizer=self.UpdateMetaParameters, step_size=30, gamma=0.1)
-        elif metaLearnerOptions.scheduler == schedulerEnum.constant:
-            self.scheduler = optim.lr_scheduler.ConstantLR(
-                optimizer=self.UpdateMetaParameters, total_iters=self.options.epochs
-            )
-        elif metaLearnerOptions.scheduler == schedulerEnum.none:
-            self.scheduler = None
-
         # -- log params
-        self.save_results = metaLearnerOptions.save_results
-        self.display = metaLearnerOptions.display
+        self.save_results = self.options.save_results
+        self.display = self.options.display
         self.result_directory = os.getcwd() + "/results"
         if self.save_results:
             self.result_directory = os.getcwd() + "/results"
             os.makedirs(self.result_directory, exist_ok=True)
             self.result_directory += (
                 "/"
-                + metaLearnerOptions.results_subdir
+                + self.options.results_subdir
                 + "/"
-                + str(metaLearnerOptions.seed)
+                + str(self.options.seed)
                 + "/"
                 + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
             )
@@ -224,10 +184,8 @@ class MetaLearner:
             with open(self.result_directory + "/arguments.txt", "w") as f:
                 f.writelines("Number of chemicals: {}\n".format(numberOfChemicals))
                 f.writelines("Number of query data per class: {}\n".format(self.queryDataPerClass))
-                f.writelines(str(metaLearnerOptions))
+                f.writelines(str(self.options))
                 f.writelines(str(modelOptions))
-                if self.options.trainFeedback:
-                    f.writelines(str(feedbackModelOptions))
 
             self.average_window = 10
             self.plot = Plot(self.result_directory, self.average_window)
@@ -238,33 +196,12 @@ class MetaLearner:
     ):
         model = None
         if typeOfModel == modelEnum.complex:
-            model = ComplexSynapse(
+            model = ComplexRnn(
                 device=self.device,
                 numberOfChemicals=self.numberOfChemicals,
                 complexOptions=options,
                 params=self.model.named_parameters(),
                 adaptionPathway=adaptionPathway,
-            )
-        elif typeOfModel == modelEnum.reservoir:
-            model = ReservoirSynapse(
-                device=self.device,
-                numberOfChemicals=self.numberOfChemicals,
-                options=options,
-                params=self.model.named_parameters(),
-            )
-        elif typeOfModel == modelEnum.individual:
-            model = IndividualSynapse(
-                device=self.device,
-                numberOfChemicals=self.numberOfChemicals,
-                complexOptions=options,
-                params=self.model.named_parameters(),
-            )
-        elif typeOfModel == modelEnum.benna:
-            model = BennaSynapse(
-                device=self.device,
-                numberOfChemicals=self.numberOfChemicals,
-                options=options,
-                params=self.model.named_parameters(),
             )
         else:
             raise ValueError("Model not recognized.")
@@ -399,10 +336,6 @@ class MetaLearner:
             self.UpdateMetaParameters.load_state_dict(
                 torch.load(self.options.continueTraining + "/UpdateMetaParameters.pth", weights_only=True)
             )
-            if self.options.trainFeedback:
-                self.UpdateFeedbackWeights.load_state_dict(
-                    torch.load(self.options.continueTraining + "/UpdateFeedbackWeights.pth", weights_only=True)
-                )
             z = np.loadtxt(self.options.continueTraining + "/acc_meta.txt")
             last_trained_epoch = z.shape[0]
 
@@ -416,12 +349,6 @@ class MetaLearner:
         y_qry = None
         current_training_data_per_class = None
 
-        # scaler = torch.amp.GradScaler("cuda", enabled=True)
-
-        """with torch.autocast(
-            device_type=self.str_device,
-            dtype=torch.float16,
-        ):"""
         for eps, data in enumerate(self.metatrain_dataset):
 
             # -- continue training
@@ -432,19 +359,12 @@ class MetaLearner:
             # -- initialize
             # Using a clone of the model parameters to allow for in-place operations
             # Maintains the computational graph for the model as .detach() is not used
-            parameters, h_parameters, feedback_params = self.reinitialize()
-            if (
-                self.options.chemicalInitialization != chemicalEnum.zero
-                and self.modelOptions.operator != operatorEnum.mode_3
-            ):
-                self.UpdateWeights.initial_update(parameters, h_parameters)
-                if self.options.trainFeedback and self.feedbackModelOptions.operator != operatorEnum.mode_3:
-                    self.UpdateFeedbackWeights.initial_update(parameters, feedback_params)
+            parameters, h_parameters = self.reinitialize()
+
+            self.UpdateWeights.initial_update(parameters, h_parameters)
 
             # -- reset time index
             self.UpdateWeights.reset_time_index()
-            if self.options.trainFeedback:
-                self.UpdateFeedbackWeights.reset_time_index()
 
             # -- training data
             x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(
@@ -452,25 +372,27 @@ class MetaLearner:
             )
 
             """ adaptation """
-
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
 
                 # -- fix device
                 if self.str_device != self.options.datasetDevice:
                     x, label = x.to(self.device), label.to(self.device)
 
-                # -- predict
-                y, logits = None, None
-                if self.options.trainFeedback:
-                    y, logits = torch.func.functional_call(
-                        self.model, (parameters, h_parameters, feedback_params), x.unsqueeze(0).unsqueeze(0)
-                    )
-                else:
+                x_reshaped = torch.reshape(x, (784 // self.dimIn, self.dimIn))
+
+                for input in x_reshaped:
+                    # -- predict
                     y, logits = torch.func.functional_call(
                         self.model, (parameters, h_parameters), x.unsqueeze(0).unsqueeze(0)
                     )
+                    self.model.fast_update()  # TODO
 
-                # -- compute error
+                # -- predict
+                y, logits = torch.func.functional_call(
+                    self.model, (parameters, h_parameters), x.unsqueeze(0).unsqueeze(0)
+                )
+
+                # -- compute slow error
                 activations = y
                 output = logits
                 params = parameters
@@ -513,10 +435,6 @@ class MetaLearner:
                             / 2,
                         )
                         index_error -= 1
-                    """for i in range(len(DFA_error)):
-                        # error[i] = (error[i] + DFA_error[i]) / 2
-                        if i != 0:
-                            error[i] = (error[i] + DFA_error[i]) / np.sqrt(2)"""
                 else:
                     raise ValueError("Invalid type of feedback")
 
@@ -533,29 +451,13 @@ class MetaLearner:
                 # -- update time index
                 self.UpdateWeights.update_time_index()
 
-                # -- update feedback params
-                if self.options.trainFeedback:
-                    self.UpdateFeedbackWeights(
-                        params=parameters,
-                        h_parameters=feedback_params,
-                        error=error,
-                        activations_and_output=activations_and_output,
-                    )
-
-                    # -- update feedback time index
-                    self.UpdateFeedbackWeights.update_time_index()
-
             """ meta update """
             # -- fix device
             if self.device != self.options.datasetDevice:
                 x_qry, y_qry = x_qry.to(self.device), y_qry.to(self.device)
 
             # -- predict
-            y, logits = None, None
-            if self.options.trainFeedback:
-                y, logits = torch.func.functional_call(self.model, (parameters, h_parameters, feedback_params), x_qry)
-            else:
-                y, logits = torch.func.functional_call(self.model, (parameters, h_parameters), x_qry)
+            y, logits = torch.func.functional_call(self.model, (parameters, h_parameters), x_qry)
 
             loss_meta = self.loss_func(logits, y_qry.ravel())
 
@@ -573,26 +475,13 @@ class MetaLearner:
                 self.result_directory,
                 self.save_results,
                 self.options.typeOfFeedback,
+                self.options.dimOut,
             )
-
-            # -- l1 regularization
-            if self.metaLossRegularization > 0:
-                P_matrix = self.UpdateWeights.P_matrix
-                loss_meta += self.metaLossRegularization * torch.norm(P_matrix, p=1)
-                if self.options.trainFeedback:
-                    P_matrix = self.UpdateFeedbackWeights.P_matrix
-                    loss_meta += self.metaLossRegularization * torch.norm(P_matrix, p=1)
 
             # -- record params
             UpdateWeights_state_dict = copy.deepcopy(self.UpdateWeights.state_dict())
-            UpdateFeedbackWeights_state_dict = None
-            if self.options.trainFeedback:
-                UpdateFeedbackWeights_state_dict = copy.deepcopy(self.UpdateFeedbackWeights.state_dict())
 
             # -- backprop
-            """scaler.scale(loss_meta).backward()
-            scaler.step(self.UpdateMetaParameters)
-            scaler.update()"""
             loss_meta.backward()
 
             # -- gradient clipping
@@ -600,8 +489,6 @@ class MetaLearner:
 
             # -- update
             self.UpdateMetaParameters.step()
-            if self.scheduler is not None:
-                self.scheduler.step()
             self.UpdateMetaParameters.zero_grad(set_to_none=True)
 
             # -- log
@@ -636,27 +523,6 @@ class MetaLearner:
                         with open(self.result_directory + "/{}.txt".format(key), "a") as f:
                             f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
 
-                if self.options.trainFeedback:
-                    for key, val in UpdateFeedbackWeights_state_dict.items():
-                        if (
-                            "K" in key
-                            or "P" in key
-                            or "v_vector" in key
-                            or "z_vector" in key
-                            or "y_vector" in key
-                            or "A" in key
-                            or "B" in key
-                            or "linear" in key
-                        ):
-                            with open(self.result_directory + "/Feedback_{}.txt".format(key), "a") as f:
-                                f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
-
-            # -- raytune
-            if self.options.raytune:
-                if torch.isnan(loss_meta):
-                    return train.report({"loss": loss_meta.item(), "accuracy": acc})
-                train.report({"loss": loss_meta.item(), "accuracy": acc})
-
             # -- check for nan
             if torch.isnan(loss_meta):
                 print("Meta loss is NaN.")
@@ -672,10 +538,6 @@ class MetaLearner:
             torch.save(self.UpdateWeights.state_dict(), self.result_directory + "/UpdateWeights.pth")
             torch.save(self.model.state_dict(), self.result_directory + "/model.pth")
             torch.save(self.UpdateMetaParameters.state_dict(), self.result_directory + "/UpdateMetaParameters.pth")
-            if self.options.trainFeedback:
-                torch.save(
-                    self.UpdateFeedbackWeights.state_dict(), self.result_directory + "/UpdateFeedbackWeights.pth"
-                )
         print("Meta-training complete.")
 
 
@@ -738,7 +600,6 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     modelOptions = None
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
     # beta = [1, 0.1, 0.01, 0.001, 0.0001]
-    # schedulerT0 = [10, 20, 30, 40][index]
     minTau = [10, 20, 30, 40, 50, 60][index]
 
     if model == modelEnum.complex or model == modelEnum.individual:
@@ -762,86 +623,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             individual_different_v_vector=False,  # Individual Model Only
             scheduler_t0=None,  # Only mode_3
         )
-    elif model == modelEnum.reservoir:
-        modelOptions = reservoirOptions(
-            non_linearity=nonLinearEnum.tanh,
-            unit_connections=5,
-            bias=True,
-            spectral_radius=spectral_radius[index],
-            update_rules=[0, 1, 2, 3, 4, 8, 9],
-            reservoir_seed=0,
-            train_K_matrix=False,
-            minTau=1,
-            maxTau=50,
-            v_vector=vVectorReservoirEnum.default,
-            operator=modeReservoirEnum.mode_1,
-            y=yReservoirEnum.none,
-        )
-    elif model == modelEnum.benna:
-        modelOptions = bennaOptions(
-            non_linearity=nonLinearEnum.tanh,
-            bias=False,
-            update_rules=[0, 1, 2, 3, 4, 8, 9],
-            minTau=1,
-            maxTau=50,
-        )
 
-    # -- feedback model options
-    # feedbackModel = modelEnum.complex
-    # feedbackModelOptions = None
-    """if feedbackModel == modelEnum.complex or feedbackModel == modelEnum.individual:
-        feedbackModelOptions = complexOptions(
-            nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4, 8, 9],
-            bias=False,
-            pMatrix=pMatrixEnum.zero,
-            kMatrix=kMatrixEnum.zero,
-            minTau=1 + 1 / 50,  # + 1 / 50,
-            maxTau=50,
-            y_vector=yVectorEnum.first_one,
-            z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_3,
-            train_z_vector=False,
-            mode=modeEnum.all,
-            v_vector=vVectorEnum.default,
-            eta=1,
-            beta=0,
-            kMasking=False,
-            individual_different_v_vector=False,  # Individual Model Only
-        )
-    elif feedbackModel == modelEnum.reservoir:
-        feedbackModelOptions = reservoirOptions(
-            non_linearity=nonLinearEnum.tanh,
-            unit_connections=5,
-            bias=True,
-            spectral_radius=spectral_radius[index],
-            update_rules=[0, 1, 2, 3, 4, 8, 9],
-            reservoir_seed=0,
-            train_K_matrix=False,
-            minTau=1,
-            maxTau=50,
-            v_vector=vVectorReservoirEnum.default,
-            operator=modeReservoirEnum.mode_1,
-            y=yReservoirEnum.none,
-        )
-    elif feedbackModel == modelEnum.benna:
-        feedbackModelOptions = bennaOptions(
-            non_linearity=nonLinearEnum.tanh,
-            bias=False,
-            update_rules=[0, 1, 2, 3, 4, 8, 9],
-            minTau=1,
-            maxTau=50,
-        )"""
-
-    feedbackModel = model
-    feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results/3chem_fashion_mnist/0/20250310-012129"
     # -- meta-learner options
-    metaLearnerOptions = MetaLearnerOptions(
-        scheduler=schedulerEnum.none,
-        metaLossRegularization=0,  # L1 regularization on P matrix (check 1.5)
-        biasLossRegularization=0,
+    metaLearnerOptions = RnnMetaLearnerOptions(
         optimizer=optimizerEnum.adam,
         model=model,
         results_subdir=result_subdirectory,
@@ -870,12 +655,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     # -- meta-train
     # device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     device = "cuda:1"
-    metalearning_model = MetaLearner(
+    metalearning_model = RnnMetaLearner(
         device=device,
         numberOfChemicals=numberOfChemicals,
         metaLearnerOptions=metaLearnerOptions,
         modelOptions=modelOptions,
-        feedbackModelOptions=feedbackModelOptions,
     )
 
     metalearning_model.train()
