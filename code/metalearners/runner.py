@@ -570,16 +570,16 @@ def run(
         700,
         750,
         800,
-        #850,
-        #900,
-        #950,
-        #1000,
-        #1050,
-        #1100,
-        #1150,
-        #1200,
-        #1250,
-        #1300,
+        # 850,
+        # 900,
+        # 950,
+        # 1000,
+        # 1050,
+        # 1100,
+        # 1150,
+        # 1200,
+        # 1250,
+        # 1300,
     ]
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
@@ -792,7 +792,7 @@ def runner_main():
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [os.getcwd() + "/results/mode_6_feedback_trained/0/20250319-124228"]
     for i in range(2):
-        for index in range(0, 27):
+        for index in range(22, 27):
             run(
                 seed=0,
                 display=True,
