@@ -436,6 +436,7 @@ class MetaLearner:
             # -- initialize
             # Using a clone of the model parameters to allow for in-place operations
             # Maintains the computational graph for the model as .detach() is not used
+            self.model.train()
             parameters, h_parameters, feedback_params = self.reinitialize()
             if (
                 self.options.chemicalInitialization != chemicalEnum.zero

@@ -315,6 +315,7 @@ class Runner:
             # -- initialize
             # Using a clone of the model parameters to allow for in-place operations
             # Maintains the computational graph for the model as .detach() is not used
+            self.model.train()
             parameters, h_parameters, feedback_params = self.reinitialize()
 
             if (
@@ -540,8 +541,8 @@ def run(
         375,
     ]
     """trainingDataPerClass = [
-        10,
-        50,
+        # 10,
+        # 50,
         100,
         150,
         200,
@@ -775,13 +776,13 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/mode_7_FA_dropout_test/0/20250317-222653"]
+    modelPath_s = [os.getcwd() + "/results/normalise_mode_5_fix/0/20250316-211830"]
     for i in range(2):
-        for index in range(0, 27):
+        for index in range(22, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_normalise_mode_7_FA_dropout_test"][i],
+                result_subdirectory=["t"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
