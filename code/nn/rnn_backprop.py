@@ -38,12 +38,12 @@ class RosenbaumRNN(nn.Module):
 
         # -- layers
         self.RNN1 = nn.RNNCell(input_size=self.dim_in, hidden_size=128, bias=False)
-        self.RNN2 = nn.RNNCell(input_size=128, hidden_size=128, bias=False)
-        self.forward1 = nn.Linear(128, dim_out)
+        # self.RNN2 = nn.RNNCell(input_size=128, hidden_size=128, bias=False)
+        self.forward1 = nn.Linear(128, dim_out, bias=False)
 
         # -- hidden states
         self.hx1 = torch.zeros(1, 128).to(self.device)
-        self.hx2 = torch.zeros(1, 128).to(self.device)
+        # self.hx2 = torch.zeros(1, 128).to(self.device)
 
     # @torch.compile
     def forward(self, x):
@@ -51,14 +51,15 @@ class RosenbaumRNN(nn.Module):
         assert x.shape[0] == self.hx1.shape[0], "Batch size is not correct."
 
         self.hx1 = self.RNN1(x, self.hx1)
-        self.hx2 = self.RNN2(self.hx1, self.hx2)
-        x = self.forward1(self.hx2)
+        # self.hx2 = self.RNN2(self.hx1, self.hx2)
+        output = self.forward1(self.hx1)
 
-        return (x, self.hx1, self.hx2), self.forward1
+        # return (x, self.hx1, self.hx2), output
+        return (x, self.hx1), output
 
     def reset_hidden(self, batch_size):
         self.hx1 = torch.zeros(batch_size, 128).to(self.device)
-        self.hx2 = torch.zeros(batch_size, 128).to(self.device)
+        # self.hx2 = torch.zeros(batch_size, 128).to(self.device)
 
 
 class RnnMetaLearner:
@@ -169,7 +170,7 @@ class RnnMetaLearner:
                 nn.init.xavier_uniform_(modules.bias)
         if isinstance(modules, nn.Linear):
             nn.init.xavier_uniform_(modules.weight)
-            if modules.bias:
+            if modules.bias is not None:
                 nn.init.xavier_uniform_(modules.bias)
 
     def train(self):
@@ -407,7 +408,7 @@ def rnn_backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_rnn_backprop_2/{}".format(dim),
+                result_subdirectory="runner_rnn_backprop_3/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
