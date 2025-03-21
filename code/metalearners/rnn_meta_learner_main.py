@@ -96,7 +96,6 @@ class RnnMetaLearner:
         lr = self.options.lr
 
         # -- optimizer
-        bias_parameters = list(self.UpdateWeights.all_bias_parameters.parameters())
         meta_parameters = list(self.UpdateWeights.all_meta_parameters.parameters())
 
         self.UpdateMetaParameters: Union[optim.SGD, optim.Adam, optim.AdamW, optim.NAdam, optim.RAdam, None] = None
@@ -117,45 +116,6 @@ class RnnMetaLearner:
         elif self.options.optimizer == optimizerEnum.adam:
             self.UpdateMetaParameters = optim.Adam(
                 [
-                    {
-                        "params": bias_parameters,
-                    },
-                    {
-                        "params": meta_parameters,
-                    },
-                ],
-                lr=lr,
-            )
-        elif self.options.optimizer == optimizerEnum.adamW:
-            self.UpdateMetaParameters = optim.AdamW(
-                [
-                    {
-                        "params": bias_parameters,
-                    },
-                    {
-                        "params": meta_parameters,
-                    },
-                ],
-                lr=lr,
-            )
-        elif self.options.optimizer == optimizerEnum.nadam:
-            self.UpdateMetaParameters = optim.NAdam(
-                [
-                    {
-                        "params": bias_parameters,
-                    },
-                    {
-                        "params": meta_parameters,
-                    },
-                ],
-                lr=lr,
-            )
-        elif self.options.optimizer == optimizerEnum.radam:
-            self.UpdateMetaParameters = optim.RAdam(
-                [
-                    {
-                        "params": bias_parameters,
-                    },
                     {
                         "params": meta_parameters,
                     },
@@ -182,8 +142,6 @@ class RnnMetaLearner:
             )
             os.makedirs(self.result_directory, exist_ok=False)
             with open(self.result_directory + "/arguments.txt", "w") as f:
-                f.writelines("Number of chemicals: {}\n".format(numberOfChemicals))
-                f.writelines("Number of query data per class: {}\n".format(self.queryDataPerClass))
                 f.writelines(str(self.options))
                 f.writelines(str(modelOptions))
 
@@ -198,7 +156,8 @@ class RnnMetaLearner:
         if typeOfModel == modelEnum.complex:
             model = ComplexRnn(
                 device=self.device,
-                numberOfChemicals=self.numberOfChemicals,
+                numberOfSlowChemicals=self.numberOfSlowChemicals,
+                numberOfFastChemicals=self.numberOfFastChemicals,
                 complexOptions=options,
                 params=self.model.named_parameters(),
                 adaptionPathway=adaptionPathway,
