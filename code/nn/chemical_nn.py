@@ -41,10 +41,10 @@ class ChemicalNN(nn.Module):
         self.dim_out = dim_out
 
         if self.small:
-            self.forward1 = nn.Linear(784, 15, bias=False)
-            self.forward2 = nn.Linear(15, 10, bias=False)
-            self.forward3 = nn.Linear(10, 5, bias=False)
-            self.forward4 = nn.Linear(5, self.dim_out, bias=False)
+            self.forward1 = nn.Linear(784, 128, bias=False)
+            """self.forward2 = nn.Linear(15, 10, bias=False)
+            self.forward3 = nn.Linear(10, 5, bias=False)"""
+            self.forward2 = nn.Linear(128, self.dim_out, bias=False)
             """self.forward_layers = nn.ModuleList([self.forward1, self.forward2, self.forward3, self.forward4])"""
         else:
             self.forward1 = nn.Linear(784, 170, bias=False)
@@ -58,10 +58,10 @@ class ChemicalNN(nn.Module):
         # Feedback alignment
         if self.typeOfFeedback == typeOfFeedbackEnum.FA or self.typeOfFeedback == typeOfFeedbackEnum.FA_NO_GRAD:
             if self.small:
-                self.feedback1 = nn.Linear(784, 15, bias=False)
-                self.feedback2 = nn.Linear(15, 10, bias=False)
-                self.feedback3 = nn.Linear(10, 5, bias=False)
-                self.feedback4 = nn.Linear(5, self.dim_out, bias=False)
+                self.feedback1 = nn.Linear(784, 128, bias=False)
+                # self.feedback2 = nn.Linear(15, 10, bias=False)
+                # self.feedback3 = nn.Linear(10, 5, bias=False)
+                self.feedback2 = nn.Linear(128, self.dim_out, bias=False)
             else:
                 self.feedback1 = nn.Linear(784, 170, bias=False)
                 self.feedback2 = nn.Linear(170, 130, bias=False)
@@ -126,10 +126,10 @@ class ChemicalNN(nn.Module):
         # h(s) - LxW
         self.numberOfChemicals = numberOfChemicals
         if self.small:
-            self.chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 15, 784), device=self.device))
-            self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 10, 15), device=self.device))
-            self.chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 5, 10), device=self.device))
-            self.chemical4 = nn.Parameter(torch.zeros(size=(numberOfChemicals, self.dim_out, 5), device=self.device))
+            self.chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 128, 784), device=self.device))
+            # self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 10, 15), device=self.device))
+            # self.chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 5, 10), device=self.device))
+            self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, self.dim_out, 128), device=self.device))
             self.chemicals = nn.ParameterList([self.chemical1, self.chemical2, self.chemical3, self.chemical4])
         else:
             self.chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 170, 784), device=self.device))
@@ -170,27 +170,31 @@ class ChemicalNN(nn.Module):
 
     # @torch.compile
     def forward(self, x):
-        y0 = x.squeeze(1)
+        if self.small:
+            y0 = x.squeeze(1)
+            y1 = self.forward1(y0)
+            y1 = self.activation(y1)
+            y2 = self.forward2(y1)
+        else:
+            y0 = x.squeeze(1)
 
-        y1 = self.forward1(y0)
-        y1 = self.activation(y1)
-        # y1 = self.dropout(y1)
+            y1 = self.forward1(y0)
+            y1 = self.activation(y1)
+            # y1 = self.dropout(y1)
 
-        # y1 = self.layer_norm1(y1)
+            # y1 = self.layer_norm1(y1)
 
-        y2 = self.forward2(y1)
-        y2 = self.activation(y2)
-        # y2 = self.dropout(y2)
-        # y2 = self.layer_norm2(y2)
+            y2 = self.forward2(y1)
+            y2 = self.activation(y2)
+            # y2 = self.dropout(y2)
+            # y2 = self.layer_norm2(y2)
 
-        y3 = self.forward3(y2)
-        y3 = self.activation(y3)
-        # y3 = self.dropout(y3)
-        # y3 = self.layer_norm3(y3)
+            y3 = self.forward3(y2)
+            y3 = self.activation(y3)
+            # y3 = self.dropout(y3)
+            # y3 = self.layer_norm3(y3)
 
-        y4 = self.forward4(y3)
-
-        if not self.small:
+            y4 = self.forward4(y3)
             y4 = self.activation(y4)
             # y4 = self.dropout(y4)
             # y4 = self.layer_norm4(y4)
@@ -198,6 +202,6 @@ class ChemicalNN(nn.Module):
             y5 = self.forward5(y4)
 
         if self.small:
-            return (y0, y1, y2, y3), y4
+            return (y0, y1), y2
         else:
             return (y0, y1, y2, y3, y4), y5

@@ -554,6 +554,9 @@ def run(
     ]"""
     trainingDataPerClass = [
         10,
+        20,
+        30,
+        40,
         50,
         100,
         150,
@@ -561,15 +564,6 @@ def run(
         250,
         300,
         350,
-        400,
-        450,
-        500,
-        550,
-        600,
-        650,
-        700,
-        750,
-        800,
         # 850,
         # 900,
         # 950,
@@ -638,6 +632,7 @@ def run(
             kMasking=False,
             individual_different_v_vector=False,  # Individual Model Only
             scheduler_t0=None,  # Only mode_3
+            train_tau=False,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -761,7 +756,7 @@ def run(
     #   -- number of chemicals
     numberOfChemicals = 5
     # -- meta-train
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    device = "cuda:1" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
     runner = Runner(
         device=device,
@@ -790,13 +785,13 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/mode_6_feedback_trained/0/20250319-124228"]
+    modelPath_s = [os.getcwd() + "/results/normalise_mode_6_5_chem/0/20250315-195902"]
     for i in range(2):
         for index in range(22, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_6_feedback_fashion_finetuned"][i],
+                result_subdirectory=["runner_mode_6_small"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
