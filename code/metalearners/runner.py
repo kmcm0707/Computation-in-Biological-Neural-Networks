@@ -564,8 +564,12 @@ def run(
         250,
         300,
         350,
-        # 850,
-        # 900,
+        400,
+        500,
+        600,
+        700,
+        800,
+        #900,
         # 950,
         # 1000,
         # 1050,
@@ -736,7 +740,7 @@ def run(
         modelPath=modelPath,
         results_subdir=result_subdirectory,
         seed=seed,
-        small=False,
+        small=True,
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
@@ -744,7 +748,7 @@ def run(
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
         trainFeedback=False,
-        trainSameFeedback=True,
+        trainSameFeedback=False,
         feedbackModel=feedbackModel,
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
@@ -787,11 +791,11 @@ def runner_main():
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [os.getcwd() + "/results/normalise_mode_6_5_chem/0/20250315-195902"]
     for i in range(2):
-        for index in range(22, 27):
+        for index in range(11, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_6_small"][i],
+                result_subdirectory=["runner_mode_6_small_3"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],

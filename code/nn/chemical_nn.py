@@ -130,7 +130,7 @@ class ChemicalNN(nn.Module):
             # self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 10, 15), device=self.device))
             # self.chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 5, 10), device=self.device))
             self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, self.dim_out, 128), device=self.device))
-            self.chemicals = nn.ParameterList([self.chemical1, self.chemical2, self.chemical3, self.chemical4])
+            self.chemicals = nn.ParameterList([self.chemical1, self.chemical2])#, self.chemical3, self.chemical4])
         else:
             self.chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 170, 784), device=self.device))
             self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 130, 170), device=self.device))
