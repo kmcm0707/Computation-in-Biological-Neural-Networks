@@ -592,7 +592,7 @@ class MetaLearner:
                 self.result_directory,
                 self.save_results,
                 self.options.typeOfFeedback,
-                self.options.dimOut
+                self.options.dimOut,
             )
 
             # -- l1 regularization
@@ -652,12 +652,15 @@ class MetaLearner:
                         or "B" in key
                         or "v_dict" in key
                         or "linear" in key
+                        or "min_tau" in key
+                        or "max_tau" in key
                     ):
                         with open(self.result_directory + "/{}.txt".format(key), "a") as f:
                             f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
 
                 if self.options.trainSeparateFeedback:
                     for key, val in UpdateFeedbackWeights_state_dict.items():
+                        print(key)
                         if (
                             "K" in key
                             or "P" in key
@@ -667,6 +670,8 @@ class MetaLearner:
                             or "A" in key
                             or "B" in key
                             or "linear" in key
+                            or "min_tau" in key
+                            or "max_tau" in key
                         ):
                             with open(self.result_directory + "/Feedback_{}.txt".format(key), "a") as f:
                                 f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
@@ -723,12 +728,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 0
-    epochs = 300
+    epochs = 500
 
-    dataset_name = "FASHION-MNIST"
+    dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 40
-    queryDataPerClass = 10
+    maxTrainingDataPerClass = 110
+    queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -783,6 +788,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             kMasking=False,
             individual_different_v_vector=False,  # Individual Model Only
             scheduler_t0=None,  # Only mode_3
+            train_tau=True,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -874,7 +880,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.00009,
+        lr=0.0003,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -884,17 +890,17 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        datasetDevice="cuda:0",  # if running out of memory, change to "cpu"
-        continueTraining=continue_training,
+        datasetDevice="cpu",  # if running out of memory, change to "cpu"
+        continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.FA,
         dimOut=dimOut,
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 3
     # -- meta-train
-    # device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
-    device = "cuda:0"
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
+    # device = "cuda:0"
     metalearning_model = MetaLearner(
         device=device,
         numberOfChemicals=numberOfChemicals,
@@ -924,4 +930,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_6_finetune_fashion", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_6_tau_train", index=i)

@@ -247,11 +247,15 @@ class ComplexSynapse(nn.Module):
 
         ## Initialize the chemical time constants
         # z = 1 / \tau
-        min_tau = self.options.minTau
-        max_tau = self.options.maxTau
-        base = max_tau / min_tau
-
-        self.tau_vector = min_tau * (base ** torch.linspace(0, 1, self.number_chemicals))
+        self.min_tau = self.options.minTau
+        self.max_tau = self.options.maxTau
+        if self.options.train_tau:
+            self.min_tau = nn.Parameter(torch.tensor(self.min_tau, device=self.device, dtype=torch.float32))
+            self.max_tau = nn.Parameter(torch.tensor(self.max_tau, device=self.device, dtype=torch.float32))
+            self.all_meta_parameters.append(self.min_tau)
+            self.all_meta_parameters.append(self.max_tau)
+        base = self.max_tau / self.min_tau
+        self.tau_vector = self.min_tau * (base ** torch.linspace(0, 1, self.number_chemicals))
         self.z_vector = 1 / self.tau_vector
         self.y_vector = 1 - self.z_vector
 
@@ -288,13 +292,13 @@ class ComplexSynapse(nn.Module):
         elif self.options.y_vector == yVectorEnum.half:
             self.y_vector[-1] = 0.5
 
-        self.y_vector = self.y_vector.to(self.device)
-        self.y_vector = nn.Parameter(self.y_vector)
-        self.z_vector = self.z_vector.to(self.device)
-        self.z_vector = nn.Parameter(self.z_vector)
-
-        if self.options.train_z_vector:
-            self.all_meta_parameters.append(self.z_vector)
+        if not self.options.train_tau:
+            self.y_vector = self.y_vector.to(self.device)
+            self.y_vector = nn.Parameter(self.y_vector)
+            self.z_vector = self.z_vector.to(self.device)
+            self.z_vector = nn.Parameter(self.z_vector)
+            if self.options.train_z_vector:
+                self.all_meta_parameters.append(self.z_vector)
 
         ## Initialize the v vector
         if self.mode == modeEnum.rosenbaum or self.mode == modeEnum.all_rosenbaum:
@@ -528,6 +532,13 @@ class ComplexSynapse(nn.Module):
         for i in range(len(error)):
             # error[i] = error[i] / torch.norm(error[i], p=2)
             error[i] = error[i] / (torch.max(torch.abs(error[i])) + 1e-5)"""
+
+        if self.options.train_tau and self.time_index == 0:
+            base = self.max_tau / self.min_tau
+            self.tau_vector = self.min_tau * (base ** torch.linspace(0, 1, self.number_chemicals))
+            self.z_vector = 1 / self.tau_vector
+            if self.options.y_vector == yVectorEnum.none:
+                self.y_vector = 1 - self.z_vector
 
         i = 0
         currentAdaptionPathway = self.adaptionPathway

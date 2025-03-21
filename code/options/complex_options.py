@@ -110,6 +110,7 @@ class complexOptions:
         kMasking: bool = False,
         individual_different_v_vector: bool = False,
         scheduler_t0: Union[int, None] = None,
+        train_tau: bool = False,
     ):
         self.nonLinear = nonLinear
         self.bias = bias
@@ -129,6 +130,7 @@ class complexOptions:
         self.kMasking = kMasking
         self.individual_different_v_vector = individual_different_v_vector
         self.scheduler_t0 = scheduler_t0
+        self.train_tau = train_tau
 
     def __str__(self):
         string = ""
