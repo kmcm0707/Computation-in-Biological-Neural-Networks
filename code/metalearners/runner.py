@@ -793,7 +793,7 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/normalise_mode_6_DFA/0/20250317-034401\E1_meta.txt"]
+    modelPath_s = [os.getcwd() + "/results/normalise_mode_6_DFA/0/20250317-034401"]
     for i in range(2):
         for index in range(0, 27):
             run(
