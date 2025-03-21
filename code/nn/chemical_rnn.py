@@ -5,7 +5,7 @@ import torch.nn as nn
 from options.meta_learner_options import typeOfFeedbackEnum
 
 
-class chemicalRnn(nn.Module):
+class ChemicalRnn(nn.Module):
     """
     Chemical Recurrent Neural Network class.
     """
@@ -21,7 +21,7 @@ class chemicalRnn(nn.Module):
         dim_out: int = 1,
     ):
         # Initialize the parent class
-        super(chemicalRnn, self).__init__()
+        super(ChemicalRnn, self).__init__()
 
         # Set the device
         self.device = device

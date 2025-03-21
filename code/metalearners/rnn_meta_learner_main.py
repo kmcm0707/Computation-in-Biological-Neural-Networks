@@ -12,6 +12,7 @@ import torch
 from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset
 from misc.utils import Plot, log, meta_stats
 from nn.chemical_nn import ChemicalNN
+from nn.chemical_rnn import ChemicalRnn
 from options.benna_options import bennaOptions
 from options.complex_options import (
     complexOptions,
@@ -99,21 +100,7 @@ class RnnMetaLearner:
         meta_parameters = list(self.UpdateWeights.all_meta_parameters.parameters())
 
         self.UpdateMetaParameters: Union[optim.SGD, optim.Adam, optim.AdamW, optim.NAdam, optim.RAdam, None] = None
-        if self.options.optimizer == optimizerEnum.sgd:
-            self.UpdateMetaParameters = optim.SGD(
-                [
-                    {
-                        "params": bias_parameters,
-                    },
-                    {
-                        "params": meta_parameters,
-                    },
-                ],
-                lr=lr,
-                momentum=0.8,
-                nesterov=True,
-            )
-        elif self.options.optimizer == optimizerEnum.adam:
+        if self.options.optimizer == optimizerEnum.adam:
             self.UpdateMetaParameters = optim.Adam(
                 [
                     {
@@ -177,7 +164,7 @@ class RnnMetaLearner:
         :return: model with flags , "adapt", set for its parameters
         """
 
-        model = ChemicalNN(
+        model = ChemicalRnn(
             self.device,
             self.numberOfChemicals,
             small=self.options.small,
@@ -250,18 +237,17 @@ class RnnMetaLearner:
             for key, val in dict(self.model.named_parameters()).items()
             if "." in key and "chemical" not in key and "layer_norm" not in key
         }
-        h_params = {
+        slow_h_params = {
             key: val.clone()
             for key, val in dict(self.model.named_parameters()).items()
-            if "chemical" in key and "feedback" not in key
+            if "slow" in key and "feedback" not in key
         }
-        feedback_h_params = None
-        if self.options.trainFeedback:
-            feedback_h_params = {
-                key: val.clone()
-                for key, val in dict(self.model.named_parameters()).items()
-                if "feedback_chemical" in key
-            }
+        fast_h_params = {
+            key: val.clone()
+            for key, val in dict(self.model.named_parameters()).items()
+            if "fast" in key and "feedback" not in key
+        }
+        h_params = {key: val.clone() for key, val in dict(self.model.named_parameters()).items() if "chemical" in key}
 
         # -- set adaptation flags for cloned parameters
         for key in params:

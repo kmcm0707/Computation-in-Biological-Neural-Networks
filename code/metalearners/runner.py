@@ -105,6 +105,10 @@ class Runner:
         state_dict = torch.load(
             self.options.modelPath + "/UpdateWeights.pth", weights_only=True, map_location=self.device
         )
+        if self.modelOptions.bias == False:
+            for key in list(state_dict.keys()):
+                if "bias" in key:
+                    state_dict.pop(key)
         if self.options.model == modelEnum.individual:
             if "v_vector" in state_dict:
                 state_dict["v_dictionary.all"] = state_dict["v_vector"].clone()
@@ -554,9 +558,9 @@ def run(
     ]"""
     trainingDataPerClass = [
         10,
-        20,
-        30,
-        40,
+        # 20,
+        # 30,
+        # 40,
         50,
         100,
         150,
@@ -569,7 +573,7 @@ def run(
         600,
         700,
         800,
-        #900,
+        # 900,
         # 950,
         # 1000,
         # 1050,
@@ -584,7 +588,7 @@ def run(
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "EMNIST"
+    dataset_name = "FASHION-MNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -618,18 +622,18 @@ def run(
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
-            nonLinear=nonLinearEnum.tanh,
+            nonLinear=nonLinearEnum.pass_through,
             update_rules=[0, 1, 2, 3, 4, 5, 8, 9],  # 5
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,
             maxTau=500,
-            y_vector=yVectorEnum.none,
+            y_vector=yVectorEnum.first_one,
             z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_7,
+            operator=operatorEnum.mode_1,
             train_z_vector=False,
-            mode=modeEnum.all,
+            mode=modeEnum.rosenbaum,
             v_vector=vVectorEnum.default,
             eta=1,
             beta=0,  ## Only for v_vector=random_beta
@@ -740,7 +744,7 @@ def run(
         modelPath=modelPath,
         results_subdir=result_subdirectory,
         seed=seed,
-        small=True,
+        small=False,
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
@@ -758,7 +762,7 @@ def run(
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 1
     # -- meta-train
     device = "cuda:1" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -789,13 +793,13 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/normalise_mode_5_fix/0/20250316-211830"]
+    modelPath_s = [os.getcwd() + "/results/rose"]
     for i in range(2):
-        for index in range(11, 27):
+        for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_6_small_3"][i],
+                result_subdirectory=["runner_rosenbaum_fashion"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
