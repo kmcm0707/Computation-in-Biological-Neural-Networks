@@ -177,7 +177,7 @@ class RnnMetaLearner:
             if "forward" in key:
                 val.adapt = "forward"
             elif "feedback" in key:
-                val.adapt, val.requires_grad = "feedback", self.options.trainFeedback
+                val.adapt, val.requires_grad = "feedback", False
 
         return model
 
@@ -253,7 +253,7 @@ class RnnMetaLearner:
         for key in params:
             params[key].adapt = dict(self.model.named_parameters())[key].adapt
 
-        return params, h_params, feedback_h_params
+        return params, h_params, slow_h_params, fast_h_params
 
     def train(self):
         """
@@ -287,8 +287,6 @@ class RnnMetaLearner:
         # -- set model to training mode
         self.model.train()
         self.UpdateWeights.train()
-        if self.options.trainFeedback:
-            self.UpdateFeedbackWeights.train()
 
         x_qry = None
         y_qry = None
@@ -304,9 +302,9 @@ class RnnMetaLearner:
             # -- initialize
             # Using a clone of the model parameters to allow for in-place operations
             # Maintains the computational graph for the model as .detach() is not used
-            parameters, h_parameters = self.reinitialize()
+            parameters, h_parameters, slow_h_parameters, fast_h_parameters = self.reinitialize()
 
-            self.UpdateWeights.initial_update(parameters, h_parameters)
+            self.UpdateWeights.initial_update(parameters, slow_h_parameters)
 
             # -- reset time index
             self.UpdateWeights.reset_time_index()
@@ -315,6 +313,8 @@ class RnnMetaLearner:
             x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(
                 data, self.options.numberOfClasses
             )
+
+            feedback = {name: value for name, value in parameters.items() if "feedback" in name}
 
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
@@ -325,76 +325,70 @@ class RnnMetaLearner:
 
                 x_reshaped = torch.reshape(x, (784 // self.dimIn, self.dimIn))
 
-                for input in x_reshaped:
+                for index_rnn, input in enumerate(x_reshaped):
                     # -- predict
-                    y, logits = torch.func.functional_call(
-                        self.model, (parameters, h_parameters), x.unsqueeze(0).unsqueeze(0)
-                    )
-                    self.model.fast_update()  # TODO
+                    y, output = torch.func.functional_call(self.model, (parameters, h_parameters), input.unsqueeze(0))
+                    error_dict = {}
 
-                # -- predict
-                y, logits = torch.func.functional_call(
-                    self.model, (parameters, h_parameters), x.unsqueeze(0).unsqueeze(0)
-                )
+                    # -- compute error
+                    if index_rnn == x_reshaped.shape[0] - 1:
+                        error = [
+                            functional.softmax(output, dim=1)
+                            - functional.one_hot(label, num_classes=self.options.dimOut)
+                        ]
+                        index_error = 0
 
-                # -- compute slow error
-                activations = y
-                output = logits
-                params = parameters
-                feedback = {name: value for name, value in params.items() if "feedback" in name}
-                error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=47)]
-                if self.options.typeOfFeedback == typeOfFeedbackEnum.FA:
-                    # add the error for all the layers
-                    for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
-                elif self.options.typeOfFeedback == typeOfFeedbackEnum.FA_NO_GRAD:
-                    # add the error for all the layers
-                    for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(0, torch.matmul(error[0], feedback[i]))
-                elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA:
-                    for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(0, torch.matmul(error[-1], feedback[i]))
-                elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad:
-                    for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(0, torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
-                elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar:
-                    error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)
-                    for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(0, torch.matmul(error_scalar, feedback[i]))
-                elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
-                    DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
-                    feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
-                    DFA_error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=47)]
-                    for y, i in zip(reversed(activations), reversed(list(DFA_feedback))):
-                        DFA_error.insert(
-                            0, torch.matmul(error[-1], DFA_feedback[i]) * (1 - torch.exp(-self.model.beta * y))
-                        )
-                    index_error = len(DFA_error) - 2
-                    for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(
-                            0,
-                            (
-                                torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y))
-                                + DFA_error[index_error]
+                        for key in self.model.feedback_order:
+                            converted_key = self.model.feedback_to_parameters[key]
+                            error.append(torch.matmul(error[0], feedback[key]))
+                            index_error += 1
+                            error_dict[converted_key] = (
+                                error[-1],
+                                error[self.model.activation_and_error_below[index_error]],
                             )
-                            / 2,
-                        )
-                        index_error -= 1
-                else:
-                    raise ValueError("Invalid type of feedback")
 
-                activations_and_output = [*activations, functional.softmax(output, dim=1)]
+                    else:
+                        error = [torch.zeros_like(functional.softmax(output, dim=1))]
+                        for key in self.model.feedback_order:
+                            converted_key = self.model.feedback_to_parameters[key]
+                            error.append(torch.zeros_like(feedback[key]))
+                            index_error += 1
+                            error_dict[converted_key] = (
+                                error[-1],
+                                error[self.model.activation_and_error_below[index_error]],
+                            )
+
+                    # -- compute activations
+                    activations = [output]
+                    activations_and_output = [*activations, functional.softmax(output, dim=1)]
+                    activations_and_output_dict = {}
+                    index_activation = 0
+                    for key in self.model.feedback_order:
+                        converted_key = self.model.feedback_to_parameters[key]
+                        activations_and_output_dict[converted_key] = (
+                            activations[self.model.activation_below[index_activation]],
+                            activations[self.model.activation_above[index_activation]],
+                        )
+                        index_activation += 1
+
+                    self.UpdateWeights.fast_update(
+                        parameters=parameters,
+                        h_fast_parameters=fast_h_parameters,
+                        error=error_dict,
+                        activations_and_output=activations_and_output_dict,
+                        conversion_matrix=self.model.parameters_to_chemical,
+                    )
 
                 # -- update network params
-                self.UpdateWeights(
-                    params=parameters,
-                    h_parameters=h_parameters,
-                    error=error,
-                    activations_and_output=activations_and_output,
+                self.UpdateWeights.slow_update(
+                    parameters=parameters,
+                    slow_h_parameters=slow_h_parameters,
+                    fast_h_parameters=fast_h_parameters,
+                    conversion_matrix=self.model.parameters_to_chemical,
                 )
 
-                # -- update time index
-                self.UpdateWeights.update_time_index()
+                if self.options.reset_fast_weights:
+                    self.UpdateWeights.reset_fast_chemicals(h_fast_parameters=fast_h_parameters)
 
             """ meta update """
             # -- fix device

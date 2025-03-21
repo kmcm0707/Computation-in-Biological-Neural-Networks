@@ -39,8 +39,8 @@ class ChemicalRnn(nn.Module):
         self.dim_out = dim_out
 
         # Model
-        self.RNN1 = nn.RNNCell(input_size=self.dim_in, hidden_size=128, bias=False)
-        self.RNN2 = nn.RNNCell(input_size=128, hidden_size=128, bias=False)
+        self.RNN_forward1 = nn.RNNCell(input_size=self.dim_in, hidden_size=128, bias=False)
+        self.RNN_forward2 = nn.RNNCell(input_size=128, hidden_size=128, bias=False)
         self.forward1 = nn.Linear(128, self.dim_out, bias=False)
 
         # Hidden states
@@ -70,15 +70,46 @@ class ChemicalRnn(nn.Module):
         self.RNN2_ih_feedback = nn.Linear(128, dim_out, bias=False)
         self.RNN2_hh_feedback = nn.Linear(128, dim_out, bias=False)
         self.feedback_chemical1 = nn.Linear(128, dim_out, bias=False)
+        self.feedback_order = [
+            "feedback_chemical1",
+            "RNN2_hh_feedback",
+            "RNN2_ih_feedback",
+            "RNN1_hh_feedback",
+            "RNN1_ih_feedback",
+        ]
+        self.error_below = [0, 1, 1, 2, 2]
+        self.activation_above = [-2, -3, -4, -5, -6]
+        self.activation_below = [-1, -2, -2, -4, -4]
+
+        self.feedback_to_parameters = {
+            "feedback_chemical1": "forward1",
+            "RNN2_hh_feedback": "RNN_forward2.hh",
+            "RNN2_ih_feedback": "RNN_forward2.ih",
+            "RNN1_hh_feedback": "RNN_forward1.hh",
+            "RNN1_ih_feedback": "RNN_forward1.ih",
+        }
+
+        # Parameters to chemical
+        self.parameters_to_chemical = {
+            "RNN_forward1.ih": "RNN1_ih",
+            "RNN_forward1.hh": "RNN1_hh",
+            "RNN_forward2.ih": "RNN2_ih",
+            "RNN_forward2.hh": "RNN2_hh",
+            "forward1": "chemical1",
+        }
 
     def forward(self, x):
         assert x.shape[1] == self.dim_in, "Input shape is not correct."
         assert x.shape[0] == self.hx1.shape[0], "Batch size is not correct."
 
+        # Forward pass
+        hx1_prev = self.hx1.clone()
         self.hx1 = self.RNN1(x, self.hx1)
+        hx2_prev = self.hx2.clone()
         self.hx2 = self.RNN2(self.hx1, self.hx2)
+        output = self.forward1(self.hx2)
 
-        return (x, self.hx1), self.hx2
+        return (x, hx1_prev, self.hx1, hx2_prev, self.hx2), output
 
     def reset_hidden(self, batch_size):
         self.hx1 = torch.zeros(batch_size, 128).to(self.device)

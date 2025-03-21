@@ -523,11 +523,11 @@ def run(
 
     # -- load data
     numWorkers = 4
-    epochs = 20
+    epochs = 50
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    """trainingDataPerClass = [
+    trainingDataPerClass = [
         10,
         20,
         30,
@@ -555,8 +555,8 @@ def run(
         325,
         350,
         375,
-    ]"""
-    trainingDataPerClass = [
+    ]
+    """trainingDataPerClass = [
         10,
         # 20,
         # 30,
@@ -582,13 +582,13 @@ def run(
         # 1200,
         # 1250,
         # 1300,
-    ]
+    ]"""
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "FASHION-MNIST"
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -622,18 +622,18 @@ def run(
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
-            nonLinear=nonLinearEnum.pass_through,
+            nonLinear=nonLinearEnum.tanh,
             update_rules=[0, 1, 2, 3, 4, 5, 8, 9],  # 5
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,
             maxTau=500,
-            y_vector=yVectorEnum.first_one,
+            y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_1,
+            operator=operatorEnum.mode_6,
             train_z_vector=False,
-            mode=modeEnum.rosenbaum,
+            mode=modeEnum.all,
             v_vector=vVectorEnum.default,
             eta=1,
             beta=0,  ## Only for v_vector=random_beta
@@ -762,7 +762,7 @@ def run(
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 1
+    numberOfChemicals = 5
     # -- meta-train
     device = "cuda:1" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -793,14 +793,14 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/rose"]
+    modelPath_s = [os.getcwd() + "/results/normalise_mode_6_DFA/0/20250317-034401\E1_meta.txt"]
     for i in range(2):
         for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_rosenbaum_fashion"][i],
+                result_subdirectory=["runner_mode_6_DFA_grad"][i],
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.FA,
+                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
             )

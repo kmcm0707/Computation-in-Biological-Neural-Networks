@@ -1,1 +1,0 @@
-With non-normalised rule 5.
