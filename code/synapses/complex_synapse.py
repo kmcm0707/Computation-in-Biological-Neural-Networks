@@ -255,7 +255,7 @@ class ComplexSynapse(nn.Module):
             self.all_meta_parameters.append(self.min_tau)
             self.all_meta_parameters.append(self.max_tau)
         base = self.max_tau / self.min_tau
-        self.tau_vector = self.min_tau * (base ** torch.linspace(0, 1, self.number_chemicals))
+        self.tau_vector = self.min_tau * (base ** torch.linspace(0, 1, self.number_chemicals, device=self.device))
         self.z_vector = 1 / self.tau_vector
         self.y_vector = 1 - self.z_vector
 
@@ -535,7 +535,7 @@ class ComplexSynapse(nn.Module):
 
         if self.options.train_tau and self.time_index == 0:
             base = self.max_tau / self.min_tau
-            self.tau_vector = self.min_tau * (base ** torch.linspace(0, 1, self.number_chemicals))
+            self.tau_vector = self.min_tau * (base ** torch.linspace(0, 1, self.number_chemicals, device=self.device))
             self.z_vector = 1 / self.tau_vector
             if self.options.y_vector == yVectorEnum.none:
                 self.y_vector = 1 - self.z_vector

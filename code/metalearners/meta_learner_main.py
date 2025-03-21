@@ -890,7 +890,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        datasetDevice="cpu",  # if running out of memory, change to "cpu"
+        datasetDevice="cuda:0",  # if running out of memory, change to "cpu"
         continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.FA,
         dimOut=dimOut,

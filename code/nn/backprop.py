@@ -35,11 +35,11 @@ class RosenbaumNN(nn.Module):
 
         # Model
         dim_out = dim_out
-        self.forward1 = nn.Linear(784, 170, bias=False)
-        self.forward2 = nn.Linear(170, 130, bias=False)
-        self.forward3 = nn.Linear(130, 100, bias=False)
-        self.forward4 = nn.Linear(100, 70, bias=False)
-        self.forward5 = nn.Linear(70, dim_out, bias=False)
+        self.forward1 = nn.Linear(784, 120, bias=False)
+        # self.forward2 = nn.Linear(170, 130, bias=False)
+        # self.forward3 = nn.Linear(130, 100, bias=False)
+        # self.forward4 = nn.Linear(100, 70, bias=False)
+        self.forward5 = nn.Linear(120, dim_out, bias=False)
 
         # Activation function
         self.beta = 10
@@ -53,21 +53,22 @@ class RosenbaumNN(nn.Module):
         y1 = self.activation(y1)
         # y1 = self.layer_norm1(y1)
 
-        y2 = self.forward2(y1)
-        y2 = self.activation(y2)
+        # y2 = self.forward2(y1)
+        # y2 = self.activation(y2)
         # y2 = self.layer_norm2(y2)
 
-        y3 = self.forward3(y2)
-        y3 = self.activation(y3)
+        # y3 = self.forward3(y2)
+        # y3 = self.activation(y3)
         # y3 = self.layer_norm3(y3)
 
-        y4 = self.forward4(y3)
-        y4 = self.activation(y4)
+        # y4 = self.forward4(y3)
+        # y4 = self.activation(y4)
         # y4 = self.layer_norm4(y4)
 
-        y5 = self.forward5(y4)
+        y5 = self.forward5(y1)
 
-        return (y0, y1, y2, y3, y4), y5
+        # return (y0, y1, y2, y3, y4), y5
+        return (y0, y1), y5
 
 
 class MetaLearner:
@@ -291,7 +292,7 @@ def run(
     numberOfClasses = 5
     trainingDataPerClass = trainingDataPerClass
     dimOut = 47
-    dataset_name = "FASHION-MNIST"
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -316,7 +317,7 @@ def run(
     metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True)
 
     metalearning_model = MetaLearner(
-        device="cuda:0",
+        device="cuda:1",
         result_subdirectory=result_subdirectory,
         save_results=True,
         metatrain_dataset=metatrain_dataset,
@@ -343,7 +344,7 @@ def backprop_main():
     :return: None
     """
     # -- run
-    """trainingDataPerClass = [
+    trainingDataPerClass = [
         10,
         20,
         30,
@@ -371,8 +372,8 @@ def backprop_main():
         325,
         350,
         375,
-    ]"""
-    trainingDataPerClass = [
+    ]
+    """trainingDataPerClass = [
         10,
         50,
         100,
@@ -400,11 +401,11 @@ def backprop_main():
         1200,
         1250,
         1300,
-    ]
+    ]"""
     for trainingData in trainingDataPerClass:
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_backprop_fashion_3",
+            result_subdirectory="runner_backprop_check_2_layer",
             trainingDataPerClass=trainingData,
         )
