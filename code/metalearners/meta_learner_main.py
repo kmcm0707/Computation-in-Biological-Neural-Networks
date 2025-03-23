@@ -728,11 +728,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 0
-    epochs = 500
+    epochs = 800
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 100
+    minTrainingDataPerClass = 5
+    maxTrainingDataPerClass = 80
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
@@ -788,7 +788,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             kMasking=False,
             individual_different_v_vector=False,  # Individual Model Only
             scheduler_t0=None,  # Only mode_3
-            train_tau=True,
+            train_tau=False,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -880,7 +880,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0003,
+        lr=0.0001,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -897,7 +897,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 3
+    numberOfChemicals = 5
     # -- meta-train
     device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cuda:0"
@@ -930,4 +930,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_6_tau_train", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_6_very_small_examples", index=i)
