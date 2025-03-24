@@ -1,6 +1,7 @@
 import argparse
 import copy
 import datetime
+import itertools
 import os
 import random
 import sys
@@ -398,17 +399,19 @@ class MetaLearner:
         last_trained_epoch = -1
         if self.options.continueTraining is not None:
             self.UpdateWeights.load_state_dict(
-                torch.load(self.options.continueTraining + "/UpdateWeights.pth", weights_only=True)
+                torch.load(
+                    self.options.continueTraining + "/UpdateWeights.pth", weights_only=True, map_location=self.device
+                )
             )
-            # self.UpdateMetaParameters.load_state_dict(
-            #    torch.load(self.options.continueTraining + "/UpdateMetaParameters.pth", weights_only=True)
-            # )
+            self.UpdateMetaParameters.load_state_dict(
+                torch.load(self.options.continueTraining + "/UpdateMetaParameters.pth", weights_only=True)
+            )
             if self.options.trainSeparateFeedback:
                 self.UpdateFeedbackWeights.load_state_dict(
                     torch.load(self.options.continueTraining + "/UpdateFeedbackWeights.pth", weights_only=True)
                 )
             z = np.loadtxt(self.options.continueTraining + "/acc_meta.txt")
-            # last_trained_epoch = z.shape[0]
+            last_trained_epoch = z.shape[0]
 
         # -- set model to training mode
         self.model.train()
