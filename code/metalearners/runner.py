@@ -795,7 +795,7 @@ def runner_main():
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [os.getcwd() + "/results/mode_6_very_small_examples/1/20250324-154428"]
     for i in range(2):
-        for index in range(26, 27):
+        for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
