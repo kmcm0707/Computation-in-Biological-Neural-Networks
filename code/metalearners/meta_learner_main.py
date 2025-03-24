@@ -404,14 +404,22 @@ class MetaLearner:
                 )
             )
             self.UpdateMetaParameters.load_state_dict(
-                torch.load(self.options.continueTraining + "/UpdateMetaParameters.pth", weights_only=True)
+                torch.load(
+                    self.options.continueTraining + "/UpdateMetaParameters.pth",
+                    weights_only=True,
+                    map_location=self.device,
+                )
             )
             if self.options.trainSeparateFeedback:
                 self.UpdateFeedbackWeights.load_state_dict(
-                    torch.load(self.options.continueTraining + "/UpdateFeedbackWeights.pth", weights_only=True)
+                    torch.load(
+                        self.options.continueTraining + "/UpdateFeedbackWeights.pth",
+                        weights_only=True,
+                        map_location=self.device,
+                    )
                 )
             z = np.loadtxt(self.options.continueTraining + "/acc_meta.txt")
-            last_trained_epoch = z.shape[0]
+            # last_trained_epoch = z.shape[0]
 
         # -- set model to training mode
         self.model.train()
@@ -731,11 +739,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 0
-    epochs = 1200
+    epochs = 300
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
-    maxTrainingDataPerClass = 80
+    maxTrainingDataPerClass = 85
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
@@ -867,7 +875,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results/normalise_mode_6_5_chem/0/20250315-195902"
+    continue_training = current_dir + "/results/mode_6_very_small_examples/0/20250323-222336"
     # continue_training = current_dir + "/results/mode_7_FA_dropout_test/0/20250317-222653"
     # -- meta-learner options
     metaLearnerOptions = MetaLearnerOptions(
@@ -893,8 +901,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        datasetDevice="cuda:1",  # if running out of memory, change to "cpu"
-        continueTraining=None,
+        datasetDevice="cuda:0",  # if running out of memory, change to "cpu"
+        continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.FA,
         dimOut=dimOut,
     )
@@ -902,7 +910,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     #   -- number of chemicals
     numberOfChemicals = 5
     # -- meta-train
-    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cuda:0"
     metalearning_model = MetaLearner(
         device=device,
@@ -933,4 +941,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_6_very_small_examples", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_6_very_small_examples", index=i)
