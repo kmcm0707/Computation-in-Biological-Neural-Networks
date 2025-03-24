@@ -793,13 +793,13 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/mode_6_very_small_examples/0/20250323-212829"]
+    modelPath_s = [os.getcwd() + "/results/mode_6_very_small_examples/1/20250324-154428"]
     for i in range(2):
         for index in range(26, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_6_5_train_800_2"][i],
+                result_subdirectory=["runner_mode_6_5_train_1500"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
