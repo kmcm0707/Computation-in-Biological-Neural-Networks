@@ -49,6 +49,7 @@ class sizeEnum(Enum):
     small = "small"
     normal = "normal"
     seven_layer = "seven_layer"
+    nine_layer = "nine_layer"
 
 
 class MetaLearnerOptions:

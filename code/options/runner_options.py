@@ -2,7 +2,12 @@ import datetime
 from enum import Enum
 from typing import Literal
 
-from options.meta_learner_options import chemicalEnum, modelEnum, typeOfFeedbackEnum
+from options.meta_learner_options import (
+    chemicalEnum,
+    modelEnum,
+    sizeEnum,
+    typeOfFeedbackEnum,
+)
 
 
 class RunnerOptions:
@@ -16,7 +21,7 @@ class RunnerOptions:
         modelPath: str = None,
         results_subdir: str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
         seed: int = 0,
-        small: bool = False,
+        size: sizeEnum = sizeEnum.normal,
         save_results: bool = True,
         metatrain_dataset: str = None,
         display: bool = True,
@@ -35,7 +40,7 @@ class RunnerOptions:
 
         self.model = model
         self.modelPath = modelPath
-        self.small = small
+        self.size = size
         self.seed = seed
         self.save_results = save_results
         self.results_subdir = results_subdir

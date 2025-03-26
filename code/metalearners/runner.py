@@ -30,6 +30,7 @@ from options.meta_learner_options import (
     modelEnum,
     optimizerEnum,
     schedulerEnum,
+    sizeEnum,
     typeOfFeedbackEnum,
 )
 from options.reservoir_options import (
@@ -208,7 +209,7 @@ class Runner:
         model = ChemicalNN(
             self.device,
             self.numberOfChemicals,
-            small=self.options.small,
+            size=self.options.size,
             train_feedback=self.options.trainFeedback or self.options.trainSameFeedback,
             typeOfFeedback=self.options.typeOfFeedback,
             dim_out=self.options.dimOut,
@@ -527,7 +528,7 @@ def run(
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    trainingDataPerClass = [
+    """trainingDataPerClass = [
         10,
         20,
         30,
@@ -555,8 +556,8 @@ def run(
         325,
         350,
         375,
-    ]
-    """trainingDataPerClass = [
+    ]"""
+    trainingDataPerClass = [
         10,
         # 20,
         # 30,
@@ -582,13 +583,13 @@ def run(
         # 1200,
         # 1250,
         # 1300,
-    ]"""
+    ]
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "EMNIST"
+    dataset_name = "FASHION-MNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -744,7 +745,7 @@ def run(
         modelPath=modelPath,
         results_subdir=result_subdirectory,
         seed=seed,
-        small=False,
+        size=sizeEnum.nine_layer,
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
@@ -799,7 +800,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_6_5_train_1500_DFA_grad_small_examples"][i],
+                result_subdirectory=["runner_mode_6_5_train_1500_DFA_grad_small_examples_fashion_9_layer"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
