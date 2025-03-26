@@ -45,6 +45,12 @@ class typeOfFeedbackEnum(Enum):
     DFA_grad_FA = "DFA_grad_FA"
 
 
+class sizeEnum(Enum):
+    small = "small"
+    normal = "normal"
+    seven_layer = "seven_layer"
+
+
 class MetaLearnerOptions:
     """
     Options for the metal learner
@@ -59,7 +65,7 @@ class MetaLearnerOptions:
         model: modelEnum,
         results_subdir: str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
         seed: int = 0,
-        small: bool = False,
+        size: sizeEnum = sizeEnum.normal,
         raytune: bool = False,
         save_results: bool = True,
         metatrain_dataset: str = None,
@@ -86,7 +92,7 @@ class MetaLearnerOptions:
         # ), "Both trainSameFeedback and trainSeperateFeedback cannot be True"
 
         self.model = model
-        self.small = small
+        self.size = size
         self.scheduler = scheduler
         self.metaLossRegularization = metaLossRegularization
         self.biasLossRegularization = biasLossRegularization

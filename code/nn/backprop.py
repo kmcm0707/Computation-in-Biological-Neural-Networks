@@ -35,11 +35,17 @@ class RosenbaumNN(nn.Module):
 
         # Model
         dim_out = dim_out
-        self.forward1 = nn.Linear(784, 120, bias=False)
-        # self.forward2 = nn.Linear(170, 130, bias=False)
-        # self.forward3 = nn.Linear(130, 100, bias=False)
-        # self.forward4 = nn.Linear(100, 70, bias=False)
-        self.forward5 = nn.Linear(120, dim_out, bias=False)
+        self.forward1 = nn.Linear(784, 512, bias=False)
+        self.forward2 = nn.Linear(512, 256, bias=False)
+        self.forward3 = nn.Linear(256, 170, bias=False)
+        self.forward4 = nn.Linear(170, 130, bias=False)
+        self.forward5 = nn.Linear(130, 100, bias=False)
+        self.forward6 = nn.Linear(100, 70, bias=False)
+        self.forward7 = nn.Linear(70, dim_out, bias=False)
+        """self.forward2 = nn.Linear(170, 130, bias=False)
+        self.forward3 = nn.Linear(130, 100, bias=False)
+        self.forward4 = nn.Linear(100, 70, bias=False)
+        self.forward5 = nn.Linear(120, dim_out, bias=False)"""
 
         # Activation function
         self.beta = 10
@@ -51,24 +57,26 @@ class RosenbaumNN(nn.Module):
 
         y1 = self.forward1(y0)
         y1 = self.activation(y1)
-        # y1 = self.layer_norm1(y1)
 
-        # y2 = self.forward2(y1)
-        # y2 = self.activation(y2)
-        # y2 = self.layer_norm2(y2)
+        y2 = self.forward2(y1)
+        y2 = self.activation(y2)
 
-        # y3 = self.forward3(y2)
-        # y3 = self.activation(y3)
-        # y3 = self.layer_norm3(y3)
+        y3 = self.forward3(y2)
+        y3 = self.activation(y3)
 
-        # y4 = self.forward4(y3)
-        # y4 = self.activation(y4)
-        # y4 = self.layer_norm4(y4)
+        y4 = self.forward4(y3)
+        y4 = self.activation(y4)
 
-        y5 = self.forward5(y1)
+        y5 = self.forward5(y4)
+        y5 = self.activation(y5)
+
+        y6 = self.forward6(y5)
+        y6 = self.activation(y6)
+
+        y7 = self.forward7(y6)
 
         # return (y0, y1, y2, y3, y4), y5
-        return (y0, y1), y5
+        return (y0, y1, y2, y3, y4, y5, y6), y7
 
 
 class MetaLearner:
@@ -406,6 +414,6 @@ def backprop_main():
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_backprop_check_2_layer",
+            result_subdirectory="runner_backprop_check_7_layer",
             trainingDataPerClass=trainingData,
         )

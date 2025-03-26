@@ -31,6 +31,7 @@ from options.meta_learner_options import (
     modelEnum,
     optimizerEnum,
     schedulerEnum,
+    sizeEnum,
     typeOfFeedbackEnum,
 )
 from options.reservoir_options import (
@@ -285,7 +286,7 @@ class MetaLearner:
         model = ChemicalNN(
             self.device,
             self.numberOfChemicals,
-            small=self.options.small,
+            size=self.options.size,
             train_feedback=self.options.trainSeparateFeedback or self.options.trainSameFeedback,
             typeOfFeedback=self.options.typeOfFeedback,
             dim_out=self.options.dimOut,
@@ -886,7 +887,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         model=model,
         results_subdir=result_subdirectory,
         seed=seed,
-        small=False,
+        size=sizeEnum.normal,
         raytune=False,
         save_results=True,
         metatrain_dataset=metatrain_dataset,

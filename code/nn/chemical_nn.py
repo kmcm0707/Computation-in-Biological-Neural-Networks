@@ -2,7 +2,7 @@ from typing import Literal
 
 import torch
 import torch.nn as nn
-from options.meta_learner_options import typeOfFeedbackEnum
+from options.meta_learner_options import sizeEnum, typeOfFeedbackEnum
 
 
 class ChemicalNN(nn.Module):
@@ -16,7 +16,7 @@ class ChemicalNN(nn.Module):
         self,
         device: Literal["cpu", "cuda"] = "cpu",
         numberOfChemicals: int = 1,
-        small: bool = False,
+        size: sizeEnum = sizeEnum.normal,
         train_feedback: bool = False,
         typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
         dim_out: int = 47,
@@ -27,20 +27,20 @@ class ChemicalNN(nn.Module):
 
         # Set the device
         self.device = device
-        self.small = small  # Small model for testing
+        self.size = size  # Size of the model
         self.train_feedback = train_feedback  # Train feedback for feedback alignment
         self.typeOfFeedback = typeOfFeedback  # Feedback alignment or direct feedback alignment
 
         if self.typeOfFeedback == "DFA" and self.train_feedback:
             raise ValueError("DFA and train_feedback cannot be used together")
 
-        if self.small and self.train_feedback:
-            raise ValueError("Small and train_feedback cannot be used together")
+        if self.size != sizeEnum.normal and self.train_feedback:
+            raise ValueError("Train feedback cannot be used with non-normal sized complex models")
 
         # Model
         self.dim_out = dim_out
 
-        if self.small:
+        if self.size == sizeEnum.small:
             self.forward1 = nn.Linear(784, 128, bias=False)
             """self.forward2 = nn.Linear(15, 10, bias=False)
             self.forward3 = nn.Linear(10, 5, bias=False)"""
@@ -57,7 +57,7 @@ class ChemicalNN(nn.Module):
         # Feedback pathway for plasticity
         # Feedback alignment
         if self.typeOfFeedback == typeOfFeedbackEnum.FA or self.typeOfFeedback == typeOfFeedbackEnum.FA_NO_GRAD:
-            if self.small:
+            if self.size == sizeEnum.small:
                 self.feedback1 = nn.Linear(784, 128, bias=False)
                 # self.feedback2 = nn.Linear(15, 10, bias=False)
                 # self.feedback3 = nn.Linear(10, 5, bias=False)
@@ -70,7 +70,7 @@ class ChemicalNN(nn.Module):
                 self.feedback5 = nn.Linear(70, self.dim_out, bias=False)
         # Direct feedback alignment
         elif self.typeOfFeedback == typeOfFeedbackEnum.DFA or self.typeOfFeedback == typeOfFeedbackEnum.DFA_grad:
-            if self.small:
+            if self.size == sizeEnum.small:
                 self.feedback1 = nn.Linear(784, self.dim_out, bias=False)
                 self.feedback2 = nn.Linear(15, self.dim_out, bias=False)
                 self.feedback3 = nn.Linear(10, self.dim_out, bias=False)
@@ -82,7 +82,7 @@ class ChemicalNN(nn.Module):
                 self.feedback4 = nn.Linear(100, self.dim_out, bias=False)
                 self.feedback5 = nn.Linear(70, self.dim_out, bias=False)
         elif self.typeOfFeedback == typeOfFeedbackEnum.scalar:
-            if self.small:
+            if self.size == sizeEnum.small:
                 self.feedback1 = nn.Linear(784, 1, bias=False)
                 self.feedback2 = nn.Linear(15, 1, bias=False)
                 self.feedback3 = nn.Linear(10, 1, bias=False)
@@ -94,7 +94,7 @@ class ChemicalNN(nn.Module):
                 self.feedback4 = nn.Linear(100, 1, bias=False)
                 self.feedback5 = nn.Linear(70, 1, bias=False)
         elif self.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
-            if self.small:
+            if self.size == sizeEnum.small:
                 self.feedback1 = nn.Linear(784, 15, bias=False)
                 self.feedback2 = nn.Linear(15, 10, bias=False)
                 self.feedback3 = nn.Linear(10, 5, bias=False)
@@ -125,12 +125,12 @@ class ChemicalNN(nn.Module):
 
         # h(s) - LxW
         self.numberOfChemicals = numberOfChemicals
-        if self.small:
+        if self.size == sizeEnum.small:
             self.chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 128, 784), device=self.device))
             # self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 10, 15), device=self.device))
             # self.chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 5, 10), device=self.device))
             self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, self.dim_out, 128), device=self.device))
-            self.chemicals = nn.ParameterList([self.chemical1, self.chemical2])#, self.chemical3, self.chemical4])
+            self.chemicals = nn.ParameterList([self.chemical1, self.chemical2])  # , self.chemical3, self.chemical4])
         else:
             self.chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 170, 784), device=self.device))
             self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 130, 170), device=self.device))
@@ -170,7 +170,7 @@ class ChemicalNN(nn.Module):
 
     # @torch.compile
     def forward(self, x):
-        if self.small:
+        if self.size == sizeEnum.small:
             y0 = x.squeeze(1)
             y1 = self.forward1(y0)
             y1 = self.activation(y1)
@@ -201,7 +201,7 @@ class ChemicalNN(nn.Module):
             # y4 = self.layer_norm4(y4)
             y5 = self.forward5(y4)
 
-        if self.small:
+        if self.size == sizeEnum.small:
             return (y0, y1), y2
         else:
             return (y0, y1, y2, y3, y4), y5
