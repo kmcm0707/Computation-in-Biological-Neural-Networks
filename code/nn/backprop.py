@@ -35,13 +35,15 @@ class RosenbaumNN(nn.Module):
 
         # Model
         dim_out = dim_out
-        self.forward1 = nn.Linear(784, 512, bias=False)
-        self.forward2 = nn.Linear(512, 256, bias=False)
-        self.forward3 = nn.Linear(256, 170, bias=False)
-        self.forward4 = nn.Linear(170, 130, bias=False)
-        self.forward5 = nn.Linear(130, 100, bias=False)
-        self.forward6 = nn.Linear(100, 70, bias=False)
-        self.forward7 = nn.Linear(70, dim_out, bias=False)
+        self.forward1 = nn.Linear(784, 650, bias=False)
+        self.forward2 = nn.Linear(650, 512, bias=False)
+        self.forward3 = nn.Linear(512, 384, bias=False)
+        self.forward4 = nn.Linear(384, 256, bias=False)
+        self.forward5 = nn.Linear(256, 170, bias=False)
+        self.forward6 = nn.Linear(170, 130, bias=False)
+        self.forward7 = nn.Linear(130, 100, bias=False)
+        self.forward8 = nn.Linear(100, 70, bias=False)
+        self.forward9 = nn.Linear(70, dim_out, bias=False)
         """self.forward2 = nn.Linear(170, 130, bias=False)
         self.forward3 = nn.Linear(130, 100, bias=False)
         self.forward4 = nn.Linear(100, 70, bias=False)
@@ -74,9 +76,17 @@ class RosenbaumNN(nn.Module):
         y6 = self.activation(y6)
 
         y7 = self.forward7(y6)
+        y7 = self.activation(y7)
+
+        y8 = self.forward8(y7)
+        y8 = self.activation(y8)
+
+        y9 = self.forward9(y8)
 
         # return (y0, y1, y2, y3, y4), y5
-        return (y0, y1, y2, y3, y4, y5, y6), y7
+        # return (y0, y1, y2, y3, y4, y5, y6), y7
+
+        return (y0, y1, y2, y3, y4, y5, y6, y7, y8), y9
 
 
 class MetaLearner:
@@ -295,12 +305,12 @@ def run(
     random.seed(seed)
 
     # -- load data
-    numWorkers = 6
+    numWorkers = 3
     epochs = 20
     numberOfClasses = 5
     trainingDataPerClass = trainingDataPerClass
     dimOut = 47
-    dataset_name = "EMNIST"
+    dataset_name = "FASHION-MNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -322,10 +332,12 @@ def run(
         )
         dimOut = 10
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
-    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True)
+    metatrain_dataset = DataLoader(
+        dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True, num_workers=numWorkers
+    )
 
     metalearning_model = MetaLearner(
-        device="cuda:1",
+        device="cuda:0",
         result_subdirectory=result_subdirectory,
         save_results=True,
         metatrain_dataset=metatrain_dataset,
@@ -352,7 +364,7 @@ def backprop_main():
     :return: None
     """
     # -- run
-    trainingDataPerClass = [
+    """trainingDataPerClass = [
         10,
         20,
         30,
@@ -380,8 +392,8 @@ def backprop_main():
         325,
         350,
         375,
-    ]
-    """trainingDataPerClass = [
+    ]"""
+    trainingDataPerClass = [
         10,
         50,
         100,
@@ -399,6 +411,7 @@ def backprop_main():
         700,
         750,
         800,
+        """
         850,
         900,
         950,
@@ -407,13 +420,13 @@ def backprop_main():
         1100,
         1150,
         1200,
-        1250,
-        1300,
-    ]"""
+        1250,""",
+        # 1300,
+    ]
     for trainingData in trainingDataPerClass:
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_backprop_check_7_layer",
+            result_subdirectory="runner_backprop_check_9_layer_fashion_mnist",
             trainingDataPerClass=trainingData,
         )
