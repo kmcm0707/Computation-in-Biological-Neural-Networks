@@ -16,3 +16,5 @@ Train Episode: 15	Loss: 0.477610	Accuracy: 0.930	 Current training data: 190
 Train Episode: 16	Loss: 0.577774	Accuracy: 0.840	 Current training data: 190
 Train Episode: 17	Loss: 0.413613	Accuracy: 0.860	 Current training data: 190
 Train Episode: 18	Loss: 0.493817	Accuracy: 0.850	 Current training data: 190
+Train Episode: 19	Loss: 0.512018	Accuracy: 0.830	 Current training data: 190
+Train Episode: 20	Loss: 0.461297	Accuracy: 0.770	 Current training data: 190
