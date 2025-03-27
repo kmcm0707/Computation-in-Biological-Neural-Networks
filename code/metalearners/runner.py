@@ -745,7 +745,7 @@ def run(
         modelPath=modelPath,
         results_subdir=result_subdirectory,
         seed=seed,
-        size=sizeEnum.nine_layer,
+        size=sizeEnum.normal,
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
@@ -800,7 +800,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_6_5_train_1500_DFA_grad_small_examples_fashion_9_layer"][i],
+                result_subdirectory=["runner_mode_6_5_train_1500_DFA_grad_small_examples_fashior"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
