@@ -122,10 +122,10 @@ class KernelRnn(nn.Module):
         elif self.options.y_vector == yVectorEnum.half:
             self.y_vector[-1] = 0.5
 
-        self.z_vector = nn.Parameter(self.z_vector)
         self.z_vector = self.z_vector.to(self.device)
-        self.y_vector = nn.Parameter(self.y_vector)
+        self.z_vector = nn.Parameter(self.z_vector)
         self.y_vector = self.y_vector.to(self.device)
+        self.y_vector = nn.Parameter(self.y_vector)
 
         self.slow_operator = self.options.slow_operator
 
