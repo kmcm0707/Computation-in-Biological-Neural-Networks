@@ -501,7 +501,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 500
+    epochs = 800
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 20
@@ -558,7 +558,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0001,
+        lr=0.0003,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
