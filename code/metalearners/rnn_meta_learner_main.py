@@ -429,6 +429,7 @@ class RnnMetaLearner:
             # -- log
             if self.save_results:
                 log([loss_meta.item()], self.result_directory + "/loss_meta.txt")
+                log([acc], self.result_directory + "/acc_meta.txt")
 
             line = "Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}\tCurrent Training Data Per Class: {}".format(
                 eps + 1, loss_meta.item(), acc, current_training_data_per_class
@@ -566,7 +567,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         rnn_input_size=112,
-        datasetDevice="cpu",  # if running out of memory, change to "cpu"
+        datasetDevice="cuda:1",  # if running out of memory, change to "cpu"
         continueTraining=None,
         reset_fast_weights=True,
         requireFastChemical=False,
@@ -577,7 +578,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     numberOfSlowChemicals = 3
     numberOfFastChemicals = 3
     # -- meta-train
-    device: Literal["cpu", "cuda"] = "cpu" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cuda:1"
     metalearning_model = RnnMetaLearner(
         device=device,
