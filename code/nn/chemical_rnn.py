@@ -95,7 +95,7 @@ class ChemicalRnn(nn.Module):
         assert x.shape[0] == self.hx1.shape[0], "Batch size is not correct."
 
         # Forward pass
-        hx1_prev = self.hx1
+        hx1_prev = self.hx1.clone()
         # hx2_prev = self.hx2
         RNN_forward1_ih_x = self.RNN_forward1_ih(x)
         RNN_forward1_hh_hx1 = self.RNN_forward1_hh(self.hx1)

@@ -139,10 +139,10 @@ class KernelRnn(nn.Module):
         self.variance_update = {}
         for name, parameter in params:
             self.mean_update[name] = torch.nn.init.zeros_(
-                torch.empty(size=(10, parameter.shape[0], parameter.shape[1]), device=self.device)
+                torch.empty(size=(10, parameter.shape[0], parameter.shape[1]), device=self.device, requires_grad=True)
             )
             self.variance_update[name] = torch.nn.init.zeros_(
-                torch.empty(size=(10, parameter.shape[0], parameter.shape[1]), device=self.device)
+                torch.empty(size=(10, parameter.shape[0], parameter.shape[1]), device=self.device, requires_grad=True)
             )
         self.time_index = 0
 
@@ -157,10 +157,14 @@ class KernelRnn(nn.Module):
                 h_name = self.conversion_matrix[name]
                 h_slow_name = "slow_" + h_name
                 self.mean_update[h_slow_name] = torch.nn.init.zeros_(
-                    torch.empty(size=(10, parameter.shape[0], parameter.shape[1]), device=self.device)
+                    torch.empty(
+                        size=(10, parameter.shape[0], parameter.shape[1]), device=self.device, requires_grad=True
+                    )
                 )
                 self.variance_update[h_slow_name] = torch.nn.init.zeros_(
-                    torch.empty(size=(10, parameter.shape[0], parameter.shape[1]), device=self.device)
+                    torch.empty(
+                        size=(10, parameter.shape[0], parameter.shape[1]), device=self.device, requires_grad=True
+                    )
                 )
         self.time_index = 0
 
@@ -177,9 +181,21 @@ class KernelRnn(nn.Module):
                 h_slow_name = "slow_" + h_name
                 chemical = h_slow_parameters[h_slow_name]
 
-                self.mean_update[h_slow_name] = self.mean_update[h_slow_name] / self.time_index
+                self.mean_update[h_slow_name][3, :, :] = self.mean_update[h_slow_name][3, :, :] / self.time_index
+                self.mean_update[h_slow_name][5, :, :] = self.mean_update[h_slow_name][5, :, :] / self.time_index
+                self.mean_update[h_slow_name][9, :, :] = self.mean_update[h_slow_name][9, :, :] / self.time_index
+
+                self.variance_update[h_slow_name][3, :, :] = (
+                    self.variance_update[h_slow_name][3, :, :] / self.time_index
+                )
+                self.variance_update[h_slow_name][5, :, :] = (
+                    self.variance_update[h_slow_name][5, :, :] / self.time_index
+                )
+                self.variance_update[h_slow_name][9, :, :] = (
+                    self.variance_update[h_slow_name][9, :, :] / self.time_index
+                )
                 self.variance_update[h_slow_name] = (
-                    self.variance_update[h_slow_name] / self.time_index - self.mean_update[h_slow_name] ** 2
+                    self.variance_update[h_slow_name] - self.mean_update[h_slow_name] ** 2
                 )
                 update = torch.cat((self.mean_update[h_slow_name], self.variance_update[h_slow_name]), dim=0)
                 # Equation 1: h(s+1) = yh(s) + (1/\eta) * zf(Kh(s) + Qr )

@@ -566,7 +566,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         rnn_input_size=112,
-        datasetDevice="cuda:0",  # if running out of memory, change to "cpu"
+        datasetDevice="cpu",  # if running out of memory, change to "cpu"
         continueTraining=None,
         reset_fast_weights=True,
         requireFastChemical=False,
@@ -577,7 +577,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     numberOfSlowChemicals = 3
     numberOfFastChemicals = 3
     # -- meta-train
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cpu" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cuda:1"
     metalearning_model = RnnMetaLearner(
         device=device,
