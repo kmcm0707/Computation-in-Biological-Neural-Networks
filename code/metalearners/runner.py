@@ -794,13 +794,13 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/mode_6_very_small_examples_DFA_grad/0/20250324-195352"]
+    modelPath_s = [os.getcwd() + "/results/normalise_mode_6_DFA/0/20250317-034401"]
     for i in range(2):
         for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_6_5_train_1500_DFA_grad_small_examples_fashior"][i],
+                result_subdirectory=["runner_mode_6_5_train_DFA_grad_fashion"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
