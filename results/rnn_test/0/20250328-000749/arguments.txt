@@ -1,0 +1,27 @@
+model: rnnModelEnum.kernel
+optimizer: optimizerEnum.adam
+seed: 0
+save_results: True
+results_subdir: rnn_test
+metatrain_dataset: <torch.utils.data.dataloader.DataLoader object at 0x7fa94df22260>
+display: True
+lr: 0.0001
+numberOfClasses: 5
+dataset_name: EMNIST
+chemicalInitialization: chemicalEnum.same
+minTrainingDataPerClass: 20
+maxTrainingDataPerClass: 40
+rnn_input_size: 112
+queryDataPerClass: 10
+datasetDevice: cuda:0
+continueTraining: None
+reset_fast_weights: True
+requireFastChemical: False
+dimOut: 47
+nonLinear: <function tanh at 0x7fa96cec8dc0>
+update_rules: [1, 2, 3, 4, 5, 8, 9]
+minSlowTau: 2
+maxSlowTau: 50
+y_vector: yVectorEnum.none
+z_vector: zVectorEnum.all_ones
+slow_operator: operatorEnum.mode_6
