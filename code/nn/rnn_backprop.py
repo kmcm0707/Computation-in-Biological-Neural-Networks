@@ -196,7 +196,7 @@ class RnnMetaLearner:
 
         for eps, data in enumerate(self.metatrain_dataset):
 
-            # -- re initialize model
+            # -- reinitialize model
             self.model.train()
             self.model.apply(self.weights_init)
             self.UpdateParameters = optim.Adam(self.model.parameters(), lr=1e-3)

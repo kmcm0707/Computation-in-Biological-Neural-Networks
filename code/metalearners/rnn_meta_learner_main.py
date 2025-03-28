@@ -10,37 +10,19 @@ from typing import Literal, Union
 import numpy as np
 import torch
 from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset
-from misc.utils import Plot, log, meta_stats
-from nn.chemical_nn import ChemicalNN
+from misc.utils import Plot, accuracy, log, meta_stats
 from nn.chemical_rnn import ChemicalRnn
-from options.benna_options import bennaOptions
 from options.complex_options import (
-    complexOptions,
-    kMatrixEnum,
-    modeEnum,
     nonLinearEnum,
     operatorEnum,
-    pMatrixEnum,
-    vVectorEnum,
     yVectorEnum,
     zVectorEnum,
 )
-from options.meta_learner_options import (
-    MetaLearnerOptions,
-    chemicalEnum,
-    modelEnum,
-    optimizerEnum,
-    typeOfFeedbackEnum,
-)
-from options.reservoir_options import (
-    modeReservoirEnum,
-    reservoirOptions,
-    vVectorReservoirEnum,
-    yReservoirEnum,
-)
-from options.rnn_meta_learner_options import RnnMetaLearnerOptions
+from options.kernel_rnn_options import kernelRnnOptions
+from options.meta_learner_options import chemicalEnum, optimizerEnum, typeOfFeedbackEnum
+from options.rnn_meta_learner_options import RnnMetaLearnerOptions, rnnModelEnum
 from ray import train
-from synapses.complex_rnn import ComplexRnn
+from synapses.kernel_rnn import KernelRnn
 from torch import nn, optim
 from torch.nn import functional
 from torch.utils.data import DataLoader, RandomSampler
@@ -57,9 +39,10 @@ class RnnMetaLearner:
     def __init__(
         self,
         device: Literal["cpu", "cuda"] = "cpu",
-        numberOfChemicals: int = 1,
+        numberOfSlowChemicals: int = 1,
+        numberOfFastChemicals: int = 1,
         rnnMetaLearnerOptions: RnnMetaLearnerOptions = None,
-        modelOptions: Union[complexOptions, reservoirOptions] = None,
+        modelOptions: Union[kernelRnnOptions] = None,
     ):
 
         # -- processor params
@@ -80,7 +63,8 @@ class RnnMetaLearner:
         )
 
         # -- model params
-        self.numberOfChemicals = numberOfChemicals
+        self.numberOfSlowChemicals = numberOfSlowChemicals
+        self.numberOfFastChemicals = numberOfFastChemicals
         if self.device == "cpu":  # Remove if using a newer GPU
             self.model = self.load_model().to(self.device)
         else:
@@ -90,9 +74,7 @@ class RnnMetaLearner:
         self.loss_func = nn.CrossEntropyLoss()
 
         # -- set chemical model
-        self.UpdateWeights = self.chemical_model_setter(
-            options=self.modelOptions, adaptionPathway="forward", typeOfModel=self.options.model
-        )
+        self.UpdateWeights = self.chemical_model_setter(options=self.modelOptions, typeOfModel=self.options.model)
 
         lr = self.options.lr
 
@@ -136,18 +118,15 @@ class RnnMetaLearner:
             self.plot = Plot(self.result_directory, self.average_window)
             self.summary_writer = SummaryWriter(log_dir=self.result_directory)
 
-    def chemical_model_setter(
-        self, options: Union[complexOptions, reservoirOptions], adaptionPathway="forward", typeOfModel=None
-    ):
+    def chemical_model_setter(self, options: Union[kernelRnnOptions], typeOfModel=None):
         model = None
-        if typeOfModel == modelEnum.complex:
-            model = ComplexRnn(
+        if typeOfModel == rnnModelEnum.kernel:
+            model = KernelRnn(
                 device=self.device,
                 numberOfSlowChemicals=self.numberOfSlowChemicals,
-                numberOfFastChemicals=self.numberOfFastChemicals,
-                complexOptions=options,
+                kernelRnnOptions=options,
                 params=self.model.named_parameters(),
-                adaptionPathway=adaptionPathway,
+                conversion_matrix=self.model.parameters_to_chemical,
             )
         else:
             raise ValueError("Model not recognized.")
@@ -166,30 +145,32 @@ class RnnMetaLearner:
 
         model = ChemicalRnn(
             self.device,
-            self.numberOfChemicals,
-            small=self.options.small,
-            train_feedback=self.options.trainFeedback,
-            typeOfFeedback=self.options.typeOfFeedback,
+            numberOfSlowChemicals=self.numberOfSlowChemicals,
+            numberOfFastChemicals=self.numberOfFastChemicals,
+            requireFastChemical=self.options.requireFastChemical,
+            dim_in=self.options.rnn_input_size,
+            dim_out=self.options.dimOut,
         )
 
         # -- learning flags
         for key, val in model.named_parameters():
-            if "forward" in key:
-                val.adapt = "forward"
-            elif "feedback" in key:
-                val.adapt, val.requires_grad = "feedback", False
+            if "feedback" in key:
+                val.requires_grad = False
 
         return model
 
     @staticmethod
     def weights_init(modules):
-        classname = modules.__class__.__name__
-        if classname.find("Linear") != -1:
-
-            # -- weights
-            nn.init.xavier_uniform_(modules.weight)
-
+        if isinstance(modules, nn.RNNCell):
+            # -- weights_ih
+            nn.init.xavier_uniform_(modules.weight_ih)
+            # -- weights_hh
+            nn.init.xavier_uniform_(modules.weight_hh)
             # -- bias
+            if modules.bias:
+                nn.init.xavier_uniform_(modules.bias)
+        if isinstance(modules, nn.Linear):
+            nn.init.xavier_uniform_(modules.weight)
             if modules.bias is not None:
                 nn.init.xavier_uniform_(modules.bias)
 
@@ -207,8 +188,6 @@ class RnnMetaLearner:
             for chemical in chemicals:
                 for idx in range(chemical.shape[0]):
                     nn.init.xavier_uniform_(chemical[idx])
-            if self.numberOfChemicals > 1:
-                assert chemicals[0][0] is not chemicals[0][1]
         else:
             raise ValueError("Invalid Chemical Initialization")
 
@@ -226,34 +205,31 @@ class RnnMetaLearner:
         """
         # -- initialize weights
         self.model.apply(self.weights_init)
-        self.chemical_init(self.model.chemicals)
-        if self.options.trainFeedback:
-            self.chemical_init(self.model.feedback_chemicals)
 
         # -- module parameters
         # -- parameters are not linked to the model even if .clone() is not used
         params = {
             key: val.clone()
             for key, val in dict(self.model.named_parameters()).items()
-            if "." in key and "chemical" not in key and "layer_norm" not in key
+            if "." in key and "chemical" not in key
         }
         slow_h_params = {
             key: val.clone()
             for key, val in dict(self.model.named_parameters()).items()
             if "slow" in key and "feedback" not in key
         }
-        fast_h_params = {
-            key: val.clone()
-            for key, val in dict(self.model.named_parameters()).items()
-            if "fast" in key and "feedback" not in key
-        }
-        h_params = {key: val.clone() for key, val in dict(self.model.named_parameters()).items() if "chemical" in key}
+        self.chemical_init([val for key, val in slow_h_params.items()])
 
-        # -- set adaptation flags for cloned parameters
-        for key in params:
-            params[key].adapt = dict(self.model.named_parameters())[key].adapt
+        fast_h_params = None
+        if self.options.requireFastChemical:
+            fast_h_params = {
+                key: val.clone()
+                for key, val in dict(self.model.named_parameters()).items()
+                if "fast" in key and "feedback" not in key
+            }
+            self.chemical_init([val for key, val in fast_h_params.items()])
 
-        return params, h_params, slow_h_params, fast_h_params
+        return params, slow_h_params, fast_h_params
 
     def train(self):
         """
@@ -302,7 +278,7 @@ class RnnMetaLearner:
             # -- initialize
             # Using a clone of the model parameters to allow for in-place operations
             # Maintains the computational graph for the model as .detach() is not used
-            parameters, h_parameters, slow_h_parameters, fast_h_parameters = self.reinitialize()
+            parameters, slow_h_parameters, fast_h_parameters = self.reinitialize()
 
             self.UpdateWeights.initial_update(parameters, slow_h_parameters)
 
@@ -319,84 +295,114 @@ class RnnMetaLearner:
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
 
+                # -- reset fast weights
+                if self.options.reset_fast_weights:
+                    if self.options.requireFastChemical:
+                        self.UpdateWeights.reset_fast_chemicals(params=parameters, h_fast_parameters=fast_h_parameters)
+                    else:
+                        self.UpdateWeights.reset_fast_chemicals(params=parameters)
+
+                # -- reset rnn hidden state
+                self.model.reset_hidden(batch_size=1)
+
                 # -- fix device
                 if self.str_device != self.options.datasetDevice:
                     x, label = x.to(self.device), label.to(self.device)
 
-                x_reshaped = torch.reshape(x, (784 // self.dimIn, self.dimIn))
+                x_reshaped = torch.reshape(x, (784 // self.options.rnn_input_size, self.options.rnn_input_size))
 
                 for index_rnn, input in enumerate(x_reshaped):
                     # -- predict
-                    y, output = torch.func.functional_call(self.model, (parameters, h_parameters), input.unsqueeze(0))
-                    error_dict = {}
+                    if self.options.requireFastChemical:
+                        y_dict, output = torch.func.functional_call(
+                            self.model, (parameters, slow_h_parameters, fast_h_parameters), input.unsqueeze(0)
+                        )
+                    else:
+                        y_dict, output = torch.func.functional_call(
+                            self.model, (parameters, slow_h_parameters), input.unsqueeze(0)
+                        )
 
                     # -- compute error
+                    error_dict = {}
                     if index_rnn == x_reshaped.shape[0] - 1:
                         error = [
                             functional.softmax(output, dim=1)
                             - functional.one_hot(label, num_classes=self.options.dimOut)
                         ]
-                        index_error = 0
-
-                        for key in self.model.feedback_order:
-                            converted_key = self.model.feedback_to_parameters[key]
-                            error.append(torch.matmul(error[0], feedback[key]))
-                            index_error += 1
-                            error_dict[converted_key] = (
-                                error[-1],
-                                error[self.model.activation_and_error_below[index_error]],
-                            )
+                        error_temp_dict = {}
+                        for name, value in feedback.items():
+                            error_temp_dict[name] = torch.matmul(error[0], value)
+                        for name, value in error_temp_dict.items():
+                            parameter_name = self.model.feedback_to_parameters[name]
+                            error_below = None
+                            if self.model.error_dict[parameter_name] != "last":
+                                error_below = error_temp_dict[self.model.error_dict[parameter_name]]
+                            else:
+                                error_below = error[0]
+                            error_dict[parameter_name] = (value, error_below)
 
                     else:
                         error = [torch.zeros_like(functional.softmax(output, dim=1))]
-                        for key in self.model.feedback_order:
-                            converted_key = self.model.feedback_to_parameters[key]
-                            error.append(torch.zeros_like(feedback[key]))
-                            index_error += 1
-                            error_dict[converted_key] = (
-                                error[-1],
-                                error[self.model.activation_and_error_below[index_error]],
-                            )
+                        error_temp_dict = {}
 
-                    # -- compute activations
-                    activations = [output]
-                    activations_and_output = [*activations, functional.softmax(output, dim=1)]
-                    activations_and_output_dict = {}
-                    index_activation = 0
-                    for key in self.model.feedback_order:
-                        converted_key = self.model.feedback_to_parameters[key]
-                        activations_and_output_dict[converted_key] = (
-                            activations[self.model.activation_below[index_activation]],
-                            activations[self.model.activation_above[index_activation]],
+                        for name, value in feedback.items():
+                            error_temp_dict[name] = torch.matmul(error[0], value)
+
+                        for name, value in error_temp_dict.items():
+                            parameter_name = self.model.feedback_to_parameters[name]
+                            error_below = None
+                            if self.model.error_dict[parameter_name] != "last":
+                                error_below = error_temp_dict[self.model.error_dict[parameter_name]]
+                            else:
+                                error_below = error[0]
+                            error_dict[parameter_name] = (value, error_below)
+
+                    if self.options.requireFastChemical:
+                        # -- update network params
+                        self.UpdateWeights.fast_update(
+                            params=parameters,
+                            h_fast_parameters=fast_h_parameters,
+                            error=error_dict,
+                            activations_and_output=y_dict,
                         )
-                        index_activation += 1
-
-                    self.UpdateWeights.fast_update(
-                        parameters=parameters,
-                        h_fast_parameters=fast_h_parameters,
-                        error=error_dict,
-                        activations_and_output=activations_and_output_dict,
-                        conversion_matrix=self.model.parameters_to_chemical,
-                    )
+                    else:
+                        self.UpdateWeights.fast_update(
+                            params=parameters,
+                            error=error_dict,
+                            activations_and_output=y_dict,
+                        )
 
                 # -- update network params
-                self.UpdateWeights.slow_update(
-                    parameters=parameters,
-                    slow_h_parameters=slow_h_parameters,
-                    fast_h_parameters=fast_h_parameters,
-                    conversion_matrix=self.model.parameters_to_chemical,
-                )
-
-                if self.options.reset_fast_weights:
-                    self.UpdateWeights.reset_fast_chemicals(h_fast_parameters=fast_h_parameters)
+                if self.options.requireFastChemical:
+                    self.UpdateWeights.slow_update(
+                        params=parameters,
+                        h_slow_parameters=slow_h_parameters,
+                        h_fast_parameters=fast_h_parameters,
+                    )
+                else:
+                    self.UpdateWeights.slow_update(params=parameters, h_slow_parameters=slow_h_parameters)
 
             """ meta update """
             # -- fix device
             if self.device != self.options.datasetDevice:
                 x_qry, y_qry = x_qry.to(self.device), y_qry.to(self.device)
 
+            x_qry = torch.reshape(
+                x_qry, (x_qry.shape[0], 784 // self.options.rnn_input_size, self.options.rnn_input_size)
+            )
+
+            # -- reset rnn hidden state
+            self.model.reset_hidden(x_qry.shape[0])
+
             # -- predict
-            y, logits = torch.func.functional_call(self.model, (parameters, h_parameters), x_qry)
+            for input_index in range(x_qry.shape[1]):
+                x_in = x_qry[:, input_index, :]
+                if self.options.requireFastChemical:
+                    y, logits = torch.func.functional_call(
+                        self.model, (parameters, slow_h_parameters, fast_h_parameters), x_in
+                    )
+                else:
+                    y, logits = torch.func.functional_call(self.model, (parameters, slow_h_parameters), x_in)
 
             loss_meta = self.loss_func(logits, y_qry.ravel())
 
@@ -405,17 +411,7 @@ class RnnMetaLearner:
                 print(logits)
 
             # -- compute and store meta stats
-            acc = meta_stats(
-                logits,
-                parameters,
-                y_qry.ravel(),
-                y,
-                self.model.beta,
-                self.result_directory,
-                self.save_results,
-                self.options.typeOfFeedback,
-                self.options.dimOut,
-            )
+            acc = accuracy(logits, y_qry.ravel())
 
             # -- record params
             UpdateWeights_state_dict = copy.deepcopy(self.UpdateWeights.state_dict())
@@ -451,6 +447,7 @@ class RnnMetaLearner:
                     if (
                         "K" in key
                         or "P" in key
+                        or "Q" in key
                         or "v_vector" in key
                         or "z_vector" in key
                         or "y_vector" in key
@@ -507,9 +504,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     epochs = 500
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 110
-    queryDataPerClass = 20
+    minTrainingDataPerClass = 20
+    maxTrainingDataPerClass = 40
+    queryDataPerClass = 10
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -519,6 +516,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             queryDataPerClass=queryDataPerClass,
             dimensionOfImage=28,
         )
+        dimOut = 47
     elif dataset_name == "FASHION-MNIST":
         numberOfClasses = 10
         dataset = FashionMnistDataset(
@@ -528,6 +526,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             dimensionOfImage=28,
             all_classes=True,
         )
+        dimOut = 10
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
     metatrain_dataset = DataLoader(
@@ -535,32 +534,18 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- options
-    model = modelEnum.complex
+    model = rnnModelEnum.kernel
     modelOptions = None
-    spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
-    # beta = [1, 0.1, 0.01, 0.001, 0.0001]
-    minTau = [10, 20, 30, 40, 50, 60][index]
 
-    if model == modelEnum.complex or model == modelEnum.individual:
-        modelOptions = complexOptions(
+    if model == rnnModelEnum.kernel:
+        modelOptions = kernelRnnOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4, 5, 8, 9],  # 5,
-            bias=False,
-            pMatrix=pMatrixEnum.first_col,
-            kMatrix=kMatrixEnum.zero,
-            minTau=2,  # + 1 / 50,
-            maxTau=100,
+            update_rules=[1, 2, 3, 4, 5, 8, 9],
+            minSlowTau=2,
+            maxSlowTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_6,  # mode_5,
-            train_z_vector=False,
-            mode=modeEnum.all,
-            v_vector=vVectorEnum.default,
-            eta=1,
-            beta=0.01,  ## Only for v_vector=random_beta
-            kMasking=False,
-            individual_different_v_vector=False,  # Individual Model Only
-            scheduler_t0=None,  # Only mode_3
+            slow_operator=operatorEnum.mode_6,
         )
 
     current_dir = os.getcwd()
@@ -570,8 +555,6 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         model=model,
         results_subdir=result_subdirectory,
         seed=seed,
-        small=False,
-        raytune=False,
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
@@ -582,20 +565,25 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        datasetDevice="cuda:1",  # if running out of memory, change to "cpu"
+        rnn_input_size=112,
+        datasetDevice="cuda:0",  # if running out of memory, change to "cpu"
         continueTraining=None,
-        typeOfFeedback=typeOfFeedbackEnum.FA,
+        reset_fast_weights=True,
+        requireFastChemical=False,
+        dimOut=dimOut,
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 5
+    numberOfSlowChemicals = 3
+    numberOfFastChemicals = 3
     # -- meta-train
-    # device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
-    device = "cuda:1"
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
+    # device = "cuda:1"
     metalearning_model = RnnMetaLearner(
         device=device,
-        numberOfChemicals=numberOfChemicals,
-        metaLearnerOptions=metaLearnerOptions,
+        numberOfSlowChemicals=numberOfSlowChemicals,
+        numberOfFastChemicals=numberOfFastChemicals,
+        rnnMetaLearnerOptions=metaLearnerOptions,
         modelOptions=modelOptions,
     )
 
@@ -603,7 +591,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     exit()
 
 
-def main():
+def main_rnn():
     """
         Main function for Meta-learning the plasticity rule.
 
@@ -620,4 +608,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="normalise_mode_6_5_chem", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_test", index=i)
