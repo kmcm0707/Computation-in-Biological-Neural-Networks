@@ -543,7 +543,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             nonLinear=nonLinearEnum.tanh,
             update_rules=[1, 2, 3, 4, 5, 8, 9],
             minSlowTau=2,
-            maxSlowTau=50,
+            maxSlowTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             slow_operator=operatorEnum.mode_6,
@@ -559,7 +559,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0003,
+        lr=0.00009,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
