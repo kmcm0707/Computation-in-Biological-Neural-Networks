@@ -1,7 +1,6 @@
 from enum import Enum
-from typing import Literal, Union
+from typing import Union
 
-import torch
 from torch.nn import functional
 
 
@@ -19,6 +18,7 @@ class nonLinearEnum(Enum):
     elu = functional.elu
     leaky_relu = functional.leaky_relu
     pass_through = pass_through
+    softplus = functional.softplus
 
 
 class pMatrixEnum(Enum):

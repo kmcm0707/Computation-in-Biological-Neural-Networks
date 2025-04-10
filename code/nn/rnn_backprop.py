@@ -1,17 +1,14 @@
-import argparse
-import copy
 import datetime
 import os
 import random
-import sys
 import warnings
-from multiprocessing import Pool
 from typing import Literal
 
 import numpy as np
 import torch
 from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset
-from misc.utils import Plot, log, meta_stats
+from misc.utils import log
+from options.complex_options import nonLinearEnum
 from torch import nn, optim
 from torch.utils.data import DataLoader, RandomSampler
 from torch.utils.tensorboard import SummaryWriter
@@ -24,7 +21,16 @@ class RosenbaumRNN(nn.Module):
 
     """
 
-    def __init__(self, device: Literal["cpu", "cuda"] = "cpu", dim_out: int = 47, dim_in: int = 784):
+    def __init__(
+        self,
+        device: Literal["cpu", "cuda"] = "cpu",
+        dim_out: int = 47,
+        dim_in: int = 784,
+        biological: bool = False,
+        biological_min_tau: int = 1,
+        biological_max_tau: int = 56,
+        biological_nonlinearity: nonLinearEnum = nonLinearEnum.tanh,
+    ):
 
         # Initialize the parent class
         super(RosenbaumRNN, self).__init__()
@@ -35,29 +41,68 @@ class RosenbaumRNN(nn.Module):
         # Model
         self.dim_in = dim_in
         self.dim_out = dim_out
+        self.biological = biological
+        self.biological_min_tau = biological_min_tau
+        self.biological_max_tau = biological_max_tau
+        if biological_nonlinearity == nonLinearEnum.softplus:
+            self.beta = 10
+            self.biological_nonlinearity = nn.Softplus(beta=self.beta)
+        else:
+            self.biological_nonlinearity = biological_nonlinearity
 
-        # -- layers
-        self.RNN1 = nn.RNNCell(input_size=self.dim_in, hidden_size=128, bias=False)
-        # self.RNN2 = nn.RNNCell(input_size=128, hidden_size=128, bias=False)
-        self.forward1 = nn.Linear(128, dim_out, bias=False)
+        if not self.biological:
+            # -- layers
+            self.RNN1 = nn.RNNCell(input_size=self.dim_in, hidden_size=128, bias=False)
+            # self.RNN2 = nn.RNNCell(input_size=128, hidden_size=128, bias=False)
+            self.forward1 = nn.Linear(128, dim_out, bias=False)
 
-        # -- hidden states
-        self.hx1 = torch.zeros(1, 128).to(self.device)
-        # self.hx2 = torch.zeros(1, 128).to(self.device)
+            # -- hidden states
+            self.hx1 = torch.zeros(1, 128).to(self.device)
+            # self.hx2 = torch.zeros(1, 128).to(self.device)
+        else:
+            # -- layers
+            self.forward1 = nn.Linear(self.dim_in, 128, bias=False)
+            base = self.biological_max_tau / self.biological_min_tau
+            tau_vector = self.biological_min_tau * (base ** torch.linspace(0, 1, 128, device=self.device))
+            self.z_vector = 1 / tau_vector
+            self.y_vector = 1 - self.z_vector
+            self.y_vector = self.y_vector.to(self.device)
+            self.y_vector = nn.Parameter(self.y_vector)
+            self.z_vector = self.z_vector.to(self.device)
+            self.z_vector = nn.Parameter(self.z_vector)
+
+            self.recurrent1 = nn.Linear(128, 128, bias=False)
+
+            self.forward2 = nn.Linear(128, dim_out, bias=False)
 
     # @torch.compile
     def forward(self, x):
         assert x.shape[1] == self.dim_in, "Input shape is not correct."
         assert x.shape[0] == self.hx1.shape[0], "Batch size is not correct."
 
-        self.hx1 = self.RNN1(x, self.hx1)
-        # self.hx2 = self.RNN2(self.hx1, self.hx2)
-        output = self.forward1(self.hx1)
+        if not self.biological:
+            self.hx1 = self.RNN1(x, self.hx1)
+            # self.hx2 = self.RNN2(self.hx1, self.hx2)
+            output = self.forward1(self.hx1)
 
-        # return (x, self.hx1, self.hx2), output
-        return (x, self.hx1), output
+            # return (x, self.hx1, self.hx2), output
+            return (x, self.hx1), output
+        else:
+            # -- compute hidden states
+            self.out1 = self.forward1(x)
+
+            self.hx1 = self.y_vector * self.hx1 + self.biological_nonlinearity(
+                self.z_vector * self.recurrent1(self.hx1) + self.out1
+            )
+
+            # -- compute output
+            output = self.forward2(self.hx1)
+
+            # return (x, self.hx1), output
+            return (x, self.hx1), output
 
     def reset_hidden(self, batch_size):
+        # -- hidden states
         self.hx1 = torch.zeros(batch_size, 128).to(self.device)
         # self.hx2 = torch.zeros(batch_size, 128).to(self.device)
 
@@ -80,12 +125,23 @@ class RnnMetaLearner:
         trainingDataPerClass: int = 50,
         dimOut: int = 47,
         dimIn: int = 28,
+        # -- model params
+        biological: bool = False,
+        biological_min_tau: int = 1,
+        biological_max_tau: int = 56,
+        biological_nonlinearity: nonLinearEnum = nonLinearEnum.tanh,
     ):
 
         # -- processor params
         self.device = torch.device(device)
+
+        # -- model params
         self.dimOut = dimOut
         self.dimIn = dimIn
+        self.biological = biological
+        self.biological_min_tau = biological_min_tau
+        self.biological_max_tau = biological_max_tau
+        self.biological_nonlinearity = biological_nonlinearity
 
         # -- data params
         self.trainingDataPerClass = trainingDataPerClass
@@ -155,7 +211,15 @@ class RnnMetaLearner:
         :param args: (argparse.Namespace) The command-line arguments.
         :return: model with flags , "adapt", set for its parameters
         """
-        model = RosenbaumRNN(self.device, dim_out=self.dimOut, dim_in=self.dimIn)
+        model = RosenbaumRNN(
+            self.device,
+            dim_out=self.dimOut,
+            dim_in=self.dimIn,
+            biological=self.biological,
+            biological_min_tau=self.biological_min_tau,
+            biological_max_tau=self.biological_max_tau,
+            biological_nonlinearity=self.biological_nonlinearity,
+        )
         return model
 
     @staticmethod
@@ -323,8 +387,10 @@ def run(
             all_classes=True,
         )
         dimOut = 10
-    sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * 5)
-    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True)
+    sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
+    metatrain_dataset = DataLoader(
+        dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True, num_workers=numWorkers
+    )
 
     metalearning_model = RnnMetaLearner(
         device="cuda:0",
@@ -336,6 +402,11 @@ def run(
         trainingDataPerClass=trainingDataPerClass,
         dimOut=dimOut,
         dimIn=dimIn,
+        # -- model params
+        biological=False,
+        biological_min_tau=1,
+        biological_max_tau=56,
+        biological_nonlinearity=nonLinearEnum.softplus,
     )
     metalearning_model.train()
 
@@ -355,14 +426,7 @@ def rnn_backprop_main():
     :return: None
     """
     # -- run
-    dimIn = [
-        # 14,
-        28,
-        56,
-        112,
-        392,
-        784,
-    ]
+    dimIn = [14, 28, 56, 112]
     """trainingDataPerClass = [
         10,
         20,
@@ -408,7 +472,7 @@ def rnn_backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_rnn_backprop_3/{}".format(dim),
+                result_subdirectory="runner_rnn_backprop_4/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
