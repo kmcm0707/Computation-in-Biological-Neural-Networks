@@ -2,7 +2,6 @@ from typing import Literal
 
 import torch
 import torch.nn as nn
-from options.meta_learner_options import typeOfFeedbackEnum
 
 
 class ChemicalRnn(nn.Module):
@@ -18,6 +17,9 @@ class ChemicalRnn(nn.Module):
         dim_in: int = 1,
         dim_out: int = 1,
         requireFastChemical: bool = False,
+        biological: bool = False,
+        biological_min_tau: int = 1,
+        biological_max_tau: int = 56,
     ):
         # Initialize the parent class
         super(ChemicalRnn, self).__init__()
@@ -33,12 +35,31 @@ class ChemicalRnn(nn.Module):
         # Set the input and output dimensions
         self.dim_in = dim_in
         self.dim_out = dim_out
+        self.biological = biological
+        self.biological_min_tau = biological_min_tau
+        self.biological_max_tau = biological_max_tau
 
         # Model
-        self.RNN_forward1_ih = nn.Linear(self.dim_in, 128, bias=False)
-        self.RNN_forward1_hh = nn.Linear(128, 128, bias=False)
-        # self.RNN_forward2 = nn.RNNCell(input_size=128, hidden_size=128, bias=False)
-        self.forward1 = nn.Linear(128, self.dim_out, bias=False)
+        if not biological:
+            self.RNN_forward1_ih = nn.Linear(self.dim_in, 128, bias=False)
+            self.RNN_forward1_hh = nn.Linear(128, 128, bias=False)
+            # self.RNN_forward2 = nn.RNNCell(input_size=128, hidden_size=128, bias=False)
+            self.forward1 = nn.Linear(128, self.dim_out, bias=False)
+        else:
+            base = self.biological_max_tau / self.biological_min_tau
+            tau_vector = self.biological_min_tau * (base ** torch.linspace(0, 1, 128, device=self.device))
+            self.z_vector = 1 / tau_vector
+            self.y_vector = 1 - self.z_vector
+            self.y_vector = self.y_vector.to(self.device)
+            # self.y_vector = nn.Parameter(self.y_vector)
+            self.z_vector = self.z_vector.to(self.device)
+            # self.z_vector = nn.Parameter(self.z_vector)
+
+            self.RNN_forward1_ih = nn.Linear(self.dim_in, 128, bias=False)
+            self.RNN_forward1_hh = nn.Linear(128, 128, bias=False)
+            self.forward1 = nn.Linear(128, self.dim_out, bias=False)
+            self.beta = 10
+            self.activation = nn.Softplus(beta=self.beta)
 
         # Hidden states
         self.hx1 = torch.zeros(1, 128).to(self.device)
@@ -98,10 +119,13 @@ class ChemicalRnn(nn.Module):
         hx1_prev = self.hx1.clone()
         # hx2_prev = self.hx2
         RNN_forward1_ih_x = self.RNN_forward1_ih(x)
-        RNN_forward1_hh_hx1 = self.RNN_forward1_hh(self.hx1)
-        self.hx1 = torch.tanh(RNN_forward1_ih_x + RNN_forward1_hh_hx1)
-        # self.hx2 = torch.tanh(RNN_forward2_hx1)
-        output = self.forward1(self.hx1)
+        if not self.biological:
+            RNN_forward1_hh_hx1 = self.RNN_forward1_hh(self.hx1)
+            self.hx1 = torch.tanh(RNN_forward1_ih_x + RNN_forward1_hh_hx1)
+            # self.hx2 = torch.tanh(RNN_forward2_hx1)
+            output = self.forward1(self.hx1)
+        else:
+            self.hx1 = self.y_vector * self.hx1 + self.activation(self.z_vector * RNN_forward1_ih_x + self.beta * self.hx1)
 
         activations = {
             "RNN_forward1_ih.weight": (x, RNN_forward1_ih_x),

@@ -1,16 +1,13 @@
-import argparse
 import copy
 import datetime
 import os
 import random
-import sys
-from multiprocessing import Pool
 from typing import Literal, Union
 
 import numpy as np
 import torch
 from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset
-from misc.utils import Plot, accuracy, log, meta_stats
+from misc.utils import Plot, accuracy, log
 from nn.chemical_rnn import ChemicalRnn
 from options.complex_options import (
     nonLinearEnum,
@@ -19,9 +16,8 @@ from options.complex_options import (
     zVectorEnum,
 )
 from options.kernel_rnn_options import kernelRnnOptions
-from options.meta_learner_options import chemicalEnum, optimizerEnum, typeOfFeedbackEnum
+from options.meta_learner_options import chemicalEnum, optimizerEnum
 from options.rnn_meta_learner_options import RnnMetaLearnerOptions, rnnModelEnum
-from ray import train
 from synapses.kernel_rnn import KernelRnn
 from torch import nn, optim
 from torch.nn import functional
@@ -549,7 +545,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             slow_operator=operatorEnum.mode_6,
         )
 
-    current_dir = os.getcwd()
+    # current_dir = os.getcwd()
     # -- meta-learner options
     metaLearnerOptions = RnnMetaLearnerOptions(
         optimizer=optimizerEnum.adam,
