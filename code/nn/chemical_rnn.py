@@ -125,7 +125,9 @@ class ChemicalRnn(nn.Module):
             # self.hx2 = torch.tanh(RNN_forward2_hx1)
             output = self.forward1(self.hx1)
         else:
-            self.hx1 = self.y_vector * self.hx1 + self.activation(self.z_vector * RNN_forward1_ih_x + self.beta * self.hx1)
+            RNN_forward1_hh_hx1 = self.RNN_forward1_hh(self.hx1)
+            self.hx1 = self.y_vector * self.hx1 + self.z_vector * self.activation(RNN_forward1_hh_hx1 + self.hx1)
+            output = self.forward1(self.hx1)
 
         activations = {
             "RNN_forward1_ih.weight": (x, RNN_forward1_ih_x),

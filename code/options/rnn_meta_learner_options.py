@@ -2,12 +2,7 @@ import datetime
 from enum import Enum
 from typing import Literal
 
-from options.meta_learner_options import (
-    chemicalEnum,
-    modelEnum,
-    optimizerEnum,
-    typeOfFeedbackEnum,
-)
+from options.meta_learner_options import chemicalEnum, optimizerEnum
 from synapses.complex_rnn import ComplexRnn
 from synapses.kernel_rnn import KernelRnn
 
@@ -48,6 +43,9 @@ class RnnMetaLearnerOptions:
         reset_fast_weights: bool = True,
         requireFastChemical: bool = False,
         dimOut: int = 1,
+        biological: bool = False,
+        biological_min_tau: int = 1,
+        biological_max_tau: int = 56,
     ):
 
         self.model = model
@@ -70,6 +68,9 @@ class RnnMetaLearnerOptions:
         self.reset_fast_weights = reset_fast_weights
         self.requireFastChemical = requireFastChemical
         self.dimOut = dimOut
+        self.biological = biological
+        self.biological_min_tau = biological_min_tau
+        self.biological_max_tau = biological_max_tau
 
     def __str__(self):
         string = ""

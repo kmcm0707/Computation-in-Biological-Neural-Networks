@@ -501,8 +501,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     epochs = 800
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 20
-    maxTrainingDataPerClass = 40
+    minTrainingDataPerClass = 30
+    maxTrainingDataPerClass = 60
     queryDataPerClass = 10
 
     if dataset_name == "EMNIST":
@@ -542,7 +542,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxSlowTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
-            slow_operator=operatorEnum.mode_6,
+            slow_operator=operatorEnum.mode_4,
         )
 
     # current_dir = os.getcwd()
@@ -568,6 +568,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         reset_fast_weights=True,
         requireFastChemical=False,
         dimOut=dimOut,
+        biological=True,
+        biological_min_tau=1,
+        biological_max_tau=56,
     )
 
     #   -- number of chemicals
@@ -605,4 +608,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_test", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_test_bio", index=i)
