@@ -17,7 +17,11 @@ from options.complex_options import (
 )
 from options.kernel_rnn_options import kernelRnnOptions
 from options.meta_learner_options import chemicalEnum, optimizerEnum
-from options.rnn_meta_learner_options import RnnMetaLearnerOptions, rnnModelEnum
+from options.rnn_meta_learner_options import (
+    RnnMetaLearnerOptions,
+    errorEnum,
+    rnnModelEnum,
+)
 from synapses.kernel_rnn import KernelRnn
 from torch import nn, optim
 from torch.nn import functional
@@ -320,7 +324,7 @@ class RnnMetaLearner:
 
                     # -- compute error
                     error_dict = {}
-                    if index_rnn == x_reshaped.shape[0] - 1:
+                    if index_rnn == x_reshaped.shape[0] - 1 or self.options.error == errorEnum.all:
                         error = [
                             functional.softmax(output, dim=1)
                             - functional.one_hot(label, num_classes=self.options.dimOut)
@@ -391,6 +395,9 @@ class RnnMetaLearner:
             self.model.reset_hidden(x_qry.shape[0])
 
             # -- predict
+            if self.options.error == errorEnum.all:
+                all_logits = torch.zeros(x_qry.shape[0], x_qry.shape[1], self.options.dimOut).to(self.device)
+                
             for input_index in range(x_qry.shape[1]):
                 x_in = x_qry[:, input_index, :]
                 if self.options.requireFastChemical:
@@ -399,6 +406,9 @@ class RnnMetaLearner:
                     )
                 else:
                     y, logits = torch.func.functional_call(self.model, (parameters, slow_h_parameters), x_in)
+                if self.options.error == errorEnum.all:
+                    all_logits[:, input_index, :] = logits
+
 
             loss_meta = self.loss_func(logits, y_qry.ravel())
 
@@ -571,6 +581,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         biological=True,
         biological_min_tau=1,
         biological_max_tau=56,
+        error=errorEnum.all,
     )
 
     #   -- number of chemicals
@@ -605,6 +616,10 @@ def main_rnn():
 
     :return: None
     """
+    # -- run
+    # torch.autograd.set_detect_anomaly(True)
+    for i in range(6):
+        run(seed=0, display=True, result_subdirectory="rnn_test_bio", index=i)
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):

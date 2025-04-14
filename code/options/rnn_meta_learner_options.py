@@ -16,6 +16,15 @@ class rnnModelEnum(Enum):
     kernel = KernelRnn
 
 
+class errorEnum(Enum):
+    """
+    Enum for the error function
+    """
+
+    last = "last"
+    all = "all"
+
+
 class RnnMetaLearnerOptions:
     """
     Options for the metal learner
@@ -46,6 +55,7 @@ class RnnMetaLearnerOptions:
         biological: bool = False,
         biological_min_tau: int = 1,
         biological_max_tau: int = 56,
+        error=errorEnum.last,
     ):
 
         self.model = model
@@ -71,6 +81,7 @@ class RnnMetaLearnerOptions:
         self.biological = biological
         self.biological_min_tau = biological_min_tau
         self.biological_max_tau = biological_max_tau
+        self.error = error
 
     def __str__(self):
         string = ""
