@@ -512,12 +512,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     random.seed(seed)
 
     # -- load data
-    numWorkers = 2
-    epochs = 800
+    numWorkers = 0
+    epochs = 500
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 60
+    maxTrainingDataPerClass = 57
     queryDataPerClass = 10
 
     if dataset_name == "EMNIST":
@@ -557,7 +557,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxSlowTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
-            slow_operator=operatorEnum.mode_4,
+            slow_operator=operatorEnum.mode_6,
         )
 
     # current_dir = os.getcwd()
@@ -570,7 +570,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0006,
+        lr=0.0003,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -578,7 +578,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         rnn_input_size=112,
-        datasetDevice="cpu",  # cuda:1,  # if running out of memory, change to "cpu"
+        datasetDevice="cuda:0",  # cuda:1,  # if running out of memory, change to "cpu"
         continueTraining=None,
         reset_fast_weights=True,
         requireFastChemical=False,
@@ -593,7 +593,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     numberOfSlowChemicals = 3
     numberOfFastChemicals = 3
     # -- meta-train
-    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cuda:1"
     metalearning_model = RnnMetaLearner(
         device=device,
