@@ -1,10 +1,5 @@
-import math
-from typing import Literal
-
-import numpy as np
 import torch
 from options.complex_options import operatorEnum, yVectorEnum, zVectorEnum
-from options.complex_rnn_options import complexRnnOptions
 from options.kernel_rnn_options import kernelRnnOptions
 from torch import nn
 
@@ -181,7 +176,7 @@ class KernelRnn(nn.Module):
                 h_slow_name = "slow_" + h_name
                 chemical = h_slow_parameters[h_slow_name]
 
-                self.mean_update[h_slow_name][3, :, :] = self.mean_update[h_slow_name][3, :, :] / self.time_index
+                """self.mean_update[h_slow_name][3, :, :] = self.mean_update[h_slow_name][3, :, :] / self.time_index
                 self.mean_update[h_slow_name][5, :, :] = self.mean_update[h_slow_name][5, :, :] / self.time_index
                 self.mean_update[h_slow_name][9, :, :] = self.mean_update[h_slow_name][9, :, :] / self.time_index
 
@@ -193,7 +188,11 @@ class KernelRnn(nn.Module):
                 )
                 self.variance_update[h_slow_name][9, :, :] = (
                     self.variance_update[h_slow_name][9, :, :] / self.time_index
-                )
+                )"""
+
+                self.mean_update[h_slow_name] = self.mean_update[h_slow_name] / self.time_index
+                self.variance_update[h_slow_name] = self.variance_update[h_slow_name] / self.time_index
+
                 self.variance_update[h_slow_name] = (
                     self.variance_update[h_slow_name] - self.mean_update[h_slow_name] ** 2
                 )
@@ -404,4 +403,5 @@ class KernelRnn(nn.Module):
                 torch.matmul(activation_below.T, activation_below),
                 parameter,
             )  # Oja's rule
+
         return update_vector

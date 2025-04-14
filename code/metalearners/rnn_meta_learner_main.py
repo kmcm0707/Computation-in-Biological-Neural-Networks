@@ -298,6 +298,9 @@ class RnnMetaLearner:
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
 
+                # -- reset time index
+                self.UpdateWeights.reset_time_index()
+
                 # -- reset fast weights
                 if self.options.reset_fast_weights:
                     if self.options.requireFastChemical:
@@ -343,7 +346,6 @@ class RnnMetaLearner:
                             else:
                                 error_below = error[0]
                             error_dict[parameter_name] = (value, error_below)
-
                     else:
                         error = [torch.zeros_like(functional.softmax(output, dim=1))]
                         error_temp_dict = {}
@@ -550,7 +552,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     if model == rnnModelEnum.kernel:
         modelOptions = kernelRnnOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[1, 2, 3, 4, 5, 8, 9],
+            update_rules=[0, 1, 2, 3, 4, 5, 8, 9],
             minSlowTau=2,
             maxSlowTau=100,
             y_vector=yVectorEnum.none,
@@ -568,7 +570,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0003,
+        lr=0.0006,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -576,7 +578,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         rnn_input_size=112,
-        datasetDevice="cuda:1",  # if running out of memory, change to "cpu"
+        datasetDevice="cpu",  # cuda:1,  # if running out of memory, change to "cpu"
         continueTraining=None,
         reset_fast_weights=True,
         requireFastChemical=False,
