@@ -150,6 +150,9 @@ class RnnMetaLearner:
             requireFastChemical=self.options.requireFastChemical,
             dim_in=self.options.rnn_input_size,
             dim_out=self.options.dimOut,
+            biological=self.options.biological,
+            biological_min_tau=self.options.biological_min_tau,
+            biological_max_tau=self.options.biological_max_tau,
         )
 
         # -- learning flags
@@ -397,7 +400,7 @@ class RnnMetaLearner:
             # -- predict
             if self.options.error == errorEnum.all:
                 all_logits = torch.zeros(x_qry.shape[0], x_qry.shape[1], self.options.dimOut).to(self.device)
-                
+
             for input_index in range(x_qry.shape[1]):
                 x_in = x_qry[:, input_index, :]
                 if self.options.requireFastChemical:
@@ -409,7 +412,7 @@ class RnnMetaLearner:
                 if self.options.error == errorEnum.all:
                     all_logits[:, input_index, :] = logits
 
-
+            # TODO: CHECK ALL ERROR WITH ALL LOGITS
             loss_meta = self.loss_func(logits, y_qry.ravel())
 
             if loss_meta > 1e5 or torch.isnan(loss_meta):
@@ -619,8 +622,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_test_bio", index=i)
-    # -- run
-    # torch.autograd.set_detect_anomaly(True)
-    for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_test_bio", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_test_true_bio", index=i)
