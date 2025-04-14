@@ -557,7 +557,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxSlowTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
-            slow_operator=operatorEnum.mode_6,
+            slow_operator=operatorEnum.mode_4,
         )
 
     # current_dir = os.getcwd()
@@ -570,7 +570,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0003,
+        lr=0.0002,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -578,7 +578,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         rnn_input_size=112,
-        datasetDevice="cuda:0",  # cuda:1,  # if running out of memory, change to "cpu"
+        datasetDevice="cuda:1",  # cuda:1,  # if running out of memory, change to "cpu"
         continueTraining=None,
         reset_fast_weights=True,
         requireFastChemical=False,
@@ -586,14 +586,14 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         biological=True,
         biological_min_tau=1,
         biological_max_tau=56,
-        error=errorEnum.all,
+        error=errorEnum.last,
     )
 
     #   -- number of chemicals
     numberOfSlowChemicals = 3
     numberOfFastChemicals = 3
     # -- meta-train
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cuda:1"
     metalearning_model = RnnMetaLearner(
         device=device,
