@@ -49,8 +49,11 @@ class KernelRnn(nn.Module):
         """
         self.numberUpdateRules = 13
         self.update_rules = [False] * self.numberUpdateRules
+        trueNumberUpdateRules = 0
         for i in self.options.update_rules:
+            trueNumberUpdateRules += 1
             self.update_rules[i] = True
+        self.numberUpdateRules = trueNumberUpdateRules
 
         if self.time_lag_covariance is None:
             self.Q_matrix = nn.Parameter(
@@ -161,7 +164,14 @@ class KernelRnn(nn.Module):
             if self.options.time_lag_covariance is not None:
                 self.past_updates[name] = torch.nn.init.zeros_(
                     torch.empty(
-                        size=(self.time_lag_covariance, self.numberOfSlowChemicals, self.numberUpdateRules),
+                        size=(self.time_lag_covariance, self.numberUpdateRules, parameter.shape[0], parameter.shape[1]),
+                        device=self.device,
+                    )
+                )
+                self.past_variance = {}
+                self.past_variance[name] = torch.nn.init.zeros_(
+                    torch.empty(
+                        size=(self.numberUpdateRules, parameter.shape[0], parameter.shape[1]),
                         device=self.device,
                     )
                 )
@@ -192,9 +202,20 @@ class KernelRnn(nn.Module):
                     )
                 )
                 if self.options.time_lag_covariance is not None:
-                    self.past_updates[name] = torch.nn.init.zeros_(
+                    self.past_updates[h_slow_name] = torch.nn.init.zeros_(
                         torch.empty(
-                            size=(self.time_lag_covariance, self.numberOfSlowChemicals, self.numberUpdateRules),
+                            size=(
+                                self.time_lag_covariance,
+                                self.numberUpdateRules,
+                                parameter.shape[0],
+                                parameter.shape[1],
+                            ),
+                            device=self.device,
+                        )
+                    )
+                    self.past_variance[h_slow_name] = torch.nn.init.zeros_(
+                        torch.empty(
+                            size=(self.numberUpdateRules, parameter.shape[0], parameter.shape[1]),
                             device=self.device,
                         )
                     )
@@ -233,7 +254,17 @@ class KernelRnn(nn.Module):
                 self.variance_update[h_slow_name] = (
                     self.variance_update[h_slow_name] - self.mean_update[h_slow_name] ** 2
                 )"""
-                update = torch.cat((self.mean_update[h_slow_name], self.variance_update[h_slow_name]), dim=0)
+                if self.options.time_lag_covariance is None:
+                    update = torch.cat((self.mean_update[h_slow_name], self.variance_update[h_slow_name]), dim=0)
+                else:
+                    update = torch.cat(
+                        (
+                            self.mean_update[h_slow_name],
+                            self.variance_update[h_slow_name],
+                            self.past_variance[h_slow_name],
+                        ),
+                        dim=0,
+                    )
                 # Equation 1: h(s+1) = yh(s) + (1/\eta) * zf(Kh(s) + Qr )
                 # Equation 2: w(s) = v * h(s)
 
@@ -313,6 +344,18 @@ class KernelRnn(nn.Module):
                 self.variance_update[h_slow_name] = (
                     self.variance_update[h_slow_name] + update_vector**2 / self.time_index
                 )
+                if self.options.time_lag_covariance is not None and self.time_index > self.time_lag_covariance:
+                    self.past_variance[h_slow_name] = (
+                        self.past_variance[h_slow_name]
+                        + (
+                            self.past_updates[h_slow_name][0, :, :, :] * self.mean_update[h_slow_name]
+                            - self.mean_update[h_slow_name] ** 2
+                        )
+                        / self.time_index
+                    )
+                if self.options.time_lag_covariance is not None:
+                    self.past_updates[h_slow_name] = torch.roll(self.past_updates[h_slow_name], shifts=-1, dims=0)
+                    self.past_updates[h_slow_name][-1, :, :, :] = update_vector
 
     @torch.no_grad()
     def reset_time_index(self):
@@ -365,27 +408,34 @@ class KernelRnn(nn.Module):
         update_vector = torch.zeros(
             (self.numberUpdateRules, parameter.shape[0], parameter.shape[1]), device=self.device
         )
+
+        i = 0
         # with torch.no_grad():
         if self.update_rules[0]:
-            update_vector[0] = -torch.matmul(error_below.T, activation_above)  # Pseudo-gradient
+            update_vector[i] = -torch.matmul(error_below.T, activation_above)  # Pseudo-gradient
+            i += 1
 
         if self.update_rules[1]:
-            update_vector[1] = -torch.matmul(activation_below.T, error_above)
+            update_vector[i] = -torch.matmul(activation_below.T, error_above)
+            i += 1
 
         if self.update_rules[2]:
-            update_vector[2] = -(
+            update_vector[i] = -(
                 torch.matmul(error_below.T, error_above)
                 - torch.matmul(
                     parameter,
                     torch.matmul(error_above.T, error_above),
                 )
             )  # eHebb rule
+            i += 1
 
         if self.update_rules[3]:
-            update_vector[3] = -parameter
+            update_vector[i] = -parameter
+            i += 1
 
         if self.update_rules[4]:
-            update_vector[4] = -torch.matmul(torch.ones(size=(parameter.shape[0], 1), device=self.device), error_above)
+            update_vector[i] = -torch.matmul(torch.ones(size=(parameter.shape[0], 1), device=self.device), error_above)
+            i += 1
 
         if self.update_rules[5]:
             normalised_weight = torch.nn.functional.normalize(parameter, p=2, dim=0)
@@ -397,7 +447,8 @@ class KernelRnn(nn.Module):
             )
             softmax_output = torch.nn.functional.softmax(output, dim=0)
             diff = normalised_weight - normalised_activation
-            update_vector[5] = -(diff * softmax_output[:, None])
+            update_vector[i] = -(diff * softmax_output[:, None])
+            i += 1
 
         if self.update_rules[6]:
             """update_vector[6] = -torch.matmul(
@@ -419,7 +470,7 @@ class KernelRnn(nn.Module):
             )"""
 
         if self.update_rules[7]:
-            update_vector[7] = -torch.matmul(
+            update_vector[i] = -torch.matmul(
                 torch.matmul(
                     torch.matmul(
                         torch.matmul(error_below.T, activation_below),
@@ -429,9 +480,10 @@ class KernelRnn(nn.Module):
                 ),
                 activation_above,
             )  # - Maybe be bad
+            i += 1
 
         if self.update_rules[8]:
-            update_vector[8] = -torch.matmul(
+            update_vector[i] = -torch.matmul(
                 torch.matmul(
                     torch.matmul(
                         torch.matmul(activation_below.T, activation_above),
@@ -441,26 +493,31 @@ class KernelRnn(nn.Module):
                 ),
                 error_above,
             )
+            i += 1
 
         if self.update_rules[9]:
-            update_vector[9] = torch.matmul(activation_below.T, activation_above) - torch.matmul(
+            update_vector[i] = torch.matmul(activation_below.T, activation_above) - torch.matmul(
                 torch.matmul(activation_below.T, activation_below),
                 parameter,
             )  # Oja's rule
+            i += 1
 
         if self.update_rules[10]:
-            update_vector[10] = -torch.matmul(
+            update_vector[i] = -torch.matmul(
                 error_below.T, torch.ones(size=(1, parameter.shape[1]), device=self.device)
             )
+            i += 1
 
         if self.update_rules[11]:
-            update_vector[11] = -torch.matmul(
+            update_vector[i] = -torch.matmul(
                 activation_below.T, torch.ones(size=(1, parameter.shape[1]), device=self.device)
             )
+            i += 1
 
         if self.update_rules[12]:
-            update_vector[12] = -torch.matmul(
+            update_vector[i] = -torch.matmul(
                 torch.ones(size=(parameter.shape[0], 1), device=self.device), activation_above
             )
+            i += 1
 
         return update_vector
