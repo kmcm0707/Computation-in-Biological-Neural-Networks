@@ -22,6 +22,7 @@ class kernelRnnOptions:
         y_vector: yVectorEnum = yVectorEnum.none,
         z_vector: zVectorEnum = zVectorEnum.all_ones,
         slow_operator: operatorEnum = operatorEnum.mode_6,
+        time_lag_covariance: Union[None, int] = None,
     ):
         self.nonLinear = nonLinear
         self.update_rules = update_rules
@@ -30,6 +31,7 @@ class kernelRnnOptions:
         self.y_vector = y_vector
         self.z_vector = z_vector
         self.slow_operator = slow_operator
+        self.time_lag_covariance = time_lag_covariance
 
     def __str__(self):
         string = ""

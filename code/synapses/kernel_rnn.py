@@ -36,6 +36,7 @@ class KernelRnn(nn.Module):
         self.non_linearity = kernelRnnOptions.nonLinear
         self.conversion_matrix = conversion_matrix
         self.options = kernelRnnOptions
+        self.time_lag_covariance = kernelRnnOptions.time_lag_covariance
 
         self.init_slow_params()
         self.init_fast_params(params)
@@ -51,12 +52,19 @@ class KernelRnn(nn.Module):
         for i in self.options.update_rules:
             self.update_rules[i] = True
 
-        self.Q_matrix = nn.Parameter(
-            torch.nn.init.zeros_(
-                torch.empty(size=(self.numberOfSlowChemicals, self.numberUpdateRules * 2), device=self.device)
+        if self.time_lag_covariance is None:
+            self.Q_matrix = nn.Parameter(
+                torch.nn.init.zeros_(
+                    torch.empty(size=(self.numberOfSlowChemicals, self.numberUpdateRules * 2), device=self.device)
+                )
             )
-        )
-        self.Q_matrix[:, 0] = 1e-3
+            self.Q_matrix[:, 0] = 1e-3
+        else:
+            self.Q_matrix = nn.Parameter(
+                torch.nn.init.zeros_(
+                    torch.empty(size=(self.numberOfSlowChemicals, self.numberUpdateRules * 3), device=self.device)
+                )
+            )
 
         self.K_slow_matrix = nn.Parameter(
             torch.nn.init.zeros_(
@@ -134,6 +142,7 @@ class KernelRnn(nn.Module):
         """
         self.mean_update = {}
         self.variance_update = {}
+        self.past_updates = {}
         for name, parameter in params:
             self.mean_update[name] = torch.nn.init.zeros_(
                 torch.empty(
@@ -149,6 +158,13 @@ class KernelRnn(nn.Module):
                     requires_grad=True,
                 )
             )
+            if self.options.time_lag_covariance is not None:
+                self.past_updates[name] = torch.nn.init.zeros_(
+                    torch.empty(
+                        size=(self.time_lag_covariance, self.numberOfSlowChemicals, self.numberUpdateRules),
+                        device=self.device,
+                    )
+                )
         self.time_index = 0
 
     @torch.no_grad()
@@ -175,6 +191,13 @@ class KernelRnn(nn.Module):
                         requires_grad=True,
                     )
                 )
+                if self.options.time_lag_covariance is not None:
+                    self.past_updates[name] = torch.nn.init.zeros_(
+                        torch.empty(
+                            size=(self.time_lag_covariance, self.numberOfSlowChemicals, self.numberUpdateRules),
+                            device=self.device,
+                        )
+                    )
         self.time_index = 0
 
     def slow_update(
@@ -204,12 +227,12 @@ class KernelRnn(nn.Module):
                     self.variance_update[h_slow_name][9, :, :] / self.time_index
                 )"""
 
-                self.mean_update[h_slow_name] = self.mean_update[h_slow_name] / self.time_index
+                """self.mean_update[h_slow_name] = self.mean_update[h_slow_name] / self.time_index
                 self.variance_update[h_slow_name] = self.variance_update[h_slow_name] / self.time_index
 
                 self.variance_update[h_slow_name] = (
                     self.variance_update[h_slow_name] - self.mean_update[h_slow_name] ** 2
-                )
+                )"""
                 update = torch.cat((self.mean_update[h_slow_name], self.variance_update[h_slow_name]), dim=0)
                 # Equation 1: h(s+1) = yh(s) + (1/\eta) * zf(Kh(s) + Qr )
                 # Equation 2: w(s) = v * h(s)
@@ -280,11 +303,16 @@ class KernelRnn(nn.Module):
             if name in self.conversion_matrix:
                 errors = error[name]
                 activations_and_outputs = activations_and_output[name]
-                update_vector = self.calculate_update_vector(errors, activations_and_outputs, parameter)
                 h_name = self.conversion_matrix[name]
                 h_slow_name = "slow_" + h_name
-                self.mean_update[h_slow_name] = self.mean_update[h_slow_name] + update_vector
-                self.variance_update[h_slow_name] = self.variance_update[h_slow_name] + update_vector**2
+                update_vector = (
+                    self.calculate_update_vector(errors, activations_and_outputs, parameter)
+                    - self.mean_update[h_slow_name]
+                )
+                self.mean_update[h_slow_name] = self.mean_update[h_slow_name] + (update_vector) / self.time_index
+                self.variance_update[h_slow_name] = (
+                    self.variance_update[h_slow_name] + update_vector**2 / self.time_index
+                )
 
     @torch.no_grad()
     def reset_time_index(self):

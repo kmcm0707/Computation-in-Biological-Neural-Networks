@@ -558,6 +558,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             slow_operator=operatorEnum.mode_6,
+            time_lag_covariance=None,
         )
 
     # current_dir = os.getcwd()
