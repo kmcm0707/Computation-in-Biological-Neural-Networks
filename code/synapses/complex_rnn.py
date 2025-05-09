@@ -1,7 +1,5 @@
-import math
 from typing import Literal
 
-import numpy as np
 import torch
 from options.complex_options import operatorEnum, yVectorEnum, zVectorEnum
 from options.complex_rnn_options import complexRnnOptions
@@ -55,7 +53,7 @@ class ComplexRnn(nn.Module):
         :param params: (dict) The model parameters.
         """
         self.params = params
-        self.numberUpdateRules = 10
+        self.numberUpdateRules = 12
         self.update_rules = [False] * self.numberUpdateRules
         for i in self.options.slow_update_rules:
             self.update_rules[i] = True
@@ -218,7 +216,7 @@ class ComplexRnn(nn.Module):
         :param params: (dict) The model parameters.
         """
         self.params = params
-        self.numberUpdateRules = 10
+        self.numberUpdateRules = 12
         self.update_rules = [False] * self.numberUpdateRules
         for i in self.options.fast_update_rules:
             self.update_rules[i] = True
@@ -234,7 +232,9 @@ class ComplexRnn(nn.Module):
             )
         )
         self.P_matrix = nn.Parameter(
-            torch.nn.init.zeros_(torch.empty(size=(self.numberOfFastChemicals, 10), device=self.device))
+            torch.nn.init.zeros_(
+                torch.empty(size=(self.numberOfFastChemicals, self.numberUpdateRules), device=self.device)
+            )
         )
         self.P_matrix[:, 0] = 1e-3
 
@@ -272,7 +272,6 @@ class ComplexRnn(nn.Module):
         :param activations_and_output: (dict) The activations and output,
         :param error: (dict) The error (atm not used).
         """
-        i = 0
         for name, parameter in params.items():
             if parameter in conversion_matrix:
                 h_name = self.conversion_matrix[name]
@@ -341,7 +340,7 @@ class ComplexRnn(nn.Module):
         error_above = error[0]
         activation_above = activations_and_output[0]
         activation_below = activations_and_output[1]
-        update_vector = torch.zeros((10, parameter.shape[0], parameter.shape[1]), device=self.device)
+        update_vector = torch.zeros((12, parameter.shape[0], parameter.shape[1]), device=self.device)
         # with torch.no_grad():
         if self.update_rules[0]:
             update_vector[0] = -torch.matmul(error_below.T, activation_above)  # Pseudo-gradient
@@ -424,4 +423,18 @@ class ComplexRnn(nn.Module):
                 torch.matmul(activation_below.T, activation_below),
                 parameter,
             )  # Oja's rule
+
+        if self.update_rules[10]:
+            update_vector[10] = -torch.matmul(error_below, torch.ones(size=(1, parameter.shape[0]), device=self.device))
+
+        if self.update_rules[11]:
+            update_vector[11] = -torch.matmul(
+                activation_below, torch.ones(size=(1, parameter.shape[0]), device=self.device)
+            )
+
+        if self.update_rules[12]:
+            update_vector[12] = -torch.matmul(
+                torch.ones(size=(1, parameter.shape[0]), device=self.device), activation_above
+            )
+
         return update_vector
