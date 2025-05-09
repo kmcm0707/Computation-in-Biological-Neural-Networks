@@ -578,7 +578,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         rnn_input_size=112,
-        datasetDevice="cuda:1",  # cuda:1,  # if running out of memory, change to "cpu"
+        datasetDevice="cpu",  # cuda:1,  # if running out of memory, change to "cpu"
         continueTraining=None,
         reset_fast_weights=True,
         requireFastChemical=False,
@@ -586,7 +586,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         biological=True,
         biological_min_tau=1,
         biological_max_tau=56,
-        error=errorEnum.last,
+        error=errorEnum.all,
     )
 
     #   -- number of chemicals

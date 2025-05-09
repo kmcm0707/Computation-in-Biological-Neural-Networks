@@ -53,7 +53,7 @@ class ComplexRnn(nn.Module):
         :param params: (dict) The model parameters.
         """
         self.params = params
-        self.numberUpdateRules = 12
+        self.numberUpdateRules = 13
         self.update_rules = [False] * self.numberUpdateRules
         for i in self.options.slow_update_rules:
             self.update_rules[i] = True
@@ -216,7 +216,7 @@ class ComplexRnn(nn.Module):
         :param params: (dict) The model parameters.
         """
         self.params = params
-        self.numberUpdateRules = 12
+        self.numberUpdateRules = 13
         self.update_rules = [False] * self.numberUpdateRules
         for i in self.options.fast_update_rules:
             self.update_rules[i] = True
@@ -340,7 +340,7 @@ class ComplexRnn(nn.Module):
         error_above = error[0]
         activation_above = activations_and_output[0]
         activation_below = activations_and_output[1]
-        update_vector = torch.zeros((12, parameter.shape[0], parameter.shape[1]), device=self.device)
+        update_vector = torch.zeros((13, parameter.shape[0], parameter.shape[1]), device=self.device)
         # with torch.no_grad():
         if self.update_rules[0]:
             update_vector[0] = -torch.matmul(error_below.T, activation_above)  # Pseudo-gradient
@@ -425,11 +425,13 @@ class ComplexRnn(nn.Module):
             )  # Oja's rule
 
         if self.update_rules[10]:
-            update_vector[10] = -torch.matmul(error_below, torch.ones(size=(1, parameter.shape[0]), device=self.device))
+            update_vector[10] = -torch.matmul(
+                error_below.T, torch.ones(size=(1, parameter.shape[1]), device=self.device)
+            )
 
         if self.update_rules[11]:
             update_vector[11] = -torch.matmul(
-                activation_below, torch.ones(size=(1, parameter.shape[0]), device=self.device)
+                activation_below.T, torch.ones(size=(1, parameter.shape[1]), device=self.device)
             )
 
         if self.update_rules[12]:

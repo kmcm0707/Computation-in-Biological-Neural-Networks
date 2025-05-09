@@ -46,13 +46,15 @@ class KernelRnn(nn.Module):
         Initialize the model parameters.
         :param params: (dict) The model parameters.
         """
-        self.numberUpdateRules = 10
+        self.numberUpdateRules = 13
         self.update_rules = [False] * self.numberUpdateRules
         for i in self.options.update_rules:
             self.update_rules[i] = True
 
         self.Q_matrix = nn.Parameter(
-            torch.nn.init.zeros_(torch.empty(size=(self.numberOfSlowChemicals, 20), device=self.device))
+            torch.nn.init.zeros_(
+                torch.empty(size=(self.numberOfSlowChemicals, self.numberUpdateRules * 2), device=self.device)
+            )
         )
         self.Q_matrix[:, 0] = 1e-3
 
@@ -134,10 +136,18 @@ class KernelRnn(nn.Module):
         self.variance_update = {}
         for name, parameter in params:
             self.mean_update[name] = torch.nn.init.zeros_(
-                torch.empty(size=(10, parameter.shape[0], parameter.shape[1]), device=self.device, requires_grad=True)
+                torch.empty(
+                    size=(self.numberUpdateRules, parameter.shape[0], parameter.shape[1]),
+                    device=self.device,
+                    requires_grad=True,
+                )
             )
             self.variance_update[name] = torch.nn.init.zeros_(
-                torch.empty(size=(10, parameter.shape[0], parameter.shape[1]), device=self.device, requires_grad=True)
+                torch.empty(
+                    size=(self.numberUpdateRules, parameter.shape[0], parameter.shape[1]),
+                    device=self.device,
+                    requires_grad=True,
+                )
             )
         self.time_index = 0
 
@@ -153,12 +163,16 @@ class KernelRnn(nn.Module):
                 h_slow_name = "slow_" + h_name
                 self.mean_update[h_slow_name] = torch.nn.init.zeros_(
                     torch.empty(
-                        size=(10, parameter.shape[0], parameter.shape[1]), device=self.device, requires_grad=True
+                        size=(self.numberUpdateRules, parameter.shape[0], parameter.shape[1]),
+                        device=self.device,
+                        requires_grad=True,
                     )
                 )
                 self.variance_update[h_slow_name] = torch.nn.init.zeros_(
                     torch.empty(
-                        size=(10, parameter.shape[0], parameter.shape[1]), device=self.device, requires_grad=True
+                        size=(self.numberUpdateRules, parameter.shape[0], parameter.shape[1]),
+                        device=self.device,
+                        requires_grad=True,
                     )
                 )
         self.time_index = 0
@@ -320,7 +334,9 @@ class KernelRnn(nn.Module):
         error_above = error[0]
         activation_above = activations_and_output[0]
         activation_below = activations_and_output[1]
-        update_vector = torch.zeros((10, parameter.shape[0], parameter.shape[1]), device=self.device)
+        update_vector = torch.zeros(
+            (self.numberUpdateRules, parameter.shape[0], parameter.shape[1]), device=self.device
+        )
         # with torch.no_grad():
         if self.update_rules[0]:
             update_vector[0] = -torch.matmul(error_below.T, activation_above)  # Pseudo-gradient
@@ -403,5 +419,20 @@ class KernelRnn(nn.Module):
                 torch.matmul(activation_below.T, activation_below),
                 parameter,
             )  # Oja's rule
+
+        if self.update_rules[10]:
+            update_vector[10] = -torch.matmul(
+                error_below.T, torch.ones(size=(1, parameter.shape[1]), device=self.device)
+            )
+
+        if self.update_rules[11]:
+            update_vector[11] = -torch.matmul(
+                activation_below.T, torch.ones(size=(1, parameter.shape[1]), device=self.device)
+            )
+
+        if self.update_rules[12]:
+            update_vector[12] = -torch.matmul(
+                torch.ones(size=(parameter.shape[0], 1), device=self.device), activation_above
+            )
 
         return update_vector
