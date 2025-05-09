@@ -517,7 +517,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 53
+    maxTrainingDataPerClass = 45
     queryDataPerClass = 10
 
     if dataset_name == "EMNIST":
@@ -579,7 +579,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         rnn_input_size=112,
-        datasetDevice="cpu",  # cuda:1,  # if running out of memory, change to "cpu"
+        datasetDevice="cuda:1",  # cuda:1,  # if running out of memory, change to "cpu"
         continueTraining=None,
         reset_fast_weights=True,
         requireFastChemical=False,
