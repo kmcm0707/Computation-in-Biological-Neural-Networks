@@ -513,11 +513,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 0
-    epochs = 500
+    epochs = 800
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 45
+    maxTrainingDataPerClass = 57
     queryDataPerClass = 10
 
     if dataset_name == "EMNIST":
@@ -552,13 +552,13 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     if model == rnnModelEnum.kernel:
         modelOptions = kernelRnnOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 2, 9],  # [0, 1, 2, 3, 4, 5, 8, 9],
+            update_rules=[0, 1, 2, 3, 4, 5, 8, 9],
             minSlowTau=2,
             maxSlowTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             slow_operator=operatorEnum.mode_6,
-            time_lag_covariance=1,
+            time_lag_covariance=None,
         )
 
     # current_dir = os.getcwd()
@@ -571,7 +571,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0001,
+        lr=0.0003,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -625,4 +625,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_test_true_bio_time_covariance", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_test_true_bio", index=i)
