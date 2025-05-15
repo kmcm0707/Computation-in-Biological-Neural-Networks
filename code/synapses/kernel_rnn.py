@@ -254,6 +254,8 @@ class KernelRnn(nn.Module):
                 self.variance_update[h_slow_name] = (
                     self.variance_update[h_slow_name] - self.mean_update[h_slow_name] ** 2
                 )"""
+                self.variance_update[h_slow_name] = self.variance_update[h_slow_name] / (self.time_index - 1)
+                self.past_updates[h_slow_name] = self.past_updates[h_slow_name] / (self.time_index - 1)
                 if self.options.time_lag_covariance is None:
                     update = torch.cat((self.mean_update[h_slow_name], self.variance_update[h_slow_name]), dim=0)
                 else:
@@ -267,6 +269,9 @@ class KernelRnn(nn.Module):
                     )
                 # Equation 1: h(s+1) = yh(s) + (1/\eta) * zf(Kh(s) + Qr )
                 # Equation 2: w(s) = v * h(s)
+
+                print("mean_update normalize", torch.norm(self.mean_update[h_slow_name], p=2))
+                print("variance_update normalize", torch.norm(self.variance_update[h_slow_name], p=2))
 
                 new_chemical = None
                 if (
@@ -341,17 +346,10 @@ class KernelRnn(nn.Module):
                     - self.mean_update[h_slow_name]
                 )
                 self.mean_update[h_slow_name] = self.mean_update[h_slow_name] + (update_vector) / self.time_index
-                self.variance_update[h_slow_name] = (
-                    self.variance_update[h_slow_name] + update_vector**2 / self.time_index
-                )
+                self.variance_update[h_slow_name] = self.variance_update[h_slow_name] + update_vector**2
                 if self.options.time_lag_covariance is not None and self.time_index > self.time_lag_covariance:
-                    self.past_variance[h_slow_name] = (
-                        self.past_variance[h_slow_name]
-                        + (
-                            self.past_updates[h_slow_name][0, :, :, :] * self.mean_update[h_slow_name]
-                            - self.mean_update[h_slow_name] ** 2
-                        )
-                        / self.time_index
+                    self.past_variance[h_slow_name] = self.past_variance[h_slow_name] + (
+                        self.past_updates[h_slow_name][0, :, :, :] * update_vector
                     )
                 if self.options.time_lag_covariance is not None:
                     self.past_updates[h_slow_name] = torch.roll(self.past_updates[h_slow_name], shifts=-1, dims=0)
