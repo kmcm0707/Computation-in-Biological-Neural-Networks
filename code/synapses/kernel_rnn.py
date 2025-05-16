@@ -68,6 +68,7 @@ class KernelRnn(nn.Module):
                     torch.empty(size=(self.numberOfSlowChemicals, self.numberUpdateRules * 3), device=self.device)
                 )
             )
+            self.Q_matrix[:, 0] = 1e-3
 
         self.K_slow_matrix = nn.Parameter(
             torch.nn.init.zeros_(
