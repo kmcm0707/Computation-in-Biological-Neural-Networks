@@ -739,7 +739,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     epochs = 1500
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 5
+    minTrainingDataPerClass = 30
     maxTrainingDataPerClass = 85
     queryDataPerClass = 20
 
@@ -900,7 +900,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice="cuda:0",  # if running out of memory, change to "cpu"
         continueTraining=None,
-        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+        typeOfFeedback=typeOfFeedbackEnum.FA,
         dimOut=dimOut,
     )
 
@@ -938,4 +938,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_6_very_small_examples_DFA_grad", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_6_diag_hebb", index=i)
