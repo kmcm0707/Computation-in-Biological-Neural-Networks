@@ -422,10 +422,6 @@ class KernelRnn(nn.Module):
         if self.update_rules[2]:
             update_vector[i] = -(
                 torch.matmul(error_below.T, error_above)
-                - torch.matmul(
-                    parameter,
-                    torch.matmul(error_above.T, error_above),
-                )
             )  # eHebb rule
             i += 1
 
@@ -509,18 +505,18 @@ class KernelRnn(nn.Module):
             i += 1
 
         if self.update_rules[11]:
-            update_vector[i] = torch.matmul(
+            update_vector[i] = -(torch.matmul(
                 activation_below.T, torch.ones(size=(1, parameter.shape[1]), device=self.device)
             ) - torch.matmul(
                 torch.matmul(activation_below.T, activation_below),
                 parameter,
-            )
+            ))
             i += 1
 
         if self.update_rules[12]:
-            update_vector[i] = -torch.matmul(
+            update_vector[i] = -(torch.matmul(
                 torch.ones(size=(parameter.shape[0], 1), device=self.device), activation_above
-            )
+            ))
             i += 1
 
         return update_vector
