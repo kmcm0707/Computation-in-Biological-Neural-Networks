@@ -255,11 +255,15 @@ class KernelRnn(nn.Module):
                 self.variance_update[h_slow_name] = (
                     self.variance_update[h_slow_name] - self.mean_update[h_slow_name] ** 2
                 )"""
-                self.variance_update[h_slow_name] = self.variance_update[h_slow_name] / (self.time_index - 1)
+                self.variance_update[h_slow_name] = (self.variance_update[h_slow_name] / self.time_index) - (
+                    self.mean_update[h_slow_name] ** 2
+                )
                 if self.options.time_lag_covariance is None:
                     update = torch.cat((self.mean_update[h_slow_name], self.variance_update[h_slow_name]), dim=0)
                 else:
-                    self.past_updates[h_slow_name] = self.past_updates[h_slow_name] / (self.time_index - 1)
+                    self.past_updates[h_slow_name] = (
+                        self.past_updates[h_slow_name] / self.time_index - self.mean_update[h_slow_name] ** 2
+                    )
                     update = torch.cat(
                         (
                             self.mean_update[h_slow_name],
@@ -339,11 +343,11 @@ class KernelRnn(nn.Module):
                 activations_and_outputs = activations_and_output[name]
                 h_name = self.conversion_matrix[name]
                 h_slow_name = "slow_" + h_name
-                update_vector = (
-                    self.calculate_update_vector(errors, activations_and_outputs, parameter)
-                    - self.mean_update[h_slow_name]
+                update_vector = self.calculate_update_vector(errors, activations_and_outputs, parameter)
+                mean_removed_update_vector = update_vector - self.mean_update[h_slow_name]
+                self.mean_update[h_slow_name] = self.mean_update[h_slow_name] + (
+                    mean_removed_update_vector / self.time_index
                 )
-                self.mean_update[h_slow_name] = self.mean_update[h_slow_name] + (update_vector) / self.time_index
                 self.variance_update[h_slow_name] = self.variance_update[h_slow_name] + update_vector**2
                 if self.options.time_lag_covariance is not None and self.time_index > self.time_lag_covariance:
                     self.past_variance[h_slow_name] = self.past_variance[h_slow_name] + (

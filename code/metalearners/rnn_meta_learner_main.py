@@ -552,13 +552,13 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     if model == rnnModelEnum.kernel:
         modelOptions = kernelRnnOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 5, 9],
+            update_rules=[0, 2, 5, 9, 11, 12],
             minSlowTau=2,
             maxSlowTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             slow_operator=operatorEnum.mode_6,
-            time_lag_covariance=2,  ## None to disable
+            time_lag_covariance=None,  ## None to disable
         )
 
     # current_dir = os.getcwd()
@@ -625,4 +625,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_test_true_bio", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_test_true_bio_fixed_var", index=i)

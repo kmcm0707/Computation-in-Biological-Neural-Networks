@@ -938,4 +938,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_6_triau_hebb", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_6_normal_check", index=i)
