@@ -552,7 +552,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     if model == rnnModelEnum.kernel:
         modelOptions = kernelRnnOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4, 5, 9, 13],
+            update_rules=[0, 1, 2, 4, 5, 9, 12, 13],
             minSlowTau=2,
             maxSlowTau=100,
             y_vector=yVectorEnum.none,
