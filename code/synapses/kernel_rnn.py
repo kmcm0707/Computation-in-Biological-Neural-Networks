@@ -540,7 +540,7 @@ class KernelRnn(nn.Module):
         if self.update_rules[12]:
             update_vector[i] = -torch.matmul(
                 torch.ones(size=(parameter.shape[0], 1), device=self.device), activation_above
-            )
+                )*torch.nn.functional.softmax(activation_below.squeeze(0), dim=0)[:,None]
             i += 1
 
         if self.update_rules[13]:
