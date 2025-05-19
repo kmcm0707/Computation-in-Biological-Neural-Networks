@@ -286,8 +286,8 @@ class KernelRnn(nn.Module):
                 if self.options.time_lag_covariance is None:
                     update = torch.cat((self.mean_update[h_slow_name], self.variance_update[h_slow_name]), dim=0)
                 else:
-                    self.past_updates[h_slow_name] = (
-                        self.past_updates[h_slow_name] / self.time_index - self.mean_update[h_slow_name] ** 2
+                    self.past_variance[h_slow_name] = (
+                        self.past_variance[h_slow_name] / self.time_index - self.mean_update[h_slow_name] ** 2
                     )
                     update = torch.cat(
                         (
