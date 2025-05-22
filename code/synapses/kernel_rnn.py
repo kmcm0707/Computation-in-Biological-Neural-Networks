@@ -546,14 +546,11 @@ class KernelRnn(nn.Module):
             i += 1
 
         if self.update_rules[13]:
-            diff_activation_above = 1 - torch.exp(-10 * activation_above)
+            diff_activation_below = 1 - torch.exp(-10 * activation_below)
             self.rflo[h_slow_name] = (1 - 1 / self.rflo_tau) * self.rflo[h_slow_name] + (
                 1 / self.rflo_tau
-            ) * torch.matmul(
-                activation_below.T,
-                diff_activation_above,
-            )
-            update_vector[i] = -error_above.squeeze(0)[None, :] * self.rflo[h_slow_name]
+            ) * torch.matmul(diff_activation_below.T, activation_above)
+            update_vector[i] = -error_below.squeeze(0)[:, None] * self.rflo[h_slow_name]
             i += 1
 
         return update_vector
