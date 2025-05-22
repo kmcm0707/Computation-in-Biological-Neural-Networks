@@ -955,6 +955,14 @@ class ComplexSynapse(nn.Module):
                 torch.matmul(activations_and_output[i + 1].T, activations_and_output[i + 1]),
                 parameter,
             )  # Oja's rule
+            """update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) - torch.matmul(
+                torch.diag(torch.square(activations_and_output[i + 1].squeeze(0)), diagonal=0),
+                parameter,
+            )  # Diag Oja's rule"""
+            """update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) - torch.matmul(
+                torch.triu(torch.matmul(activations_and_output[i + 1].T, activations_and_output[i + 1])),
+                parameter,
+            )  # Upper Diag Oja's rule"""
             """update_vector[9] = torch.matmul(activations_and_output[i + 1].T, activations_and_output[i]) * (
                 (activations_and_output[i + 1].squeeze(0) - self.bcm_dict[h_name])[:, None]
             )

@@ -31,6 +31,8 @@ class kernelRnnOptions:
         self.y_vector = y_vector
         self.z_vector = z_vector
         self.slow_operator = slow_operator
+        if time_lag_covariance == 0:
+            time_lag_covariance = None
         self.time_lag_covariance = time_lag_covariance
 
     def __str__(self):
