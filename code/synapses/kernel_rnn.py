@@ -553,7 +553,7 @@ class KernelRnn(nn.Module):
                 activation_below.T,
                 diff_activation_above,
             )
-            update_vector[i] = -error_below.squeeze(0)[:, None] * self.rflo[h_slow_name]
+            update_vector[i] = -error_above.squeeze(0)[None, :] * self.rflo[h_slow_name]
             i += 1
 
         return update_vector
