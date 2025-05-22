@@ -190,7 +190,7 @@ class KernelRnn(nn.Module):
                     if 13 in self.options.update_rules:
                         self.rflo[h_slow_name] = torch.nn.init.zeros_(
                             torch.empty(
-                                size=(1, parameter.shape[1]),
+                                size=(parameter.shape[0], parameter.shape[1]),
                                 device=self.device,
                             )
                         )
@@ -241,7 +241,7 @@ class KernelRnn(nn.Module):
                 if 13 in self.options.update_rules:
                     self.rflo[h_slow_name] = torch.nn.init.zeros_(
                         torch.empty(
-                            size=(1, parameter.shape[1]),
+                            size=(parameter.shape[0], parameter.shape[1]),
                             device=self.device,
                         )
                     )
@@ -540,15 +540,20 @@ class KernelRnn(nn.Module):
         if self.update_rules[12]:
             update_vector[i] = -torch.matmul(
                 torch.ones(size=(parameter.shape[0], 1), device=self.device), activation_above
-                )*torch.nn.functional.softmax(activation_below.squeeze(0), dim=0)[:,None]
+            )
+            # * torch.nn.functional.softmax(activation_below.squeeze(0), dim=0)[:, None]
+
             i += 1
 
         if self.update_rules[13]:
             diff_activation_above = 1 - torch.exp(-10 * activation_above)
             self.rflo[h_slow_name] = (1 - 1 / self.rflo_tau) * self.rflo[h_slow_name] + (
                 1 / self.rflo_tau
-            ) * diff_activation_above * activation_above
-            update_vector[i] = -torch.matmul(error_below.T, self.rflo[h_slow_name])
+            ) * torch.matmul(
+                activation_below.T,
+                diff_activation_above,
+            )
+            update_vector[i] = -error_below.squeeze(0)[:, None] * self.rflo[h_slow_name]
             i += 1
 
         return update_vector
