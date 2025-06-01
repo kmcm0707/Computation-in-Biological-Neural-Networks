@@ -632,7 +632,7 @@ def run(
             eta=1,
             beta=0,  ## Only for v_vector=random_beta
             kMasking=False,
-            individual_different_v_vector=True,  # Individual Model Only
+            individual_different_v_vector=False,  # Individual Model Only
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
         )
@@ -787,13 +787,13 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/mode_4_ind/0/ind_v"]
+    modelPath_s = [os.getcwd() + "/results/mode_4_ind/0/non_ind_v"]
     for i in range(2):
         for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_4_ind_ind_v"][i],
+                result_subdirectory=["runner_mode_4_ind_non_ind_v"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
