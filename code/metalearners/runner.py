@@ -520,6 +520,7 @@ def run(
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
     trainingDataPerClass = [
+        0,
         10,
         20,
         30,

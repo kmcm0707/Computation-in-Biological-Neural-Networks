@@ -1,6 +1,5 @@
 # A complex synapse model where each layer has different parameters.
 
-import math
 
 import numpy as np
 import torch
@@ -8,7 +7,6 @@ from options.complex_options import (
     complexOptions,
     kMatrixEnum,
     modeEnum,
-    nonLinearEnum,
     operatorEnum,
     pMatrixEnum,
     vVectorEnum,
@@ -16,7 +14,6 @@ from options.complex_options import (
     zVectorEnum,
 )
 from torch import nn
-from torch.nn import functional
 
 
 class IndividualSynapse(nn.Module):
@@ -309,7 +306,7 @@ class IndividualSynapse(nn.Module):
                 h_name = name.replace("forward", "chemical").split(".")[0]
                 v_name = h_name
                 if "5" not in name:
-                    i+=1
+                    i += 1
                     continue
                 if self.options.individual_different_v_vector == False:
                     v_name = "all"
@@ -440,13 +437,16 @@ class IndividualSynapse(nn.Module):
             update_vector[4] = -torch.matmul(torch.ones(size=(parameter.shape[0], 1), device=self.device), error[i])
 
         if self.update_rules[5]:
-            update_vector[5] = -torch.matmul(
-                torch.matmul(
-                    torch.matmul(error[i + 1].T, torch.ones(size=(1, parameter.shape[0]), device=self.device)),
-                    activations_and_output[i + 1].T,
-                ),
-                activations_and_output[i],
-            )  # = ERROR on high learning rate
+            normalised_weight = torch.nn.functional.normalize(parameter, p=2, dim=0)
+            squeeze_activations = activations_and_output[i].squeeze(0)
+            normalised_activation = torch.nn.functional.normalize(squeeze_activations, p=2, dim=0)
+            output = torch.nn.functional.softplus(
+                torch.matmul(normalised_activation, normalised_weight.T),
+                beta=10.0,
+            )
+            softmax_output = torch.nn.functional.softmax(output, dim=0)
+            diff = normalised_weight - normalised_activation
+            update_vector[5] = -(diff * softmax_output[:, None])
 
         if self.update_rules[6]:
             update_vector[6] = -torch.matmul(
