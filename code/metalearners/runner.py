@@ -97,7 +97,7 @@ class Runner:
         state_dict = torch.load(
             self.options.modelPath + "/UpdateWeights.pth", weights_only=True, map_location=self.device
         )
-        if self.modelOptions.bias == False:
+        if self.modelOptions.bias == False and self.options.model is modelEnum.complex:
             for key in list(state_dict.keys()):
                 if "bias" in key:
                     state_dict.pop(key)
@@ -111,10 +111,11 @@ class Runner:
                 self.options.modelPath + "/UpdateFeedbackWeights.pth", weights_only=True, map_location=self.device
             )  # UpdateFeedbackWeights
             for key, val in self.UpdateWeights.named_parameters():
-                if "bias_dictionary.chemical" in key:
-                    name = "bias_dictionary.feedback_chemical" + key[-1]
-                    feedback_state_dict[name] = feedback_state_dict[key].clone()
-                    feedback_state_dict.pop(key)
+                if self.options.model is modelEnum.complex:
+                    if "bias_dictionary.chemical" in key:
+                        name = "bias_dictionary.feedback_chemical" + key[-1]
+                        feedback_state_dict[name] = feedback_state_dict[key].clone()
+                        feedback_state_dict.pop(key)
             if self.options.feedbackModel == modelEnum.individual:
                 if "v_vector" in feedback_state_dict:
                     feedback_state_dict["v_dictionary.all"] = feedback_state_dict["v_vector"].clone()
@@ -610,7 +611,7 @@ def run(
     )
 
     # -- options
-    model = modelEnum.complex
+    model = modelEnum.individual
     modelOptions = None
 
     if model == modelEnum.complex or model == modelEnum.individual:
@@ -631,7 +632,7 @@ def run(
             eta=1,
             beta=0,  ## Only for v_vector=random_beta
             kMasking=False,
-            individual_different_v_vector=False,  # Individual Model Only
+            individual_different_v_vector=True,  # Individual Model Only
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
         )
@@ -755,7 +756,7 @@ def run(
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 1
+    numberOfChemicals = 3
     # -- meta-traing
     device = "cuda:1" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -786,13 +787,13 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/mode_4_2_chems/0/20250529-173127"]
+    modelPath_s = [os.getcwd() + "/results/mode_4_ind/0/ind_v"]
     for i in range(2):
         for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_4_1_chems"][i],
+                result_subdirectory=["runner_mode_4_ind_ind_v"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
