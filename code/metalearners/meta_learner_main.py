@@ -736,7 +736,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 0
-    epochs = 500
+    epochs = 800
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
@@ -794,7 +794,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             eta=1,
             beta=0.01,  ## Only for v_vector=random_beta
             kMasking=False,
-            individual_different_v_vector=False,  # Individual Model Only
+            individual_different_v_vector=True,  # Individual Model Only
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
         )
