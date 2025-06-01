@@ -320,6 +320,9 @@ class IndividualSynapse(nn.Module):
                         self.operator == operatorEnum.mode_1
                         or self.operator == operatorEnum.mode_3
                         or self.operator == operatorEnum.mode_4
+                        or self.operator == operatorEnum.mode_5
+                        or self.operator == operatorEnum.mode_6
+                        or self.operator == operatorEnum.mode_7
                     ):  # mode 1 - was also called add in results
                         new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.einsum(
                             "i,ijk->ijk",
@@ -330,6 +333,13 @@ class IndividualSynapse(nn.Module):
                                 + self.bias_dictionary[h_name]
                             ),
                         )
+                        if self.operator == operatorEnum.mode_5 or self.operator == operatorEnum.mode_6:
+                            parameter_norm = self.saved_norm[h_name]
+                            chemical_norms = torch.norm(new_chemical, dim=(1, 2))
+                            multiplier = parameter_norm / (chemical_norms)
+                            new_chemical = (
+                                new_chemical * multiplier[:, None, None]
+                            )  # chemical_norms[:, None, None] (mode 5 v2 is commented out)
                     elif self.operator == operatorEnum.sub:
                         # Equation 1 - operator = sub: h(s+1) = yh(s) + sign(h(s)) * z( f( sign(h(s)) * (Kh(s) + \theta * F(Parameter) + b) ))
                         new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.sign(
@@ -370,9 +380,21 @@ class IndividualSynapse(nn.Module):
                         new_value = parameter + torch.nn.functional.tanh(
                             torch.einsum("ci,ijk->cjk", self.v_dictionary[v_name], h_parameters[h_name]).squeeze(0)
                         )
-                    elif self.operator == operatorEnum.mode_4:
+                    elif (
+                        self.operator == operatorEnum.mode_4
+                        or self.operator == operatorEnum.mode_5
+                        or self.operator == operatorEnum.mode_6
+                        or self.operator == operatorEnum.mode_7
+                    ):
                         v_vector_softmax = torch.nn.functional.softmax(self.v_dictionary[v_name], dim=1)
                         new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)
+                        if self.operator == operatorEnum.mode_6:
+                            parameter_norm = self.saved_norm[h_name]
+                            current_norm = torch.norm(new_value, p=2)
+                            multiplier = parameter_norm / current_norm
+                            new_value = new_value * multiplier
+                        elif self.operator == operatorEnum.mode_7:
+                            new_value = torch.nn.functional.normalize(new_value, p=2, dim=0)
                     else:
                         new_value = torch.einsum(
                             "ci,ijk->cjk", self.v_dictionary[v_name], h_parameters[h_name]
@@ -390,6 +412,7 @@ class IndividualSynapse(nn.Module):
 
         To connect the forward and chemical parameters.
         """
+        self.saved_norm = {}
         for name, parameter in params.items():
             if "forward" in name:
                 h_name = name.replace("forward", "chemical").split(".")[0]
@@ -400,13 +423,28 @@ class IndividualSynapse(nn.Module):
                     if self.options.individual_different_v_vector == False:
                         v_name = "all"
 
-                    if self.operator == operatorEnum.mode_4:
+                    self.saved_norm[h_name] = torch.norm(parameter, p=2)
+                    if (
+                        self.operator == operatorEnum.mode_4
+                        or self.operator == operatorEnum.mode_5
+                        or self.operator == operatorEnum.mode_6
+                        or self.operator == operatorEnum.mode_7
+                    ):
                         v_vector_softmax = torch.nn.functional.softmax(self.v_dictionary[v_name], dim=1)
                         new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)
                     else:
                         new_value = torch.einsum(
                             "ci,ijk->cjk", self.v_dictionary[v_name], h_parameters[h_name]
                         ).squeeze(0)
+                    if (
+                        self.operator == operatorEnum.mode_5
+                        or self.operator == operatorEnum.mode_6
+                        or self.operator == operatorEnum.mode_7
+                    ):
+                        parameter_norm = self.saved_norm[h_name]
+                        current_norm = torch.norm(new_value, p=2)
+                        multiplier = parameter_norm / current_norm
+                        new_value = new_value * multiplier
                     params[name] = new_value
 
                     params[name].adapt = True
