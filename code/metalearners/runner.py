@@ -611,7 +611,7 @@ def run(
     )
 
     # -- options
-    model = modelEnum.individual
+    model = modelEnum.complex
     modelOptions = None
 
     if model == modelEnum.complex or model == modelEnum.individual:
@@ -756,7 +756,7 @@ def run(
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 3
+    numberOfChemicals = 2
     # -- meta-traing
     device = "cuda:1" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -787,13 +787,13 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/mode_6_ind/0/20250601-234232"]
+    modelPath_s = [os.getcwd() + "/results/mode_6_2_chems/0/20250530-064837"]
     for i in range(2):
         for index in range(0, 27):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_6_ind_non_ind_v"][i],
+                result_subdirectory=["runner_mode_6_2_chem"][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
