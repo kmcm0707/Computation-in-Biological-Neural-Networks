@@ -1,6 +1,5 @@
 # A complex synapse model where each layer has different parameters.
 
-import math
 
 import numpy as np
 import torch
@@ -8,7 +7,6 @@ from options.complex_options import (
     complexOptions,
     kMatrixEnum,
     modeEnum,
-    nonLinearEnum,
     operatorEnum,
     pMatrixEnum,
     vVectorEnum,
@@ -16,7 +14,6 @@ from options.complex_options import (
     zVectorEnum,
 )
 from torch import nn
-from torch.nn import functional
 
 
 class IndividualSynapse(nn.Module):
@@ -308,9 +305,9 @@ class IndividualSynapse(nn.Module):
             if "forward" in name:
                 h_name = name.replace("forward", "chemical").split(".")[0]
                 v_name = h_name
-                if "5" not in name:
-                    i+=1
-                    continue
+                """if "5" not in name:
+                    i += 1
+                    continue"""
                 if self.options.individual_different_v_vector == False:
                     v_name = "all"
                 chemical = h_parameters[h_name]
@@ -323,6 +320,9 @@ class IndividualSynapse(nn.Module):
                         self.operator == operatorEnum.mode_1
                         or self.operator == operatorEnum.mode_3
                         or self.operator == operatorEnum.mode_4
+                        or self.operator == operatorEnum.mode_5
+                        or self.operator == operatorEnum.mode_6
+                        or self.operator == operatorEnum.mode_7
                     ):  # mode 1 - was also called add in results
                         new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.einsum(
                             "i,ijk->ijk",
@@ -333,6 +333,13 @@ class IndividualSynapse(nn.Module):
                                 + self.bias_dictionary[h_name]
                             ),
                         )
+                        if self.operator == operatorEnum.mode_5 or self.operator == operatorEnum.mode_6:
+                            parameter_norm = self.saved_norm[h_name]
+                            chemical_norms = torch.norm(new_chemical, dim=(1, 2))
+                            multiplier = parameter_norm / (chemical_norms)
+                            new_chemical = (
+                                new_chemical * multiplier[:, None, None]
+                            )  # chemical_norms[:, None, None] (mode 5 v2 is commented out)
                     elif self.operator == operatorEnum.sub:
                         # Equation 1 - operator = sub: h(s+1) = yh(s) + sign(h(s)) * z( f( sign(h(s)) * (Kh(s) + \theta * F(Parameter) + b) ))
                         new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.sign(
@@ -373,9 +380,21 @@ class IndividualSynapse(nn.Module):
                         new_value = parameter + torch.nn.functional.tanh(
                             torch.einsum("ci,ijk->cjk", self.v_dictionary[v_name], h_parameters[h_name]).squeeze(0)
                         )
-                    elif self.operator == operatorEnum.mode_4:
+                    elif (
+                        self.operator == operatorEnum.mode_4
+                        or self.operator == operatorEnum.mode_5
+                        or self.operator == operatorEnum.mode_6
+                        or self.operator == operatorEnum.mode_7
+                    ):
                         v_vector_softmax = torch.nn.functional.softmax(self.v_dictionary[v_name], dim=1)
                         new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)
+                        if self.operator == operatorEnum.mode_6:
+                            parameter_norm = self.saved_norm[h_name]
+                            current_norm = torch.norm(new_value, p=2)
+                            multiplier = parameter_norm / current_norm
+                            new_value = new_value * multiplier
+                        elif self.operator == operatorEnum.mode_7:
+                            new_value = torch.nn.functional.normalize(new_value, p=2, dim=0)
                     else:
                         new_value = torch.einsum(
                             "ci,ijk->cjk", self.v_dictionary[v_name], h_parameters[h_name]
@@ -393,6 +412,7 @@ class IndividualSynapse(nn.Module):
 
         To connect the forward and chemical parameters.
         """
+        self.saved_norm = {}
         for name, parameter in params.items():
             if "forward" in name:
                 h_name = name.replace("forward", "chemical").split(".")[0]
@@ -403,13 +423,28 @@ class IndividualSynapse(nn.Module):
                     if self.options.individual_different_v_vector == False:
                         v_name = "all"
 
-                    if self.operator == operatorEnum.mode_4:
+                    self.saved_norm[h_name] = torch.norm(parameter, p=2)
+                    if (
+                        self.operator == operatorEnum.mode_4
+                        or self.operator == operatorEnum.mode_5
+                        or self.operator == operatorEnum.mode_6
+                        or self.operator == operatorEnum.mode_7
+                    ):
                         v_vector_softmax = torch.nn.functional.softmax(self.v_dictionary[v_name], dim=1)
                         new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)
                     else:
                         new_value = torch.einsum(
                             "ci,ijk->cjk", self.v_dictionary[v_name], h_parameters[h_name]
                         ).squeeze(0)
+                    if (
+                        self.operator == operatorEnum.mode_5
+                        or self.operator == operatorEnum.mode_6
+                        or self.operator == operatorEnum.mode_7
+                    ):
+                        parameter_norm = self.saved_norm[h_name]
+                        current_norm = torch.norm(new_value, p=2)
+                        multiplier = parameter_norm / current_norm
+                        new_value = new_value * multiplier
                     params[name] = new_value
 
                     params[name].adapt = True
@@ -440,13 +475,16 @@ class IndividualSynapse(nn.Module):
             update_vector[4] = -torch.matmul(torch.ones(size=(parameter.shape[0], 1), device=self.device), error[i])
 
         if self.update_rules[5]:
-            update_vector[5] = -torch.matmul(
-                torch.matmul(
-                    torch.matmul(error[i + 1].T, torch.ones(size=(1, parameter.shape[0]), device=self.device)),
-                    activations_and_output[i + 1].T,
-                ),
-                activations_and_output[i],
-            )  # = ERROR on high learning rate
+            normalised_weight = torch.nn.functional.normalize(parameter, p=2, dim=0)
+            squeeze_activations = activations_and_output[i].squeeze(0)
+            normalised_activation = torch.nn.functional.normalize(squeeze_activations, p=2, dim=0)
+            output = torch.nn.functional.softplus(
+                torch.matmul(normalised_activation, normalised_weight.T),
+                beta=10.0,
+            )
+            softmax_output = torch.nn.functional.softmax(output, dim=0)
+            diff = normalised_weight - normalised_activation
+            update_vector[5] = -(diff * softmax_output[:, None])
 
         if self.update_rules[6]:
             update_vector[6] = -torch.matmul(

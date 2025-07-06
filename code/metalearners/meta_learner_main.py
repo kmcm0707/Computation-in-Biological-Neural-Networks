@@ -736,11 +736,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 0
-    epochs = 500
+    epochs = 800
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 85
+    minTrainingDataPerClass = 5
+    maxTrainingDataPerClass = 95
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
@@ -784,7 +784,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=200,
+            maxTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_6,
@@ -794,7 +794,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             eta=1,
             beta=0.01,  ## Only for v_vector=random_beta
             kMasking=False,
-            individual_different_v_vector=False,  # Individual Model Only
+            individual_different_v_vector=True,  # Individual Model Only
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
         )
@@ -888,7 +888,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0001,
+        lr=0.0002,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -905,7 +905,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 1
     # -- meta-train
     device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cuda:0"
@@ -938,4 +938,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_6_normal_check", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_6_1_chem", index=i)

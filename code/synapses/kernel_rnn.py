@@ -55,18 +55,28 @@ class KernelRnn(nn.Module):
             trueNumberUpdateRules += 1
             self.update_rules[i] = True
         self.numberUpdateRules = trueNumberUpdateRules
+        if self.options.full_covariance:
+            self.numberVarianceUpdateRules = self.numberUpdateRules**2
+        else:
+            self.numberVarianceUpdateRules = self.numberUpdateRules
 
         if self.time_lag_covariance is None:
             self.Q_matrix = nn.Parameter(
                 torch.nn.init.zeros_(
-                    torch.empty(size=(self.numberOfSlowChemicals, self.numberUpdateRules * 2), device=self.device)
+                    torch.empty(
+                        size=(self.numberOfSlowChemicals, self.numberUpdateRules + self.numberVarianceUpdateRules),
+                        device=self.device,
+                    )
                 )
             )
             self.Q_matrix[:, 0] = 1e-3
         else:
             self.Q_matrix = nn.Parameter(
                 torch.nn.init.zeros_(
-                    torch.empty(size=(self.numberOfSlowChemicals, self.numberUpdateRules * 3), device=self.device)
+                    torch.empty(
+                        size=(self.numberOfSlowChemicals, self.numberUpdateRules + self.numberVarianceUpdateRules * 2),
+                        device=self.device,
+                    )
                 )
             )
             self.Q_matrix[:, 0] = 1e-3
@@ -163,7 +173,7 @@ class KernelRnn(nn.Module):
                 )
                 self.variance_update[h_slow_name] = torch.nn.init.zeros_(
                     torch.empty(
-                        size=(self.numberUpdateRules, parameter.shape[0], parameter.shape[1]),
+                        size=(self.numberVarianceUpdateRules, parameter.shape[0], parameter.shape[1]),
                         device=self.device,
                         requires_grad=True,
                     )
@@ -190,7 +200,7 @@ class KernelRnn(nn.Module):
                     if 13 in self.options.update_rules:
                         self.rflo[h_slow_name] = torch.nn.init.zeros_(
                             torch.empty(
-                                size=(1, parameter.shape[1]),
+                                size=(parameter.shape[0], parameter.shape[1]),
                                 device=self.device,
                             )
                         )
@@ -215,7 +225,7 @@ class KernelRnn(nn.Module):
                 )
                 self.variance_update[h_slow_name] = torch.nn.init.zeros_(
                     torch.empty(
-                        size=(self.numberUpdateRules, parameter.shape[0], parameter.shape[1]),
+                        size=(self.numberVarianceUpdateRules, parameter.shape[0], parameter.shape[1]),
                         device=self.device,
                         requires_grad=True,
                     )
@@ -241,7 +251,7 @@ class KernelRnn(nn.Module):
                 if 13 in self.options.update_rules:
                     self.rflo[h_slow_name] = torch.nn.init.zeros_(
                         torch.empty(
-                            size=(1, parameter.shape[1]),
+                            size=(parameter.shape[0], parameter.shape[1]),
                             device=self.device,
                         )
                     )
@@ -280,11 +290,22 @@ class KernelRnn(nn.Module):
                 self.variance_update[h_slow_name] = (
                     self.variance_update[h_slow_name] - self.mean_update[h_slow_name] ** 2
                 )"""
-                self.variance_update[h_slow_name] = (self.variance_update[h_slow_name] / self.time_index) - (
-                    self.mean_update[h_slow_name] ** 2
-                )
+                if self.options.full_covariance:
+                    mean_matrix = (
+                        torch.einsum(
+                            "hijk,hslm->isjk",
+                            self.mean_update[h_slow_name].unsqueeze(0),
+                            self.mean_update[h_slow_name].unsqueeze(0),
+                        )
+                    ).flatten(0, 1)
+                    variance_update = (self.variance_update[h_slow_name] / self.time_index) - (mean_matrix)
+                else:
+                    variance_update = (self.variance_update[h_slow_name] / self.time_index) - (
+                        self.mean_update[h_slow_name] ** 2
+                    )
                 if self.options.time_lag_covariance is None:
-                    update = torch.cat((self.mean_update[h_slow_name], self.variance_update[h_slow_name]), dim=0)
+                    update = torch.cat((self.mean_update[h_slow_name], variance_update), dim=0)
+
                 else:
                     self.past_variance[h_slow_name] = (
                         self.past_variance[h_slow_name] / self.time_index - self.mean_update[h_slow_name] ** 2
@@ -292,7 +313,7 @@ class KernelRnn(nn.Module):
                     update = torch.cat(
                         (
                             self.mean_update[h_slow_name],
-                            self.variance_update[h_slow_name],
+                            variance_update,
                             self.past_variance[h_slow_name],
                         ),
                         dim=0,
@@ -373,7 +394,14 @@ class KernelRnn(nn.Module):
                 self.mean_update[h_slow_name] = self.mean_update[h_slow_name] + (
                     mean_removed_update_vector / self.time_index
                 )
-                self.variance_update[h_slow_name] = self.variance_update[h_slow_name] + update_vector**2
+                if self.options.full_covariance:
+                    var_matrix = (
+                        torch.einsum("hijk,hslm->isjk", update_vector.unsqueeze(0), update_vector.unsqueeze(0))
+                    ).flatten(0, 1)
+                    self.variance_update[h_slow_name] = self.variance_update[h_slow_name] + (var_matrix)
+                else:
+                    self.variance_update[h_slow_name] = self.variance_update[h_slow_name] + update_vector**2
+
                 if self.options.time_lag_covariance is not None and self.time_index > self.time_lag_covariance:
                     self.past_variance[h_slow_name] = self.past_variance[h_slow_name] + (
                         self.past_updates[h_slow_name][0, :, :, :] * update_vector
@@ -539,16 +567,23 @@ class KernelRnn(nn.Module):
 
         if self.update_rules[12]:
             update_vector[i] = -torch.matmul(
-                torch.ones(size=(parameter.shape[0], 1), device=self.device), activation_above
+                torch.ones(size=(parameter.shape[0], 1), device=self.device),
+                activation_above
+                - torch.matmul(
+                    parameter,
+                    torch.matmul(activation_above.T, activation_above),
+                ),
             )
+            # * torch.nn.functional.softmax(activation_below.squeeze(0), dim=0)[:, None]
+
             i += 1
 
         if self.update_rules[13]:
-            diff_activation_above = 1 - torch.exp(-10 * activation_above)
+            diff_activation_below = 1 - torch.exp(-10 * activation_below)
             self.rflo[h_slow_name] = (1 - 1 / self.rflo_tau) * self.rflo[h_slow_name] + (
                 1 / self.rflo_tau
-            ) * diff_activation_above * activation_above
-            update_vector[i] = -torch.matmul(error_below.T, self.rflo[h_slow_name])
+            ) * torch.matmul(diff_activation_below.T, activation_above)
+            update_vector[i] = -error_below.squeeze(0)[:, None] * self.rflo[h_slow_name]
             i += 1
 
         return update_vector

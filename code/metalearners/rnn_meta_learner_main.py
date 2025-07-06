@@ -513,7 +513,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 0
-    epochs = 500
+    epochs = 800
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
@@ -552,15 +552,17 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     if model == rnnModelEnum.kernel:
         modelOptions = kernelRnnOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 4, 5, 9, 12, 13],
+            update_rules=[0, 1, 2, 4, 9],
             minSlowTau=2,
             maxSlowTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             slow_operator=operatorEnum.mode_6,
             time_lag_covariance=None,  ## None to disable
+            full_covariance=True,
         )
 
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     # current_dir = os.getcwd()
     # -- meta-learner options
     metaLearnerOptions = RnnMetaLearnerOptions(
@@ -579,7 +581,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         rnn_input_size=112,
-        datasetDevice="cuda:0",  # cuda:1,  # if running out of memory, change to "cpu"
+        datasetDevice=device,  # cuda:1,  # if running out of memory, change to "cpu"
         continueTraining=None,
         reset_fast_weights=True,
         requireFastChemical=False,
@@ -594,7 +596,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     numberOfSlowChemicals = 3
     numberOfFastChemicals = 3
     # -- meta-train
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
+
     # device = "cuda:1"
     metalearning_model = RnnMetaLearner(
         device=device,
@@ -625,4 +627,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_test_true_bio_fixed_var", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_test_true_bio_full_cov", index=i)

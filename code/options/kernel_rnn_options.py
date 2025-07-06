@@ -23,6 +23,7 @@ class kernelRnnOptions:
         z_vector: zVectorEnum = zVectorEnum.all_ones,
         slow_operator: operatorEnum = operatorEnum.mode_6,
         time_lag_covariance: Union[None, int] = None,
+        full_covariance: bool = False,
     ):
         self.nonLinear = nonLinear
         self.update_rules = update_rules
@@ -34,6 +35,7 @@ class kernelRnnOptions:
         if time_lag_covariance == 0:
             time_lag_covariance = None
         self.time_lag_covariance = time_lag_covariance
+        self.full_covariance = full_covariance
 
     def __str__(self):
         string = ""

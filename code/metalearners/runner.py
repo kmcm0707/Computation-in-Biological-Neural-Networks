@@ -1,10 +1,5 @@
-import argparse
-import copy
-import datetime
 import os
 import random
-import sys
-from multiprocessing import Pool
 from typing import Literal, Union
 
 import numpy as np
@@ -25,11 +20,8 @@ from options.complex_options import (
     zVectorEnum,
 )
 from options.meta_learner_options import (
-    MetaLearnerOptions,
     chemicalEnum,
     modelEnum,
-    optimizerEnum,
-    schedulerEnum,
     sizeEnum,
     typeOfFeedbackEnum,
 )
@@ -40,12 +32,11 @@ from options.reservoir_options import (
     yReservoirEnum,
 )
 from options.runner_options import RunnerOptions
-from ray import train
 from synapses.benna_synapse import BennaSynapse
 from synapses.complex_synapse import ComplexSynapse
 from synapses.individual_synapse import IndividualSynapse
 from synapses.reservoir_synapse import ReservoirSynapse
-from torch import nn, optim
+from torch import nn
 from torch.nn import functional
 from torch.utils.data import DataLoader, RandomSampler
 from torch.utils.tensorboard import SummaryWriter
@@ -106,7 +97,7 @@ class Runner:
         state_dict = torch.load(
             self.options.modelPath + "/UpdateWeights.pth", weights_only=True, map_location=self.device
         )
-        if self.modelOptions.bias == False:
+        if self.modelOptions.bias == False and self.options.model is modelEnum.complex:
             for key in list(state_dict.keys()):
                 if "bias" in key:
                     state_dict.pop(key)
@@ -120,10 +111,11 @@ class Runner:
                 self.options.modelPath + "/UpdateFeedbackWeights.pth", weights_only=True, map_location=self.device
             )  # UpdateFeedbackWeights
             for key, val in self.UpdateWeights.named_parameters():
-                if "bias_dictionary.chemical" in key:
-                    name = "bias_dictionary.feedback_chemical" + key[-1]
-                    feedback_state_dict[name] = feedback_state_dict[key].clone()
-                    feedback_state_dict.pop(key)
+                if self.options.model is modelEnum.complex:
+                    if "bias_dictionary.chemical" in key:
+                        name = "bias_dictionary.feedback_chemical" + key[-1]
+                        feedback_state_dict[name] = feedback_state_dict[key].clone()
+                        feedback_state_dict.pop(key)
             if self.options.feedbackModel == modelEnum.individual:
                 if "v_vector" in feedback_state_dict:
                     feedback_state_dict["v_dictionary.all"] = feedback_state_dict["v_vector"].clone()
@@ -524,11 +516,12 @@ def run(
 
     # -- load data
     numWorkers = 4
-    epochs = 50
+    epochs = 20
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    """trainingDataPerClass = [
+    trainingDataPerClass = [
+        0,
         10,
         20,
         30,
@@ -556,8 +549,8 @@ def run(
         325,
         350,
         375,
-    ]"""
-    trainingDataPerClass = [
+    ]
+    """trainingDataPerClass = [
         10,
         # 20,
         # 30,
@@ -583,13 +576,13 @@ def run(
         # 1200,
         # 1250,
         # 1300,
-    ]
+    ]"""
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "FASHION-MNIST"
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -629,7 +622,7 @@ def run(
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,
-            maxTau=500,
+            maxTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_6,
@@ -639,7 +632,7 @@ def run(
             eta=1,
             beta=0,  ## Only for v_vector=random_beta
             kMasking=False,
-            individual_different_v_vector=False,  # Individual Model Only
+            individual_different_v_vector=True,  # Individual Model Only
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
         )
@@ -763,9 +756,9 @@ def run(
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 5
-    # -- meta-train
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    numberOfChemicals = 1
+    # -- meta-traing
+    device = "cuda:1" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
     runner = Runner(
         device=device,
@@ -794,14 +787,14 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/normalise_mode_6_DFA/0/20250317-034401"]
+    modelPath_s = [os.getcwd() + "/results/mode_6_1_chem/0/20250604-014536"]
     for i in range(2):
-        for index in range(0, 27):
+        for index in range(0, 28):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_6_5_train_DFA_grad_fashion"][i],
+                result_subdirectory=["runner_mode_6_1_chem"][i],
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+                typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
             )
