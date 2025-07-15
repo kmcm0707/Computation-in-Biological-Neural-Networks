@@ -1,5 +1,3 @@
-import math
-import os
 from typing import Literal
 
 import numpy as np
@@ -925,6 +923,9 @@ class ComplexSynapse(nn.Module):
                 torch.nn.functional.sigmoid(activations_and_output[i + 1].T),
                 torch.nn.functional.sigmoid(activations_and_output[i]),
             )"""
+            update_vector[6] = -torch.matmul(
+                torch.ones(size=(parameter.shape[0], 1), device=self.device), activations_and_output[i]
+            )
 
         if self.update_rules[7]:
             update_vector[7] = -torch.matmul(
