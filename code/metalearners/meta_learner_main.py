@@ -779,12 +779,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4, 5, 6, 8, 9],
+            update_rules=[0, 1, 2, 3, 4, 6, 8, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=100,
+            maxTau=500,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_6,
@@ -888,7 +888,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0002,
+        lr=0.0001,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -938,4 +938,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_6_3_chem_lr_6", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_6_5_chem_lr_6", index=i)
