@@ -505,11 +505,12 @@ class MetaLearner:
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(0, torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
                 elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar:
-                    error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)
-                    #error_scalar = torch.tanh(error_scalar)  # tanh to avoid exploding gradients
+                    # error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)[0]
+                    error_scalar = error[0][0][label]
+                    # exit()
+                    # error_scalar = torch.tanh(error_scalar)  # tanh to avoid exploding gradients
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(0, torch.matmul(error_scalar, feedback[i]))
-
+                        error.insert(0, error_scalar * feedback[i])
                 elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
                     DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
                     feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
@@ -737,7 +738,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     random.seed(seed)
 
     # -- load data
-    numWorkers = 0
+    numWorkers = 2
     epochs = 800
 
     dataset_name = "EMNIST"
@@ -890,7 +891,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0002,
+        lr=0.0001,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -900,7 +901,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        datasetDevice="cuda:1",  # if running out of memory, change to "cpu"
+        datasetDevice="cuda:0",  # if running out of memory, change to "cpu"
         continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
@@ -909,7 +910,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     #   -- number of chemicals
     numberOfChemicals = 3
     # -- meta-train
-    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cuda:0"
     metalearning_model = MetaLearner(
         device=device,
@@ -940,4 +941,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_6_3_chem_scalar_past", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_6_3_chem_scalar_v2", index=i)
