@@ -506,8 +506,10 @@ class MetaLearner:
                         error.insert(0, torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
                 elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar:
                     error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)
+                    error_scalar = torch.tanh(error_scalar)  # tanh to avoid exploding gradients
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(0, torch.matmul(error_scalar, feedback[i]))
+
                 elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
                     DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
                     feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
@@ -888,7 +890,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0001,
+        lr=0.0002,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -900,7 +902,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice="cuda:0",  # if running out of memory, change to "cpu"
         continueTraining=None,
-        typeOfFeedback=typeOfFeedbackEnum.FA,
+        typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
     )
 
@@ -938,4 +940,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_6_5_chem_lr_6", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_6_3_chem_scalar", index=i)
