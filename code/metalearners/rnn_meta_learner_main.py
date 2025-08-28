@@ -370,6 +370,12 @@ class RnnMetaLearner:
                             error=error_dict,
                             activations_and_output=y_dict,
                         )
+                    elif self.options.slowIsFast:
+                        self.UpdateWeights.fast_update(
+                            params=parameters,
+                            error=error_dict,
+                            h_parameters=slow_h_parameters,
+                        )
                     else:
                         self.UpdateWeights.fast_update(
                             params=parameters,
@@ -384,6 +390,8 @@ class RnnMetaLearner:
                         h_slow_parameters=slow_h_parameters,
                         h_fast_parameters=fast_h_parameters,
                     )
+                elif self.options.slowIsFast:
+                    pass
                 else:
                     self.UpdateWeights.slow_update(params=parameters, h_slow_parameters=slow_h_parameters)
 
@@ -559,7 +567,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             z_vector=zVectorEnum.all_ones,
             slow_operator=operatorEnum.mode_6,
             time_lag_covariance=None,  ## None to disable
-            full_covariance=True,
+            full_covariance=False,  # True for full covariance, False for diagonal covariance
         )
 
     device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1

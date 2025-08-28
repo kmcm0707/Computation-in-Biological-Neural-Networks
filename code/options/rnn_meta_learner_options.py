@@ -51,6 +51,7 @@ class RnnMetaLearnerOptions:
         continueTraining: str = None,
         reset_fast_weights: bool = True,
         requireFastChemical: bool = False,
+        slowIsFast: bool = False,
         dimOut: int = 1,
         biological: bool = False,
         biological_min_tau: int = 1,
@@ -77,6 +78,7 @@ class RnnMetaLearnerOptions:
         self.continueTraining = continueTraining
         self.reset_fast_weights = reset_fast_weights
         self.requireFastChemical = requireFastChemical
+        self.slowIsFast = slowIsFast
         self.dimOut = dimOut
         self.biological = biological
         self.biological_min_tau = biological_min_tau
