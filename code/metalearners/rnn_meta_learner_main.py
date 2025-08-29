@@ -536,8 +536,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 50
-    queryDataPerClass = 10
+    maxTrainingDataPerClass = 70
+    queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -583,7 +583,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     elif model == rnnModelEnum.fast:
         modelOptions = fastRnnOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 4, 9],
+            update_rules=[0, 1, 2, 4, 9, 12],
             minSlowTau=2,
             maxSlowTau=100,
             y_vector=yVectorEnum.none,
