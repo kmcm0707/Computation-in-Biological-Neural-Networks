@@ -15,6 +15,7 @@ from options.complex_options import (
     yVectorEnum,
     zVectorEnum,
 )
+from options.fast_rnn_options import fastRnnOptions
 from options.kernel_rnn_options import kernelRnnOptions
 from options.meta_learner_options import chemicalEnum, optimizerEnum
 from options.rnn_meta_learner_options import (
@@ -22,6 +23,7 @@ from options.rnn_meta_learner_options import (
     errorEnum,
     rnnModelEnum,
 )
+from synapses.fast_rnn import FastRnn
 from synapses.kernel_rnn import KernelRnn
 from torch import nn, optim
 from torch.nn import functional
@@ -125,6 +127,14 @@ class RnnMetaLearner:
                 device=self.device,
                 numberOfSlowChemicals=self.numberOfSlowChemicals,
                 kernelRnnOptions=options,
+                params=self.model.named_parameters(),
+                conversion_matrix=self.model.parameters_to_chemical,
+            )
+        elif typeOfModel == rnnModelEnum.fast:
+            model = FastRnn(
+                device=self.device,
+                numberOfChemicals=self.numberOfSlowChemicals,
+                fastRnnOptions=options,
                 params=self.model.named_parameters(),
                 conversion_matrix=self.model.parameters_to_chemical,
             )
@@ -375,6 +385,7 @@ class RnnMetaLearner:
                             params=parameters,
                             error=error_dict,
                             h_parameters=slow_h_parameters,
+                            activations_and_output=y_dict,
                         )
                     else:
                         self.UpdateWeights.fast_update(
@@ -554,7 +565,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- options
-    model = rnnModelEnum.kernel
+    model = rnnModelEnum.fast
     modelOptions = None
 
     if model == rnnModelEnum.kernel:
@@ -569,8 +580,19 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             time_lag_covariance=None,  ## None to disable
             full_covariance=False,  # True for full covariance, False for diagonal covariance
         )
+    elif model == rnnModelEnum.fast:
+        modelOptions = fastRnnOptions(
+            nonLinear=nonLinearEnum.tanh,
+            update_rules=[0, 1, 2, 4, 9],
+            minSlowTau=2,
+            maxSlowTau=100,
+            y_vector=yVectorEnum.none,
+            z_vector=zVectorEnum.all_ones,
+            operator=operatorEnum.mode_6,
+        )
 
     device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
+    # device = "cpu"
     # current_dir = os.getcwd()
     # -- meta-learner options
     metaLearnerOptions = RnnMetaLearnerOptions(
@@ -591,8 +613,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         rnn_input_size=112,
         datasetDevice=device,  # cuda:1,  # if running out of memory, change to "cpu"
         continueTraining=None,
-        reset_fast_weights=True,
+        reset_fast_weights=False,  # False for fast RNN
         requireFastChemical=False,
+        slowIsFast=True,  # True for fast RNN
         dimOut=dimOut,
         biological=True,
         biological_min_tau=1,
@@ -601,7 +624,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfSlowChemicals = 3
+    numberOfSlowChemicals = 3  # fast uses this
     numberOfFastChemicals = 3
     # -- meta-train
 
@@ -635,4 +658,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_test_true_bio_full_cov", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_fast", index=i)

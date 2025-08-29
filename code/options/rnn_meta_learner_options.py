@@ -4,6 +4,7 @@ from typing import Literal
 
 from options.meta_learner_options import chemicalEnum, optimizerEnum
 from synapses.complex_rnn import ComplexRnn
+from synapses.fast_rnn import FastRnn
 from synapses.kernel_rnn import KernelRnn
 
 
@@ -14,6 +15,7 @@ class rnnModelEnum(Enum):
 
     complex = ComplexRnn
     kernel = KernelRnn
+    fast = FastRnn
 
 
 class errorEnum(Enum):

@@ -1,6 +1,6 @@
 import torch
 from options.complex_options import operatorEnum, yVectorEnum, zVectorEnum
-from options.kernel_rnn_options import kernelRnnOptions
+from options.fast_rnn_options import fastRnnOptions
 from torch import nn
 
 
@@ -38,11 +38,10 @@ class FastRnn(nn.Module):
         self.options = fastRnnOptions
         self.rflo_tau = 30
 
-        self.init_slow_params()
-        self.init_fast_params(params)
+        self.init_params()
 
     @torch.no_grad()
-    def init_slow_params(self):
+    def init_params(self):
         """
         Initialize the model parameters.
         :param params: (dict) The model parameters.
@@ -106,11 +105,11 @@ class FastRnn(nn.Module):
                 )
             )
         elif self.options.z_vector == zVectorEnum.all_ones:
-            self.z_vector = torch.ones(self.numberOfSlowChemicals, device=self.device)
+            self.z_vector = torch.ones(self.numberOfChemicals, device=self.device)
         elif self.options.z_vector == zVectorEnum.default:
             pass
 
-        if self.numberOfSlowChemicals == 1:
+        if self.numberOfChemicals == 1:
             self.y_vector[0] = 1
         elif self.options.y_vector == yVectorEnum.last_one:
             self.y_vector[-1] = 1
@@ -122,7 +121,7 @@ class FastRnn(nn.Module):
             self.y_vector[-1] = 1
             self.y_vector[0] = self.z_vector[-1]
         elif self.options.y_vector == yVectorEnum.all_ones:
-            self.y_vector = torch.ones(self.numberOfSlowChemicals, device=self.device)
+            self.y_vector = torch.ones(self.numberOfChemicals, device=self.device)
         elif self.options.y_vector == yVectorEnum.half:
             self.y_vector[-1] = 0.5
 
@@ -203,7 +202,6 @@ class FastRnn(nn.Module):
                     new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
 
                 params[name] = new_value
-                i += 1
 
     @torch.no_grad()
     def reset_time_index(self):
