@@ -583,7 +583,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     elif model == rnnModelEnum.fast:
         modelOptions = fastRnnOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 4, 9, 12],
+            update_rules=[0, 1, 2, 3, 4, 9, 12],
             minSlowTau=2,
             maxSlowTau=200,
             y_vector=yVectorEnum.none,
@@ -603,7 +603,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0003,
+        lr=0.0001,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -618,8 +618,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         slowIsFast=True,  # True for fast RNN
         dimOut=dimOut,
         biological=True,
-        biological_min_tau=20,
-        biological_max_tau=20,
+        biological_min_tau=2,
+        biological_max_tau=60,
         error=errorEnum.all,
     )
 
@@ -658,4 +658,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_fast_12_last", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_fast_more", index=i)
