@@ -1,4 +1,3 @@
-import numpy as np
 import torch
 import torch.nn as nn
 
@@ -85,3 +84,36 @@ if __name__ == "__main__":
     print(divesor)
     fixed_matrix = test_matrix_2 * divesor[:, None, None]
     print(torch.norm(fixed_matrix, p=2, dim=(1, 2)))
+
+    trainingDataPerClass = [
+        0,
+        5,
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        70,
+        80,
+        90,
+        100,
+        110,
+        120,
+        130,
+        140,
+        150,
+        160,
+        170,
+        180,
+        190,
+        200,
+        225,
+        250,
+        275,
+        300,
+        325,
+        350,
+        375,
+    ]
+    print(len(trainingDataPerClass))

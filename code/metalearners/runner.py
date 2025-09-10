@@ -492,6 +492,7 @@ def run(
     index: int = 0,
     typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
     modelPath=None,
+    numberOfChemicals=1,
 ) -> None:
     """
         Main function for Meta-learning the plasticity rule.
@@ -522,6 +523,7 @@ def run(
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
     trainingDataPerClass = [
         0,
+        5,
         10,
         20,
         30,
@@ -617,12 +619,12 @@ def run(
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4, 5, 8, 9],  # 5
+            update_rules=[0, 1, 2, 3, 4, 6, 8, 9],  # 5
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,
-            maxTau=100,
+            maxTau=500,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_6,
@@ -756,7 +758,7 @@ def run(
     )
 
     #   -- number of chemicals
-    numberOfChemicals = 1
+    numberOfChemicals = numberOfChemicals
     # -- meta-traing
     device = "cuda:1" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
@@ -787,14 +789,25 @@ def runner_main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    modelPath_s = [os.getcwd() + "/results/mode_6_1_chem/0/20250604-014536"]
-    for i in range(2):
+    modelPath_s = [
+        os.getcwd() + "/results/mode_6_1_chem_1/0/20250910-221744",
+        os.getcwd() + "/results/mode_6_3_chem_1/0/20250910-204609",
+        os.getcwd() + "/results/mode_6_5_chem_1/0/20250910-204750",
+        os.getcwd() + "/results/mode_6_7_chem_1/0/20250910-222310",
+    ]
+    for i in range(len(modelPath_s)):
         for index in range(0, 28):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_6_1_chem"][i],
+                result_subdirectory=[
+                    "runner_mode_6_1_chem_1",
+                    "runner_mode_6_3_chem_1",
+                    "runner_mode_6_5_chem_1",
+                    "runner_mode_6_7_chem_1",
+                ][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
+                numberOfChemicals=[1, 3, 5, 7][i],
             )
