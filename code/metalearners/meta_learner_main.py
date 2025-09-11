@@ -754,7 +754,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 10
-    maxTrainingDataPerClass = 70
+    maxTrainingDataPerClass = 40
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
@@ -783,7 +783,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- options
-    model = modelEnum.lstm
+    model = modelEnum.complex
     modelOptions = None
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
     # beta = [1, 0.1, 0.01, 0.001, 0.0001]
@@ -894,7 +894,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     continue_training = current_dir + "/results/mode_6_very_small_examples/0/20250323-222336"
     # continue_training = current_dir + "/results/mode_7_FA_dropout_test/0/20250317-222653"
     # -- meta-learner options
-    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P matrix (check 1.5)
