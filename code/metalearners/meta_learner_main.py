@@ -21,6 +21,7 @@ from options.complex_options import (
     yVectorEnum,
     zVectorEnum,
 )
+from options.LSTM_options import lstmOptions
 from options.meta_learner_options import (
     MetaLearnerOptions,
     chemicalEnum,
@@ -40,6 +41,7 @@ from ray import train
 from synapses.benna_synapse import BennaSynapse
 from synapses.complex_synapse import ComplexSynapse
 from synapses.individual_synapse import IndividualSynapse
+from synapses.LSTM_synapse import LSTMSynapse
 from synapses.reservoir_synapse import ReservoirSynapse
 from torch import nn, optim
 from torch.nn import functional
@@ -263,6 +265,14 @@ class MetaLearner:
                 numberOfChemicals=self.numberOfChemicals,
                 options=options,
                 params=self.model.named_parameters(),
+            )
+        elif typeOfModel == modelEnum.lstm:
+            model = LSTMSynapse(
+                device=self.device,
+                numberOfChemicals=self.numberOfChemicals,
+                lstmOptions=options,
+                params=self.model.named_parameters(),
+                adaptionPathway=adaptionPathway,
             )
         else:
             raise ValueError("Model not recognized.")
@@ -665,6 +675,7 @@ class MetaLearner:
                         or "linear" in key
                         or "min_tau" in key
                         or "max_tau" in key
+                        or "lstm" in key
                     ):
                         with open(self.result_directory + "/{}.txt".format(key), "a") as f:
                             f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
@@ -739,10 +750,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 1600
+    epochs = 800
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 1
+    minTrainingDataPerClass = 10
     maxTrainingDataPerClass = 70
     queryDataPerClass = 20
 
@@ -772,7 +783,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- options
-    model = modelEnum.complex
+    model = modelEnum.lstm
     modelOptions = None
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
     # beta = [1, 0.1, 0.01, 0.001, 0.0001]
@@ -823,6 +834,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             update_rules=[0, 1, 2, 3, 4, 8, 9],
             minTau=1,
             maxTau=50,
+        )
+    elif model == modelEnum.lstm:
+        modelOptions = lstmOptions(
+            update_rules=[0, 1, 2, 3, 4, 6, 8, 9],
+            operator=operatorEnum.mode_6,
         )
 
     # -- feedback model options
@@ -878,6 +894,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     continue_training = current_dir + "/results/mode_6_very_small_examples/0/20250323-222336"
     # continue_training = current_dir + "/results/mode_7_FA_dropout_test/0/20250317-222653"
     # -- meta-learner options
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P matrix (check 1.5)
@@ -901,17 +918,15 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        datasetDevice="cuda:1",  # if running out of memory, change to "cpu"
+        datasetDevice=device,
         continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.FA,
         dimOut=dimOut,
     )
 
-    #   -- number of chemicals
-    numberOfChemicals = 7
+    # -- number of chemicals
+    numberOfChemicals = 3
     # -- meta-train
-    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
-    # device = "cuda:0"
     metalearning_model = MetaLearner(
         device=device,
         numberOfChemicals=numberOfChemicals,
@@ -941,4 +956,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_6_7_chem_1", index=i)
+        run(seed=0, display=True, result_subdirectory="lstm_3_chem", index=i)

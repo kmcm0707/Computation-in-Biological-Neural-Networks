@@ -117,3 +117,12 @@ if __name__ == "__main__":
         375,
     ]
     print(len(trainingDataPerClass))
+
+    with torch.no_grad():
+        LSTM_cell = nn.LSTMCell(input_size=2, hidden_size=3, bias=True)
+        LSTM_cell.bias_ih[0] = 0
+
+        LSTM_cell.weight_ih[:3, :] = 0
+    LSTM_cell()
+
+    print(LSTM_cell.weight_ih)

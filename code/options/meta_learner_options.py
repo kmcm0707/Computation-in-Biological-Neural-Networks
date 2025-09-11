@@ -5,6 +5,7 @@ from typing import Literal
 from synapses.benna_synapse import BennaSynapse
 from synapses.complex_synapse import ComplexSynapse
 from synapses.individual_synapse import IndividualSynapse
+from synapses.LSTM_synapse import LSTMSynapse
 from synapses.reservoir_synapse import ReservoirSynapse
 
 
@@ -28,6 +29,7 @@ class modelEnum(Enum):
     reservoir = ReservoirSynapse
     individual = IndividualSynapse
     benna = BennaSynapse
+    lstm = LSTMSynapse
 
 
 class chemicalEnum(Enum):
