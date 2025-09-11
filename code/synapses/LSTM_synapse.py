@@ -87,7 +87,8 @@ class LSTMSynapse(nn.Module):
         self.all_meta_parameters.append(self.lstm_cell)
 
         self.v_vector = nn.Parameter(
-            torch.ones(size=(1, self.number_chemicals), device=self.device) / self.number_chemicals
+            torch.nn.init.ones_(torch.empty(size=(1, self.number_chemicals), device=self.device))
+            / self.number_chemicals
         )
 
         self.all_meta_parameters.append(self.v_vector)
@@ -136,11 +137,16 @@ class LSTMSynapse(nn.Module):
                     update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i, h_name)
                     update_vector = torch.reshape(update_vector, (parameter_indices, self.total_update_rules))
 
+                    # print(chemical[0])
+                    # print(self.cell_state[h_name][0])
+
                     new_chemical = None
 
                     new_chemical, self.cell_state[h_name] = self.lstm_cell(
                         update_vector, (chemical, self.cell_state[h_name])
                     )
+                    # print(new_chemical[0])
+                    # print(self.cell_state[h_name][0])
                     new_chemical = torch.reshape(
                         new_chemical, (self.number_chemicals, parameter.shape[0], parameter.shape[1])
                     )
@@ -222,17 +228,17 @@ class LSTMSynapse(nn.Module):
         update_vector = torch.zeros(
             (self.total_update_rules, parameter.shape[0], parameter.shape[1]), device=self.device
         )
-        # with torch.no_grad():
+
         index_update = 0
-        if self.update_rules[index_update]:
+        if self.update_rules[0]:
             update_vector[index_update] = -torch.matmul(error[i + 1].T, activations_and_output[i])  # Pseudo-gradient
             index_update += 1
 
-        if self.update_rules[index_update]:
+        if self.update_rules[1]:
             update_vector[index_update] = -torch.matmul(activations_and_output[i + 1].T, error[i])
             index_update += 1
 
-        if self.update_rules[index_update]:
+        if self.update_rules[2]:
             update_vector[index_update] = -(
                 torch.matmul(error[i + 1].T, error[i])
                 - torch.matmul(
@@ -242,17 +248,17 @@ class LSTMSynapse(nn.Module):
             )  # eHebb rule
             index_update += 1
 
-        if self.update_rules[index_update]:
+        if self.update_rules[3]:
             update_vector[index_update] = -parameter
             index_update += 1
 
-        if self.update_rules[index_update]:
+        if self.update_rules[4]:
             update_vector[index_update] = -torch.matmul(
                 torch.ones(size=(parameter.shape[0], 1), device=self.device), error[i]
             )
             index_update += 1
 
-        if self.update_rules[index_update]:
+        if self.update_rules[5]:
             normalised_weight = torch.nn.functional.normalize(parameter, p=2, dim=0)
             squeeze_activations = activations_and_output[i].squeeze(0)
             normalised_activation = torch.nn.functional.normalize(squeeze_activations, p=2, dim=0)
@@ -265,13 +271,13 @@ class LSTMSynapse(nn.Module):
             update_vector[index_update] = -(diff * softmax_output[:, None])
             index_update += 1
 
-        if self.update_rules[index_update]:
+        if self.update_rules[6]:
             update_vector[index_update] = -torch.matmul(
                 torch.ones(size=(parameter.shape[0], 1), device=self.device), activations_and_output[i]
             )
             index_update += 1
 
-        if self.update_rules[index_update]:
+        if self.update_rules[7]:
             update_vector[index_update] = -torch.matmul(
                 torch.matmul(
                     torch.matmul(
@@ -284,7 +290,7 @@ class LSTMSynapse(nn.Module):
             )  # - Maybe be bad
             index_update += 1
 
-        if self.update_rules[index_update]:
+        if self.update_rules[8]:
             update_vector[index_update] = -torch.matmul(
                 torch.matmul(
                     torch.matmul(
@@ -297,7 +303,7 @@ class LSTMSynapse(nn.Module):
             )
             index_update += 1
 
-        if self.update_rules[index_update]:
+        if self.update_rules[9]:
             update_vector[index_update] = torch.matmul(
                 activations_and_output[i + 1].T, activations_and_output[i]
             ) - torch.matmul(
