@@ -62,10 +62,11 @@ class LSTMSynapse(nn.Module):
         )
 
         # Set up gate biases of input b_ii|b_if|b_ig|b_io
+        self.lstm_cell.bias_ih[0 * self.number_chemicals : self.number_chemicals] = 0
         self.lstm_cell.bias_ih[2 * self.number_chemicals : 3 * self.number_chemicals] = 0  # Input gate bias set to 0
-        self.lstm_cell.bias_ih[self.number_chemicals : 2 * self.number_chemicals] = (
+        """self.lstm_cell.bias_ih[self.number_chemicals : 2 * self.number_chemicals] = (
             torch.randn(self.number_chemicals) * 0.1 + 1
-        )  # Forget gate bias set to 1
+        )  # Forget gate bias set to 1"""
 
         # Set up gate biases of hidden state b_hi|b_hf|b_hg|b_ho
         self.lstm_cell.bias_hh[2 * self.number_chemicals : 3 * self.number_chemicals] = (
