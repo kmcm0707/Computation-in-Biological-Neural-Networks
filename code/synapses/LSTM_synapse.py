@@ -186,9 +186,9 @@ class LSTMSynapse(nn.Module):
                 if parameter.adapt == currentAdaptionPathway and "weight" in name:
                     # Equation 2: w(s) = v * h(s)
                     # if self.operator == operatorEnum.mode_7:
-                    self.hidden_state[h_name] = torch.zeros(
+                    """self.hidden_state[h_name] = torch.zeros(
                         (parameter.shape[0] * parameter.shape[1], self.number_chemicals), device=self.device
-                    )
+                    )"""
                     self.saved_norm[h_name] = torch.norm(parameter, p=2)
                     new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
                     if (
