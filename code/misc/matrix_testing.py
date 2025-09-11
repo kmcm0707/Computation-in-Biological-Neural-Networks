@@ -123,6 +123,12 @@ if __name__ == "__main__":
         LSTM_cell.bias_ih[0] = 0
 
         LSTM_cell.weight_ih[:3, :] = 0
-    LSTM_cell()
 
     print(LSTM_cell.weight_ih)
+
+    matrix = torch.randn((2, 3, 4))
+    print(matrix)
+    matrix = torch.reshape(matrix, (4, 6))
+    print(matrix)
+    matrix = torch.reshape(matrix, (2, 3, 4))
+    print(matrix)
