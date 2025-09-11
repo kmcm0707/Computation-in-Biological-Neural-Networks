@@ -133,7 +133,7 @@ class LSTMSynapse(nn.Module):
 
                     new_chemical = None
 
-                    new_chemical, cell_state[h_name] = self.lstm_cell(update_vector, (chemical, cell_state[h_name]))
+                    new_chemical, self.cell_state[h_name] = self.lstm_cell(update_vector, (chemical, self.cell_state[h_name]))
                     new_chemical = torch.reshape(
                         new_chemical, (self.number_chemicals, parameter.shape[0], parameter.shape[1])
                     )
