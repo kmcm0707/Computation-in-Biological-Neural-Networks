@@ -46,7 +46,6 @@ class GRUSynapse(nn.Module):
         self.total_update_rules = sum(self.update_rules)
 
         self.saved_norm = {}
-        self.cell_state = {}
         self.time_index = 0
 
         self.init_parameters(params=params)
@@ -127,6 +126,7 @@ class GRUSynapse(nn.Module):
                 chemical = torch.reshape(chemical, (parameter_indices, self.number_chemicals))
                 if parameter.adapt == currentAdaptionPathway and "weight" in name:
                     update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i, h_name)
+                    update_vector = update_vector / (torch.norm(update_vector, dim=(1, 2), p=2) + 1e-5)[:, None, None]
                     update_vector = torch.reshape(update_vector, (parameter_indices, self.total_update_rules))
 
                     # print(chemical[0])
@@ -189,9 +189,6 @@ class GRUSynapse(nn.Module):
                 if parameter.adapt == currentAdaptionPathway and "weight" in name:
                     # Equation 2: w(s) = v * h(s)
                     # if self.operator == operatorEnum.mode_7:
-                    self.cell_state[h_name] = torch.zeros(
-                        (parameter.shape[0] * parameter.shape[1], self.number_chemicals), device=self.device
-                    )
                     self.saved_norm[h_name] = torch.norm(parameter, p=2)
                     new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
                     if (

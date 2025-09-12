@@ -685,6 +685,7 @@ class MetaLearner:
                         or "min_tau" in key
                         or "max_tau" in key
                         or "lstm" in key
+                        or "gru" in key
                     ):
                         with open(self.result_directory + "/{}.txt".format(key), "a") as f:
                             f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
