@@ -69,9 +69,7 @@ class LSTMSynapse(nn.Module):
         )  # Forget gate bias set to 1
 
         # Set up gate biases of hidden state b_hi|b_hf|b_hg|b_ho
-        self.lstm_cell.bias_hh[2 * self.number_chemicals : 3 * self.number_chemicals] = (
-            0  # Input, forget, cell gate, output gate bias set to 0
-        )
+        self.lstm_cell.bias_hh[0 : self.number_chemicals] = 0  # Input, forget, cell gate, output gate bias set to 0
 
         # Set up weights of input W_ii|W_if|W_ig|W_io
         self.lstm_cell.weight_ih[2 * self.number_chemicals : 3 * self.number_chemicals, :] = (
