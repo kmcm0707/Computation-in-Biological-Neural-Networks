@@ -40,6 +40,7 @@ from options.reservoir_options import (
 from ray import train
 from synapses.benna_synapse import BennaSynapse
 from synapses.complex_synapse import ComplexSynapse
+from synapses.GRU_synapse import GRUSynapse
 from synapses.individual_synapse import IndividualSynapse
 from synapses.LSTM_synapse import LSTMSynapse
 from synapses.reservoir_synapse import ReservoirSynapse
@@ -268,6 +269,14 @@ class MetaLearner:
             )
         elif typeOfModel == modelEnum.lstm:
             model = LSTMSynapse(
+                device=self.device,
+                numberOfChemicals=self.numberOfChemicals,
+                lstmOptions=options,
+                params=self.model.named_parameters(),
+                adaptionPathway=adaptionPathway,
+            )
+        elif typeOfModel == modelEnum.gru:
+            model = GRUSynapse(
                 device=self.device,
                 numberOfChemicals=self.numberOfChemicals,
                 lstmOptions=options,
@@ -783,7 +792,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- options
-    model = modelEnum.lstm
+    model = modelEnum.gru
     modelOptions = None
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
     # beta = [1, 0.1, 0.01, 0.001, 0.0001]
@@ -836,6 +845,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
         )
     elif model == modelEnum.lstm:
+        modelOptions = lstmOptions(
+            update_rules=[0, 1, 2, 3, 4, 6, 8, 9],
+            operator=operatorEnum.mode_6,
+        )
+    elif model == modelEnum.gru:
         modelOptions = lstmOptions(
             update_rules=[0, 1, 2, 3, 4, 6, 8, 9],
             operator=operatorEnum.mode_6,
@@ -956,4 +970,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="lstm_3_chem", index=i)
+        run(seed=0, display=True, result_subdirectory="gru_3_chem", index=i)
