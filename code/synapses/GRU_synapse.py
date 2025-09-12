@@ -70,7 +70,7 @@ class GRUSynapse(nn.Module):
         self.gru_cell.weight_hh[2 * self.number_chemicals : 3 * self.number_chemicals, :] = (
             0  # Hidden state weights set to 0
         )
-        self.gru_cell.weight_hh[: self.number_chemicals, :] = 0  # Input gate weights set to 0
+        # self.gru_cell.weight_hh[: self.number_chemicals, :] = 0  # Input gate weights set to 0
 
         self.gru_cell.bias_ih[2 * self.number_chemicals : 3 * self.number_chemicals] = 0  # Input bias set to 0
         self.gru_cell.bias_hh[2 * self.number_chemicals : 3 * self.number_chemicals] = 0  # Hidden state bias set to 0
@@ -126,7 +126,7 @@ class GRUSynapse(nn.Module):
                 chemical = torch.reshape(chemical, (parameter_indices, self.number_chemicals))
                 if parameter.adapt == currentAdaptionPathway and "weight" in name:
                     update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i, h_name)
-                    update_vector = update_vector / (torch.norm(update_vector, dim=(1, 2), p=2) + 1e-5)[:, None, None]
+                    update_vector = update_vector / (torch.amax(update_vector, dim=(1, 2)) + 1e-5)[:, None, None]
                     update_vector = torch.reshape(update_vector, (parameter_indices, self.total_update_rules))
 
                     # print(chemical[0])
