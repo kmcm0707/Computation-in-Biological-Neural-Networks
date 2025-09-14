@@ -560,6 +560,14 @@ class MetaLearner:
 
                 activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
+                if self.options.hrm:
+                    for key, val in h_parameters.items():
+                        h_parameters[key] = val.detach()
+                    for key, val in parameters.items():
+                        current_adaption_pathway = parameters[key].adapt
+                        parameters[key] = val.detach()
+                        parameters[key].adapt = current_adaption_pathway
+
                 # -- update network params
                 self.UpdateWeights(
                     params=parameters,
@@ -634,7 +642,7 @@ class MetaLearner:
                     loss_meta += self.metaLossRegularization * torch.norm(P_matrix, p=1)
 
             # -- record params
-            UpdateWeights_state_dict = copy.deepcopy(self.UpdateWeights.state_dict())
+            # UpdateWeights_state_dict = copy.deepcopy(self.UpdateWeights.state_dict())
             UpdateFeedbackWeights_state_dict = None
             if self.options.trainSeparateFeedback:
                 UpdateFeedbackWeights_state_dict = copy.deepcopy(self.UpdateFeedbackWeights.state_dict())
@@ -676,7 +684,7 @@ class MetaLearner:
                 with open(self.result_directory + "/params.txt", "a") as f:
                     f.writelines(line + "\n")
 
-                for key, val in UpdateWeights_state_dict.items():
+                """for key, val in UpdateWeights_state_dict.items():
                     if (
                         "K" in key
                         or "P" in key
@@ -693,7 +701,7 @@ class MetaLearner:
                         or "gru" in key
                     ):
                         with open(self.result_directory + "/{}.txt".format(key), "a") as f:
-                            f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
+                            f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))"""
 
                 if self.options.trainSeparateFeedback:
                     for key, val in UpdateFeedbackWeights_state_dict.items():
