@@ -646,6 +646,8 @@ class MetaLearner:
             if self.options.hrm:
                 for key, val in h_parameters.items():
                     h_parameters[key] = val.detach()
+                for key, val in parameters.items():
+                    parameters[key] = val.detach()
             loss_meta.backward()
 
             # -- gradient clipping
