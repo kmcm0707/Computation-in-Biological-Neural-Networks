@@ -643,6 +643,9 @@ class MetaLearner:
             """scaler.scale(loss_meta).backward()
             scaler.step(self.UpdateMetaParameters)
             scaler.update()"""
+            if self.options.hrm:
+                for key, val in h_parameters.items():
+                    h_parameters[key] = val.detach()
             loss_meta.backward()
 
             # -- gradient clipping
@@ -763,8 +766,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     epochs = 800
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 10
-    maxTrainingDataPerClass = 40
+    minTrainingDataPerClass = 30
+    maxTrainingDataPerClass = 80
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
@@ -793,7 +796,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- options
-    model = modelEnum.gru
+    model = modelEnum.complex
     modelOptions = None
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
     # beta = [1, 0.1, 0.01, 0.001, 0.0001]
@@ -852,7 +855,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         )
     elif model == modelEnum.gru:
         modelOptions = lstmOptions(
-            update_rules=[0, 1, 2, 3, 4, 6, 8, 9],
+            update_rules=[0, 1, 2, 3, 6, 8, 9],
             operator=operatorEnum.mode_6,
         )
 
@@ -937,6 +940,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.FA,
         dimOut=dimOut,
+        hrm=True,
     )
 
     # -- number of chemicals
@@ -971,4 +975,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="gru_3_chem", index=i)
+        run(seed=0, display=True, result_subdirectory="hrm_test", index=i)

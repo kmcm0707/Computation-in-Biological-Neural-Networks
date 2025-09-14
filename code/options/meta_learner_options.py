@@ -90,6 +90,7 @@ class MetaLearnerOptions:
         typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
         dimOut: int = 47,
         loadModel: str = None,
+        hrm: bool = False,
     ):
         # print(trainSameFeedback)
         # assert (
@@ -123,6 +124,7 @@ class MetaLearnerOptions:
         self.typeOfFeedback = typeOfFeedback
         self.dimOut = dimOut
         self.loadModel = loadModel
+        self.hrm = hrm
 
     def __str__(self):
         string = ""
