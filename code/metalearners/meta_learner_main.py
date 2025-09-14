@@ -560,7 +560,10 @@ class MetaLearner:
 
                 activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
-                if self.options.hrm:
+                if (
+                    self.options.hrm_discount > 0
+                    and current_training_data_per_class - itr_adapt > self.options.hrm_discount
+                ):
                     for key, val in h_parameters.items():
                         h_parameters[key] = val.detach()
                     for key, val in parameters.items():
@@ -642,7 +645,7 @@ class MetaLearner:
                     loss_meta += self.metaLossRegularization * torch.norm(P_matrix, p=1)
 
             # -- record params
-            # UpdateWeights_state_dict = copy.deepcopy(self.UpdateWeights.state_dict())
+            UpdateWeights_state_dict = copy.deepcopy(self.UpdateWeights.state_dict())
             UpdateFeedbackWeights_state_dict = None
             if self.options.trainSeparateFeedback:
                 UpdateFeedbackWeights_state_dict = copy.deepcopy(self.UpdateFeedbackWeights.state_dict())
@@ -651,11 +654,13 @@ class MetaLearner:
             """scaler.scale(loss_meta).backward()
             scaler.step(self.UpdateMetaParameters)
             scaler.update()"""
-            if self.options.hrm:
+            """if self.options.hrm:
                 for key, val in h_parameters.items():
                     h_parameters[key] = val.detach()
                 for key, val in parameters.items():
+                    current_adaption_pathway = parameters[key].adapt
                     parameters[key] = val.detach()
+                    parameters[key].adapt = current_adaption_pathway"""
             loss_meta.backward()
 
             # -- gradient clipping
@@ -684,7 +689,7 @@ class MetaLearner:
                 with open(self.result_directory + "/params.txt", "a") as f:
                     f.writelines(line + "\n")
 
-                """for key, val in UpdateWeights_state_dict.items():
+                for key, val in UpdateWeights_state_dict.items():
                     if (
                         "K" in key
                         or "P" in key
@@ -701,7 +706,7 @@ class MetaLearner:
                         or "gru" in key
                     ):
                         with open(self.result_directory + "/{}.txt".format(key), "a") as f:
-                            f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))"""
+                            f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
 
                 if self.options.trainSeparateFeedback:
                     for key, val in UpdateFeedbackWeights_state_dict.items():
@@ -936,7 +941,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0005,
+        lr=0.0001,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -950,7 +955,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.FA,
         dimOut=dimOut,
-        hrm=True,
+        hrm_discount=10,
     )
 
     # -- number of chemicals
@@ -985,4 +990,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="hrm_test", index=i)
+        run(seed=0, display=True, result_subdirectory="hrm_discount_test", index=i)
