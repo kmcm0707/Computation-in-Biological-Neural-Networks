@@ -939,7 +939,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     continue_training = current_dir + "/results/mode_6_very_small_examples/0/20250323-222336"
     # continue_training = current_dir + "/results/mode_7_FA_dropout_test/0/20250317-222653"
     # -- meta-learner options
-    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P matrix (check 1.5)
@@ -967,7 +967,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.FA,
         dimOut=dimOut,
-        hrm_discount=20,
+        hrm_discount=30,
     )
 
     # -- number of chemicals
