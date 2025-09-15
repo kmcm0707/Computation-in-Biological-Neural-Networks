@@ -491,7 +491,7 @@ class MetaLearner:
                     torch.no_grad()
                     if (
                         self.options.hrm_discount > 0
-                        and current_training_data_per_class - itr_adapt > self.options.hrm_discount
+                        and current_training_data_per_class * self.options.numberOfClasses - itr_adapt > self.options.hrm_discount
                     )
                     else torch.enable_grad()
                 ):
@@ -967,7 +967,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.FA,
         dimOut=dimOut,
-        hrm_discount=-1,
+        hrm_discount=10,
     )
 
     # -- number of chemicals
