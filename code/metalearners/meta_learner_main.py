@@ -487,89 +487,101 @@ class MetaLearner:
 
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
-
-                # -- fix device
-                if self.str_device != self.options.datasetDevice:
-                    x, label = x.to(self.device), label.to(self.device)
-
-                # -- predict
-                y, logits = None, None
-                if self.options.trainSeparateFeedback or self.options.trainSameFeedback:
-                    y, logits = torch.func.functional_call(
-                        self.model, (parameters, h_parameters, feedback_params), x.unsqueeze(0).unsqueeze(0)
+                with (
+                    torch.no_grad()
+                    if (
+                        self.options.hrm_discount > 0
+                        and current_training_data_per_class - itr_adapt > self.options.hrm_discount
                     )
-                else:
-                    y, logits = torch.func.functional_call(
-                        self.model, (parameters, h_parameters), x.unsqueeze(0).unsqueeze(0)
-                    )
+                    else torch.enable_grad()
+                ):
+                    # -- fix device
+                    if self.str_device != self.options.datasetDevice:
+                        x, label = x.to(self.device), label.to(self.device)
 
-                # -- compute error
-                activations = y
-                output = logits
-                params = parameters
-                feedback = {name: value for name, value in params.items() if "feedback" in name}
-                error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=self.options.dimOut)]
-                if self.options.typeOfFeedback == typeOfFeedbackEnum.FA:
-                    # add the error for all the layers
-                    for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
-                elif self.options.typeOfFeedback == typeOfFeedbackEnum.FA_NO_GRAD:
-                    # add the error for all the layers
-                    for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(0, torch.matmul(error[0], feedback[i]))
-                elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA:
-                    for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(0, torch.matmul(error[-1], feedback[i]))
-                elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad:
-                    for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(0, torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
-                elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar:
-                    # error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)[0]
-                    error_scalar = error[0][0][label]
-                    # exit()
-                    # error_scalar = torch.tanh(error_scalar)  # tanh to avoid exploding gradients
-                    for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(0, error_scalar * feedback[i])
-                elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
-                    DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
-                    feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
-                    DFA_error = [
+                    # -- predict
+                    y, logits = None, None
+                    if self.options.trainSeparateFeedback or self.options.trainSameFeedback:
+                        y, logits = torch.func.functional_call(
+                            self.model, (parameters, h_parameters, feedback_params), x.unsqueeze(0).unsqueeze(0)
+                        )
+                    else:
+                        y, logits = torch.func.functional_call(
+                            self.model, (parameters, h_parameters), x.unsqueeze(0).unsqueeze(0)
+                        )
+
+                    # -- compute error
+                    activations = y
+                    output = logits
+                    params = parameters
+                    feedback = {name: value for name, value in params.items() if "feedback" in name}
+                    error = [
                         functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=self.options.dimOut)
                     ]
-                    for y, i in zip(reversed(activations), reversed(list(DFA_feedback))):
-                        DFA_error.insert(
-                            0, torch.matmul(error[-1], DFA_feedback[i]) * (1 - torch.exp(-self.model.beta * y))
-                        )
-                    index_error = len(DFA_error) - 2
-                    for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(
-                            0,
-                            (
-                                torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y))
-                                + DFA_error[index_error]
+                    if self.options.typeOfFeedback == typeOfFeedbackEnum.FA:
+                        # add the error for all the layers
+                        for y, i in zip(reversed(activations), reversed(list(feedback))):
+                            error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.FA_NO_GRAD:
+                        # add the error for all the layers
+                        for y, i in zip(reversed(activations), reversed(list(feedback))):
+                            error.insert(0, torch.matmul(error[0], feedback[i]))
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA:
+                        for y, i in zip(reversed(activations), reversed(list(feedback))):
+                            error.insert(0, torch.matmul(error[-1], feedback[i]))
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad:
+                        for y, i in zip(reversed(activations), reversed(list(feedback))):
+                            error.insert(
+                                0, torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-self.model.beta * y))
                             )
-                            / 2,
-                        )
-                        index_error -= 1
-                    """for i in range(len(DFA_error)):
-                        # error[i] = (error[i] + DFA_error[i]) / 2
-                        if i != 0:
-                            error[i] = (error[i] + DFA_error[i]) / np.sqrt(2)"""
-                else:
-                    raise ValueError("Invalid type of feedback")
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar:
+                        # error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)[0]
+                        error_scalar = error[0][0][label]
+                        # exit()
+                        # error_scalar = torch.tanh(error_scalar)  # tanh to avoid exploding gradients
+                        for y, i in zip(reversed(activations), reversed(list(feedback))):
+                            error.insert(0, error_scalar * feedback[i])
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
+                        DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
+                        feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
+                        DFA_error = [
+                            functional.softmax(output, dim=1)
+                            - functional.one_hot(label, num_classes=self.options.dimOut)
+                        ]
+                        for y, i in zip(reversed(activations), reversed(list(DFA_feedback))):
+                            DFA_error.insert(
+                                0, torch.matmul(error[-1], DFA_feedback[i]) * (1 - torch.exp(-self.model.beta * y))
+                            )
+                        index_error = len(DFA_error) - 2
+                        for y, i in zip(reversed(activations), reversed(list(feedback))):
+                            error.insert(
+                                0,
+                                (
+                                    torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y))
+                                    + DFA_error[index_error]
+                                )
+                                / 2,
+                            )
+                            index_error -= 1
+                        """for i in range(len(DFA_error)):
+                            # error[i] = (error[i] + DFA_error[i]) / 2
+                            if i != 0:
+                                error[i] = (error[i] + DFA_error[i]) / np.sqrt(2)"""
+                    else:
+                        raise ValueError("Invalid type of feedback")
 
-                activations_and_output = [*activations, functional.softmax(output, dim=1)]
+                    activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
-                if (
-                    self.options.hrm_discount > 0
-                    and current_training_data_per_class - itr_adapt > self.options.hrm_discount
-                ):
-                    for key, val in h_parameters.items():
-                        h_parameters[key] = val.detach()
-                    for key, val in parameters.items():
-                        current_adaption_pathway = parameters[key].adapt
-                        parameters[key] = val.detach()
-                        parameters[key].adapt = current_adaption_pathway
+                    """if (
+                        self.options.hrm_discount > 0
+                        and current_training_data_per_class - itr_adapt > self.options.hrm_discount
+                    ):
+                        for key, val in h_parameters.items():
+                            h_parameters[key] = val.detach()
+                        for key, val in parameters.items():
+                            current_adaption_pathway = parameters[key].adapt
+                            parameters[key] = val.detach()
+                            parameters[key].adapt = current_adaption_pathway"""
 
                 # -- update network params
                 self.UpdateWeights(
