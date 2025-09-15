@@ -174,24 +174,32 @@ class RnnMetaLearner:
 
     @staticmethod
     def weights_init(modules):
+        # Not Used
         if isinstance(modules, nn.RNNCell):
             # -- weights_ih
             nn.init.xavier_uniform_(modules.weight_ih)
             # -- weights_hh
-            nn.init.xavier_uniform_(modules.weight_hh)
+            nn.init.eye_(modules.weight_hh)
             # -- bias
             if modules.bias:
                 nn.init.xavier_uniform_(modules.bias)
+        # Used
         if isinstance(modules, nn.Linear):
-            nn.init.xavier_uniform_(modules.weight)
-            if modules.bias is not None:
-                nn.init.xavier_uniform_(modules.bias)
+            if modules.in_features == modules.out_features:
+                nn.init.eye_(modules.weight)
+            else:
+                nn.init.xavier_uniform_(modules.weight)
+                if modules.bias is not None:
+                    nn.init.xavier_uniform_(modules.bias)
 
     @torch.no_grad()
     def chemical_init(self, chemicals):
         if self.options.chemicalInitialization == chemicalEnum.same:
             for chemical in chemicals:
-                nn.init.xavier_uniform_(chemical[0])
+                if chemical.shape[1] == chemical.shape[2]:
+                    nn.init.eye_(chemical[0])
+                else:
+                    nn.init.xavier_uniform_(chemical[0])
                 for idx in range(chemical.shape[0] - 1):
                     chemical[idx + 1] = chemical[0]
         elif self.options.chemicalInitialization == chemicalEnum.zero:
@@ -583,7 +591,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     elif model == rnnModelEnum.fast:
         modelOptions = fastRnnOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4, 9, 12],
+            update_rules=[0, 1, 2, 4, 9, 12],
             minSlowTau=2,
             maxSlowTau=200,
             y_vector=yVectorEnum.none,
@@ -658,4 +666,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_fast_more", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_fast_identity_test", index=i)
