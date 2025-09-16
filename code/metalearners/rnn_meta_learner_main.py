@@ -187,7 +187,7 @@ class RnnMetaLearner:
         if isinstance(modules, nn.Linear):
             if modules.in_features == modules.out_features:
                 nn.init.eye_(modules.weight)
-                modules.weight = modules.weight * 3
+                modules.weight.data = modules.weight.data * 3
             else:
                 nn.init.xavier_uniform_(modules.weight)
                 if modules.bias is not None:
