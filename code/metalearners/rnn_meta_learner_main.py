@@ -187,6 +187,7 @@ class RnnMetaLearner:
         if isinstance(modules, nn.Linear):
             if modules.in_features == modules.out_features:
                 nn.init.eye_(modules.weight)
+                modules.weight = modules.weight * 3
             else:
                 nn.init.xavier_uniform_(modules.weight)
                 if modules.bias is not None:
@@ -198,6 +199,7 @@ class RnnMetaLearner:
             for chemical in chemicals:
                 if chemical.shape[1] == chemical.shape[2]:
                     nn.init.eye_(chemical[0])
+                    chemical[0] = 3 * chemical[0]
                 else:
                     nn.init.xavier_uniform_(chemical[0])
                 for idx in range(chemical.shape[0] - 1):
@@ -666,4 +668,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_fast_identity_test", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_fast_identity_test_3_times", index=i)
