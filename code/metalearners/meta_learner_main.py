@@ -977,7 +977,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         dimOut=dimOut,
         hrm_discount=150,
         error_control=True,
-        leaky_error_alpha=0.3,
+        leaky_error_alpha=0.2,
     )
 
     # -- number of chemicals
