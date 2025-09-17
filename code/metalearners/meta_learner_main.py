@@ -957,7 +957,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.FA,
         dimOut=dimOut,
-        hrm_discount=30,
+        hrm_discount=90,
     )
 
     # -- number of chemicals
