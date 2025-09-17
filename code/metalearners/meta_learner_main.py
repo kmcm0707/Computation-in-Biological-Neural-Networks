@@ -986,4 +986,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="hrm_discount_fix", index=i)
+        run(seed=0, display=True, result_subdirectory="error_control_test", index=i)
