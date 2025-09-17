@@ -491,7 +491,8 @@ class MetaLearner:
                     torch.no_grad()
                     if (
                         self.options.hrm_discount > 0
-                        and current_training_data_per_class * self.options.numberOfClasses - itr_adapt > self.options.hrm_discount
+                        and current_training_data_per_class * self.options.numberOfClasses - itr_adapt
+                        > self.options.hrm_discount
                     )
                     else torch.enable_grad()
                 ):
@@ -572,49 +573,38 @@ class MetaLearner:
 
                     activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
-                    """if (
-                        self.options.hrm_discount > 0
-                        and current_training_data_per_class - itr_adapt > self.options.hrm_discount
-                    ):
-                        for key, val in h_parameters.items():
-                            h_parameters[key] = val.detach()
-                        for key, val in parameters.items():
-                            current_adaption_pathway = parameters[key].adapt
-                            parameters[key] = val.detach()
-                            parameters[key].adapt = current_adaption_pathway"""
-
-                # -- update network params
-                self.UpdateWeights(
-                    params=parameters,
-                    h_parameters=h_parameters,
-                    error=error,
-                    activations_and_output=activations_and_output,
-                )
-
-                # -- update same model feedback params
-                if self.options.trainSameFeedback:
+                    # -- update network params
                     self.UpdateWeights(
                         params=parameters,
-                        h_parameters=feedback_params,
-                        error=error,
-                        activations_and_output=activations_and_output,
-                        override_adaption_pathway="feedback",
-                    )
-
-                # -- update time index
-                self.UpdateWeights.update_time_index()
-
-                # -- update Separate model feedback params
-                if self.options.trainSeparateFeedback:
-                    self.UpdateFeedbackWeights(
-                        params=parameters,
-                        h_parameters=feedback_params,
+                        h_parameters=h_parameters,
                         error=error,
                         activations_and_output=activations_and_output,
                     )
 
-                    # -- update Separate model feedback time index
-                    self.UpdateFeedbackWeights.update_time_index()
+                    # -- update same model feedback params
+                    if self.options.trainSameFeedback:
+                        self.UpdateWeights(
+                            params=parameters,
+                            h_parameters=feedback_params,
+                            error=error,
+                            activations_and_output=activations_and_output,
+                            override_adaption_pathway="feedback",
+                        )
+
+                    # -- update time index
+                    self.UpdateWeights.update_time_index()
+
+                    # -- update Separate model feedback params
+                    if self.options.trainSeparateFeedback:
+                        self.UpdateFeedbackWeights(
+                            params=parameters,
+                            h_parameters=feedback_params,
+                            error=error,
+                            activations_and_output=activations_and_output,
+                        )
+
+                        # -- update Separate model feedback time index
+                        self.UpdateFeedbackWeights.update_time_index()
 
             """ meta update """
             self.model.eval()
@@ -939,7 +929,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     continue_training = current_dir + "/results/mode_6_very_small_examples/0/20250323-222336"
     # continue_training = current_dir + "/results/mode_7_FA_dropout_test/0/20250317-222653"
     # -- meta-learner options
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P matrix (check 1.5)
@@ -1002,4 +992,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="hrm_discount_test", index=i)
+        run(seed=0, display=True, result_subdirectory="hrm_discount_fix", index=i)
