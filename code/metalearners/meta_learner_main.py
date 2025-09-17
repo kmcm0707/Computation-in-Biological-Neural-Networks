@@ -572,9 +572,6 @@ class MetaLearner:
                     else:
                         raise ValueError("Invalid type of feedback")
 
-                    for i in error:
-                        print(i.shape, end=", ")
-                    exit()
                     activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
                     # -- update network params
@@ -953,7 +950,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.FA,
         dimOut=dimOut,
-        hrm_discount=30,
+        hrm_discount=90,
         error_control=True,
     )
 

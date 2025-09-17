@@ -10,7 +10,7 @@ seed: 0
 raytune: False
 save_results: True
 results_subdir: hrm_discount_fix
-metatrain_dataset: <torch.utils.data.dataloader.DataLoader object at 0x00000146AD2F4DF0>
+metatrain_dataset: <torch.utils.data.dataloader.DataLoader object at 0x72972a146590>
 display: True
 lr: 0.0001
 numberOfClasses: 5
@@ -22,13 +22,13 @@ trainSameFeedback: False
 minTrainingDataPerClass: 30
 maxTrainingDataPerClass: 80
 queryDataPerClass: 20
-datasetDevice: cpu
+datasetDevice: cuda:1
 continueTraining: None
 typeOfFeedback: typeOfFeedbackEnum.FA
 dimOut: 47
 loadModel: None
-hrm_discount: 30
-nonLinear: <function tanh at 0x00000146C312D160>
+hrm_discount: 60
+nonLinear: <function tanh at 0x7297477ef910>
 bias: False
 update_rules: [0, 1, 2, 3, 4, 6, 8, 9]
 pMatrix: pMatrixEnum.first_col
