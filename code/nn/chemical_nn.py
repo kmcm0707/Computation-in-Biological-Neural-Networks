@@ -12,6 +12,7 @@ class ChemicalNN(nn.Module):
 
     """
 
+    @torch.no_grad()
     def __init__(
         self,
         device: Literal["cpu", "cuda"] = "cpu",
@@ -223,13 +224,6 @@ class ChemicalNN(nn.Module):
         # Dropout
         # self.dropout = nn.Dropout(p=0.2)
 
-        if self.error_control:
-            self.errors = []
-            self.errors.append(torch.ones(size=(1, 170), device=self.device) * 1e-6)
-            self.errors.append(torch.ones(size=(1, 130), device=self.device) * 1e-6)
-            self.errors.append(torch.ones(size=(1, 100), device=self.device) * 1e-6)
-            self.errors.append(torch.ones(size=(1, 70), device=self.device) * 1e-6)
-            self.errors.append(torch.ones(size=(1, self.dim_out), device=self.device) * 1e-6)
 
     def set_errors(self, errors):
         self.errors = errors

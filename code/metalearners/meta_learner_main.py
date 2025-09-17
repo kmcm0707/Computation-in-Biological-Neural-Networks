@@ -486,6 +486,28 @@ class MetaLearner:
                 data, self.options.numberOfClasses
             )
 
+            # -- error control
+            if self.options.error_control:
+                self.model.set_errors(
+                    [
+                        torch.ones(size=(1, 170), device=self.device) * 1e-6,
+                        torch.ones(size=(1, 130), device=self.device) * 1e-6,
+                        torch.ones(size=(1, 100), device=self.device) * 1e-6,
+                        torch.ones(size=(1, 70), device=self.device) * 1e-6,
+                        torch.ones(size=(1, self.options.dimOut), device=self.device) * 1e-6,
+                    ]
+                )
+
+            # -- leaky error control
+            current_errors = [
+                torch.ones(size=(1, 784), device=self.device) * 1e-6,
+                torch.ones(size=(1, 170), device=self.device) * 1e-6,
+                torch.ones(size=(1, 130), device=self.device) * 1e-6,
+                torch.ones(size=(1, 100), device=self.device) * 1e-6,
+                torch.ones(size=(1, 70), device=self.device) * 1e-6,
+                torch.ones(size=(1, self.options.dimOut), device=self.device) * 1e-6,
+            ]
+
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
                 with (
@@ -572,13 +594,16 @@ class MetaLearner:
                     else:
                         raise ValueError("Invalid type of feedback")
 
+                    for i in range(len(current_errors)):
+                        current_errors[i] = self.options.leaky_error_alpha * current_errors[i] + error[i]
+
                     activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
                     # -- update network params
                     self.UpdateWeights(
                         params=parameters,
                         h_parameters=h_parameters,
-                        error=error,
+                        error=current_errors,
                         activations_and_output=activations_and_output,
                     )
 
@@ -587,7 +612,7 @@ class MetaLearner:
                         self.UpdateWeights(
                             params=parameters,
                             h_parameters=feedback_params,
-                            error=error,
+                            error=current_errors,
                             activations_and_output=activations_and_output,
                             override_adaption_pathway="feedback",
                         )
@@ -600,7 +625,7 @@ class MetaLearner:
                         self.UpdateFeedbackWeights(
                             params=parameters,
                             h_parameters=feedback_params,
-                            error=error,
+                            error=current_errors,
                             activations_and_output=activations_and_output,
                         )
 
@@ -608,7 +633,7 @@ class MetaLearner:
                         self.UpdateFeedbackWeights.update_time_index()
 
                     if self.options.error_control:
-                        self.model.set_errors(error[1:])  # exclude pre-first layer error
+                        self.model.set_errors(current_errors[1:])  # exclude pre-first layer error
 
             """ meta update """
             self.model.eval()
@@ -950,8 +975,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.FA,
         dimOut=dimOut,
-        hrm_discount=148,
+        hrm_discount=150,
         error_control=True,
+        leaky_error_alpha=0.3,
     )
 
     # -- number of chemicals
@@ -986,4 +1012,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="error_control_test", index=i)
+        run(seed=0, display=True, result_subdirectory="leaky_error_control_test", index=i)

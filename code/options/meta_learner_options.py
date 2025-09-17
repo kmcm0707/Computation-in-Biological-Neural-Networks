@@ -92,6 +92,7 @@ class MetaLearnerOptions:
         loadModel: str = None,
         hrm_discount: int = 0,
         error_control: bool = False,
+        leaky_error_alpha: float = 0,
     ):
         # print(trainSameFeedback)
         # assert (
@@ -127,6 +128,7 @@ class MetaLearnerOptions:
         self.loadModel = loadModel
         self.hrm_discount = hrm_discount
         self.error_control = error_control
+        self.leaky_error_alpha = leaky_error_alpha
 
     def __str__(self):
         string = ""
