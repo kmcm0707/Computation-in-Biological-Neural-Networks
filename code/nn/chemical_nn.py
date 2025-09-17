@@ -20,6 +20,7 @@ class ChemicalNN(nn.Module):
         train_feedback: bool = False,
         typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
         dim_out: int = 47,
+        error_control: bool = False,
     ):
 
         # Initialize the parent class
@@ -30,6 +31,7 @@ class ChemicalNN(nn.Module):
         self.size = size  # Size of the model
         self.train_feedback = train_feedback  # Train feedback for feedback alignment
         self.typeOfFeedback = typeOfFeedback  # Feedback alignment or direct feedback alignment
+        self.error_control = error_control  # Error control for feedback alignment
 
         if self.typeOfFeedback == "DFA" and self.train_feedback:
             raise ValueError("DFA and train_feedback cannot be used together")
@@ -221,6 +223,17 @@ class ChemicalNN(nn.Module):
         # Dropout
         # self.dropout = nn.Dropout(p=0.2)
 
+        if self.error_control:
+            self.errors = []
+            self.errors.append(torch.zeros(size=(1, 170), device=self.device))
+            self.errors.append(torch.zeros(size=(1, 130), device=self.device))
+            self.errors.append(torch.zeros(size=(1, 100), device=self.device))
+            self.errors.append(torch.zeros(size=(1, 70), device=self.device))
+            self.errors.append(torch.zeros(size=(1, self.dim_out), device=self.device))
+
+    def set_errors(self, errors):
+        self.errors = errors
+
     # @torch.compile
     def forward(self, x):
         if self.size == sizeEnum.small:
@@ -252,28 +265,43 @@ class ChemicalNN(nn.Module):
         else:
             y0 = x.squeeze(1)
 
-            y1 = self.forward1(y0)
-            y1 = self.activation(y1)
-            # y1 = self.dropout(y1)
+            if self.error_control:
+                y1 = self.forward1(y0)
+                y1 = self.activation(y1) + self.errors[0]
 
-            # y1 = self.layer_norm1(y1)
+                y2 = self.forward2(y1)
+                y2 = self.activation(y2) + self.errors[1]
 
-            y2 = self.forward2(y1)
-            y2 = self.activation(y2)
-            # y2 = self.dropout(y2)
-            # y2 = self.layer_norm2(y2)
+                y3 = self.forward3(y2)
+                y3 = self.activation(y3) + self.errors[2]
 
-            y3 = self.forward3(y2)
-            y3 = self.activation(y3)
-            # y3 = self.dropout(y3)
-            # y3 = self.layer_norm3(y3)
+                y4 = self.forward4(y3)
+                y4 = self.activation(y4) + self.errors[3]
 
-            y4 = self.forward4(y3)
-            y4 = self.activation(y4)
-            # y4 = self.dropout(y4)
-            # y4 = self.layer_norm4(y4)
-            # y4 = self.layer_norm4(y4)
-            y5 = self.forward5(y4)
+                y5 = self.forward5(y4) + self.errors[4]
+
+            else:
+                y1 = self.forward1(y0)
+                y1 = self.activation(y1)
+                # y1 = self.dropout(y1)
+                # y1 = self.layer_norm1(y1)
+
+                y2 = self.forward2(y1)
+                y2 = self.activation(y2)
+                # y2 = self.dropout(y2)
+                # y2 = self.layer_norm2(y2)
+
+                y3 = self.forward3(y2)
+                y3 = self.activation(y3)
+                # y3 = self.dropout(y3)
+                # y3 = self.layer_norm3(y3)
+
+                y4 = self.forward4(y3)
+                y4 = self.activation(y4)
+                # y4 = self.dropout(y4)
+                # y4 = self.layer_norm4(y4)
+                # y4 = self.layer_norm4(y4)
+                y5 = self.forward5(y4)
 
         if self.size == sizeEnum.small:
             return (y0, y1), y2

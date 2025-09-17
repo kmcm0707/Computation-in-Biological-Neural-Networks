@@ -305,6 +305,7 @@ class MetaLearner:
             train_feedback=self.options.trainSeparateFeedback or self.options.trainSameFeedback,
             typeOfFeedback=self.options.typeOfFeedback,
             dim_out=self.options.dimOut,
+            error_control=self.options.error_control,
         )
 
         # -- learning flags
@@ -434,7 +435,7 @@ class MetaLearner:
                         map_location=self.device,
                     )
                 )
-            z = np.loadtxt(self.options.continueTraining + "/acc_meta.txt")
+            # z = np.loadtxt(self.options.continueTraining + "/acc_meta.txt")
             # last_trained_epoch = z.shape[0]
 
         # -- set model to training mode
@@ -571,6 +572,9 @@ class MetaLearner:
                     else:
                         raise ValueError("Invalid type of feedback")
 
+                    for i in error:
+                        print(i.shape, end=", ")
+                    exit()
                     activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
                     # -- update network params
@@ -605,6 +609,9 @@ class MetaLearner:
 
                         # -- update Separate model feedback time index
                         self.UpdateFeedbackWeights.update_time_index()
+
+                    if self.options.error_control:
+                        self.model.set_errors(error[1:])  # exclude pre-first layer error
 
             """ meta update """
             self.model.eval()
@@ -652,17 +659,7 @@ class MetaLearner:
             if self.options.trainSeparateFeedback:
                 UpdateFeedbackWeights_state_dict = copy.deepcopy(self.UpdateFeedbackWeights.state_dict())
 
-            # -- backprop
-            """scaler.scale(loss_meta).backward()
-            scaler.step(self.UpdateMetaParameters)
-            scaler.update()"""
-            """if self.options.hrm:
-                for key, val in h_parameters.items():
-                    h_parameters[key] = val.detach()
-                for key, val in parameters.items():
-                    current_adaption_pathway = parameters[key].adapt
-                    parameters[key] = val.detach()
-                    parameters[key].adapt = current_adaption_pathway"""
+            # -- backpropagation
             loss_meta.backward()
 
             # -- gradient clipping
@@ -818,7 +815,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     spectral_radius = [0.3, 0.5, 0.7, 0.9, 1.1]
     # beta = [1, 0.1, 0.01, 0.001, 0.0001]
     # schedulerT0 = [10, 20, 30, 40][index]
-    minTau = [10, 20, 30, 40, 50, 60][index]
+    # minTau = [10, 20, 30, 40, 50, 60][index]
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
@@ -925,9 +922,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     feedbackModel = model
     feedbackModelOptions = modelOptions
-    current_dir = os.getcwd()
-    continue_training = current_dir + "/results/mode_6_very_small_examples/0/20250323-222336"
-    # continue_training = current_dir + "/results/mode_7_FA_dropout_test/0/20250317-222653"
+    # current_dir = os.getcwd()
+    # continue_training = current_dir + "/results/mode_6_very_small_examples/0/20250323-222336"
     # -- meta-learner options
     device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
     metaLearnerOptions = MetaLearnerOptions(
@@ -958,6 +954,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         typeOfFeedback=typeOfFeedbackEnum.FA,
         dimOut=dimOut,
         hrm_discount=30,
+        error_control=True,
     )
 
     # -- number of chemicals

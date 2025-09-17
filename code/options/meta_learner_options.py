@@ -91,6 +91,7 @@ class MetaLearnerOptions:
         dimOut: int = 47,
         loadModel: str = None,
         hrm_discount: int = 0,
+        error_control: bool = False,
     ):
         # print(trainSameFeedback)
         # assert (
@@ -125,6 +126,7 @@ class MetaLearnerOptions:
         self.dimOut = dimOut
         self.loadModel = loadModel
         self.hrm_discount = hrm_discount
+        self.error_control = error_control
 
     def __str__(self):
         string = ""
