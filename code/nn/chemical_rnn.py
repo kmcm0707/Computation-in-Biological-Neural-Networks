@@ -126,8 +126,8 @@ class ChemicalRnn(nn.Module):
             output = self.forward1(self.hx1)
         else:
             RNN_forward1_hh_hx1 = self.RNN_forward1_hh(self.hx1)
-            self.hx1 = self.y_vector * self.hx1 + self.z_vector * self.activation(
-                RNN_forward1_hh_hx1 + RNN_forward1_ih_x
+            self.hx1 = (
+                self.y_vector * self.hx1 + self.z_vector * self.activation(RNN_forward1_ih_x) + RNN_forward1_hh_hx1
             )  # self.z_vector * self.activation(RNN_forward1_hh_hx1 + self.hx1)
             output = self.forward1(self.hx1)
 
@@ -139,5 +139,4 @@ class ChemicalRnn(nn.Module):
         return activations, output
 
     def reset_hidden(self, batch_size):
-        self.hx1 = torch.zeros(batch_size, 128).to(self.device)
-        # self.hx2 = torch.zeros(batch_size, 128).to(self.device)
+        self.hx1 = torch.zeros(batch_size, 128, device=self.device)
