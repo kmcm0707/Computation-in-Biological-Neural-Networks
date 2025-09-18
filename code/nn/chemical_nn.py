@@ -272,7 +272,7 @@ class ChemicalNN(nn.Module):
                 y4 = self.forward4(y3) + self.errors[3]
                 y4 = self.activation(y4)
 
-                y5 = self.forward5(y4) + self.errors[4]
+                y5 = self.forward5(y4) #+ self.errors[4]
 
             else:
                 y1 = self.forward1(y0)

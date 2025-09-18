@@ -799,10 +799,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 800
+    epochs = 1600
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 30
+    minTrainingDataPerClass = 1
     maxTrainingDataPerClass = 80
     queryDataPerClass = 20
 
@@ -947,7 +947,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     # current_dir = os.getcwd()
     # continue_training = current_dir + "/results/mode_6_very_small_examples/0/20250323-222336"
     # -- meta-learner options
-    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P matrix (check 1.5)
@@ -973,11 +973,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=None,
-        typeOfFeedback=typeOfFeedbackEnum.FA,
+        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
         hrm_discount=150,
         error_control=True,
-        leaky_error_alpha=0.2,
+        leaky_error_alpha=0.1,
     )
 
     # -- number of chemicals
@@ -1012,4 +1012,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="leaky_error_control_test", index=i)
+        run(seed=0, display=True, result_subdirectory="leaky_error_control_test_not_final", index=i)
