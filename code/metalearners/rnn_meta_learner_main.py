@@ -674,4 +674,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_fast_identity_test_fixed", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_fast_fixed_mode_2", index=i)
