@@ -359,6 +359,7 @@ class RnnMetaLearner:
                             functional.softmax(output, dim=1)
                             - functional.one_hot(label, num_classes=self.options.dimOut)
                         ]
+
                         error_temp_dict = {}
                         for name, value in feedback.items():
                             error_temp_dict[name] = torch.matmul(error[0], value)
