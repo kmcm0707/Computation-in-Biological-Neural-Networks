@@ -606,7 +606,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             operator=operatorEnum.mode_6,
         )
 
-    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cpu"
     # current_dir = os.getcwd()
     # -- meta-learner options
@@ -633,7 +633,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         slowIsFast=True,  # True for fast RNN
         dimOut=dimOut,
         biological=True,
-        biological_min_tau=2,
+        biological_min_tau=1,
         biological_max_tau=60,
         error=errorEnum.all,
     )
