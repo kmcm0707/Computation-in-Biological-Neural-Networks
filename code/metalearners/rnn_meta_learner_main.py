@@ -187,8 +187,10 @@ class RnnMetaLearner:
         if isinstance(modules, nn.Linear):
             if modules.in_features == modules.out_features:
                 nn.init.eye_(modules.weight)
+                # modules.weight.data = modules.weight.data / 2
             else:
                 nn.init.xavier_uniform_(modules.weight)
+                # modules.weight.data = modules.weight.data / 2
                 if modules.bias is not None:
                     nn.init.xavier_uniform_(modules.bias)
 
@@ -198,8 +200,10 @@ class RnnMetaLearner:
             for chemical in chemicals:
                 if chemical.shape[1] == chemical.shape[2]:
                     nn.init.eye_(chemical[0])
+                    # chemical[0] = chemical[0] / 2
                 else:
                     nn.init.xavier_uniform_(chemical[0])
+                    # chemical[0] = chemical[0] / 2
                 for idx in range(chemical.shape[0] - 1):
                     chemical[idx + 1] = chemical[0]
         elif self.options.chemicalInitialization == chemicalEnum.zero:
@@ -596,7 +600,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxSlowTau=200,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_7,
+            operator=operatorEnum.mode_6,
         )
 
     device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
@@ -666,4 +670,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_fast_identity_test_mode_7_no_z", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_fast_identity_test_fixed", index=i)

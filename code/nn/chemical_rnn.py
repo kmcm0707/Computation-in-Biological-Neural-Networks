@@ -126,8 +126,8 @@ class ChemicalRnn(nn.Module):
             output = self.forward1(self.hx1)
         else:
             RNN_forward1_hh_hx1 = self.RNN_forward1_hh(self.hx1)
-            self.hx1 = self.y_vector * self.hx1 + self.activation(
-                RNN_forward1_hh_hx1 + self.hx1
+            self.hx1 = self.y_vector * self.hx1 + self.z_vector * self.activation(
+                RNN_forward1_hh_hx1 + RNN_forward1_ih_x
             )  # self.z_vector * self.activation(RNN_forward1_hh_hx1 + self.hx1)
             output = self.forward1(self.hx1)
 
