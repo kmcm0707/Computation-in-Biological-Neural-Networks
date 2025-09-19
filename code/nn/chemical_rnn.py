@@ -110,13 +110,19 @@ class ChemicalRnn(nn.Module):
             "RNN_forward1_hh.weight": "feedback1.weight",
             "forward1.weight": "last",
         }
+        self.i = 0
 
     def forward(self, x):
         assert x.shape[1] == self.dim_in, "Input shape is not correct."
         assert x.shape[0] == self.hx1.shape[0], "Batch size is not correct."
 
         # Forward pass
+        self.i += 1
+        print(f"Forward pass {self.i}")
         hx1_prev = self.hx1.clone()
+        print(hx1_prev)
+        if torch.isnan(hx1_prev).any():
+            raise ValueError("hx1_prev contains NaN")
         # hx2_prev = self.hx2
         RNN_forward1_ih_x = self.RNN_forward1_ih(x)
         if not self.biological:
@@ -128,7 +134,9 @@ class ChemicalRnn(nn.Module):
             # Mode 2: RNN_forward1_hh_hx1 = self.RNN_forward1_hh(self.activation(self.hx1))
             RNN_forward1_hh_hx1 = self.RNN_forward1_hh(hx1_prev)
             self.hx1 = (
-                self.y_vector * self.hx1 + self.z_vector * (self.activation(RNN_forward1_ih_x)) + RNN_forward1_hh_hx1
+                (1 - self.y_vector) * self.hx1
+                + self.z_vector * (self.activation(RNN_forward1_ih_x))
+                + RNN_forward1_hh_hx1
             )  # self.z_vector * self.activation(RNN_forward1_hh_hx1 + self.hx1)
             # Mode 1: self.hx1 = ( self.y_vector * self.hx1 + self.z_vector * (self.activation(RNN_forward1_ih_x)) + RNN_forward1_hh_hx1)
             output = self.forward1(self.hx1)
@@ -142,3 +150,13 @@ class ChemicalRnn(nn.Module):
 
     def reset_hidden(self, batch_size):
         self.hx1 = torch.zeros(batch_size, 128, device=self.device)
+
+    def set_hidden(self, hx1, batch_size=None):
+        if batch_size is None:
+            self.hx1 = hx1
+        else:
+            self.hx1 = hx1.repeat(batch_size, 1)
+        assert self.hx1.shape[0] == batch_size, "Batch size is not correct."
+
+    def get_hidden(self):
+        return self.hx1

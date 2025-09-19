@@ -78,12 +78,12 @@ if __name__ == "__main__":
     test_matrix = nn.Parameter(torch.nn.init.xavier_uniform_(torch.empty(size=(2, 2), device="cpu")))
     test_matrix_norm = torch.norm(test_matrix, p=2)
     test_matrix_2_norm = torch.norm(test_matrix_2, p=2, dim=(1, 2))
-    divesor = test_matrix_norm / test_matrix_2_norm
+    """divesor = test_matrix_norm / test_matrix_2_norm
     print(test_matrix_norm)
     print(test_matrix_2_norm)
     print(divesor)
     fixed_matrix = test_matrix_2 * divesor[:, None, None]
-    print(torch.norm(fixed_matrix, p=2, dim=(1, 2)))
+    print(torch.norm(fixed_matrix, p=2, dim=(1, 2)))"""
 
     trainingDataPerClass = [
         0,
@@ -116,19 +116,36 @@ if __name__ == "__main__":
         350,
         375,
     ]
-    print(len(trainingDataPerClass))
+    """print(len(trainingDataPerClass))
 
     with torch.no_grad():
         LSTM_cell = nn.LSTMCell(input_size=2, hidden_size=3, bias=True)
         LSTM_cell.bias_ih[0] = 0
 
-        LSTM_cell.weight_ih[:3, :] = 0
+        LSTM_cell.weight_ih[:3, :] = 0"""
 
-    print(LSTM_cell.weight_ih)
+    """print(LSTM_cell.weight_ih)
 
     matrix = torch.randn((2, 3, 4))
     print(matrix)
     matrix = torch.reshape(matrix, (4, 6))
     print(matrix)
     matrix = torch.reshape(matrix, (2, 3, 4))
-    print(matrix)
+    print(matrix)"""
+
+    min_tau = 2
+    max_tau = 60
+    base = max_tau / min_tau
+    tau_vector = 2 * (base ** torch.linspace(0, 1, 128))
+    z_vector = 1 / tau_vector
+    y_vector = 1 - z_vector
+    print(y_vector)
+    print(z_vector)
+
+    test_matrix = nn.Parameter(torch.nn.init.xavier_normal_(torch.empty(size=(128, 128), device="cpu")))
+    nn.init.xavier_normal_(test_matrix)
+
+    diag_y = torch.diag(y_vector)
+    K_y = diag_y + test_matrix  # - torch.eye(test_matrix.shape[0])
+    all_eigenvalues = torch.linalg.eigvals(K_y)
+    print(torch.max(torch.real(all_eigenvalues)))

@@ -434,6 +434,9 @@ class RnnMetaLearner:
             # -- reset rnn hidden state
             self.model.reset_hidden(x_qry.shape[0])
 
+            """hx1 = self.model.get_hidden()
+            self.model.set_hidden(hx1, batch_size=x_qry.shape[0])"""
+
             # -- predict
             if self.options.error == errorEnum.all:
                 all_logits = torch.zeros(x_qry.shape[0], x_qry.shape[1], self.options.dimOut).to(self.device)
@@ -581,7 +584,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- options
-    model = rnnModelEnum.kernel
+    model = rnnModelEnum.fast
     modelOptions = None
 
     if model == rnnModelEnum.kernel:
@@ -629,9 +632,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         rnn_input_size=112,
         datasetDevice=device,  # cuda:1,  # if running out of memory, change to "cpu"
         continueTraining=None,
-        reset_fast_weights=True,  # False for fast RNN
+        reset_fast_weights=False,  # False for fast RNN, True for kernel RNN
         requireFastChemical=False,
-        slowIsFast=False,  # True for fast RNN
+        slowIsFast=True,  # True for fast RNN
         dimOut=dimOut,
         biological=True,
         biological_min_tau=2,
@@ -674,4 +677,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_kernel_mode_1", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_fast_mode_3_reset", index=i)
