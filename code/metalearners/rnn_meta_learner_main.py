@@ -581,13 +581,13 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- options
-    model = rnnModelEnum.fast
+    model = rnnModelEnum.kernel
     modelOptions = None
 
     if model == rnnModelEnum.kernel:
         modelOptions = kernelRnnOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 4, 9],
+            update_rules=[0, 1, 2, 4, 5, 9, 12],
             minSlowTau=2,
             maxSlowTau=100,
             y_vector=yVectorEnum.none,
@@ -607,7 +607,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             operator=operatorEnum.mode_6,
         )
 
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cpu"
     # current_dir = os.getcwd()
     # -- meta-learner options
@@ -629,12 +629,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         rnn_input_size=112,
         datasetDevice=device,  # cuda:1,  # if running out of memory, change to "cpu"
         continueTraining=None,
-        reset_fast_weights=False,  # False for fast RNN
+        reset_fast_weights=True,  # False for fast RNN
         requireFastChemical=False,
-        slowIsFast=True,  # True for fast RNN
+        slowIsFast=False,  # True for fast RNN
         dimOut=dimOut,
         biological=True,
-        biological_min_tau=1,
+        biological_min_tau=2,
         biological_max_tau=60,
         error=errorEnum.all,
     )
@@ -674,4 +674,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_fast_fixed_mode_2", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_kernel_mode_2", index=i)
