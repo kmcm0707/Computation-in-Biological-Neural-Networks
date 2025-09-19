@@ -110,19 +110,13 @@ class ChemicalRnn(nn.Module):
             "RNN_forward1_hh.weight": "feedback1.weight",
             "forward1.weight": "last",
         }
-        self.i = 0
 
     def forward(self, x):
         assert x.shape[1] == self.dim_in, "Input shape is not correct."
         assert x.shape[0] == self.hx1.shape[0], "Batch size is not correct."
 
         # Forward pass
-        self.i += 1
-        print(f"Forward pass {self.i}")
         hx1_prev = self.hx1.clone()
-        print(hx1_prev)
-        if torch.isnan(hx1_prev).any():
-            raise ValueError("hx1_prev contains NaN")
         # hx2_prev = self.hx2
         RNN_forward1_ih_x = self.RNN_forward1_ih(x)
         if not self.biological:
