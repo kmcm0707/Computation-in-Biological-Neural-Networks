@@ -126,18 +126,17 @@ class ChemicalRnn(nn.Module):
             output = self.forward1(self.hx1)
         else:
             # Mode 2: RNN_forward1_hh_hx1 = self.RNN_forward1_hh(self.activation(self.hx1))
-            RNN_forward1_hh_hx1 = self.RNN_forward1_hh(hx1_prev)
+            # Mode 3: RNN_forward1_hh_hx1 = self.RNN_forward1_hh(torch.tanh(self.hx1))
+            RNN_forward1_hh_hx1 = self.RNN_forward1_hh(torch.tanh(self.hx1))
             self.hx1 = (
-                (1 - self.y_vector) * self.hx1
-                + self.z_vector * (self.activation(RNN_forward1_ih_x))
-                + RNN_forward1_hh_hx1
+                (self.y_vector) * self.hx1 + self.z_vector * (self.activation(RNN_forward1_ih_x)) + RNN_forward1_hh_hx1
             )  # self.z_vector * self.activation(RNN_forward1_hh_hx1 + self.hx1)
             # Mode 1: self.hx1 = ( self.y_vector * self.hx1 + self.z_vector * (self.activation(RNN_forward1_ih_x)) + RNN_forward1_hh_hx1)
             output = self.forward1(self.hx1)
 
         activations = {
             "RNN_forward1_ih.weight": (x, self.activation(RNN_forward1_ih_x)),  # broken is (x, RNN_forward1_ih_x)
-            "RNN_forward1_hh.weight": (hx1_prev, RNN_forward1_hh_hx1),
+            "RNN_forward1_hh.weight": (torch.tanh(hx1_prev), RNN_forward1_hh_hx1),
             "forward1.weight": (self.hx1, output),
         }
         return activations, output

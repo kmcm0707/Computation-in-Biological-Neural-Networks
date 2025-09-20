@@ -319,6 +319,11 @@ class RnnMetaLearner:
 
             feedback = {name: value for name, value in parameters.items() if "feedback" in name}
 
+            # -- leaky error
+            current_error_dict = {}
+            for name, value in feedback.items():
+                current_error_dict[name] = torch.matmul(torch.zeros(size=(1, self.options.dimOut)), value)
+
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
 
@@ -360,15 +365,16 @@ class RnnMetaLearner:
                             - functional.one_hot(label, num_classes=self.options.dimOut)
                         ]
 
-                        error_temp_dict = {}
                         for name, value in feedback.items():
-                            error_temp_dict[name] = torch.matmul(error[0], value)
+                            current_error_dict[name] = (
+                                torch.matmul(error[0], value) + self.options.leaky_error * current_error_dict[name]
+                            )
 
-                        for name, value in error_temp_dict.items():
+                        for name, value in current_error_dict.items():
                             parameter_name = self.model.feedback_to_parameters[name]
                             error_below = None
                             if self.model.error_dict[parameter_name] != "last":
-                                error_below = error_temp_dict[self.model.error_dict[parameter_name]]
+                                error_below = current_error_dict[self.model.error_dict[parameter_name]]
                             else:
                                 error_below = error[0]
                             error_dict[parameter_name] = (value, error_below)
@@ -640,6 +646,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         biological_min_tau=2,
         biological_max_tau=60,
         error=errorEnum.all,
+        leaky_error=0.0,  # 0.0 for no leaky error
     )
 
     #   -- number of chemicals

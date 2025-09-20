@@ -59,6 +59,7 @@ class RnnMetaLearnerOptions:
         biological_min_tau: int = 1,
         biological_max_tau: int = 56,
         error=errorEnum.last,
+        leaky_error: float = 0.0,
     ):
 
         self.model = model
@@ -86,6 +87,7 @@ class RnnMetaLearnerOptions:
         self.biological_min_tau = biological_min_tau
         self.biological_max_tau = biological_max_tau
         self.error = error
+        self.leaky_error = leaky_error
 
     def __str__(self):
         string = ""

@@ -146,6 +146,6 @@ if __name__ == "__main__":
     nn.init.xavier_normal_(test_matrix)
 
     diag_y = torch.diag(y_vector)
-    K_y = diag_y + test_matrix  # - torch.eye(test_matrix.shape[0])
+    K_y = diag_y + test_matrix - torch.eye(test_matrix.shape[0])
     all_eigenvalues = torch.linalg.eigvals(K_y)
     print(torch.max(torch.real(all_eigenvalues)))
