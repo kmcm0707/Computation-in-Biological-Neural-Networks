@@ -322,7 +322,9 @@ class RnnMetaLearner:
             # -- leaky error
             current_error_dict = {}
             for name, value in feedback.items():
-                current_error_dict[name] = torch.matmul(torch.zeros(size=(1, self.options.dimOut)), value)
+                current_error_dict[name] = torch.matmul(
+                    torch.zeros(size=(1, self.options.dimOut), device=self.device), value
+                )
 
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
