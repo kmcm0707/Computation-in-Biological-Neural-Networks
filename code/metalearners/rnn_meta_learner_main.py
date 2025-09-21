@@ -563,7 +563,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     random.seed(seed)
 
     # -- load data
-    numWorkers = 0
+    numWorkers = 2
     epochs = 800
 
     dataset_name = "EMNIST"
@@ -623,7 +623,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             operator=operatorEnum.mode_6,
         )
 
-    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cpu"
     # current_dir = os.getcwd()
     # -- meta-learner options
