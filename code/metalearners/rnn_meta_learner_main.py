@@ -558,7 +558,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     random.seed(seed)
 
     # -- load data
-    numWorkers = 0
+    numWorkers = 2
     epochs = 800
 
     dataset_name = "EMNIST"
@@ -618,7 +618,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             operator=operatorEnum.mode_6,
         )
 
-    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cpu"
     # current_dir = os.getcwd()
     # -- meta-learner options
@@ -647,8 +647,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         biological=True,
         biological_min_tau=2,
         biological_max_tau=60,
-        error=errorEnum.all,
-        leaky_error=0.0,  # 0.0 for no leaky error
+        error=errorEnum.last,
+        leaky_error=0.1,  # 0.0 for no leaky error
     )
 
     #   -- number of chemicals
