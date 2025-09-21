@@ -490,6 +490,7 @@ class MetaLearner:
             if self.options.error_control:
                 self.model.set_errors(
                     [
+                        torch.ones(size=(1, 784), device=self.device) * 1e-6,
                         torch.ones(size=(1, 170), device=self.device) * 1e-6,
                         torch.ones(size=(1, 130), device=self.device) * 1e-6,
                         torch.ones(size=(1, 100), device=self.device) * 1e-6,
@@ -633,7 +634,7 @@ class MetaLearner:
                         self.UpdateFeedbackWeights.update_time_index()
 
                     if self.options.error_control:
-                        self.model.set_errors(current_errors[1:])  # exclude pre-first layer error
+                        self.model.set_errors(current_errors)
 
             """ meta update """
             self.model.eval()
@@ -1012,4 +1013,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="leaky_error_control_test_not_final", index=i)
+        run(seed=0, display=True, result_subdirectory="leaky_error_control_test_including_input", index=i)

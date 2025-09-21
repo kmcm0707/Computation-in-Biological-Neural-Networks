@@ -260,21 +260,25 @@ class ChemicalNN(nn.Module):
             y0 = x.squeeze(1)
 
             if self.error_control:
-                y1 = self.forward1(y0) + self.errors[0]
+                y0 = x.squeeze(1) + self.errors[0]
+
+                y1 = self.forward1(y0) + self.errors[1]
                 y1 = self.activation(y1)
 
-                y2 = self.forward2(y1) + self.errors[1]
+                y2 = self.forward2(y1) + self.errors[2]
                 y2 = self.activation(y2)
 
-                y3 = self.forward3(y2) + self.errors[2]
+                y3 = self.forward3(y2) + self.errors[3]
                 y3 = self.activation(y3)
 
-                y4 = self.forward4(y3) + self.errors[3]
+                y4 = self.forward4(y3) + self.errors[4]
                 y4 = self.activation(y4)
 
-                y5 = self.forward5(y4) #+ self.errors[4]
+                y5 = self.forward5(y4) + self.errors[5]
 
             else:
+                y0 = x.squeeze(1)
+                
                 y1 = self.forward1(y0)
                 y1 = self.activation(y1)
                 # y1 = self.dropout(y1)

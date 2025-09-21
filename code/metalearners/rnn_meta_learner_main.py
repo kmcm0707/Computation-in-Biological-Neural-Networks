@@ -326,6 +326,9 @@ class RnnMetaLearner:
                     torch.zeros(size=(1, self.options.dimOut), device=self.device), value
                 )
 
+            # -- set hidden state
+            self.model.reset_hidden(1)
+
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
 
@@ -340,7 +343,8 @@ class RnnMetaLearner:
                         self.UpdateWeights.reset_fast_chemicals(params=parameters)
 
                 # -- reset rnn hidden state
-                self.model.reset_hidden(batch_size=1)
+                if self.options.hidden_reset:
+                    self.model.reset_hidden(1)
 
                 # -- fix device
                 if self.str_device != self.options.datasetDevice:
@@ -440,10 +444,11 @@ class RnnMetaLearner:
             )
 
             # -- reset rnn hidden state
-            self.model.reset_hidden(x_qry.shape[0])
-
-            """hx1 = self.model.get_hidden()
-            self.model.set_hidden(hx1, batch_size=x_qry.shape[0])"""
+            if self.options.hidden_reset:
+                self.model.reset_hidden(x_qry.shape[0])
+            else:
+                hx1 = self.model.get_hidden()
+                self.model.set_hidden(hx1, batch_size=x_qry.shape[0])
 
             # -- predict
             if self.options.error == errorEnum.all:
@@ -649,6 +654,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         biological_max_tau=60,
         error=errorEnum.all,
         leaky_error=0.0,  # 0.0 for no leaky error
+        hidden_reset=False,  # True to reset hidden state between samples
     )
 
     #   -- number of chemicals
@@ -686,4 +692,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_fast_mode_3_reset", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_fast_mode_3_no_reset", index=i)
