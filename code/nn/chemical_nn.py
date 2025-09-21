@@ -256,7 +256,6 @@ class ChemicalNN(nn.Module):
 
             return (y0, y1, y2, y3, y4, y5, y6, y7, y8), y9
         else:
-            y0 = x.squeeze(1)
 
             if self.error_control:
                 y0 = x.squeeze(1) + self.errors[0]
