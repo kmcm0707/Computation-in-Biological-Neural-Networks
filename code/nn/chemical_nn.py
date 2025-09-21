@@ -224,7 +224,6 @@ class ChemicalNN(nn.Module):
         # Dropout
         # self.dropout = nn.Dropout(p=0.2)
 
-
     def set_errors(self, errors):
         self.errors = errors
 
@@ -278,7 +277,7 @@ class ChemicalNN(nn.Module):
 
             else:
                 y0 = x.squeeze(1)
-                
+
                 y1 = self.forward1(y0)
                 y1 = self.activation(y1)
                 # y1 = self.dropout(y1)

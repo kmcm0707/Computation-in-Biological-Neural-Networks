@@ -490,23 +490,23 @@ class MetaLearner:
             if self.options.error_control:
                 self.model.set_errors(
                     [
-                        torch.ones(size=(1, 784), device=self.device) * 1e-6,
-                        torch.ones(size=(1, 170), device=self.device) * 1e-6,
-                        torch.ones(size=(1, 130), device=self.device) * 1e-6,
-                        torch.ones(size=(1, 100), device=self.device) * 1e-6,
-                        torch.ones(size=(1, 70), device=self.device) * 1e-6,
-                        torch.ones(size=(1, self.options.dimOut), device=self.device) * 1e-6,
+                        torch.zeros(size=(1, 784), device=self.device) * 1e-6,
+                        torch.zeros(size=(1, 170), device=self.device) * 1e-6,
+                        torch.zeros(size=(1, 130), device=self.device) * 1e-6,
+                        torch.zeros(size=(1, 100), device=self.device) * 1e-6,
+                        torch.zeros(size=(1, 70), device=self.device) * 1e-6,
+                        torch.zeros(size=(1, self.options.dimOut), device=self.device) * 1e-6,
                     ]
                 )
 
             # -- leaky error control
             current_errors = [
-                torch.ones(size=(1, 784), device=self.device) * 1e-6,
-                torch.ones(size=(1, 170), device=self.device) * 1e-6,
-                torch.ones(size=(1, 130), device=self.device) * 1e-6,
-                torch.ones(size=(1, 100), device=self.device) * 1e-6,
-                torch.ones(size=(1, 70), device=self.device) * 1e-6,
-                torch.ones(size=(1, self.options.dimOut), device=self.device) * 1e-6,
+                torch.zeros(size=(1, 784), device=self.device) * 1e-6,
+                torch.zeros(size=(1, 170), device=self.device) * 1e-6,
+                torch.zeros(size=(1, 130), device=self.device) * 1e-6,
+                torch.zeros(size=(1, 100), device=self.device) * 1e-6,
+                torch.zeros(size=(1, 70), device=self.device) * 1e-6,
+                torch.zeros(size=(1, self.options.dimOut), device=self.device) * 1e-6,
             ]
 
             """ adaptation """
@@ -978,7 +978,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         dimOut=dimOut,
         hrm_discount=150,
         error_control=True,
-        leaky_error_alpha=0.1,
+        leaky_error_alpha=0.0,
     )
 
     # -- number of chemicals
