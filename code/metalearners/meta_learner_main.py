@@ -563,8 +563,7 @@ class MetaLearner:
                         # error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)[0]
                         # error_scalar = error[0][0][label]
                         # error_scalar = torch.tanh(error_scalar)  # tanh to avoid exploding gradients
-                        print(output[label])
-                        if output[label] > 0.5:
+                        if output[0][label] > 0.5:
                             error_scalar = torch.tensor(0, device=self.device)
                         else:
                             error_scalar = torch.tensor(1.0, device=self.device)
@@ -978,10 +977,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=None,
-        typeOfFeedback=typeOfFeedbackEnum.FA,
+        typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
         hrm_discount=150,
-        error_control=True,
+        error_control=False,
         leaky_error_alpha=0.0,
     )
 
@@ -1017,4 +1016,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="leaky_error_control_test_including_input", index=i)
+        run(seed=0, display=True, result_subdirectory="rl_error_scalar", index=i)
