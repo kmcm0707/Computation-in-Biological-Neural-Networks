@@ -568,7 +568,7 @@ class MetaLearner:
                         else:
                             error_scalar = torch.tensor(1.0, device=self.device)
                         for y, i in zip(reversed(activations), reversed(list(feedback))):
-                            error.insert(0, error_scalar * feedback[i])
+                            error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
                         DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
                         feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
@@ -1016,4 +1016,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rl_error_scalar", index=i)
+        run(seed=0, display=True, result_subdirectory="rl_error_scalar_grad", index=i)
