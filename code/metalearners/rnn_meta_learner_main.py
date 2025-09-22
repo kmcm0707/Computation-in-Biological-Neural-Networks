@@ -465,8 +465,14 @@ class RnnMetaLearner:
                 if self.options.error == errorEnum.all:
                     all_logits[:, input_index, :] = logits
 
-            # TODO: CHECK ALL ERROR WITH ALL LOGITS
-            loss_meta = self.loss_func(logits, y_qry.ravel())
+            # -- loss
+            loss_meta = 0
+            if self.options.loss_meta_logits_all:
+                for time_index in range(all_logits.shape[1]):
+                    logits = all_logits[:, time_index, :]
+                    loss_meta += self.loss_func(logits, y_qry.ravel())
+            else:
+                loss_meta = self.loss_func(logits, y_qry.ravel())
 
             if loss_meta > 1e5 or torch.isnan(loss_meta):
                 print(y)
@@ -654,7 +660,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         biological_max_tau=60,
         error=errorEnum.all,
         leaky_error=0.0,  # 0.0 for no leaky error
-        hidden_reset=False,  # True to reset hidden state between samples
+        hidden_reset=True,  # True to reset hidden state between samples
+        loss_meta_logits_all=True,  # True to use all logits for meta loss
     )
 
     #   -- number of chemicals
@@ -692,4 +699,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_fast_mode_3_no_reset", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_fast_mode_3_logits_all", index=i)

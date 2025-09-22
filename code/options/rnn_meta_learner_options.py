@@ -61,6 +61,7 @@ class RnnMetaLearnerOptions:
         error=errorEnum.last,
         leaky_error: float = 0.0,
         hidden_reset: bool = True,
+        loss_meta_logits_all: bool = False,
     ):
 
         self.model = model
@@ -90,6 +91,7 @@ class RnnMetaLearnerOptions:
         self.error = error
         self.leaky_error = leaky_error
         self.hidden_reset = hidden_reset
+        self.loss_meta_logits_all = loss_meta_logits_all
 
     def __str__(self):
         string = ""
