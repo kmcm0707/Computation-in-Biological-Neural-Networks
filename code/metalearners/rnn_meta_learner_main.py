@@ -471,6 +471,7 @@ class RnnMetaLearner:
                 for time_index in range(all_logits.shape[1]):
                     logits = all_logits[:, time_index, :]
                     loss_meta += self.loss_func(logits, y_qry.ravel())
+                loss_meta = loss_meta / all_logits.shape[1]
             else:
                 loss_meta = self.loss_func(logits, y_qry.ravel())
 
