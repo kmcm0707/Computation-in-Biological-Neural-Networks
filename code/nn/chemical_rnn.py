@@ -127,7 +127,7 @@ class ChemicalRnn(nn.Module):
         else:
             # Mode 2: RNN_forward1_hh_hx1 = self.RNN_forward1_hh(self.activation(self.hx1))
             # Mode 3: RNN_forward1_hh_hx1 = self.RNN_forward1_hh(torch.tanh(self.hx1))
-            RNN_forward1_hh_hx1 = self.RNN_forward1_hh(torch.tanh(self.hx1))
+            RNN_forward1_hh_hx1 = self.RNN_forward1_hh(self.hx1)
             self.hx1 = (
                 (self.y_vector) * self.hx1 + self.z_vector * (self.activation(RNN_forward1_ih_x)) + RNN_forward1_hh_hx1
             )  # self.z_vector * self.activation(RNN_forward1_hh_hx1 + self.hx1)
@@ -136,7 +136,10 @@ class ChemicalRnn(nn.Module):
 
         activations = {
             "RNN_forward1_ih.weight": (x, self.activation(RNN_forward1_ih_x)),  # broken is (x, RNN_forward1_ih_x)
-            "RNN_forward1_hh.weight": (torch.tanh(hx1_prev), RNN_forward1_hh_hx1),
+            "RNN_forward1_hh.weight": (
+                hx1_prev,
+                RNN_forward1_hh_hx1,
+            ),  # mode 3: (torch.tanh(hx1_prev), RNN_forward1_hh_hx1)
             "forward1.weight": (self.hx1, output),
         }
         return activations, output

@@ -479,7 +479,7 @@ class RnnMetaLearner:
             self.summary_writer.close()
             self.plot()
 
-    print("Training complete.\n")
+        print("Training complete.\n")
 
 
 def run(
@@ -635,14 +635,14 @@ def main_runner_rnn():
     :return: None
     """
     # -- run
-    num_images = [10, 20, 30, 40, 50, 60, 70, 80, 90]
-    continue_training_path = os.getcwd() + "/results/rnn_fast_mode_3_reset/0/20250920-195442"
+    num_images = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
+    continue_training_path = os.getcwd() + "/results/rnn_fast_test_fixed/0/20250918-162146"
 
     for i in range(len(num_images)):
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_rnn_fast_mode_3",
+            result_subdirectory="runner_rnn_fast_mode_1",
             num_images=num_images[i],
             continue_training_path=continue_training_path,
         )
