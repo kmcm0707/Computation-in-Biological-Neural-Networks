@@ -642,7 +642,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0001,
+        lr=0.00006,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -662,12 +662,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         error=errorEnum.all,
         leaky_error=0.0,  # 0.0 for no leaky error
         hidden_reset=True,  # True to reset hidden state between samples
-        loss_meta_logits_all=True,  # True to use all logits for meta loss
+        loss_meta_logits_all=False,  # True to use all logits for meta loss
     )
 
     #   -- number of chemicals
-    numberOfSlowChemicals = 3  # fast uses this
-    numberOfFastChemicals = 3
+    numberOfSlowChemicals = 5  # fast uses this
+    numberOfFastChemicals = 5
     # -- meta-train
 
     # device = "cuda:1"
