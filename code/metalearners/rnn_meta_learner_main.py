@@ -658,7 +658,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         dimOut=dimOut,
         biological=True,
         biological_min_tau=2,
-        biological_max_tau=60,
+        biological_max_tau=10,
         error=errorEnum.all,
         leaky_error=0.0,  # 0.0 for no leaky error
         hidden_reset=True,  # True to reset hidden state between samples
@@ -666,8 +666,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     #   -- number of chemicals
-    numberOfSlowChemicals = 5  # fast uses this
-    numberOfFastChemicals = 5
+    numberOfSlowChemicals = 3  # fast uses this
+    numberOfFastChemicals = 3
     # -- meta-train
 
     # device = "cuda:1"
@@ -700,4 +700,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_fast_mode_3_logits_all", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_fast_mode_4", index=i)
