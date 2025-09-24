@@ -20,6 +20,7 @@ class ChemicalRnn(nn.Module):
         biological: bool = False,
         biological_min_tau: int = 1,
         biological_max_tau: int = 56,
+        hidden_size: int = 128,
     ):
         # Initialize the parent class
         super(ChemicalRnn, self).__init__()
@@ -38,16 +39,17 @@ class ChemicalRnn(nn.Module):
         self.biological = biological
         self.biological_min_tau = biological_min_tau
         self.biological_max_tau = biological_max_tau
+        self.hidden_size = hidden_size
 
         # Model
         if not biological:
-            self.RNN_forward1_ih = nn.Linear(self.dim_in, 128, bias=False)
-            self.RNN_forward1_hh = nn.Linear(128, 128, bias=False)
+            self.RNN_forward1_ih = nn.Linear(self.dim_in, self.hidden_size, bias=False)
+            self.RNN_forward1_hh = nn.Linear(self.hidden_size, self.hidden_size, bias=False)
             # self.RNN_forward2 = nn.RNNCell(input_size=128, hidden_size=128, bias=False)
-            self.forward1 = nn.Linear(128, self.dim_out, bias=False)
+            self.forward1 = nn.Linear(self.hidden_size, self.dim_out, bias=False)
         else:
             base = self.biological_max_tau / self.biological_min_tau
-            tau_vector = self.biological_min_tau * (base ** torch.linspace(0, 1, 128, device=self.device))
+            tau_vector = self.biological_min_tau * (base ** torch.linspace(0, 1, self.hidden_size, device=self.device))
             self.z_vector = 1 / tau_vector
             self.y_vector = 1 - self.z_vector
             self.y_vector = self.y_vector.to(self.device)
@@ -55,42 +57,50 @@ class ChemicalRnn(nn.Module):
             self.z_vector = self.z_vector.to(self.device)
             # self.z_vector = nn.Parameter(self.z_vector)
 
-            self.RNN_forward1_ih = nn.Linear(self.dim_in, 128, bias=False)
-            self.RNN_forward1_hh = nn.Linear(128, 128, bias=False)
-            self.forward1 = nn.Linear(128, self.dim_out, bias=False)
+            self.RNN_forward1_ih = nn.Linear(self.dim_in, self.hidden_size, bias=False)
+            self.RNN_forward1_hh = nn.Linear(self.hidden_size, self.hidden_size, bias=False)
+            self.forward1 = nn.Linear(self.hidden_size, self.dim_out, bias=False)
             self.beta = 10
             self.activation = nn.Softplus(beta=self.beta)
 
         # Hidden states
-        self.hx1 = torch.zeros(1, 128).to(self.device)
+        self.hx1 = torch.zeros(1, self.hidden_size).to(self.device)
         # self.hx2 = torch.zeros(1, 128).to(self.device)
 
         # Chemicals
         self.slow_RNN1_ih = nn.Parameter(
-            torch.zeros((self.numberOfSlowChemicals, 128, self.dim_in), device=self.device)
+            torch.zeros((self.numberOfSlowChemicals, self.hidden_size, self.dim_in), device=self.device)
         )
-        self.slow_RNN1_hh = nn.Parameter(torch.zeros((self.numberOfSlowChemicals, 128, 128), device=self.device))
+        self.slow_RNN1_hh = nn.Parameter(
+            torch.zeros((self.numberOfSlowChemicals, self.hidden_size, self.hidden_size), device=self.device)
+        )
         # self.slow_RNN2_ih = nn.Parameter(torch.zeros((self.numberOfSlowChemicals, 128, 128), device=self.device))
         # self.slow_RNN2_hh = nn.Parameter(torch.zeros((self.numberOfSlowChemicals, 128, 128), device=self.device))
 
         if requireFastChemical:
             self.fast_RNN1_ih = nn.Parameter(
-                torch.zeros((self.numberOfFastChemicals, 128, self.dim_in), device=self.device)
+                torch.zeros((self.numberOfFastChemicals, self.hidden_size, self.dim_in), device=self.device)
             )
-            self.fast_RNN1_hh = nn.Parameter(torch.zeros((self.numberOfFastChemicals, 128, 128), device=self.device))
-            self.fast_RNN2_ih = nn.Parameter(torch.zeros((self.numberOfFastChemicals, 128, 128), device=self.device))
-            self.fast_RNN2_hh = nn.Parameter(torch.zeros((self.numberOfFastChemicals, 128, 128), device=self.device))
+            self.fast_RNN1_hh = nn.Parameter(
+                torch.zeros((self.numberOfFastChemicals, self.hidden_size, self.hidden_size), device=self.device)
+            )
+            self.fast_RNN2_ih = nn.Parameter(
+                torch.zeros((self.numberOfFastChemicals, self.hidden_size, self.hidden_size), device=self.device)
+            )
+            self.fast_RNN2_hh = nn.Parameter(
+                torch.zeros((self.numberOfFastChemicals, self.hidden_size, self.hidden_size), device=self.device)
+            )
 
         self.slow_chemical1 = nn.Parameter(
-            torch.zeros((self.numberOfSlowChemicals, self.dim_out, 128), device=self.device)
+            torch.zeros((self.numberOfSlowChemicals, self.dim_out, self.hidden_size), device=self.device)
         )
 
         # DFA feedback
         self.RNN1_ih_feedback = nn.Linear(self.dim_in, dim_out, bias=False)
-        self.RNN1_hh_feedback = nn.Linear(128, dim_out, bias=False)
+        self.RNN1_hh_feedback = nn.Linear(self.hidden_size, dim_out, bias=False)
         # self.RNN2_ih_feedback = nn.Linear(128, dim_out, bias=False)
         # self.RNN2_hh_feedback = nn.Linear(128, dim_out, bias=False)
-        self.feedback1 = nn.Linear(128, dim_out, bias=False)
+        self.feedback1 = nn.Linear(self.hidden_size, dim_out, bias=False)
 
         self.feedback_to_parameters = {
             "feedback1.weight": "forward1.weight",
@@ -145,7 +155,7 @@ class ChemicalRnn(nn.Module):
         return activations, output
 
     def reset_hidden(self, batch_size):
-        self.hx1 = torch.zeros(batch_size, 128, device=self.device)
+        self.hx1 = torch.zeros(batch_size, self.hidden_size, device=self.device)
 
     def set_hidden(self, hx1, batch_size=None):
         if batch_size is None:

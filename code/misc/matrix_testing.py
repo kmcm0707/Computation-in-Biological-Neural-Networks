@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 
@@ -136,16 +137,28 @@ if __name__ == "__main__":
     min_tau = 2
     max_tau = 60
     base = max_tau / min_tau
-    tau_vector = 2 * (base ** torch.linspace(0, 1, 128))
+    tau_vector = 2 * (base ** torch.linspace(0, 1, 256))
     z_vector = 1 / tau_vector
     y_vector = 1 - z_vector
     print(y_vector)
     print(z_vector)
 
-    test_matrix = nn.Parameter(torch.nn.init.xavier_normal_(torch.empty(size=(128, 128), device="cpu")))
-    nn.init.xavier_normal_(test_matrix)
+    test_matrix = nn.Parameter(torch.nn.init.xavier_normal_(torch.empty(size=(256, 256), device="cpu")))
+    # nn.init.xavier_uniform_(test_matrix)
+    diag_z = torch.diag(z_vector)
+    test_matrix_z = diag_z @ test_matrix
 
     diag_y = torch.diag(y_vector)
-    K_y = diag_y + test_matrix - torch.eye(test_matrix.shape[0])
+    K_y = diag_y + test_matrix_z - torch.eye(test_matrix.shape[0])
     all_eigenvalues = torch.linalg.eigvals(K_y)
     print(torch.max(torch.real(all_eigenvalues)))
+
+    all_eigenvalues_real = torch.real(all_eigenvalues)
+    all_eigenvalues_imag = torch.imag(all_eigenvalues)
+
+    plt.scatter(all_eigenvalues_real.detach().numpy(), all_eigenvalues_imag.detach().numpy())
+    plt.show()
+
+    test_vector = torch.randn((1, 256), device="cpu")
+    result_vector = y_vector * test_vector + z_vector * (test_vector @ test_matrix)
+    print(torch.norm(result_vector) / torch.norm(test_vector))

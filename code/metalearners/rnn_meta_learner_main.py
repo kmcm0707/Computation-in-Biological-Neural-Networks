@@ -163,6 +163,7 @@ class RnnMetaLearner:
             biological=self.options.biological,
             biological_min_tau=self.options.biological_min_tau,
             biological_max_tau=self.options.biological_max_tau,
+            hidden_size=self.options.hidden_size,
         )
 
         # -- learning flags
@@ -642,7 +643,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.00006,
+        lr=0.00001,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -657,12 +658,13 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         slowIsFast=True,  # True for fast RNN
         dimOut=dimOut,
         biological=True,
-        biological_min_tau=2,
+        biological_min_tau=1,
         biological_max_tau=10,
         error=errorEnum.all,
         leaky_error=0.0,  # 0.0 for no leaky error
         hidden_reset=True,  # True to reset hidden state between samples
         loss_meta_logits_all=False,  # True to use all logits for meta loss
+        hidden_size=256,
     )
 
     #   -- number of chemicals

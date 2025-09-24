@@ -62,6 +62,7 @@ class RnnMetaLearnerOptions:
         leaky_error: float = 0.0,
         hidden_reset: bool = True,
         loss_meta_logits_all: bool = False,
+        hidden_size: int = 128,
     ):
 
         self.model = model
@@ -92,6 +93,7 @@ class RnnMetaLearnerOptions:
         self.leaky_error = leaky_error
         self.hidden_reset = hidden_reset
         self.loss_meta_logits_all = loss_meta_logits_all
+        self.hidden_size = hidden_size
 
     def __str__(self):
         string = ""
