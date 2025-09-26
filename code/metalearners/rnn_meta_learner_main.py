@@ -571,12 +571,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     random.seed(seed)
 
     # -- load data
-    numWorkers = 2
+    numWorkers = 0
     epochs = 800
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 50
+    maxTrainingDataPerClass = 38
     queryDataPerClass = 10
 
     if dataset_name == "EMNIST":
@@ -643,7 +643,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.00001,
+        lr=0.000007,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -658,8 +658,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         slowIsFast=True,  # True for fast RNN
         dimOut=dimOut,
         biological=True,
-        biological_min_tau=1,
-        biological_max_tau=10,
+        biological_min_tau=2,
+        biological_max_tau=7,
         error=errorEnum.all,
         leaky_error=0.0,  # 0.0 for no leaky error
         hidden_reset=True,  # True to reset hidden state between samples
