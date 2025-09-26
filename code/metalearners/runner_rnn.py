@@ -598,7 +598,7 @@ def run(
         dimOut=dimOut,
         biological=True,
         biological_min_tau=2,
-        biological_max_tau=60,
+        biological_max_tau=7,
         error=errorEnum.all,
         leaky_error=0.0,  # 0.0 for no leaky error
         hidden_reset=True,  # True to reset hidden state between samples
@@ -638,13 +638,13 @@ def main_runner_rnn():
     """
     # -- run
     num_images = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
-    continue_training_path = os.getcwd() + "/results/rnn_fast_test_fixed/0/20250918-162146"
+    continue_training_path = os.getcwd() + "/results/rnn_fast_mode_4/0/20250924-231925"
 
     for i in range(len(num_images)):
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_rnn_fast_mode_1_256",
+            result_subdirectory="runner_rnn_fast_mode_4_256",
             num_images=num_images[i],
             continue_training_path=continue_training_path,
         )

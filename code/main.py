@@ -18,6 +18,6 @@ if __name__ == "__main__":
     # runner_main()
     # load_model()
     # backprop_main()
-    rnn_backprop_main()
+    # rnn_backprop_main()
     # main_rnn()
-    # main_runner_rnn()
+    main_runner_rnn()
