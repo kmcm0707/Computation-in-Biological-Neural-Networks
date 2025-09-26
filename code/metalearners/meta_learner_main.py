@@ -561,7 +561,7 @@ class MetaLearner:
                             )
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar:
                         # error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)[0]
-                        error_scalar = 1 - error[0][0][label]
+                        error_scalar = -error[0][0][label]
                         # error_scalar = torch.tanh(error_scalar)  # tanh to avoid exploding gradients
                         """if output[0][label] > 0.5:
                             error_scalar = torch.tensor(0, device=self.device)

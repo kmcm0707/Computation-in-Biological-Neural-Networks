@@ -30,6 +30,7 @@ class RosenbaumRNN(nn.Module):
         biological_min_tau: int = 1,
         biological_max_tau: int = 56,
         biological_nonlinearity: nonLinearEnum = nonLinearEnum.tanh,
+        hidden_size: int = 128,
     ):
 
         # Initialize the parent class
@@ -44,6 +45,7 @@ class RosenbaumRNN(nn.Module):
         self.biological = biological
         self.biological_min_tau = biological_min_tau
         self.biological_max_tau = biological_max_tau
+        self.hidden_size = hidden_size
         if biological_nonlinearity == nonLinearEnum.softplus:
             self.beta = 10
             self.biological_nonlinearity = nn.Softplus(beta=self.beta)
@@ -52,18 +54,18 @@ class RosenbaumRNN(nn.Module):
 
         if not self.biological:
             # -- layers
-            self.RNN1 = nn.RNNCell(input_size=self.dim_in, hidden_size=128, bias=False)
+            self.RNN1 = nn.RNNCell(input_size=self.dim_in, hidden_size=self.hidden_size, bias=False)
             # self.RNN2 = nn.RNNCell(input_size=128, hidden_size=128, bias=False)
-            self.forward1 = nn.Linear(128, dim_out, bias=False)
+            self.forward1 = nn.Linear(self.hidden_size, dim_out, bias=False)
 
             # -- hidden states
-            self.hx1 = torch.zeros(1, 128).to(self.device)
+            self.hx1 = torch.zeros(1, self.hidden_size).to(self.device)
             # self.hx2 = torch.zeros(1, 128).to(self.device)
         else:
             # -- layers
-            self.forward1 = nn.Linear(self.dim_in, 128, bias=False)
+            self.forward1 = nn.Linear(self.dim_in, self.hidden_size, bias=False)
             base = self.biological_max_tau / self.biological_min_tau
-            tau_vector = self.biological_min_tau * (base ** torch.linspace(0, 1, 128, device=self.device))
+            tau_vector = self.biological_min_tau * (base ** torch.linspace(0, 1, self.hidden_size, device=self.device))
             self.z_vector = 1 / tau_vector
             self.y_vector = 1 - self.z_vector
             self.y_vector = self.y_vector.to(self.device)
@@ -71,9 +73,9 @@ class RosenbaumRNN(nn.Module):
             self.z_vector = self.z_vector.to(self.device)
             # self.z_vector = nn.Parameter(self.z_vector)
 
-            self.recurrent1 = nn.Linear(128, 128, bias=False)
+            self.recurrent1 = nn.Linear(self.hidden_size, self.hidden_size, bias=False)
 
-            self.forward2 = nn.Linear(128, dim_out, bias=False)
+            self.forward2 = nn.Linear(self.hidden_size, dim_out, bias=False)
 
     # @torch.compile
     def forward(self, x):
@@ -105,7 +107,7 @@ class RosenbaumRNN(nn.Module):
 
     def reset_hidden(self, batch_size):
         # -- hidden states
-        self.hx1 = torch.zeros(batch_size, 128).to(self.device)
+        self.hx1 = torch.zeros(batch_size, self.hidden_size).to(self.device)
         # self.hx2 = torch.zeros(batch_size, 128).to(self.device)
 
 
@@ -132,6 +134,7 @@ class RnnMetaLearner:
         biological_min_tau: int = 1,
         biological_max_tau: int = 56,
         biological_nonlinearity: nonLinearEnum = nonLinearEnum.tanh,
+        hidden_size: int = 128,
     ):
 
         # -- processor params
@@ -144,6 +147,7 @@ class RnnMetaLearner:
         self.biological_min_tau = biological_min_tau
         self.biological_max_tau = biological_max_tau
         self.biological_nonlinearity = biological_nonlinearity
+        self.hidden_size = hidden_size
 
         # -- data params
         self.trainingDataPerClass = trainingDataPerClass
@@ -185,6 +189,16 @@ class RnnMetaLearner:
                     f.writelines("Model: {}\n".format("backprop"))
                     f.writelines("Number of training data per class: {}\n".format(self.trainingDataPerClass))
                     f.writelines("Number of query data per class: {}\n".format(self.queryDataPerClass))
+                    for arg in vars(self):
+                        if arg not in [
+                            "model",
+                            "metatrain_dataset",
+                            "data_process",
+                            "summary_writer",
+                            "UpdateParameters",
+                            "loss_func",
+                        ]:
+                            f.writelines("{}: {}\n".format(arg, getattr(self, arg)))
             except FileExistsError:
                 warnings.warn("The directory already exists. The results will be overwritten.")
 
@@ -221,6 +235,7 @@ class RnnMetaLearner:
             biological_min_tau=self.biological_min_tau,
             biological_max_tau=self.biological_max_tau,
             biological_nonlinearity=self.biological_nonlinearity,
+            hidden_size=self.hidden_size,
         )
         return model
 
@@ -394,8 +409,10 @@ def run(
         dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True, num_workers=numWorkers
     )
 
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+
     metalearning_model = RnnMetaLearner(
-        device="cuda:0",
+        device=device,
         result_subdirectory=result_subdirectory,
         save_results=True,
         metatrain_dataset=metatrain_dataset,
@@ -409,6 +426,7 @@ def run(
         biological_min_tau=2,
         biological_max_tau=56,
         biological_nonlinearity=nonLinearEnum.softplus,
+        hidden_size=256,
     )
     metalearning_model.train()
 
@@ -474,7 +492,7 @@ def rnn_backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_rnn_backprop_mode_1/{}".format(dim),
+                result_subdirectory="runner_rnn_backprop_mode_1_256_2/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )

@@ -143,6 +143,7 @@ class RnnMetaLearner:
             biological=self.options.biological,
             biological_min_tau=self.options.biological_min_tau,
             biological_max_tau=self.options.biological_max_tau,
+            hidden_size=self.options.hidden_size,
         )
 
         # -- learning flags
@@ -601,6 +602,7 @@ def run(
         error=errorEnum.all,
         leaky_error=0.0,  # 0.0 for no leaky error
         hidden_reset=True,  # True to reset hidden state between samples
+        hidden_size=256,
     )
 
     #   -- number of chemicals
@@ -642,7 +644,7 @@ def main_runner_rnn():
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_rnn_fast_mode_1",
+            result_subdirectory="runner_rnn_fast_mode_1_256",
             num_images=num_images[i],
             continue_training_path=continue_training_path,
         )
