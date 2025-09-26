@@ -186,27 +186,27 @@ class RnnMetaLearner:
                 nn.init.xavier_uniform_(modules.bias)
         # Used
         if isinstance(modules, nn.Linear):
-            """if modules.in_features == modules.out_features:
+            if modules.in_features == modules.out_features:
                 nn.init.eye_(modules.weight)
                 # modules.weight.data = modules.weight.data / 2
             else:
                 nn.init.xavier_uniform_(modules.weight)
                 # modules.weight.data = modules.weight.data / 2
                 if modules.bias is not None:
-                    nn.init.xavier_uniform_(modules.bias)"""
-            nn.init.xavier_uniform_(modules.weight)
+                    nn.init.xavier_uniform_(modules.bias)
+            # nn.init.xavier_uniform_(modules.weight)
 
     @torch.no_grad()
     def chemical_init(self, chemicals):
         if self.options.chemicalInitialization == chemicalEnum.same:
             for chemical in chemicals:
-                """if chemical.shape[1] == chemical.shape[2]:
+                if chemical.shape[1] == chemical.shape[2]:
                     nn.init.eye_(chemical[0])
                     # chemical[0] = chemical[0] / 2
                 else:
                     nn.init.xavier_uniform_(chemical[0])
-                    # chemical[0] = chemical[0] / 2"""
-                nn.init.xavier_uniform_(chemical[0])
+                    # chemical[0] = chemical[0]
+                # nn.init.xavier_uniform_(chemical[0])
                 for idx in range(chemical.shape[0] - 1):
                     chemical[idx + 1] = chemical[0]
         elif self.options.chemicalInitialization == chemicalEnum.zero:
@@ -702,4 +702,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_fast_mode_4_longer", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_fast_mode_4_longer_identity", index=i)
