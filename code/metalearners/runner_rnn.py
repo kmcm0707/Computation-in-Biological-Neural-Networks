@@ -602,7 +602,7 @@ def run(
         error=errorEnum.all,
         leaky_error=0.0,  # 0.0 for no leaky error
         hidden_reset=True,  # True to reset hidden state between samples
-        hidden_size=256,
+        hidden_size=128,
     )
 
     #   -- number of chemicals
@@ -645,7 +645,7 @@ def main_runner_rnn():
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_rnn_fast_mode_4_128_mode_longer",
+            result_subdirectory="runner_rnn_fast_mode_4_128_true_mode_longer",
             num_images=num_images[i],
             continue_training_path=continue_training_path,
         )
