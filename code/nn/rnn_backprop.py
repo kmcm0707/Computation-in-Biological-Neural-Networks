@@ -93,10 +93,8 @@ class RosenbaumRNN(nn.Module):
             # -- compute hidden states
             self.out1 = self.forward1(x)
 
-            self.hx1 = (
-                self.y_vector * self.hx1
-                + self.z_vector * self.biological_nonlinearity(self.out1)
-                + self.recurrent1(self.hx1)
+            self.hx1 = self.y_vector * self.hx1 + self.z_vector * (
+                self.biological_nonlinearity(self.out1) + self.recurrent1(self.hx1)
             )
 
             # -- compute output
@@ -424,7 +422,7 @@ def run(
         # -- model params
         biological=True,
         biological_min_tau=2,
-        biological_max_tau=56,
+        biological_max_tau=7,
         biological_nonlinearity=nonLinearEnum.softplus,
         hidden_size=256,
     )
@@ -492,7 +490,7 @@ def rnn_backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_rnn_backprop_mode_1_256_2/{}".format(dim),
+                result_subdirectory="runner_rnn_backprop_mode_4_256/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
