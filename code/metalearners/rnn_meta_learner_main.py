@@ -572,11 +572,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 0
-    epochs = 800
+    epochs = 1000
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 38
+    minTrainingDataPerClass = 20
+    maxTrainingDataPerClass = 70
     queryDataPerClass = 10
 
     if dataset_name == "EMNIST":
@@ -631,7 +631,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             operator=operatorEnum.mode_6,
         )
 
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cpu"
     # current_dir = os.getcwd()
     # -- meta-learner options
@@ -643,7 +643,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.000007,
+        lr=0.0001,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -658,13 +658,13 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         slowIsFast=True,  # True for fast RNN
         dimOut=dimOut,
         biological=True,
-        biological_min_tau=2,
+        biological_min_tau=1,
         biological_max_tau=7,
         error=errorEnum.all,
         leaky_error=0.0,  # 0.0 for no leaky error
         hidden_reset=True,  # True to reset hidden state between samples
         loss_meta_logits_all=False,  # True to use all logits for meta loss
-        hidden_size=256,
+        hidden_size=128,
     )
 
     #   -- number of chemicals
@@ -702,4 +702,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_fast_mode_4", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_fast_mode_4_longer", index=i)

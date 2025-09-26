@@ -421,7 +421,7 @@ def run(
         dimIn=dimIn,
         # -- model params
         biological=True,
-        biological_min_tau=2,
+        biological_min_tau=1,
         biological_max_tau=7,
         biological_nonlinearity=nonLinearEnum.softplus,
         hidden_size=128,
@@ -490,7 +490,7 @@ def rnn_backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_rnn_backprop_mode_4_128_2/{}".format(dim),
+                result_subdirectory="runner_rnn_backprop_mode_4_128_3/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
