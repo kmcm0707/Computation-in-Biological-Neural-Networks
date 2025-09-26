@@ -424,7 +424,7 @@ def run(
         biological_min_tau=2,
         biological_max_tau=7,
         biological_nonlinearity=nonLinearEnum.softplus,
-        hidden_size=256,
+        hidden_size=128,
     )
     metalearning_model.train()
 
@@ -490,7 +490,7 @@ def rnn_backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_rnn_backprop_mode_4_256/{}".format(dim),
+                result_subdirectory="runner_rnn_backprop_mode_4_128_2/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
