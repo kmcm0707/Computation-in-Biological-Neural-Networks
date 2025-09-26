@@ -561,7 +561,7 @@ class MetaLearner:
                             )
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar:
                         # error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)[0]
-                        error_scalar = 1 - error[0][0][label]
+                        error_scalar = -error[0][0][label]
                         # error_scalar = torch.tanh(error_scalar)  # tanh to avoid exploding gradients
                         """if output[0][label] > 0.5:
                             error_scalar = torch.tensor(0, device=self.device)
@@ -951,7 +951,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     # current_dir = os.getcwd()
     # continue_training = current_dir + "/results/mode_6_very_small_examples/0/20250323-222336"
     # -- meta-learner options
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P matrix (check 1.5)
@@ -965,7 +965,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.000008,
+        lr=0.00001,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
