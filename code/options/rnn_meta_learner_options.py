@@ -27,6 +27,15 @@ class errorEnum(Enum):
     all = "all"
 
 
+class recurrentInitEnum(Enum):
+    """
+    Enum for the recurrent initialization
+    """
+
+    identity = "identity"
+    xavierUniform = "xavierUniform"
+
+
 class RnnMetaLearnerOptions:
     """
     Options for the metal learner
@@ -63,6 +72,8 @@ class RnnMetaLearnerOptions:
         hidden_reset: bool = True,
         loss_meta_logits_all: bool = False,
         hidden_size: int = 128,
+        recurrent_init: recurrentInitEnum = recurrentInitEnum.xavierUniform,
+        test_time_training: bool = False,
     ):
 
         self.model = model
@@ -94,6 +105,8 @@ class RnnMetaLearnerOptions:
         self.hidden_reset = hidden_reset
         self.loss_meta_logits_all = loss_meta_logits_all
         self.hidden_size = hidden_size
+        self.recurrent_init = recurrent_init
+        self.test_time_training = test_time_training
 
     def __str__(self):
         string = ""

@@ -21,6 +21,7 @@ from options.meta_learner_options import chemicalEnum, optimizerEnum
 from options.rnn_meta_learner_options import (
     RnnMetaLearnerOptions,
     errorEnum,
+    recurrentInitEnum,
     rnnModelEnum,
 )
 from synapses.fast_rnn import FastRnn
@@ -173,8 +174,8 @@ class RnnMetaLearner:
 
         return model
 
-    @staticmethod
-    def weights_init(modules):
+    @torch.no_grad()
+    def weights_init(self, modules):
         # Not Used
         if isinstance(modules, nn.RNNCell):
             # -- weights_ih
@@ -187,26 +188,26 @@ class RnnMetaLearner:
         # Used
         if isinstance(modules, nn.Linear):
             if modules.in_features == modules.out_features:
-                nn.init.eye_(modules.weight)
-                # modules.weight.data = modules.weight.data / 2
+                if self.options.recurrent_init == recurrentInitEnum.identity:
+                    nn.init.eye_(modules.weight)
+                elif self.options.recurrent_init == recurrentInitEnum.xavierUniform:
+                    nn.init.xavier_uniform_(modules.weight)
             else:
                 nn.init.xavier_uniform_(modules.weight)
-                # modules.weight.data = modules.weight.data / 2
                 if modules.bias is not None:
                     nn.init.xavier_uniform_(modules.bias)
-            # nn.init.xavier_uniform_(modules.weight)
 
     @torch.no_grad()
     def chemical_init(self, chemicals):
         if self.options.chemicalInitialization == chemicalEnum.same:
             for chemical in chemicals:
                 if chemical.shape[1] == chemical.shape[2]:
-                    nn.init.eye_(chemical[0])
-                    # chemical[0] = chemical[0] / 2
+                    if self.options.recurrent_init == recurrentInitEnum.identity:
+                        nn.init.eye_(chemical[0])
+                    elif self.options.recurrent_init == recurrentInitEnum.xavierUniform:
+                        nn.init.xavier_uniform_(chemical[0])
                 else:
                     nn.init.xavier_uniform_(chemical[0])
-                    # chemical[0] = chemical[0]
-                # nn.init.xavier_uniform_(chemical[0])
                 for idx in range(chemical.shape[0] - 1):
                     chemical[idx + 1] = chemical[0]
         elif self.options.chemicalInitialization == chemicalEnum.zero:
@@ -452,19 +453,98 @@ class RnnMetaLearner:
                 self.model.set_hidden(hx1, batch_size=x_qry.shape[0])
 
             # -- predict
-            if self.options.error == errorEnum.all:
-                all_logits = torch.zeros(x_qry.shape[0], x_qry.shape[1], self.options.dimOut).to(self.device)
+            all_logits = torch.zeros(x_qry.shape[0], x_qry.shape[1], self.options.dimOut).to(self.device)
 
-            for input_index in range(x_qry.shape[1]):
-                x_in = x_qry[:, input_index, :]
-                if self.options.requireFastChemical:
-                    y, logits = torch.func.functional_call(
-                        self.model, (parameters, slow_h_parameters, fast_h_parameters), x_in
-                    )
-                else:
-                    y, logits = torch.func.functional_call(self.model, (parameters, slow_h_parameters), x_in)
-                if self.options.error == errorEnum.all:
+            if not self.options.test_time_training:
+                for input_index in range(x_qry.shape[1]):
+                    x_in = x_qry[:, input_index, :]
+                    if self.options.requireFastChemical:
+                        y, logits = torch.func.functional_call(
+                            self.model, (parameters, slow_h_parameters, fast_h_parameters), x_in
+                        )
+                    else:
+                        y, logits = torch.func.functional_call(self.model, (parameters, slow_h_parameters), x_in)
                     all_logits[:, input_index, :] = logits
+            else:
+                current_parameters = {key: val.clone() for key, val in parameters.items()}
+                current_slow_h_parameters = {key: val.clone() for key, val in slow_h_parameters.items()}
+                if self.options.requireFastChemical:
+                    current_fast_h_parameters = {key: val.clone() for key, val in fast_h_parameters.items()}
+                for image_index in range(x_qry.shape[0]):
+                    # -- reset time index
+                    self.UpdateWeights.reset_time_index()
+
+                    # -- reset fast weights
+                    if self.options.reset_fast_weights:
+                        if self.options.requireFastChemical:
+                            self.UpdateWeights.reset_fast_chemicals(
+                                params=current_parameters, h_fast_parameters=current_fast_h_parameters
+                            )
+                        else:
+                            self.UpdateWeights.reset_fast_chemicals(params=current_parameters)
+
+                    # -- reset rnn hidden state
+                    if self.options.hidden_reset:
+                        self.model.reset_hidden(1)
+
+                    x_reshaped = torch.reshape(
+                        x_qry[image_index, :, :], (784 // self.options.rnn_input_size, self.options.rnn_input_size)
+                    )
+
+                    for index_rnn, input in enumerate(x_reshaped):
+                        # -- predict
+                        if self.options.requireFastChemical:
+                            y_dict, output = torch.func.functional_call(
+                                self.model,
+                                (current_parameters, current_slow_h_parameters, current_fast_h_parameters),
+                                input.unsqueeze(0),
+                            )
+                        else:
+                            y_dict, output = torch.func.functional_call(
+                                self.model, (current_parameters, current_slow_h_parameters), input.unsqueeze(0)
+                            )
+                        all_logits[image_index, index_rnn, :] = output
+
+                        # -- false error
+                        error_dict = {}
+                        error = [torch.zeros_like(functional.softmax(output, dim=1))]
+                        error_temp_dict = {}
+
+                        for name, value in feedback.items():
+                            error_temp_dict[name] = torch.matmul(error[0], value)
+
+                        for name, value in error_temp_dict.items():
+                            parameter_name = self.model.feedback_to_parameters[name]
+                            error_below = None
+                            if self.model.error_dict[parameter_name] != "last":
+                                error_below = error_temp_dict[self.model.error_dict[parameter_name]]
+                            else:
+                                error_below = error[0]
+                            error_dict[parameter_name] = (value, error_below)
+
+                    # -- update network params
+                    if self.options.requireFastChemical:
+                        self.UpdateWeights.fast_update(
+                            params=current_parameters,
+                            h_fast_parameters=current_fast_h_parameters,
+                            error=error_dict,
+                            activations_and_output=y_dict,
+                        )
+                    elif self.options.slowIsFast:
+                        self.UpdateWeights.fast_update(
+                            params=current_parameters,
+                            error=error_dict,
+                            h_parameters=current_slow_h_parameters,
+                            activations_and_output=y_dict,
+                        )
+                    else:
+                        self.UpdateWeights.fast_update(
+                            params=current_parameters,
+                            error=error_dict,
+                            activations_and_output=y_dict,
+                        )
+
+            logits = all_logits[:, -1, :]
 
             # -- loss
             loss_meta = 0
@@ -665,6 +745,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         hidden_reset=True,  # True to reset hidden state between samples
         loss_meta_logits_all=False,  # True to use all logits for meta loss
         hidden_size=128,
+        recurrent_init=recurrentInitEnum.xavierUniform,  # identity or xavierUniform
+        test_time_training=True,  # True to use test-time training
     )
 
     #   -- number of chemicals
@@ -702,4 +784,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_fast_mode_4_longer_identity", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_4_test_time_compute", index=i)
