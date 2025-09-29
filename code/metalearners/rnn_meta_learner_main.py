@@ -466,11 +466,11 @@ class RnnMetaLearner:
                         y, logits = torch.func.functional_call(self.model, (parameters, slow_h_parameters), x_in)
                     all_logits[:, input_index, :] = logits
             else:
-                current_parameters = {key: val.clone() for key, val in parameters.items()}
-                current_slow_h_parameters = {key: val.clone() for key, val in slow_h_parameters.items()}
-                if self.options.requireFastChemical:
-                    current_fast_h_parameters = {key: val.clone() for key, val in fast_h_parameters.items()}
                 for image_index in range(x_qry.shape[0]):
+                    current_parameters = {key: val.clone() for key, val in parameters.items()}
+                    current_slow_h_parameters = {key: val.clone() for key, val in slow_h_parameters.items()}
+                    if self.options.requireFastChemical:
+                        current_fast_h_parameters = {key: val.clone() for key, val in fast_h_parameters.items()}
                     # -- reset time index
                     self.UpdateWeights.reset_time_index()
 
