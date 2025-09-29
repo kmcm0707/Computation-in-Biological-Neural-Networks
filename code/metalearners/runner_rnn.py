@@ -432,16 +432,94 @@ class RnnMetaLearner:
             # -- predict
             all_logits = torch.zeros(x_qry.shape[0], x_qry.shape[1], self.options.dimOut).to(self.device)
 
-            for input_index in range(x_qry.shape[1]):
-                x_in = x_qry[:, input_index, :]
-                if self.options.requireFastChemical:
-                    y, logits = torch.func.functional_call(
-                        self.model, (parameters, slow_h_parameters, fast_h_parameters), x_in
-                    )
-                else:
-                    y, logits = torch.func.functional_call(self.model, (parameters, slow_h_parameters), x_in)
+            if not self.options.test_time_training:
+                for input_index in range(x_qry.shape[1]):
+                    x_in = x_qry[:, input_index, :]
+                    if self.options.requireFastChemical:
+                        y, logits = torch.func.functional_call(
+                            self.model, (parameters, slow_h_parameters, fast_h_parameters), x_in
+                        )
+                    else:
+                        y, logits = torch.func.functional_call(self.model, (parameters, slow_h_parameters), x_in)
+                    all_logits[:, input_index, :] = logits
+            else:
+                for image_index in range(x_qry.shape[0]):
+                    current_parameters = {key: val.clone() for key, val in parameters.items()}
+                    current_slow_h_parameters = {key: val.clone() for key, val in slow_h_parameters.items()}
+                    if self.options.requireFastChemical:
+                        current_fast_h_parameters = {key: val.clone() for key, val in fast_h_parameters.items()}
+                    # -- reset time index
+                    self.UpdateWeights.reset_time_index()
 
-                all_logits[:, input_index, :] = logits
+                    # -- reset fast weights
+                    if self.options.reset_fast_weights:
+                        if self.options.requireFastChemical:
+                            self.UpdateWeights.reset_fast_chemicals(
+                                params=current_parameters, h_fast_parameters=current_fast_h_parameters
+                            )
+                        else:
+                            self.UpdateWeights.reset_fast_chemicals(params=current_parameters)
+
+                    # -- reset rnn hidden state
+                    if self.options.hidden_reset:
+                        self.model.reset_hidden(1)
+
+                    x_reshaped = torch.reshape(
+                        x_qry[image_index, :, :], (784 // self.options.rnn_input_size, self.options.rnn_input_size)
+                    )
+
+                    for index_rnn, input in enumerate(x_reshaped):
+                        # -- predict
+                        if self.options.requireFastChemical:
+                            y_dict, output = torch.func.functional_call(
+                                self.model,
+                                (current_parameters, current_slow_h_parameters, current_fast_h_parameters),
+                                input.unsqueeze(0),
+                            )
+                        else:
+                            y_dict, output = torch.func.functional_call(
+                                self.model, (current_parameters, current_slow_h_parameters), input.unsqueeze(0)
+                            )
+                        all_logits[image_index, index_rnn, :] = output
+
+                        # -- false error
+                        error_dict = {}
+                        error = [torch.zeros_like(functional.softmax(output, dim=1))]
+                        error_temp_dict = {}
+
+                        for name, value in feedback.items():
+                            error_temp_dict[name] = torch.matmul(error[0], value)
+
+                        for name, value in error_temp_dict.items():
+                            parameter_name = self.model.feedback_to_parameters[name]
+                            error_below = None
+                            if self.model.error_dict[parameter_name] != "last":
+                                error_below = error_temp_dict[self.model.error_dict[parameter_name]]
+                            else:
+                                error_below = error[0]
+                            error_dict[parameter_name] = (value, error_below)
+
+                        # -- update network params
+                        if self.options.requireFastChemical:
+                            self.UpdateWeights.fast_update(
+                                params=current_parameters,
+                                h_fast_parameters=current_fast_h_parameters,
+                                error=error_dict,
+                                activations_and_output=y_dict,
+                            )
+                        elif self.options.slowIsFast:
+                            self.UpdateWeights.fast_update(
+                                params=current_parameters,
+                                error=error_dict,
+                                h_parameters=current_slow_h_parameters,
+                                activations_and_output=y_dict,
+                            )
+                        else:
+                            self.UpdateWeights.fast_update(
+                                params=current_parameters,
+                                error=error_dict,
+                                activations_and_output=y_dict,
+                            )
 
             # -- loss
             loss_meta = 0
@@ -603,6 +681,7 @@ def run(
         leaky_error=0.0,  # 0.0 for no leaky error
         hidden_reset=True,  # True to reset hidden state between samples
         hidden_size=128,
+        test_time_training=True,  # True to perform test time training
     )
 
     #   -- number of chemicals
@@ -645,7 +724,7 @@ def main_runner_rnn():
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_rnn_fast_mode_4_128_true_mode_longer",
+            result_subdirectory="runner_rnn_fast_mode_4_128_longer_test_time_compute",
             num_images=num_images[i],
             continue_training_path=continue_training_path,
         )
