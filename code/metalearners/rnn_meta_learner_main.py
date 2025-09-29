@@ -522,27 +522,27 @@ class RnnMetaLearner:
                                 error_below = error[0]
                             error_dict[parameter_name] = (value, error_below)
 
-                    # -- update network params
-                    if self.options.requireFastChemical:
-                        self.UpdateWeights.fast_update(
-                            params=current_parameters,
-                            h_fast_parameters=current_fast_h_parameters,
-                            error=error_dict,
-                            activations_and_output=y_dict,
-                        )
-                    elif self.options.slowIsFast:
-                        self.UpdateWeights.fast_update(
-                            params=current_parameters,
-                            error=error_dict,
-                            h_parameters=current_slow_h_parameters,
-                            activations_and_output=y_dict,
-                        )
-                    else:
-                        self.UpdateWeights.fast_update(
-                            params=current_parameters,
-                            error=error_dict,
-                            activations_and_output=y_dict,
-                        )
+                        # -- update network params
+                        if self.options.requireFastChemical:
+                            self.UpdateWeights.fast_update(
+                                params=current_parameters,
+                                h_fast_parameters=current_fast_h_parameters,
+                                error=error_dict,
+                                activations_and_output=y_dict,
+                            )
+                        elif self.options.slowIsFast:
+                            self.UpdateWeights.fast_update(
+                                params=current_parameters,
+                                error=error_dict,
+                                h_parameters=current_slow_h_parameters,
+                                activations_and_output=y_dict,
+                            )
+                        else:
+                            self.UpdateWeights.fast_update(
+                                params=current_parameters,
+                                error=error_dict,
+                                activations_and_output=y_dict,
+                            )
 
             logits = all_logits[:, -1, :]
 
@@ -784,4 +784,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_4_test_time_compute", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_4_test_time_compute_fixed", index=i)
