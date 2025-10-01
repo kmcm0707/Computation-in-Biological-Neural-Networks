@@ -652,10 +652,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 1
-    epochs = 600
+    epochs = 1000
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 20
+    minTrainingDataPerClass = 5
     maxTrainingDataPerClass = 70
     queryDataPerClass = 10
 
@@ -746,7 +746,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         loss_meta_logits_all=False,  # True to use all logits for meta loss
         hidden_size=128,
         recurrent_init=recurrentInitEnum.xavierUniform,  # identity or xavierUniform
-        test_time_training=True,  # True to use test-time training
+        test_time_training=False,  # True to use test-time training
     )
 
     #   -- number of chemicals
@@ -784,4 +784,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_4_test_time_compute_fixed", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_mode_4_longer_2", index=i)
