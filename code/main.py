@@ -7,6 +7,7 @@ from metalearners.runner import runner_main  # noqa: F401
 from metalearners.runner_rnn import main_runner_rnn  # noqa: F401
 from misc.load_from_params import load_model  # noqa: F401
 from nn.backprop import backprop_main  # noqa: F401
+from nn.rflo import rflo_main  # noqa: F401
 from nn.rnn_backprop import rnn_backprop_main  # noqa: F401
 
 torch.cuda.empty_cache()
@@ -18,6 +19,7 @@ if __name__ == "__main__":
     # runner_main()
     # load_model()
     # backprop_main()
-    rnn_backprop_main()
+    # rnn_backprop_main()
     # main_rnn()
     # main_runner_rnn()
+    rflo_main()

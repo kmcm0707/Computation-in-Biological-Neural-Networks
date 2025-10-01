@@ -10,6 +10,7 @@ from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset
 from misc.utils import log
 from options.complex_options import nonLinearEnum
 from torch import nn, optim
+from torch.nn import functional
 from torch.utils.data import DataLoader, RandomSampler
 from torch.utils.tensorboard import SummaryWriter
 
@@ -30,6 +31,9 @@ class RfloRNN(nn.Module):
         biological_max_tau: int = 56,
         biological_nonlinearity: nonLinearEnum = nonLinearEnum.tanh,
         hidden_size: int = 128,
+        lr_in: float = 0.001,
+        lr_hh: float = 0.001,
+        lr_out: float = 0.001,
     ):
 
         # Initialize the parent class
@@ -65,10 +69,17 @@ class RfloRNN(nn.Module):
 
         self.forward2 = nn.Linear(self.hidden_size, dim_out, bias=False)
 
-        p = torch.zeros(size=(self.hidden_size, self.hidden_size), device=self.device)
-        q = torch.zeros(size=(self.hidden_size, self.dim_in), device=self.device)
-        self.register_buffer("p", p)
-        self.register_buffer("q", q)
+        self.p = torch.zeros(size=(self.hidden_size, self.hidden_size), device=self.device)
+        self.q = torch.zeros(size=(self.dim_in, self.hidden_size), device=self.device)
+
+        self.past_x = torch.zeros(size=(1, self.dim_in), device=self.device)
+
+        self.RNN1_in_feedback = nn.Linear(dim_out, self.dim_in, bias=False)
+        self.RNN1_hh_feedback = nn.Linear(dim_out, self.hidden_size, bias=False)
+
+        self.lr_in = lr_in
+        self.lr_hh = lr_hh
+        self.lr_out = lr_out
 
     # @torch.compile
     def forward(self, x):
@@ -76,10 +87,13 @@ class RfloRNN(nn.Module):
         assert x.shape[0] == self.hx1.shape[0], "Batch size is not correct."
 
         # -- compute hidden states
+        self.x = x
         self.out1 = self.forward1(x)
 
+        self.past_hx1 = self.hx1.clone()
+        self.tanh_recurrent = torch.tanh(self.recurrent1(self.hx1))
         self.hx1 = self.y_vector * self.hx1 + self.z_vector * (
-            self.biological_nonlinearity(self.out1) + self.recurrent1(self.hx1)
+            self.biological_nonlinearity(self.out1) + self.tanh_recurrent
         )
 
         # -- compute output
@@ -93,11 +107,24 @@ class RfloRNN(nn.Module):
         self.hx1 = torch.zeros(batch_size, self.hidden_size).to(self.device)
         # self.hx2 = torch.zeros(batch_size, 128).to(self.device)
 
+    def update(self, error):
+        # -- update p and q
+        self.p = self.y_vector * self.p + self.z_vector * torch.matmul((1 - self.tanh_recurrent**2).T, self.past_hx1).T
+        self.q = self.y_vector * self.q + self.z_vector * torch.matmul(torch.sigmoid(self.out1).T, self.past_x).T
+        self.past_x = self.x.clone()
 
-class RnnMetaLearner:
+        in_error = self.RNN1_in_feedback(error).squeeze(0)
+        hh_error = self.RNN1_hh_feedback(error).squeeze(0)
+
+        self.forward1.weight = torch.nn.Parameter(self.forward1.weight - (in_error * self.q.T * self.lr_in))
+        self.recurrent1.weight = torch.nn.Parameter(self.recurrent1.weight - (hh_error * self.p.T * self.lr_hh))
+        self.forward2.weight = torch.nn.Parameter(self.forward2.weight - torch.matmul(error.T, self.hx1) * self.lr_out)
+
+
+class RfloLearner:
     """
 
-    Meta-learner class.
+    Rflo class.
 
     """
 
@@ -113,11 +140,13 @@ class RnnMetaLearner:
         dimOut: int = 47,
         dimIn: int = 28,
         # -- model params
-        biological: bool = False,
         biological_min_tau: int = 1,
         biological_max_tau: int = 56,
         biological_nonlinearity: nonLinearEnum = nonLinearEnum.tanh,
         hidden_size: int = 128,
+        lr_in: float = 0.001,
+        lr_hh: float = 0.001,
+        lr_out: float = 0.001,
     ):
 
         # -- processor params
@@ -126,11 +155,13 @@ class RnnMetaLearner:
         # -- model params
         self.dimOut = dimOut
         self.dimIn = dimIn
-        self.biological = biological
         self.biological_min_tau = biological_min_tau
         self.biological_max_tau = biological_max_tau
         self.biological_nonlinearity = biological_nonlinearity
         self.hidden_size = hidden_size
+        self.lr_in = lr_in
+        self.lr_hh = lr_hh
+        self.lr_out = lr_out
 
         # -- data params
         self.trainingDataPerClass = trainingDataPerClass
@@ -154,8 +185,8 @@ class RnnMetaLearner:
 
         self.loss_func = nn.CrossEntropyLoss()
 
-        lr = 1e-3
-        self.UpdateParameters = optim.Adam(self.model.parameters(), lr=lr)
+        # lr = 1e-3
+        # self.UpdateParameters = optim.Adam(self.model.parameters(), lr=lr)
 
         # -- log params
         self.save_results = save_results
@@ -210,15 +241,17 @@ class RnnMetaLearner:
         :param args: (argparse.Namespace) The command-line arguments.
         :return: model with flags , "adapt", set for its parameters
         """
-        model = RosenbaumRNN(
+        model = RfloRNN(
             self.device,
             dim_out=self.dimOut,
             dim_in=self.dimIn,
-            biological=self.biological,
             biological_min_tau=self.biological_min_tau,
             biological_max_tau=self.biological_max_tau,
             biological_nonlinearity=self.biological_nonlinearity,
             hidden_size=self.hidden_size,
+            lr_in=self.lr_in,
+            lr_hh=self.lr_hh,
+            lr_out=self.lr_out,
         )
         return model
 
@@ -237,6 +270,7 @@ class RnnMetaLearner:
             if modules.bias is not None:
                 nn.init.xavier_uniform_(modules.bias)
 
+    @torch.no_grad()
     def train(self):
         """
             Perform meta-training.
@@ -279,13 +313,11 @@ class RnnMetaLearner:
                     # -- predict
                     y, logits = self.model(input.unsqueeze(0))
 
-                # -- update network params
-                loss_adapt = self.loss_func(logits, label)
+                    # -- update network params
+                    error = functional.softmax(logits, dim=1) - functional.one_hot(label, num_classes=self.dimOut)
 
-                # -- backprop
-                self.UpdateParameters.zero_grad()
-                loss_adapt.backward()
-                self.UpdateParameters.step()
+                    # -- rflo update
+                    self.model.update(error)
 
             # -- predict
             self.model.eval()
@@ -329,7 +361,7 @@ class RnnMetaLearner:
                 self.result_directory + "/UpdateWeights.pth",
             )
             torch.save(self.model.state_dict(), self.result_directory + "/model.pth")"""
-        print("Meta-training complete.")
+        print("RFLO complete.")
 
 
 def run(
@@ -394,7 +426,7 @@ def run(
 
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
-    metalearning_model = RnnMetaLearner(
+    metalearning_model = RfloLearner(
         device=device,
         result_subdirectory=result_subdirectory,
         save_results=True,
@@ -405,28 +437,20 @@ def run(
         dimOut=dimOut,
         dimIn=dimIn,
         # -- model params
-        biological=True,
         biological_min_tau=1,
         biological_max_tau=7,
         biological_nonlinearity=nonLinearEnum.softplus,
         hidden_size=128,
+        lr_in=0.001,
+        lr_hh=0.001,
+        lr_out=0.001,
     )
     metalearning_model.train()
 
 
-def rnn_backprop_main():
+def rflo_main():
     """
-        Main function for Meta-learning the plasticity rule.
-
-    This function serves as the entry point for meta-learning model training
-    and performs the following operations:
-    1) Loads and parses command-line arguments,
-    2) Loads custom EMNIST dataset using meta-training arguments (K, Q),
-    3) Creates tasks for meta-training using `RandomSampler` with specified
-        number of classes (M) and episodes,
-    4) Initializes and trains a MetaLearner object with the set of tasks.
-
-    :return: None
+    Main function for running RFLO experiments.
     """
     # -- run
     dimIn = [112]
@@ -475,7 +499,7 @@ def rnn_backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_rnn_backprop_mode_4_128_3/{}".format(dim),
+                result_subdirectory="runner_rnn_rflo_mode_4/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
