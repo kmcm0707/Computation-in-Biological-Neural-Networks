@@ -441,9 +441,9 @@ def run(
         biological_max_tau=7,
         biological_nonlinearity=nonLinearEnum.softplus,
         hidden_size=128,
-        lr_in=0.001,
-        lr_hh=0.001,
-        lr_out=0.001,
+        lr_in=0.003,
+        lr_hh=0.003,
+        lr_out=0.003,
     )
     metalearning_model.train()
 
@@ -499,7 +499,7 @@ def rflo_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_rnn_rflo_mode_4/{}".format(dim),
+                result_subdirectory="runner_rnn_rflo_mode_4_11/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
