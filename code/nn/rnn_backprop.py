@@ -94,7 +94,7 @@ class RosenbaumRNN(nn.Module):
             self.out1 = self.forward1(x)
 
             self.hx1 = self.y_vector * self.hx1 + self.z_vector * (
-                self.biological_nonlinearity(self.out1) + self.recurrent1(self.hx1)
+                self.biological_nonlinearity(self.out1) + torch.tanh(self.recurrent1(self.hx1))
             )
 
             # -- compute output
@@ -490,7 +490,7 @@ def rnn_backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_rnn_backprop_mode_4_128_3/{}".format(dim),
+                result_subdirectory="runner_rnn_backprop_mode_4_128_tanh/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )

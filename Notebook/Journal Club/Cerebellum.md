@@ -1,7 +1,7 @@
 # Cerebellum
 - Degradation causes motor skills to degrade
 - Makes internal predictions.
-Forward Model - predicts sensory, Inverse Model - predicts 
+Forward Model - predicts sensory, Inverse Model - predicts
 
 80% neurons, 3 layer of cortex, 4 deep nuclei.
 Only really feedforward, no mutually excitory recurrent circuits, only inhibitory.
@@ -11,7 +11,7 @@ Also have climbing fibres with strong input to purkinjie cells.
 
 Marr-Albus-Ito theory
 
-## A vector calculus foe neural computation in the cerebellum
+## A Vector Calculus for Neural Computation in the Cerebellum
 Imprecise purkinjie cells output moves eyes accurately.
 Null Space Hypothesis - many neurons converging on downstream target - only average neural activity must resemble muscle activity.
 
