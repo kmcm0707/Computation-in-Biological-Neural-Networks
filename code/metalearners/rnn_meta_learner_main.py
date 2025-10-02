@@ -652,7 +652,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 1
-    epochs = 1000
+    epochs = 1200
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
@@ -703,7 +703,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     elif model == rnnModelEnum.fast:
         modelOptions = fastRnnOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 4, 9, 12],
+            update_rules=[0, 1, 2, 3, 4, 9, 10, 12],
             minSlowTau=2,
             maxSlowTau=200,
             y_vector=yVectorEnum.none,
@@ -784,4 +784,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_mode_4_longer_2", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_mode_4_longer_2_more_lr", index=i)
