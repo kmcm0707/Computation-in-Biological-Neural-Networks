@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 
@@ -134,7 +133,7 @@ if __name__ == "__main__":
     matrix = torch.reshape(matrix, (2, 3, 4))
     print(matrix)"""
 
-    min_tau = 2
+    """min_tau = 2
     max_tau = 60
     base = max_tau / min_tau
     tau_vector = 2 * (base ** torch.linspace(0, 1, 256))
@@ -161,4 +160,15 @@ if __name__ == "__main__":
 
     test_vector = torch.randn((1, 256), device="cpu")
     result_vector = y_vector * test_vector + z_vector * (test_vector @ test_matrix)
-    print(torch.norm(result_vector) / torch.norm(test_vector))
+    print(torch.norm(result_vector) / torch.norm(test_vector))"""
+
+    linear = nn.Linear(4, 3, bias=False)
+    x_vector = torch.randn((1, 4), requires_grad=True)
+    output = linear(x_vector)
+    activated_output = torch.nn.functional.softplus(output, beta=10)
+
+    grad = torch.autograd.grad(
+        outputs=activated_output, inputs=x_vector, grad_outputs=torch.ones_like(activated_output)
+    )
+    print(grad[0])
+    assert grad[0].all() == (torch.exp(10 * x_vector) / (1 + torch.exp(10 * x_vector))).all()

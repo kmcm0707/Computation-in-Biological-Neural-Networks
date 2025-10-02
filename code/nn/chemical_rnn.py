@@ -22,6 +22,7 @@ class ChemicalRnn(nn.Module):
         biological_max_tau: int = 56,
         hidden_size: int = 128,
         diff_hidden_error: bool = False,
+        gradient: bool = False,
     ):
         # Initialize the parent class
         super(ChemicalRnn, self).__init__()
@@ -42,6 +43,7 @@ class ChemicalRnn(nn.Module):
         self.biological_max_tau = biological_max_tau
         self.hidden_size = hidden_size
         self.diff_hidden_error = diff_hidden_error
+        self.gradient = gradient
 
         # Model
         if not biological:
@@ -143,30 +145,55 @@ class ChemicalRnn(nn.Module):
         # hx2_prev = self.hx2
         RNN_forward1_ih_x = self.RNN_forward1_ih(x)
         if not self.biological:
-            RNN_forward1_hh_hx1 = self.activation(self.RNN_forward1_hh(self.hx1))
+            RNN_forward1_hh_hx1 = self.RNN_forward1_hh(self.hx1)
             self.hx1 = torch.tanh(RNN_forward1_ih_x + RNN_forward1_hh_hx1)
             # self.hx2 = torch.tanh(RNN_forward2_hx1)
             output = self.forward1(self.hx1)
         else:
             # Mode 2: RNN_forward1_hh_hx1 = self.RNN_forward1_hh(self.activation(self.hx1))
             # Mode 3: RNN_forward1_hh_hx1 = self.RNN_forward1_hh(torch.tanh(self.hx1))
-            RNN_forward1_hh_hx1 = self.activation(self.RNN_forward1_hh(self.hx1))
-            self.hx1 = (self.y_vector) * self.hx1 + self.z_vector * (
-                self.activation(RNN_forward1_ih_x) + RNN_forward1_hh_hx1
-            )
+            # Mode 5: RNN_forward1_hh_hx1 = torch.tanh(self.RNN_forward1_hh(self.hx1))
+            intermediate_hx1 = self.RNN_forward1_hh(self.hx1)
+            RNN_forward1_hh_hx1 = intermediate_hx1  # torch.tanh(intermediate_hx1)
+
+            activated_RNN_forward1_ih_x = self.activation(RNN_forward1_ih_x)
+
+            self.hx1 = (self.y_vector) * self.hx1 + self.z_vector * (activated_RNN_forward1_ih_x + RNN_forward1_hh_hx1)
             # self.z_vector * self.activation(RNN_forward1_hh_hx1 + self.hx1)
             # Mode 1: self.hx1 = ( self.y_vector * self.hx1 + self.z_vector * (self.activation(RNN_forward1_ih_x)) + RNN_forward1_hh_hx1)
             output = self.forward1(self.hx1)
 
         activations = {
-            "RNN_forward1_ih.weight": (x, self.activation(RNN_forward1_ih_x)),  # broken is (x, RNN_forward1_ih_x)
+            "RNN_forward1_ih.weight": (x, activated_RNN_forward1_ih_x),  # broken is (x, RNN_forward1_ih_x)
             "RNN_forward1_hh.weight": (
                 hx1_prev,
                 RNN_forward1_hh_hx1,
             ),  # mode 3: (torch.tanh(hx1_prev), RNN_forward1_hh_hx1)
             "forward1.weight": (self.hx1, output),
         }
-        return activations, output
+        if self.gradient:
+            gradients = {
+                "RNN_forward1_ih.weight": (
+                    (1 - torch.exp(-self.model.beta * x)),
+                    torch.autograd.grad(
+                        outputs=activated_RNN_forward1_ih_x,
+                        inputs=x,
+                        grad_outputs=torch.ones_like(activated_RNN_forward1_ih_x),
+                    ),
+                ),
+                "RNN_forward1_hh.weight": (
+                    (1 - torch.exp(-self.model.beta * hx1_prev)),
+                    torch.autograd.grad(
+                        outputs=RNN_forward1_hh_hx1, inputs=hx1_prev, grad_outputs=torch.ones_like(RNN_forward1_hh_hx1)
+                    ),
+                ),
+                "forward1.weight": ((1 - torch.exp(-self.model.beta * self.hx1)), None),
+            }
+
+        if self.gradient:
+            return activations, output, gradients
+        else:
+            return activations, output
 
     def reset_hidden(self, batch_size):
         self.hx1 = torch.zeros(batch_size, self.hidden_size, device=self.device)

@@ -91,9 +91,9 @@ class RfloRNN(nn.Module):
         self.out1 = self.forward1(x)
 
         self.past_hx1 = self.hx1.clone()
-        self.tanh_recurrent = torch.tanh(self.recurrent1(self.hx1))
+        # self.tanh_recurrent = torch.tanh(self.recurrent1(self.hx1))
         self.hx1 = self.y_vector * self.hx1 + self.z_vector * (
-            self.biological_nonlinearity(self.out1) + self.tanh_recurrent
+            self.biological_nonlinearity(self.out1) + self.self.recurrent1(self.hx1)
         )
 
         # -- compute output
@@ -110,14 +110,20 @@ class RfloRNN(nn.Module):
     def update(self, error):
         # -- update p and q
         self.p = self.y_vector * self.p + self.z_vector * torch.matmul((1 - self.tanh_recurrent**2).T, self.past_hx1).T
-        self.q = self.y_vector * self.q + self.z_vector * torch.matmul(torch.sigmoid(self.out1).T, self.past_x).T
+        self.q = (
+            self.y_vector * self.q
+            + self.z_vector
+            * torch.matmul(
+                torch.ones_like(self.out1).T, self.past_x
+            ).T  # (torch.exp(10 * self.out1) / (1 + torch.exp(10 * self.out1)))
+        )
         self.past_x = self.x.clone()
 
         # in_error = self.RNN1_in_feedback(error).squeeze(0)
         hh_error = self.RNN1_hh_feedback(error).squeeze(0)
 
         self.forward1.weight = torch.nn.Parameter(self.forward1.weight - (hh_error * self.q * self.lr_in).T)
-        self.recurrent1.weight = torch.nn.Parameter(self.recurrent1.weight - (hh_error * self.p * self.lr_hh))
+        self.recurrent1.weight = torch.nn.Parameter(self.recurrent1.weight - (hh_error * self.p * self.lr_hh).T)
         self.forward2.weight = torch.nn.Parameter(self.forward2.weight - torch.matmul(error.T, self.hx1) * self.lr_out)
 
 
@@ -441,9 +447,9 @@ def run(
         biological_max_tau=7,
         biological_nonlinearity=nonLinearEnum.softplus,
         hidden_size=128,
-        lr_in=0.009,
-        lr_hh=0.009,
-        lr_out=0.009,
+        lr_in=0.01,
+        lr_hh=0.01,
+        lr_out=0.01,
     )
     metalearning_model.train()
 
@@ -499,7 +505,7 @@ def rflo_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_test_no_T_rnn_rflo_mode_4_1/{}".format(dim),
+                result_subdirectory="runner_test_rnn_rflo_linear_fixed/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )

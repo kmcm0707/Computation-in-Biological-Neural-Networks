@@ -561,12 +561,12 @@ class MetaLearner:
                             )
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar:
                         # error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)[0]
-                        error_scalar = -error[0][0][label]
+                        # error_scalar = -error[0][0][label]
                         # error_scalar = torch.tanh(error_scalar)  # tanh to avoid exploding gradients
-                        """if output[0][label] > 0.5:
+                        if output[0][label] > 0.5:
                             error_scalar = torch.tensor(0, device=self.device)
                         else:
-                            error_scalar = torch.tensor(1.0, device=self.device)"""
+                            error_scalar = torch.tensor(1.0, device=self.device)
                         for y, i in zip(reversed(activations), reversed(list(feedback))):
                             error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:

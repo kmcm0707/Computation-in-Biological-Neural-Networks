@@ -75,6 +75,7 @@ class RnnMetaLearnerOptions:
         recurrent_init: recurrentInitEnum = recurrentInitEnum.xavierUniform,
         test_time_training: bool = False,
         diff_hidden_error: bool = False,
+        gradient: bool = False,
     ):
 
         self.model = model
@@ -109,6 +110,7 @@ class RnnMetaLearnerOptions:
         self.recurrent_init = recurrent_init
         self.test_time_training = test_time_training
         self.diff_hidden_error = diff_hidden_error
+        self.gradient = gradient
 
     def __str__(self):
         string = ""
