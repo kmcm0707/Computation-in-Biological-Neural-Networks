@@ -681,7 +681,7 @@ def run(
         leaky_error=0.0,  # 0.0 for no leaky error
         hidden_reset=True,  # True to reset hidden state between samples
         hidden_size=128,
-        test_time_training=True,  # True to perform test time training
+        test_time_training=False,  # True to perform test time training
     )
 
     #   -- number of chemicals
@@ -717,14 +717,14 @@ def main_runner_rnn():
     """
     # -- run
     num_images = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
-    continue_training_path = os.getcwd() + "/results/rnn_fast_mode_4_longer/0/20250926-042030"
+    continue_training_path = os.getcwd() + "/results/rnn_mode_4_longer_2/0/20251001-215144"
     # "/results/rnn_fast_mode_4/0/20250924-183639" #"/results/rnn_fast_mode_4/0/20250924-231925"
 
     for i in range(len(num_images)):
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_rnn_fast_mode_4_128_longer_test_time_compute",
+            result_subdirectory="runner_rnn_fast_mode_4_128_even_longer",
             num_images=num_images[i],
             continue_training_path=continue_training_path,
         )
