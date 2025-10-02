@@ -21,6 +21,7 @@ class ChemicalRnn(nn.Module):
         biological_min_tau: int = 1,
         biological_max_tau: int = 56,
         hidden_size: int = 128,
+        diff_hidden_error: bool = False,
     ):
         # Initialize the parent class
         super(ChemicalRnn, self).__init__()
@@ -40,6 +41,7 @@ class ChemicalRnn(nn.Module):
         self.biological_min_tau = biological_min_tau
         self.biological_max_tau = biological_max_tau
         self.hidden_size = hidden_size
+        self.diff_hidden_error = diff_hidden_error
 
         # Model
         if not biological:
@@ -96,11 +98,14 @@ class ChemicalRnn(nn.Module):
         )
 
         # DFA feedback
+        # name is error above
         self.RNN1_ih_feedback = nn.Linear(self.dim_in, dim_out, bias=False)
         self.RNN1_hh_feedback = nn.Linear(self.hidden_size, dim_out, bias=False)
         # self.RNN2_ih_feedback = nn.Linear(128, dim_out, bias=False)
         # self.RNN2_hh_feedback = nn.Linear(128, dim_out, bias=False)
         self.feedback1 = nn.Linear(self.hidden_size, dim_out, bias=False)
+        if self.diff_hidden_error:
+            self.feedback_test = nn.Linear(self.hidden_size, dim_out, bias=False)
 
         self.feedback_to_parameters = {
             "feedback1.weight": "forward1.weight",
@@ -115,11 +120,19 @@ class ChemicalRnn(nn.Module):
             "forward1.weight": "chemical1",
         }
 
-        self.error_dict = {
-            "RNN_forward1_ih.weight": "feedback1.weight",
-            "RNN_forward1_hh.weight": "feedback1.weight",
-            "forward1.weight": "last",
-        }
+        # Error dictionary - the key is the parameter name, the value is the error below source
+        if not self.diff_hidden_error:
+            self.error_dict = {
+                "RNN_forward1_ih.weight": "feedback1.weight",
+                "RNN_forward1_hh.weight": "feedback1.weight",
+                "forward1.weight": "last",
+            }
+        else:
+            self.error_dict = {
+                "RNN_forward1_ih.weight": "feedback1.weight",
+                "RNN_forward1_hh.weight": "feedback_test.weight",
+                "forward1.weight": "last",
+            }
 
     def forward(self, x):
         assert x.shape[1] == self.dim_in, "Input shape is not correct."

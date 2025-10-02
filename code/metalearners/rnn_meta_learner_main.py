@@ -165,6 +165,7 @@ class RnnMetaLearner:
             biological_min_tau=self.options.biological_min_tau,
             biological_max_tau=self.options.biological_max_tau,
             hidden_size=self.options.hidden_size,
+            diff_hidden_error=self.options.diff_hidden_error,
         )
 
         # -- learning flags
@@ -379,13 +380,16 @@ class RnnMetaLearner:
                             )
 
                         for name, value in current_error_dict.items():
-                            parameter_name = self.model.feedback_to_parameters[name]
-                            error_below = None
-                            if self.model.error_dict[parameter_name] != "last":
-                                error_below = current_error_dict[self.model.error_dict[parameter_name]]
+                            if name in self.model.feedback_to_parameters:
+                                parameter_name = self.model.feedback_to_parameters[name]
+                                error_below = None
+                                if self.model.error_dict[parameter_name] != "last":
+                                    error_below = current_error_dict[self.model.error_dict[parameter_name]]
+                                else:
+                                    error_below = error[0]
+                                error_dict[parameter_name] = (value, error_below)
                             else:
-                                error_below = error[0]
-                            error_dict[parameter_name] = (value, error_below)
+                                continue
                     else:
                         error = [torch.zeros_like(functional.softmax(output, dim=1))]
                         error_temp_dict = {}
@@ -652,7 +656,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 1
-    epochs = 1200
+    epochs = 800
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
@@ -747,6 +751,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         hidden_size=128,
         recurrent_init=recurrentInitEnum.xavierUniform,  # identity or xavierUniform
         test_time_training=False,  # True to use test-time training
+        diff_hidden_error=True,  # True to use different error for hidden state
     )
 
     #   -- number of chemicals
@@ -784,4 +789,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_mode_4_longer_2_more_lr", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_mode_4_diff_error", index=i)

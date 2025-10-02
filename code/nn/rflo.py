@@ -74,7 +74,7 @@ class RfloRNN(nn.Module):
 
         self.past_x = torch.zeros(size=(1, self.dim_in), device=self.device)
 
-        self.RNN1_in_feedback = nn.Linear(dim_out, self.dim_in, bias=False)
+        # self.RNN1_in_feedback = nn.Linear(dim_out, self.dim_in, bias=False)
         self.RNN1_hh_feedback = nn.Linear(dim_out, self.hidden_size, bias=False)
 
         self.lr_in = lr_in
@@ -113,11 +113,11 @@ class RfloRNN(nn.Module):
         self.q = self.y_vector * self.q + self.z_vector * torch.matmul(torch.sigmoid(self.out1).T, self.past_x).T
         self.past_x = self.x.clone()
 
-        in_error = self.RNN1_in_feedback(error).squeeze(0)
+        # in_error = self.RNN1_in_feedback(error).squeeze(0)
         hh_error = self.RNN1_hh_feedback(error).squeeze(0)
 
-        self.forward1.weight = torch.nn.Parameter(self.forward1.weight - (in_error * self.q.T * self.lr_in))
-        self.recurrent1.weight = torch.nn.Parameter(self.recurrent1.weight - (hh_error * self.p.T * self.lr_hh))
+        self.forward1.weight = torch.nn.Parameter(self.forward1.weight - (hh_error * self.q * self.lr_in).T)
+        self.recurrent1.weight = torch.nn.Parameter(self.recurrent1.weight - (hh_error * self.p * self.lr_hh))
         self.forward2.weight = torch.nn.Parameter(self.forward2.weight - torch.matmul(error.T, self.hx1) * self.lr_out)
 
 
@@ -441,9 +441,9 @@ def run(
         biological_max_tau=7,
         biological_nonlinearity=nonLinearEnum.softplus,
         hidden_size=128,
-        lr_in=0.003,
-        lr_hh=0.003,
-        lr_out=0.003,
+        lr_in=0.009,
+        lr_hh=0.009,
+        lr_out=0.009,
     )
     metalearning_model.train()
 
@@ -499,7 +499,7 @@ def rflo_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_rnn_rflo_mode_4_11/{}".format(dim),
+                result_subdirectory="runner_test_no_T_rnn_rflo_mode_4_1/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
