@@ -266,7 +266,10 @@ class FastRnn(nn.Module):
             i += 1
 
         if self.update_rules[2]:
-            update_vector[i] = -(torch.matmul(error_below.T, error_above))  # eHebb rule
+            update_vector[i] = -(torch.matmul(error_below.T, error_above)) - torch.matmul(
+                torch.matmul(error_below.T, error_below),
+                parameter,
+            )  # eHebb rule
             i += 1
 
         if self.update_rules[3]:
@@ -361,11 +364,10 @@ class FastRnn(nn.Module):
         if self.update_rules[12]:
             update_vector[i] = -torch.matmul(
                 torch.ones(size=(parameter.shape[0], 1), device=self.device), activation_above
-            )  # - torch.matmul(
-            #    parameter,
-            #    torch.matmul(activation_above.T, activation_above),
-            # )
-            # * torch.nn.functional.softmax(activation_below.squeeze(0), dim=0)[:, None]
+            ) - torch.matmul(
+                parameter,
+                torch.matmul(activation_above.T, activation_above),
+            )
 
             i += 1
 

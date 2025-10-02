@@ -707,7 +707,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     elif model == rnnModelEnum.fast:
         modelOptions = fastRnnOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4, 9, 10, 12],
+            update_rules=[0, 1, 2, 3, 9, 10, 12],  # 4
             minSlowTau=2,
             maxSlowTau=200,
             y_vector=yVectorEnum.none,
