@@ -656,7 +656,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 1
-    epochs = 800
+    epochs = 1000
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
@@ -727,7 +727,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0001,
+        lr=0.00006,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -751,7 +751,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         hidden_size=128,
         recurrent_init=recurrentInitEnum.xavierUniform,  # identity or xavierUniform
         test_time_training=False,  # True to use test-time training
-        diff_hidden_error=True,  # True to use different error for hidden state
+        diff_hidden_error=False,  # True to use different error for hidden state
     )
 
     #   -- number of chemicals
@@ -789,4 +789,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_mode_4_diff_error", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_mode_4_softplus", index=i)

@@ -143,14 +143,14 @@ class ChemicalRnn(nn.Module):
         # hx2_prev = self.hx2
         RNN_forward1_ih_x = self.RNN_forward1_ih(x)
         if not self.biological:
-            RNN_forward1_hh_hx1 = self.RNN_forward1_hh(self.hx1)
+            RNN_forward1_hh_hx1 = self.activation(self.RNN_forward1_hh(self.hx1))
             self.hx1 = torch.tanh(RNN_forward1_ih_x + RNN_forward1_hh_hx1)
             # self.hx2 = torch.tanh(RNN_forward2_hx1)
             output = self.forward1(self.hx1)
         else:
             # Mode 2: RNN_forward1_hh_hx1 = self.RNN_forward1_hh(self.activation(self.hx1))
             # Mode 3: RNN_forward1_hh_hx1 = self.RNN_forward1_hh(torch.tanh(self.hx1))
-            RNN_forward1_hh_hx1 = self.RNN_forward1_hh(self.hx1)
+            RNN_forward1_hh_hx1 = self.activation(self.RNN_forward1_hh(self.hx1))
             self.hx1 = (self.y_vector) * self.hx1 + self.z_vector * (
                 self.activation(RNN_forward1_ih_x) + RNN_forward1_hh_hx1
             )
