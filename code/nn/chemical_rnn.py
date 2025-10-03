@@ -186,7 +186,7 @@ class ChemicalRnn(nn.Module):
                     )[0],
                 ),
                 "RNN_forward1_hh.weight": (
-                    (1 - torch.exp(-self.beta * hx1_prev)),
+                    torch.ones_like(hx1_prev),
                     torch.autograd.grad(
                         outputs=RNN_forward1_hh_hx1,
                         inputs=intermediate_hx1,

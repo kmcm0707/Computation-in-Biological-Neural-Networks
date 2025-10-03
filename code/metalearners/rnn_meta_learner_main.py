@@ -797,4 +797,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_mode_4_gradient", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_mode_4_gradient_linear_input_hh", index=i)
