@@ -165,10 +165,10 @@ if __name__ == "__main__":
     linear = nn.Linear(4, 3, bias=False)
     x_vector = torch.randn((1, 4), requires_grad=True)
     output = linear(x_vector)
-    activated_output = torch.nn.functional.softplus(output, beta=10)
+    activated_output = torch.nn.functional.softplus(output, beta=1)
 
-    grad = torch.autograd.grad(
-        outputs=activated_output, inputs=x_vector, grad_outputs=torch.ones_like(activated_output)
-    )
+    print(x_vector)
+    grad = torch.autograd.grad(outputs=output, inputs=output, grad_outputs=torch.ones_like(activated_output))
     print(grad[0])
-    assert grad[0].all() == (torch.exp(10 * x_vector) / (1 + torch.exp(10 * x_vector))).all()
+    print(torch.sigmoid(output))
+    print(torch.equal(grad[0], (torch.exp(10 * output) / (1 + torch.exp(10 * output)))))

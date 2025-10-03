@@ -136,9 +136,12 @@ class ChemicalRnn(nn.Module):
                 "forward1.weight": "last",
             }
 
+    @torch.enable_grad()
     def forward(self, x):
         assert x.shape[1] == self.dim_in, "Input shape is not correct."
         assert x.shape[0] == self.hx1.shape[0], "Batch size is not correct."
+
+        x.requires_grad = True
 
         # Forward pass
         hx1_prev = self.hx1.clone()
@@ -174,29 +177,33 @@ class ChemicalRnn(nn.Module):
         if self.gradient:
             gradients = {
                 "RNN_forward1_ih.weight": (
-                    (1 - torch.exp(-self.model.beta * x)),
+                    (1 - torch.exp(-self.beta * x)),
                     torch.autograd.grad(
                         outputs=activated_RNN_forward1_ih_x,
-                        inputs=x,
+                        inputs=RNN_forward1_ih_x,
                         grad_outputs=torch.ones_like(activated_RNN_forward1_ih_x),
-                    ),
+                        retain_graph=True,
+                    )[0],
                 ),
                 "RNN_forward1_hh.weight": (
-                    (1 - torch.exp(-self.model.beta * hx1_prev)),
+                    (1 - torch.exp(-self.beta * hx1_prev)),
                     torch.autograd.grad(
-                        outputs=RNN_forward1_hh_hx1, inputs=hx1_prev, grad_outputs=torch.ones_like(RNN_forward1_hh_hx1)
-                    ),
+                        outputs=RNN_forward1_hh_hx1,
+                        inputs=intermediate_hx1,
+                        grad_outputs=torch.ones_like(RNN_forward1_hh_hx1),
+                        retain_graph=True,
+                    )[0],
                 ),
-                "forward1.weight": ((1 - torch.exp(-self.model.beta * self.hx1)), None),
+                "forward1.weight": ((1 - torch.exp(-self.beta * self.hx1)), torch.ones_like(output)),
             }
 
         if self.gradient:
             return activations, output, gradients
         else:
-            return activations, output
+            return activations, output, None
 
     def reset_hidden(self, batch_size):
-        self.hx1 = torch.zeros(batch_size, self.hidden_size, device=self.device)
+        self.hx1 = torch.zeros(batch_size, self.hidden_size, device=self.device, requires_grad=True)
 
     def set_hidden(self, hx1, batch_size=None):
         if batch_size is None:

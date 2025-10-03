@@ -166,6 +166,7 @@ class RnnMetaLearner:
             biological_max_tau=self.options.biological_max_tau,
             hidden_size=self.options.hidden_size,
             diff_hidden_error=self.options.diff_hidden_error,
+            gradient=self.options.gradient,
         )
 
         # -- learning flags
@@ -261,6 +262,7 @@ class RnnMetaLearner:
 
         return params, slow_h_params, fast_h_params
 
+    @torch.enable_grad()
     def train(self):
         """
             Perform meta-training.
@@ -358,11 +360,11 @@ class RnnMetaLearner:
                 for index_rnn, input in enumerate(x_reshaped):
                     # -- predict
                     if self.options.requireFastChemical:
-                        y_dict, output = torch.func.functional_call(
+                        y_dict, output, gradients = torch.func.functional_call(
                             self.model, (parameters, slow_h_parameters, fast_h_parameters), input.unsqueeze(0)
                         )
                     else:
-                        y_dict, output = torch.func.functional_call(
+                        y_dict, output, gradients = torch.func.functional_call(
                             self.model, (parameters, slow_h_parameters), input.unsqueeze(0)
                         )
 
@@ -388,6 +390,11 @@ class RnnMetaLearner:
                                 else:
                                     error_below = error[0]
                                 error_dict[parameter_name] = (value, error_below)
+                                if self.options.gradient:
+                                    error_dict[parameter_name] = (
+                                        value * gradients[parameter_name][0],
+                                        error_below * gradients[parameter_name][1],
+                                    )
                             else:
                                 continue
                     else:
@@ -463,11 +470,11 @@ class RnnMetaLearner:
                 for input_index in range(x_qry.shape[1]):
                     x_in = x_qry[:, input_index, :]
                     if self.options.requireFastChemical:
-                        y, logits = torch.func.functional_call(
+                        y, logits, _ = torch.func.functional_call(
                             self.model, (parameters, slow_h_parameters, fast_h_parameters), x_in
                         )
                     else:
-                        y, logits = torch.func.functional_call(self.model, (parameters, slow_h_parameters), x_in)
+                        y, logits, _ = torch.func.functional_call(self.model, (parameters, slow_h_parameters), x_in)
                     all_logits[:, input_index, :] = logits
             else:
                 for image_index in range(x_qry.shape[0]):
@@ -752,7 +759,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         recurrent_init=recurrentInitEnum.xavierUniform,  # identity or xavierUniform
         test_time_training=False,  # True to use test-time training
         diff_hidden_error=False,  # True to use different error for hidden state
-        gradient=False,  # True to use gradient-based learning
+        gradient=True,  # True to use gradient-based learning
     )
 
     #   -- number of chemicals
@@ -790,4 +797,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="testing", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_mode_4_gradient", index=i)
