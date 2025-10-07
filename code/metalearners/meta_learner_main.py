@@ -803,10 +803,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 800
+    epochs = 1200
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 30
+    minTrainingDataPerClass = 5
     maxTrainingDataPerClass = 80
     queryDataPerClass = 20
 
@@ -965,7 +965,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.00001,
+        lr=0.00003,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -981,11 +981,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         dimOut=dimOut,
         hrm_discount=150,
         error_control=False,
-        leaky_error_alpha=0.1,
+        leaky_error_alpha=0.0,
     )
 
     # -- number of chemicals
-    numberOfChemicals = 3
+    numberOfChemicals = 5
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1016,4 +1016,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rl_error_scalar_grad_non_simple", index=i)
+        run(seed=0, display=True, result_subdirectory="rl_error_scalar_grad_longer", index=i)
