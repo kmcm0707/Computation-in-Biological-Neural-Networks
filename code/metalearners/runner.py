@@ -371,8 +371,12 @@ class Runner:
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(0, torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
                 elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar:
-                    error_scalar = -error[0][0][label]
+                    #error_scalar = -error[0][0][label]
                     #error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)
+                    if output[0][label] > 0.5:
+                            error_scalar = torch.tensor(0, device=self.device)
+                    else:
+                        error_scalar = torch.tensor(1.0, device=self.device)
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
                 elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
@@ -794,7 +798,11 @@ def runner_main():
         #os.getcwd() + "/results/mode_6_1_chem_1/0/20250910-221744",
         #os.getcwd() + "/results/mode_6_3_chem_1/0/20250910-204609",
         #os.getcwd() + "/results/mode_6_5_chem_1/0/20250910-204750",
-        os.getcwd() + "/results/mode_6_5_chem_lr_6/0/20250715-172436"#"/results/mode_6_7_chem_1/0/20250910-222310",
+        #os.getcwd() + "/results/mode_6_5_chem_lr_6/0/20250715-172436"#"/results/mode_6_7_chem_1/0/20250910-222310",
+        os.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-184038",
+        os.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-195827",
+        os.getcwd() + "/results/rl_error_scalar_grad_longer_5/0/20251007-143025",
+        os.getcwd() + "/results/rl_error_scalar_grad_longer_7/0/20251007-180458",
     ]
     for i in range(len(modelPath_s)):
         for index in range(0, 28):
@@ -802,7 +810,7 @@ def runner_main():
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    "runner_mode_6_3_chem_scalar_complex_2",
+                    "runner_mode_6_1_chem_scalar",
                     "runner_mode_6_3_chem_1",
                     "runner_mode_6_5_chem_1",
                     "runner_mode_6_7_chem_1",
@@ -810,5 +818,5 @@ def runner_main():
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=[3][i],
+                numberOfChemicals=[1,3,5,7][i],
             )
