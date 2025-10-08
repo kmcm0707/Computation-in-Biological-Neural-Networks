@@ -765,7 +765,7 @@ def run(
     #   -- number of chemicals
     numberOfChemicals = numberOfChemicals
     # -- meta-traing
-    device = "cuda:1" if torch.cuda.is_available() else "cpu"
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
     runner = Runner(
         device=device,
@@ -799,10 +799,14 @@ def runner_main():
         #os.getcwd() + "/results/mode_6_3_chem_1/0/20250910-204609",
         #os.getcwd() + "/results/mode_6_5_chem_1/0/20250910-204750",
         #os.getcwd() + "/results/mode_6_5_chem_lr_6/0/20250715-172436"#"/results/mode_6_7_chem_1/0/20250910-222310",
-        os.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-184038",
-        os.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-195827",
-        os.getcwd() + "/results/rl_error_scalar_grad_longer_5/0/20251007-143025",
-        os.getcwd() + "/results/rl_error_scalar_grad_longer_7/0/20251007-180458",
+        #s.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-184038",
+        #os.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-195827",
+        #os.getcwd() + "/results/rl_error_scalar_grad_longer_5/0/20251007-143025",
+        #os.getcwd() + "/results/rl_error_scalar_grad_longer_7/0/20251007-180458",
+        #os.getcwd() + "/results/DFA_longer_7/0/20251008-023234/"
+        #os.getcwd() + "/results/DFA_longer_1/0/20251008-021457"
+        #os.getcwd() + "/results/DFA_longer_2/0/20251008-052203"
+        os.getcwd() + "/results/DFA_longer_3/0/20251008-021524"
     ]
     for i in range(len(modelPath_s)):
         for index in range(0, 28):
@@ -810,13 +814,13 @@ def runner_main():
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    "runner_mode_6_1_chem_scalar",
-                    "runner_mode_6_3_chem_1",
-                    "runner_mode_6_5_chem_1",
-                    "runner_mode_6_7_chem_1",
+                    #runner_mode_6_1_chem_scalar",
+                    #"runner_mode_6_3_chem_scalar",
+                    #"runner_mode_6_5_chem_scalar",
+                    "runner_mode_6_3_chem_DFA_2",
                 ][i],
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.scalar,
+                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=[1,3,5,7][i],
+                numberOfChemicals=[3][i],
             )
