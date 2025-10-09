@@ -846,7 +846,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4, 6, 8, 9],
+            update_rules=[0, 1, 2, 3, 4, 8, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
@@ -965,7 +965,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.00009,
+        lr=0.00003,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -977,7 +977,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=None,
-        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+        typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
         hrm_discount=150,
         error_control=False,
@@ -985,7 +985,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 1
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1016,4 +1016,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="DFA_longer_2", index=i)
+        run(seed=0, display=True, result_subdirectory="scalar_no_6", index=i)
