@@ -288,7 +288,6 @@ def meta_stats(logits, params, label, y, Beta, res_dir, save=True, typeOfFeedbac
         elif typeOfFeedback == typeOfFeedbackEnum.scalar:
             error_scalars = torch.ones((len(label), 1), device=logits.device)
             indices_more_than_half = output[0][label] > 0.5
-            print(indices_more_than_half)
             error_scalars[indices_more_than_half] = 0.0
             for y_, i in zip(reversed(y), reversed(list(B))):
                 e.insert(0, error_scalars * B[i] * (1 - torch.exp(-Beta * y_)))
