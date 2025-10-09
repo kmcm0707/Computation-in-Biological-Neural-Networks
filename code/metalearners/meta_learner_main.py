@@ -674,10 +674,14 @@ class MetaLearner:
             # -- l1 regularization
             if self.metaLossRegularization > 0:
                 P_matrix = self.UpdateWeights.P_matrix
+                K_matrix = self.UpdateWeights.K_matrix
                 loss_meta += self.metaLossRegularization * torch.norm(P_matrix, p=1)
+                loss_meta += self.metaLossRegularization * torch.norm(K_matrix, p=1)
                 if self.options.trainSeparateFeedback:
                     P_matrix = self.UpdateFeedbackWeights.P_matrix
+                    K_matrix = self.UpdateFeedbackWeights.K_matrix
                     loss_meta += self.metaLossRegularization * torch.norm(P_matrix, p=1)
+                    loss_meta += self.metaLossRegularization * torch.norm(K_matrix, p=1)
 
             # -- record params
             UpdateWeights_state_dict = copy.deepcopy(self.UpdateWeights.state_dict())
@@ -851,7 +855,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=500,
+            maxTau=200,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_6,
@@ -954,7 +958,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
-        metaLossRegularization=0,  # L1 regularization on P matrix (check 1.5)
+        metaLossRegularization=1.5,  # L1 regularization on P and K matrices (check 1.5)
         biasLossRegularization=0,
         optimizer=optimizerEnum.adam,
         model=model,
@@ -965,7 +969,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.00003,
+        lr=0.00009,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -977,7 +981,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=None,
-        typeOfFeedback=typeOfFeedbackEnum.scalar,
+        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
         hrm_discount=150,
         error_control=False,
@@ -985,7 +989,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 1
+    numberOfChemicals = 5
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1016,4 +1020,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="scalar_no_6", index=i)
+        run(seed=0, display=True, result_subdirectory="DFA_5_regularized", index=i)
