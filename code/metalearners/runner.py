@@ -351,10 +351,10 @@ class Runner:
 
                 # -- compute error
                 activations = y
-                output = logits
+                output = functional.softmax(logits, dim=1)
                 params = parameters
                 feedback = {name: value for name, value in params.items() if "feedback" in name}
-                error = [functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=self.options.dimOut)]
+                error = [output - functional.one_hot(label, num_classes=self.options.dimOut)]
                 # add the error for all the layers
                 if self.options.typeOfFeedback == typeOfFeedbackEnum.FA:
                     # add the error for all the layers
@@ -371,10 +371,11 @@ class Runner:
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(0, torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
                 elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar:
-                    #error_scalar = -error[0][0][label]
-                    #error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)
+                    # error_scalar = -error[0][0][label]
+                    # error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)
+                    print(output)
                     if output[0][label] > 0.5:
-                            error_scalar = torch.tensor(0, device=self.device)
+                        error_scalar = torch.tensor(0, device=self.device)
                     else:
                         error_scalar = torch.tensor(1.0, device=self.device)
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
@@ -795,18 +796,19 @@ def runner_main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [
-        #os.getcwd() + "/results/mode_6_1_chem_1/0/20250910-221744",
-        #os.getcwd() + "/results/mode_6_3_chem_1/0/20250910-204609",
-        #os.getcwd() + "/results/mode_6_5_chem_1/0/20250910-204750",
-        #os.getcwd() + "/results/mode_6_5_chem_lr_6/0/20250715-172436"#"/results/mode_6_7_chem_1/0/20250910-222310",
-        #s.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-184038",
-        #os.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-195827",
-        #os.getcwd() + "/results/rl_error_scalar_grad_longer_5/0/20251007-143025",
-        #os.getcwd() + "/results/rl_error_scalar_grad_longer_7/0/20251007-180458",
-        #os.getcwd() + "/results/DFA_longer_7/0/20251008-023234/"
-        #os.getcwd() + "/results/DFA_longer_1/0/20251008-021457"
-        #os.getcwd() + "/results/DFA_longer_2/0/20251008-052203"
-        os.getcwd() + "/results/DFA_longer_3/0/20251008-021524"
+        # os.getcwd() + "/results/mode_6_1_chem_1/0/20250910-221744",
+        # os.getcwd() + "/results/mode_6_3_chem_1/0/20250910-204609",
+        # os.getcwd() + "/results/mode_6_5_chem_1/0/20250910-204750",
+        # os.getcwd() + "/results/mode_6_5_chem_lr_6/0/20250715-172436"#"/results/mode_6_7_chem_1/0/20250910-222310",
+        # s.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-184038",
+        # os.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-195827",
+        # os.getcwd() + "/results/rl_error_scalar_grad_longer_5/0/20251007-143025",
+        # os.getcwd() + "/results/rl_error_scalar_grad_longer_7/0/20251007-180458",
+        # os.getcwd() + "/results/DFA_longer_7/0/20251008-023234/"
+        # os.getcwd() + "/results/DFA_longer_1/0/20251008-021457"
+        # os.getcwd() + "/results/DFA_longer_2/0/20251008-052203"
+        os.getcwd()
+        + "/results/DFA_longer_3/0/20251008-021524"
     ]
     for i in range(len(modelPath_s)):
         for index in range(0, 28):
@@ -814,13 +816,13 @@ def runner_main():
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    #runner_mode_6_1_chem_scalar",
-                    #"runner_mode_6_3_chem_scalar",
-                    #"runner_mode_6_5_chem_scalar",
+                    # runner_mode_6_1_chem_scalar",
+                    # "runner_mode_6_3_chem_scalar",
+                    # "runner_mode_6_5_chem_scalar",
                     "runner_mode_6_3_chem_DFA_2",
                 ][i],
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+                typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=[3][i],
             )

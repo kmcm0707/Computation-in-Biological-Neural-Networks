@@ -537,12 +537,10 @@ class MetaLearner:
 
                     # -- compute error
                     activations = y
-                    output = logits
+                    output = functional.softmax(logits, dim=1)
                     params = parameters
                     feedback = {name: value for name, value in params.items() if "feedback" in name}
-                    error = [
-                        functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=self.options.dimOut)
-                    ]
+                    error = [output - functional.one_hot(label, num_classes=self.options.dimOut)]
                     if self.options.typeOfFeedback == typeOfFeedbackEnum.FA:
                         # add the error for all the layers
                         for y, i in zip(reversed(activations), reversed(list(feedback))):
@@ -981,7 +979,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=None,
-        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+        typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
         hrm_discount=150,
         error_control=False,

@@ -271,8 +271,8 @@ def meta_stats(logits, params, label, y, Beta, res_dir, save=True, typeOfFeedbac
     with torch.no_grad():
         # -- modulatory signal
         B = dict({k: v for k, v in params.items() if "feedback" in k})
-
-        e = [functional.softmax(logits, dim=1) - functional.one_hot(label, num_classes=dimOut)]
+        output = functional.softmax(logits, dim=1)
+        e = [output - functional.one_hot(label, num_classes=dimOut)]
         if typeOfFeedback == typeOfFeedbackEnum.FA:
             for y_, i in zip(reversed(y), reversed(list(B))):
                 e.insert(0, torch.matmul(e[0], B[i]) * (1 - torch.exp(-Beta * y_)))
@@ -286,9 +286,12 @@ def meta_stats(logits, params, label, y, Beta, res_dir, save=True, typeOfFeedbac
             for y_, i in zip(reversed(y), reversed(list(B))):
                 e.insert(0, torch.matmul(e[-1], B[i]) * (1 - torch.exp(-Beta * y_)))
         elif typeOfFeedback == typeOfFeedbackEnum.scalar:
-            error_scalar = torch.norm(e[0], p=2, dim=1, keepdim=True)
+            error_scalars = torch.ones((len(label), 1), device=logits.device)
+            indices_more_than_half = output[0][label] > 0.5
+            print(indices_more_than_half)
+            error_scalars[indices_more_than_half] = 0.0
             for y_, i in zip(reversed(y), reversed(list(B))):
-                e.insert(0, torch.matmul(error_scalar, B[i]))
+                e.insert(0, error_scalars * B[i] * (1 - torch.exp(-Beta * y_)))
         elif typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
             feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
             DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
