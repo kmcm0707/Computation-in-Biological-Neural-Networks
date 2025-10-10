@@ -812,7 +812,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 1200
+    epochs = 300
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
@@ -957,10 +957,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     feedbackModel = model
     feedbackModelOptions = modelOptions
-    # current_dir = os.getcwd()
+    current_dir = os.getcwd()
     # continue_training = current_dir + "/results/mode_6_very_small_examples/0/20250323-222336"
+    continue_training = current_dir + "/results/error_5_fixed/0/20251009-190919"
     # -- meta-learner options
-    device: Literal["cpu", "cuda"] = "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P and K matrices (check 1.5)
@@ -985,7 +986,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=None,
+        continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
         hrm_discount=150,
@@ -1025,4 +1026,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="error_3_fixed", index=i)
+        run(seed=0, display=True, result_subdirectory="error_5_fixed", index=i)
