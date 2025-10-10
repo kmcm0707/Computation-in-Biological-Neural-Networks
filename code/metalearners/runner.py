@@ -371,10 +371,17 @@ class Runner:
                     for y, i in zip(reversed(activations), reversed(list(feedback))):
                         error.insert(0, torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
                 elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar:
-                    # error_scalar = -error[0][0][label]
-                    # error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)
-                    print(output)
+                        # error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)[0]
+                        # error_scalar = -error[0][0][label]
+                        # error_scalar = torch.tanh(error_scalar)  # tanh to avoid exploding gradients
                     if output[0][label] > 0.5:
+                        error_scalar = torch.tensor(0, device=self.device)
+                    else:
+                        error_scalar = torch.tensor(1.0, device=self.device)
+                    for y, i in zip(reversed(activations), reversed(list(feedback))):
+                        error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
+                elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar_rate:
+                    if logits[0][label] > 0.5:
                         error_scalar = torch.tensor(0, device=self.device)
                     else:
                         error_scalar = torch.tensor(1.0, device=self.device)
@@ -808,7 +815,7 @@ def runner_main():
         # os.getcwd() + "/results/DFA_longer_1/0/20251008-021457"
         # os.getcwd() + "/results/DFA_longer_2/0/20251008-052203"
         os.getcwd()
-        + "/results/DFA_longer_3/0/20251008-021524"
+        + "/results/error_5_fixed/0/20251009-190919"
     ]
     for i in range(len(modelPath_s)):
         for index in range(0, 28):
@@ -819,10 +826,11 @@ def runner_main():
                     # runner_mode_6_1_chem_scalar",
                     # "runner_mode_6_3_chem_scalar",
                     # "runner_mode_6_5_chem_scalar",
-                    "runner_mode_6_3_chem_DFA_2",
+                    "runner_scalar_fixed_5",
+                    # "runner_scalar_5_angle_fixed",
                 ][i],
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.scalar,
+                typeOfFeedback=typeOfFeedbackEnum.scalar_rate,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=[3][i],
+                numberOfChemicals=[5][i],
             )

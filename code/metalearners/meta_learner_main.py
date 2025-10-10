@@ -567,6 +567,13 @@ class MetaLearner:
                             error_scalar = torch.tensor(1.0, device=self.device)
                         for y, i in zip(reversed(activations), reversed(list(feedback))):
                             error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar_rate:
+                        if logits[0][label] > 0.5:
+                            error_scalar = torch.tensor(0, device=self.device)
+                        else:
+                            error_scalar = torch.tensor(1.0, device=self.device)
+                        for y, i in zip(reversed(activations), reversed(list(feedback))):
+                            error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
                         DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
                         feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
@@ -987,7 +994,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 3
+    numberOfChemicals = 5
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,

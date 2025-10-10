@@ -47,6 +47,7 @@ class typeOfFeedbackEnum(Enum):
     DFA_grad = "DFA_grad"
     scalar = "scalar"
     DFA_grad_FA = "DFA_grad_FA"
+    scalar_rate = "scalar_rate"
 
 
 class sizeEnum(Enum):
