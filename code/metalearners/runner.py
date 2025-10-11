@@ -834,5 +834,5 @@ def runner_main():
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=[1][i],
+                numberOfChemicals=[3][i],
             )
