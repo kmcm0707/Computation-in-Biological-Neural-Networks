@@ -535,21 +535,21 @@ def run(
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
     trainingDataPerClass = [
-        # 0,
-        # 5,
-        # 10,
-        # 20,
-        # 30,
-        # 40,
-        # 50,
-        # 60,
-        # 70,
-        # 80,
-        # 90,
-        # 100,
-        # 110,
-        # 120,
-        # 130,
+        0,
+        5,
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        70,
+        80,
+        90,
+        100,
+        110,
+        120,
+        130,
         140,
         150,
         160,
@@ -816,7 +816,7 @@ def runner_main():
         # os.getcwd() + "/results/DFA_longer_2/0/20251008-052203"
         # os.getcwd() + "/results/error_5_fixed/0/20251010-045944"
         os.getcwd()
-        + r"\results\error_1_fixed\0\20251009-194350"
+        + "/results/error_1_fixed/0/20251009-194350"
     ]
     for i in range(len(modelPath_s)):
         for index in range(0, 28):
