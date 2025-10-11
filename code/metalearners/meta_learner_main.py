@@ -959,7 +959,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
     # continue_training = current_dir + "/results/mode_6_very_small_examples/0/20250323-222336"
-    continue_training = current_dir + "/results/error_5_fixed/0/20251010-045944"
+    # continue_training = current_dir + "/results/error_5_fixed/0/20251010-045944"
+    continue_training = current_dir + "/results/error_3_fixed/0/20251009-194916"
     # -- meta-learner options
     device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
@@ -995,7 +996,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 3
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1026,4 +1027,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="error_5_fixed", index=i)
+        run(seed=0, display=True, result_subdirectory="error_3_fixed", index=i)
