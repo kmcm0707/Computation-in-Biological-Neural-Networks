@@ -436,7 +436,7 @@ class MetaLearner:
                     )
                 )
             z = np.loadtxt(self.options.continueTraining + "/acc_meta.txt")
-            last_trained_epoch = z.shape[0]
+            #last_trained_epoch = z.shape[0]
 
         # -- set model to training mode
         self.model.train()
