@@ -285,7 +285,6 @@ def meta_stats(logits, params, label, y, Beta, res_dir, save=True, typeOfFeedbac
         elif typeOfFeedback == typeOfFeedbackEnum.DFA_grad:
             for y_, i in zip(reversed(y), reversed(list(B))):
                 e.insert(0, torch.matmul(e[-1], B[i]) * (1 - torch.exp(-Beta * y_)))
-                print((torch.matmul(e[-1], B[i]) * (1 - torch.exp(-Beta * y_))).shape)
         elif typeOfFeedback == typeOfFeedbackEnum.scalar:
             error_scalars = torch.ones((len(label), 1), device=logits.device)
             subset = torch.gather(output, 1, label.unsqueeze(1))

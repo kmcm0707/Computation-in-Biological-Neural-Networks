@@ -59,6 +59,13 @@ class ChemicalNN(nn.Module):
             self.forward7 = nn.Linear(130, 100, bias=False)
             self.forward8 = nn.Linear(100, 70, bias=False)
             self.forward9 = nn.Linear(70, dim_out, bias=False)
+        elif self.size == sizeEnum.six_layer:
+            self.forward1 = nn.Linear(784, 170, bias=False)
+            self.forward2 = nn.Linear(170, 150, bias=False)
+            self.forward3 = nn.Linear(150, 130, bias=False)
+            self.forward4 = nn.Linear(130, 100, bias=False)
+            self.forward5 = nn.Linear(100, 70, bias=False)
+            self.forward6 = nn.Linear(70, dim_out, bias=False)
         else:
             self.forward1 = nn.Linear(784, 170, bias=False)
             self.forward2 = nn.Linear(170, 130, bias=False)
@@ -98,6 +105,13 @@ class ChemicalNN(nn.Module):
                 self.feedback2 = nn.Linear(15, self.dim_out, bias=False)
                 self.feedback3 = nn.Linear(10, self.dim_out, bias=False)
                 self.feedback4 = nn.Linear(5, self.dim_out, bias=False)
+            elif self.size == sizeEnum.six_layer:
+                self.feedback1 = nn.Linear(784, self.dim_out, bias=False)
+                self.feedback2 = nn.Linear(170, self.dim_out, bias=False)
+                self.feedback3 = nn.Linear(150, self.dim_out, bias=False)
+                self.feedback4 = nn.Linear(130, self.dim_out, bias=False)
+                self.feedback5 = nn.Linear(100, self.dim_out, bias=False)
+                self.feedback6 = nn.Linear(70, self.dim_out, bias=False)
             elif self.size == sizeEnum.nine_layer:
                 self.feedback1 = nn.Linear(784, self.dim_out, bias=False)
                 self.feedback2 = nn.Linear(650, self.dim_out, bias=False)
@@ -187,6 +201,23 @@ class ChemicalNN(nn.Module):
                     self.chemical9,
                 ]
             )
+        elif self.size == sizeEnum.six_layer:
+            self.chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 170, 784), device=self.device))
+            self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 150, 170), device=self.device))
+            self.chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 130, 150), device=self.device))
+            self.chemical4 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 100, 130), device=self.device))
+            self.chemical5 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 70, 100), device=self.device))
+            self.chemical6 = nn.Parameter(torch.zeros(size=(numberOfChemicals, dim_out, 70), device=self.device))
+            self.chemicals = nn.ParameterList(
+                [
+                    self.chemical1,
+                    self.chemical2,
+                    self.chemical3,
+                    self.chemical4,
+                    self.chemical5,
+                    self.chemical6,
+                ]
+            )
         else:
             self.chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 170, 784), device=self.device))
             self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 130, 170), device=self.device))
@@ -255,6 +286,21 @@ class ChemicalNN(nn.Module):
             y9 = self.forward9(y8)
 
             return (y0, y1, y2, y3, y4, y5, y6, y7, y8), y9
+        elif self.size == sizeEnum.six_layer:
+            print("six layer")
+            y0 = x.squeeze(1)
+            y1 = self.forward1(y0)
+            y1 = self.activation(y1)
+            y2 = self.forward2(y1)
+            y2 = self.activation(y2)
+            y3 = self.forward3(y2)
+            y3 = self.activation(y3)
+            y4 = self.forward4(y3)
+            y4 = self.activation(y4)
+            y5 = self.forward5(y4)
+            y5 = self.activation(y5)
+            y6 = self.forward6(y5)
+            return (y0, y1, y2, y3, y4, y5), y6
         else:
 
             if self.error_control:
