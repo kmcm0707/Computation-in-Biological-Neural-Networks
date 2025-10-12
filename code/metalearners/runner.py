@@ -816,7 +816,7 @@ def runner_main():
         # os.getcwd() + "/results/DFA_longer_2/0/20251008-052203"
         #s.getcwd() + "/results/error_5_fixed/0/20251011-194736"
         # os.getcwd() + "/results/error_1_fixed/0/20251009-194350"
-        os.getcwd() + "/results/scalar_3_4/0/20251012-035548"
+        os.getcwd() + "/results/scalar_3_5/2/20251012-171341"
     ]
     for i in range(len(modelPath_s)):
         for index in range(0, 28):
@@ -827,7 +827,7 @@ def runner_main():
                     # runner_mode_6_1_chem_scalar",
                     # "runner_mode_6_3_chem_scalar",
                     # "runner_mode_6_5_chem_scalar",
-                    "runner_scalar_fixed_3_5",
+                    "runner_scalar_fixed_3_6",
                     # "runner_scalar_5_angle_fixed",
                 ][i],
                 index=index,
