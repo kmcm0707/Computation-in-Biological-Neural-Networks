@@ -817,7 +817,7 @@ def runner_main():
         #s.getcwd()
         # "/results/error_5_fixed/0/20251011-194736"
         # os.getcwd() + "/results/error_1_fixed/0/20251009-194350"
-        os.getcwd() + "/results/error_3_fixed/0/20251011-225915"
+        os.getcwd() + "/results/error_3_fixed/1/20251012-010731"
     ]
     for i in range(len(modelPath_s)):
         for index in range(0, 28):
@@ -828,7 +828,7 @@ def runner_main():
                     # runner_mode_6_1_chem_scalar",
                     # "runner_mode_6_3_chem_scalar",
                     # "runner_mode_6_5_chem_scalar",
-                    "runner_scalar_fixed_3_2",
+                    "runner_scalar_fixed_3_3",
                     # "runner_scalar_5_angle_fixed",
                 ][i],
                 index=index,

@@ -565,6 +565,7 @@ class MetaLearner:
                             error_scalar = torch.tensor(0, device=self.device)
                         else:
                             error_scalar = torch.tensor(1.0, device=self.device)
+                            error_scalar = torch.tensor(0.0, device=self.device)
                         for y, i in zip(reversed(activations), reversed(list(feedback))):
                             error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar_rate:
@@ -812,7 +813,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 300
+    epochs = 1200
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
@@ -996,7 +997,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 3
+    numberOfChemicals = 5
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1027,4 +1028,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="error_3_fixed", index=i)
+        run(seed=0, display=True, result_subdirectory="zero_error_check", index=i)
