@@ -565,9 +565,8 @@ class MetaLearner:
                             error_scalar = torch.tensor(0, device=self.device)
                         else:
                             error_scalar = torch.tensor(1.0, device=self.device)
-                            error_scalar = torch.tensor(0.0, device=self.device)
                         for y, i in zip(reversed(activations), reversed(list(feedback))):
-                            error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
+                            error.insert(0, error_scalar * feedback[i])  # * (1 - torch.exp(-self.model.beta * y)
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar_rate:
                         if logits[0][label] > 0.5:
                             error_scalar = torch.tensor(0, device=self.device)
@@ -961,7 +960,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     current_dir = os.getcwd()
     # continue_training = current_dir + "/results/mode_6_very_small_examples/0/20250323-222336"
     # continue_training = current_dir + "/results/error_5_fixed/0/20251010-045944"
-    #continue_training = current_dir + "/results/error_3_fixed/0/20251011-225915"
+    # continue_training = current_dir + "/results/error_3_fixed/0/20251011-225915"
     # -- meta-learner options
     device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
@@ -1028,4 +1027,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="zero_error_check", index=i)
+        run(seed=0, display=True, result_subdirectory="no_grad_error_check", index=i)
