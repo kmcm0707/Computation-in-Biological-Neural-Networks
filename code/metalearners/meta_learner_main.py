@@ -436,7 +436,7 @@ class MetaLearner:
                     )
                 )
             z = np.loadtxt(self.options.continueTraining + "/acc_meta.txt")
-            #last_trained_epoch = z.shape[0]
+            # last_trained_epoch = z.shape[0]
 
         # -- set model to training mode
         self.model.train()
@@ -812,7 +812,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 600
+    epochs = 300
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
@@ -1027,4 +1027,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="error_3_fixed", index=i)
+        run(seed=1, display=True, result_subdirectory="error_3_fixed", index=i)
