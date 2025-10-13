@@ -55,6 +55,7 @@ class sizeEnum(Enum):
     normal = "normal"
     seven_layer = "seven_layer"
     nine_layer = "nine_layer"
+    ten_layer = "ten_layer"
     six_layer = "six_layer"
 
 

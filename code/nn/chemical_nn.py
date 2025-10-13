@@ -66,6 +66,17 @@ class ChemicalNN(nn.Module):
             self.forward4 = nn.Linear(130, 100, bias=False)
             self.forward5 = nn.Linear(100, 70, bias=False)
             self.forward6 = nn.Linear(70, dim_out, bias=False)
+        elif self.size == sizeEnum.ten_layer:
+            self.forward1 = nn.Linear(784, 256, bias=False)
+            self.forward2 = nn.Linear(256, 200, bias=False)
+            self.forward3 = nn.Linear(200, 170, bias=False)
+            self.forward4 = nn.Linear(170, 150, bias=False)
+            self.forward5 = nn.Linear(150, 130, bias=False)
+            self.forward6 = nn.Linear(130, 110, bias=False)
+            self.forward7 = nn.Linear(110, 100, bias=False)
+            self.forward8 = nn.Linear(100, 90, bias=False)
+            self.forward9 = nn.Linear(90, 70, bias=False)
+            self.forward10 = nn.Linear(70, dim_out, bias=False)
         else:
             self.forward1 = nn.Linear(784, 170, bias=False)
             self.forward2 = nn.Linear(170, 130, bias=False)
@@ -92,6 +103,24 @@ class ChemicalNN(nn.Module):
                 self.feedback7 = nn.Linear(130, 100, bias=False)
                 self.feedback8 = nn.Linear(100, 70, bias=False)
                 self.feedback9 = nn.Linear(70, self.dim_out, bias=False)
+            elif self.size == sizeEnum.six_layer:
+                self.feedback1 = nn.Linear(784, 170, bias=False)
+                self.feedback2 = nn.Linear(170, 150, bias=False)
+                self.feedback3 = nn.Linear(150, 130, bias=False)
+                self.feedback4 = nn.Linear(130, 100, bias=False)
+                self.feedback5 = nn.Linear(100, 70, bias=False)
+                self.feedback6 = nn.Linear(70, dim_out, bias=False)
+            elif self.size == sizeEnum.ten_layer:
+                self.feedback1 = nn.Linear(784, 256, bias=False)
+                self.feedback2 = nn.Linear(256, 200, bias=False)
+                self.feedback3 = nn.Linear(200, 170, bias=False)
+                self.feedback4 = nn.Linear(170, 150, bias=False)
+                self.feedback5 = nn.Linear(150, 130, bias=False)
+                self.feedback6 = nn.Linear(130, 110, bias=False)
+                self.feedback7 = nn.Linear(110, 100, bias=False)
+                self.feedback8 = nn.Linear(100, 90, bias=False)
+                self.feedback9 = nn.Linear(90, 70, bias=False)
+                self.feedback10 = nn.Linear(70, dim_out, bias=False)
             else:
                 self.feedback1 = nn.Linear(784, 170, bias=False)
                 self.feedback2 = nn.Linear(170, 130, bias=False)
@@ -122,6 +151,18 @@ class ChemicalNN(nn.Module):
                 self.feedback7 = nn.Linear(130, self.dim_out, bias=False)
                 self.feedback8 = nn.Linear(100, self.dim_out, bias=False)
                 self.feedback9 = nn.Linear(70, self.dim_out, bias=False)
+            elif self.size == sizeEnum.ten_layer:
+                self.feedback1 = nn.Linear(784, self.dim_out, bias=False)
+                self.feedback2 = nn.Linear(256, self.dim_out, bias=False)
+                self.feedback3 = nn.Linear(200, self.dim_out, bias=False)
+                self.feedback4 = nn.Linear(170, self.dim_out, bias=False)
+                self.feedback5 = nn.Linear(150, self.dim_out, bias=False)
+                self.feedback6 = nn.Linear(130, self.dim_out, bias=False)
+                self.feedback7 = nn.Linear(110, self.dim_out, bias=False)
+                self.feedback8 = nn.Linear(100, self.dim_out, bias=False)
+                self.feedback9 = nn.Linear(90, self.dim_out, bias=False)
+                self.feedback10 = nn.Linear(70, self.dim_out, bias=False)
+
             else:
                 self.feedback1 = nn.Linear(784, self.dim_out, bias=False)
                 self.feedback2 = nn.Linear(170, self.dim_out, bias=False)
@@ -199,6 +240,31 @@ class ChemicalNN(nn.Module):
                     self.chemical7,
                     self.chemical8,
                     self.chemical9,
+                ]
+            )
+        elif self.size == sizeEnum.ten_layer:
+            self.chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 256, 784), device=self.device))
+            self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 200, 256), device=self.device))
+            self.chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 170, 200), device=self.device))
+            self.chemical4 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 150, 170), device=self.device))
+            self.chemical5 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 130, 150), device=self.device))
+            self.chemical6 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 110, 130), device=self.device))
+            self.chemical7 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 100, 110), device=self.device))
+            self.chemical8 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 90, 100), device=self.device))
+            self.chemical9 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 70, 90), device=self.device))
+            self.chemical10 = nn.Parameter(torch.zeros(size=(numberOfChemicals, dim_out, 70), device=self.device))
+            self.chemicals = nn.ParameterList(
+                [
+                    self.chemical1,
+                    self.chemical2,
+                    self.chemical3,
+                    self.chemical4,
+                    self.chemical5,
+                    self.chemical6,
+                    self.chemical7,
+                    self.chemical8,
+                    self.chemical9,
+                    self.chemical10,
                 ]
             )
         elif self.size == sizeEnum.six_layer:
@@ -300,6 +366,28 @@ class ChemicalNN(nn.Module):
             y5 = self.activation(y5)
             y6 = self.forward6(y5)
             return (y0, y1, y2, y3, y4, y5), y6
+        elif self.size == sizeEnum.ten_layer:
+            y0 = x.squeeze(1)
+            y1 = self.forward1(y0)
+            y1 = self.activation(y1)
+            y2 = self.forward2(y1)
+            y2 = self.activation(y2)
+            y3 = self.forward3(y2)
+            y3 = self.activation(y3)
+            y4 = self.forward4(y3)
+            y4 = self.activation(y4)
+            y5 = self.forward5(y4)
+            y5 = self.activation(y5)
+            y6 = self.forward6(y5)
+            y6 = self.activation(y6)
+            y7 = self.forward7(y6)
+            y7 = self.activation(y7)
+            y8 = self.forward8(y7)
+            y8 = self.activation(y8)
+            y9 = self.forward9(y8)
+            y9 = self.activation(y9)
+            y10 = self.forward10(y9)
+            return (y0, y1, y2, y3, y4, y5, y6, y7, y8, y9), y10
         else:
 
             if self.error_control:

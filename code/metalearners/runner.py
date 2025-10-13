@@ -806,8 +806,8 @@ def runner_main():
         # os.getcwd() + "/results/mode_6_1_chem_1/0/20250910-221744",
         # os.getcwd() + "/results/mode_6_3_chem_1/0/20250910-204609",
         # os.getcwd() + "/results/mode_6_5_chem_1/0/20250910-204750",
-        os.getcwd()
-        + "/results/mode_6_5_chem_lr_6/0/20250715-172436"
+        # os.getcwd()
+        # + "/results/mode_6_5_chem_lr_6/0/20250715-172436"
         # #"/results/mode_6_7_chem_1/0/20250910-222310",
         # s.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-184038",
         # os.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-195827",
@@ -815,7 +815,8 @@ def runner_main():
         # os.getcwd() + "/results/rl_error_scalar_grad_longer_7/0/20251007-180458",
         # os.getcwd() + "/results/DFA_longer_7/0/20251008-023234/"
         # os.getcwd() + "/results/DFA_longer_1/0/20251008-021457"
-        # os.getcwd() + "/results/DFA_longer_5/0/20251008-023058"
+        os.getcwd()
+        + "/results/DFA_longer_5/0/20251008-023058"
         # os.getcwd() + "/results/DFA_longer_2/0/20251008-052203"
         # s.getcwd() + "/results/error_5_fixed/0/20251011-194736"
         # os.getcwd() + "/results/error_1_fixed/0/20251009-194350"
@@ -833,10 +834,10 @@ def runner_main():
                     # "runner_mode_6_5_chem_scalar",
                     # "runner_scalar_fixed_3_6",
                     # "runner_scalar_5_angle_fixed",
-                    "runner_DFA_6_layer_true_2"
+                    "runner_DFA_6_layer_true_2_5_chem"
                 ][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=[3][i],
+                numberOfChemicals=[5][i],
             )
