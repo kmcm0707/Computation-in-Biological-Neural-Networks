@@ -287,7 +287,6 @@ class ChemicalNN(nn.Module):
 
             return (y0, y1, y2, y3, y4, y5, y6, y7, y8), y9
         elif self.size == sizeEnum.six_layer:
-            print("six layer")
             y0 = x.squeeze(1)
             y1 = self.forward1(y0)
             y1 = self.activation(y1)
