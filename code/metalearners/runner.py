@@ -534,7 +534,7 @@ def run(
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    trainingDataPerClass = [
+    """trainingDataPerClass = [
         0,
         5,
         10,
@@ -564,8 +564,8 @@ def run(
         325,
         350,
         375,
-    ]
-    """trainingDataPerClass = [
+    ]"""
+    trainingDataPerClass = [
         10,
         # 20,
         # 30,
@@ -591,13 +591,13 @@ def run(
         # 1200,
         # 1250,
         # 1300,
-    ]"""
+    ]
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "EMNIST"
+    dataset_name = "FASHION-MNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -753,7 +753,7 @@ def run(
         modelPath=modelPath,
         results_subdir=result_subdirectory,
         seed=seed,
-        size=sizeEnum.six_layer,
+        size=sizeEnum.normal,
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
@@ -806,8 +806,7 @@ def runner_main():
         # os.getcwd() + "/results/mode_6_1_chem_1/0/20250910-221744",
         # os.getcwd() + "/results/mode_6_3_chem_1/0/20250910-204609",
         # os.getcwd() + "/results/mode_6_5_chem_1/0/20250910-204750",
-        # os.getcwd()
-        # + "/results/mode_6_5_chem_lr_6/0/20250715-172436"
+        os.getcwd() + "/results/mode_6_5_chem_lr_6/0/20250715-172436"
         # #"/results/mode_6_7_chem_1/0/20250910-222310",
         # s.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-184038",
         # os.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-195827",
@@ -815,9 +814,9 @@ def runner_main():
         # os.getcwd() + "/results/rl_error_scalar_grad_longer_7/0/20251007-180458",
         # os.getcwd() + "/results/DFA_longer_7/0/20251008-023234/"
         # os.getcwd() + "/results/DFA_longer_1/0/20251008-021457"
-        os.getcwd()
-        + "/results/DFA_longer_5/0/20251008-023058"
-        # os.getcwd() + "/results/DFA_longer_2/0/20251008-052203"
+        #os.getcwd()
+        #+ "/results/DFA_longer_5/0/20251008-023058"
+        #os.getcwd() + "/results/DFA_longer_2/0/20251008-052203"
         # s.getcwd() + "/results/error_5_fixed/0/20251011-194736"
         # os.getcwd() + "/results/error_1_fixed/0/20251009-194350"
         # os.getcwd()
@@ -834,10 +833,10 @@ def runner_main():
                     # "runner_mode_6_5_chem_scalar",
                     # "runner_scalar_fixed_3_6",
                     # "runner_scalar_5_angle_fixed",
-                    "runner_DFA_6_layer_true_2_5_chem"
+                    "runner_FA_5_layer_3_chem_fashion"
                 ][i],
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+                typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=[5][i],
+                numberOfChemicals=[3][i],
             )

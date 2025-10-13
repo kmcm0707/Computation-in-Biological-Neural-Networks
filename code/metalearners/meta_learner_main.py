@@ -812,11 +812,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 600
+    epochs = 1500
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 35
-    maxTrainingDataPerClass = 80
+    minTrainingDataPerClass = 30
+    maxTrainingDataPerClass = 90
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
@@ -1027,4 +1027,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=2, display=True, result_subdirectory="scalar_3_5", index=i)
+        run(seed=2, display=True, result_subdirectory="DFA_5_chem_longer", index=i)
