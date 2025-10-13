@@ -753,7 +753,7 @@ def run(
         modelPath=modelPath,
         results_subdir=result_subdirectory,
         seed=seed,
-        size=sizeEnum.normal,
+        size=sizeEnum.six_layer,
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
@@ -833,7 +833,7 @@ def runner_main():
                     # "runner_mode_6_5_chem_scalar",
                     # "runner_scalar_fixed_3_6",
                     # "runner_scalar_5_angle_fixed",
-                    "runner_DFA_6_layer_2"
+                    "runner_DFA_6_layer_true_2"
                 ][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
