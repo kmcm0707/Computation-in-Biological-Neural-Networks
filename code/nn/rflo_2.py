@@ -428,7 +428,7 @@ def run(
         dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True, num_workers=numWorkers
     )
 
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    device = "cuda:1" if torch.cuda.is_available() else "cpu"
 
     metalearning_model = RfloLearner(
         device=device,
@@ -445,9 +445,9 @@ def run(
         biological_max_tau=7,
         biological_nonlinearity=nonLinearEnum.tanh,
         hidden_size=128,
-        lr_in=0.001,
-        lr_hh=0.001,
-        lr_out=0.001,
+        lr_in=0.005,
+        lr_hh=0.005,
+        lr_out=0.005,
     )
     metalearning_model.train()
 
@@ -503,7 +503,7 @@ def rflo_main_2():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_murray_rflo/{}".format(dim),
+                result_subdirectory="runner_murray_rflo_5/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
