@@ -233,7 +233,7 @@ class MetaLearner:
 
             # -- training data
             x_trn, y_trn, x_qry, y_qry, current_training_data = self.data_process(data, self.number_of_classes)
-            self.number_epochs = 10
+            self.number_epochs = 1
             # x_trn_copy = x_trn.clone()
             # y_trn_copy = y_trn.clone()
 
@@ -318,7 +318,7 @@ def run(
 
     # -- load data
     numWorkers = 3
-    epochs = 5
+    epochs = 20
     numberOfClasses = 5
     trainingDataPerClass = trainingDataPerClass
     dimOut = 47
@@ -376,7 +376,7 @@ def backprop_main():
     :return: None
     """
     # -- run
-    """trainingDataPerClass = [
+    trainingDataPerClass = [
         10,
         20,
         30,
@@ -404,8 +404,8 @@ def backprop_main():
         325,
         350,
         375,
-    ]"""
-    trainingDataPerClass = [
+    ]
+    """trainingDataPerClass = [
         # 10,
         # 50,
         # 100,
@@ -423,7 +423,6 @@ def backprop_main():
         # 700,
         # 750,
         # 800,
-        """
         850,
         900,
         950,
@@ -432,13 +431,13 @@ def backprop_main():
         1100,
         1150,
         1200,
-        1250,""",
+        1250,
         # 1300,
-    ]
+    ]"""
     for trainingData in trainingDataPerClass:
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_backprop_10_layer_EMNIST_10_epochs",
+            result_subdirectory="runner_backprop_10_layer_EMNIST_3",
             trainingDataPerClass=trainingData,
         )
