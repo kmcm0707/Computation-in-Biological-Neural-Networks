@@ -318,7 +318,7 @@ def run(
     numberOfClasses = 5
     trainingDataPerClass = trainingDataPerClass
     dimOut = 47
-    dataset_name = "FASHION-MNIST"
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -345,7 +345,7 @@ def run(
     )
 
     metalearning_model = MetaLearner(
-        device="cuda:0",
+        device="cuda:1",
         result_subdirectory=result_subdirectory,
         save_results=True,
         metatrain_dataset=metatrain_dataset,
@@ -435,6 +435,6 @@ def backprop_main():
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_backprop_10_layer_fashion_mnist",
+            result_subdirectory="runner_backprop_10_layer_EMNIST",
             trainingDataPerClass=trainingData,
         )
