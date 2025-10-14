@@ -233,20 +233,24 @@ class MetaLearner:
 
             # -- training data
             x_trn, y_trn, x_qry, y_qry, current_training_data = self.data_process(data, self.number_of_classes)
+            self.number_epochs = 10
+            # x_trn_copy = x_trn.clone()
+            # y_trn_copy = y_trn.clone()
 
-            """ adaptation """
-            for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
+            for epoch in range(self.number_epochs):
+                """adaptation"""
+                for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
 
-                # -- predict
-                y, logits = self.model(x.unsqueeze(0).unsqueeze(0))
+                    # -- predict
+                    y, logits = self.model(x.unsqueeze(0).unsqueeze(0))
 
-                # -- update network params
-                loss_adapt = self.loss_func(logits, label)
+                    # -- update network params
+                    loss_adapt = self.loss_func(logits, label)
 
-                # -- backprop
-                self.UpdateParameters.zero_grad()
-                loss_adapt.backward()
-                self.UpdateParameters.step()
+                    # -- backprop
+                    self.UpdateParameters.zero_grad()
+                    loss_adapt.backward()
+                    self.UpdateParameters.step()
 
             # -- predict
             self.model.eval()
@@ -314,7 +318,7 @@ def run(
 
     # -- load data
     numWorkers = 3
-    epochs = 20
+    epochs = 5
     numberOfClasses = 5
     trainingDataPerClass = trainingDataPerClass
     dimOut = 47
@@ -402,23 +406,23 @@ def backprop_main():
         375,
     ]"""
     trainingDataPerClass = [
-        10,
-        50,
-        100,
+        # 10,
+        # 50,
+        # 100,
         150,
-        200,
-        250,
-        300,
-        350,
-        400,
-        450,
-        500,
-        550,
-        600,
-        650,
-        700,
-        750,
-        800,
+        # 200,
+        # 250,
+        # 300,
+        # 350,
+        # 400,
+        # 450,
+        # 500,
+        # 550,
+        # 600,
+        # 650,
+        # 700,
+        # 750,
+        # 800,
         """
         850,
         900,
@@ -435,6 +439,6 @@ def backprop_main():
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_backprop_10_layer_EMNIST",
+            result_subdirectory="runner_backprop_10_layer_EMNIST_10_epochs",
             trainingDataPerClass=trainingData,
         )
