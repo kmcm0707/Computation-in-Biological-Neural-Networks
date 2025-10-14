@@ -1,18 +1,13 @@
-import argparse
-import copy
 import datetime
 import os
 import random
-import sys
 import warnings
-from multiprocessing import Pool
 from typing import Literal
 
 import numpy as np
 import torch
 from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset
-from misc.utils import Plot, log, meta_stats
-from ray import train, tune
+from misc.utils import log
 from torch import nn, optim
 from torch.utils.data import DataLoader, RandomSampler
 from torch.utils.tensorboard import SummaryWriter
@@ -35,7 +30,7 @@ class RosenbaumNN(nn.Module):
 
         # Model
         dim_out = dim_out
-        self.forward1 = nn.Linear(784, 650, bias=False)
+        """self.forward1 = nn.Linear(784, 650, bias=False)
         self.forward2 = nn.Linear(650, 512, bias=False)
         self.forward3 = nn.Linear(512, 384, bias=False)
         self.forward4 = nn.Linear(384, 256, bias=False)
@@ -43,11 +38,21 @@ class RosenbaumNN(nn.Module):
         self.forward6 = nn.Linear(170, 130, bias=False)
         self.forward7 = nn.Linear(130, 100, bias=False)
         self.forward8 = nn.Linear(100, 70, bias=False)
-        self.forward9 = nn.Linear(70, dim_out, bias=False)
+        self.forward9 = nn.Linear(70, dim_out, bias=False)"""
         """self.forward2 = nn.Linear(170, 130, bias=False)
         self.forward3 = nn.Linear(130, 100, bias=False)
         self.forward4 = nn.Linear(100, 70, bias=False)
         self.forward5 = nn.Linear(120, dim_out, bias=False)"""
+        self.forward1 = nn.Linear(784, 256, bias=False)
+        self.forward2 = nn.Linear(256, 200, bias=False)
+        self.forward3 = nn.Linear(200, 170, bias=False)
+        self.forward4 = nn.Linear(170, 150, bias=False)
+        self.forward5 = nn.Linear(150, 130, bias=False)
+        self.forward6 = nn.Linear(130, 110, bias=False)
+        self.forward7 = nn.Linear(110, 100, bias=False)
+        self.forward8 = nn.Linear(100, 90, bias=False)
+        self.forward9 = nn.Linear(90, 70, bias=False)
+        self.forward10 = nn.Linear(70, dim_out, bias=False)
 
         # Activation function
         self.beta = 10
@@ -82,11 +87,14 @@ class RosenbaumNN(nn.Module):
         y8 = self.activation(y8)
 
         y9 = self.forward9(y8)
+        y9 = self.activation(y9)
+
+        y10 = self.forward10(y9)
 
         # return (y0, y1, y2, y3, y4), y5
         # return (y0, y1, y2, y3, y4, y5, y6), y7
 
-        return (y0, y1, y2, y3, y4, y5, y6, y7, y8), y9
+        return (y0, y1, y2, y3, y4, y5, y6, y7, y8, y9), y10
 
 
 class MetaLearner:
@@ -427,6 +435,6 @@ def backprop_main():
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_backprop_check_9_layer_fashion_mnist",
+            result_subdirectory="runner_backprop_10_layer_fashion_mnist",
             trainingDataPerClass=trainingData,
         )
