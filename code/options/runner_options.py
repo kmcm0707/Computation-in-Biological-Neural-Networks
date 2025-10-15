@@ -1,5 +1,4 @@
 import datetime
-from enum import Enum
 from typing import Literal
 
 from options.meta_learner_options import (
@@ -36,6 +35,7 @@ class RunnerOptions:
         queryDataPerClass: int = 10,
         typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
         dimOut: int = 47,
+        data_repetitions: int = 1,
     ):
 
         self.model = model
@@ -57,6 +57,7 @@ class RunnerOptions:
         self.queryDataPerClass = queryDataPerClass
         self.typeOfFeedback = typeOfFeedback
         self.dimOut = dimOut
+        self.data_repetitions = data_repetitions
 
     def __str__(self):
         string = ""

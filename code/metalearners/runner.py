@@ -336,118 +336,122 @@ class Runner:
             )
 
             """ adaptation """
-            for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
+            for itr_rep in range(self.options.data_repetitions):
+                for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
 
-                # -- predict
-                y, logits = None, None
-                if self.options.trainFeedback or self.options.trainSameFeedback:
-                    y, logits = torch.func.functional_call(
-                        self.model, (parameters, h_parameters, feedback_params), x.unsqueeze(0).unsqueeze(0)
-                    )
-                else:
-                    y, logits = torch.func.functional_call(
-                        self.model, (parameters, h_parameters), x.unsqueeze(0).unsqueeze(0)
-                    )
-
-                # -- compute error
-                activations = y
-                output = functional.softmax(logits, dim=1)
-                params = parameters
-                feedback = {name: value for name, value in params.items() if "feedback" in name}
-                error = [output - functional.one_hot(label, num_classes=self.options.dimOut)]
-                # add the error for all the layers
-                if self.options.typeOfFeedback == typeOfFeedbackEnum.FA:
-                    # add the error for all the layers
-                    for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
-                elif self.options.typeOfFeedback == typeOfFeedbackEnum.FA_NO_GRAD:
-                    # add the error for all the layers
-                    for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(0, torch.matmul(error[0], feedback[i]))
-                elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA:
-                    for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(0, torch.matmul(error[-1], feedback[i]))
-                elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad:
-                    for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(0, torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
-                elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar:
-                    # error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)[0]
-                    # error_scalar = -error[0][0][label]
-                    # error_scalar = torch.tanh(error_scalar)  # tanh to avoid exploding gradients
-                    if output[0][label] > 0.5:
-                        error_scalar = torch.tensor(0, device=self.device)
-                    else:
-                        error_scalar = torch.tensor(1.0, device=self.device)
-                    for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
-                elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar_rate:
-                    if logits[0][label] > 0.5:
-                        error_scalar = torch.tensor(0, device=self.device)
-                    else:
-                        error_scalar = torch.tensor(1.0, device=self.device)
-                    for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
-                elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
-                    DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
-                    feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
-                    DFA_error = [
-                        functional.softmax(output, dim=1) - functional.one_hot(label, num_classes=self.options.dimOut)
-                    ]
-                    for y, i in zip(reversed(activations), reversed(list(DFA_feedback))):
-                        DFA_error.insert(
-                            0, torch.matmul(error[-1], DFA_feedback[i]) * (1 - torch.exp(-self.model.beta * y))
+                    # -- predict
+                    y, logits = None, None
+                    if self.options.trainFeedback or self.options.trainSameFeedback:
+                        y, logits = torch.func.functional_call(
+                            self.model, (parameters, h_parameters, feedback_params), x.unsqueeze(0).unsqueeze(0)
                         )
-                    index_error = len(DFA_error) - 2
-                    for y, i in zip(reversed(activations), reversed(list(feedback))):
-                        error.insert(
-                            0,
-                            (
-                                torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y))
-                                + DFA_error[index_error]
+                    else:
+                        y, logits = torch.func.functional_call(
+                            self.model, (parameters, h_parameters), x.unsqueeze(0).unsqueeze(0)
+                        )
+
+                    # -- compute error
+                    activations = y
+                    output = functional.softmax(logits, dim=1)
+                    params = parameters
+                    feedback = {name: value for name, value in params.items() if "feedback" in name}
+                    error = [output - functional.one_hot(label, num_classes=self.options.dimOut)]
+                    # add the error for all the layers
+                    if self.options.typeOfFeedback == typeOfFeedbackEnum.FA:
+                        # add the error for all the layers
+                        for y, i in zip(reversed(activations), reversed(list(feedback))):
+                            error.insert(0, torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.FA_NO_GRAD:
+                        # add the error for all the layers
+                        for y, i in zip(reversed(activations), reversed(list(feedback))):
+                            error.insert(0, torch.matmul(error[0], feedback[i]))
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA:
+                        for y, i in zip(reversed(activations), reversed(list(feedback))):
+                            error.insert(0, torch.matmul(error[-1], feedback[i]))
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad:
+                        for y, i in zip(reversed(activations), reversed(list(feedback))):
+                            error.insert(
+                                0, torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-self.model.beta * y))
                             )
-                            / 2,
-                        )
-                        index_error -= 1
-                    """for i in range(len(DFA_error)):
-                        # error[i] = (error[i] + DFA_error[i]) / 2
-                        if i != 0:
-                            error[i] = (error[i] + DFA_error[i]) / np.sqrt(2)"""
-                else:
-                    raise ValueError("Invalid type of feedback")
-                activations_and_output = [*activations, functional.softmax(output, dim=1)]
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar:
+                        # error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)[0]
+                        # error_scalar = -error[0][0][label]
+                        # error_scalar = torch.tanh(error_scalar)  # tanh to avoid exploding gradients
+                        if output[0][label] > 0.5:
+                            error_scalar = torch.tensor(0, device=self.device)
+                        else:
+                            error_scalar = torch.tensor(1.0, device=self.device)
+                        for y, i in zip(reversed(activations), reversed(list(feedback))):
+                            error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar_rate:
+                        if logits[0][label] > 0.5:
+                            error_scalar = torch.tensor(0, device=self.device)
+                        else:
+                            error_scalar = torch.tensor(1.0, device=self.device)
+                        for y, i in zip(reversed(activations), reversed(list(feedback))):
+                            error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
+                        DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
+                        feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
+                        DFA_error = [
+                            functional.softmax(output, dim=1)
+                            - functional.one_hot(label, num_classes=self.options.dimOut)
+                        ]
+                        for y, i in zip(reversed(activations), reversed(list(DFA_feedback))):
+                            DFA_error.insert(
+                                0, torch.matmul(error[-1], DFA_feedback[i]) * (1 - torch.exp(-self.model.beta * y))
+                            )
+                        index_error = len(DFA_error) - 2
+                        for y, i in zip(reversed(activations), reversed(list(feedback))):
+                            error.insert(
+                                0,
+                                (
+                                    torch.matmul(error[0], feedback[i]) * (1 - torch.exp(-self.model.beta * y))
+                                    + DFA_error[index_error]
+                                )
+                                / 2,
+                            )
+                            index_error -= 1
+                        """for i in range(len(DFA_error)):
+                            # error[i] = (error[i] + DFA_error[i]) / 2
+                            if i != 0:
+                                error[i] = (error[i] + DFA_error[i]) / np.sqrt(2)"""
+                    else:
+                        raise ValueError("Invalid type of feedback")
+                    activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
-                # -- update network params
-                self.UpdateWeights(
-                    params=parameters,
-                    h_parameters=h_parameters,
-                    error=error,
-                    activations_and_output=activations_and_output,
-                )
-
-                # -- update same model feedback params
-                if self.options.trainSameFeedback:
+                    # -- update network params
                     self.UpdateWeights(
                         params=parameters,
-                        h_parameters=feedback_params,
-                        error=error,
-                        activations_and_output=activations_and_output,
-                        override_adaption_pathway="feedback",
-                    )
-
-                # -- update time index
-                self.UpdateWeights.update_time_index()
-
-                # -- update feedback params
-                if self.options.trainFeedback:
-                    self.UpdateFeedbackWeights(
-                        params=parameters,
-                        h_parameters=feedback_params,
+                        h_parameters=h_parameters,
                         error=error,
                         activations_and_output=activations_and_output,
                     )
 
-                    # -- update feedback time index
-                    self.UpdateFeedbackWeights.update_time_index()
+                    # -- update same model feedback params
+                    if self.options.trainSameFeedback:
+                        self.UpdateWeights(
+                            params=parameters,
+                            h_parameters=feedback_params,
+                            error=error,
+                            activations_and_output=activations_and_output,
+                            override_adaption_pathway="feedback",
+                        )
+
+                    # -- update time index
+                    self.UpdateWeights.update_time_index()
+
+                    # -- update feedback params
+                    if self.options.trainFeedback:
+                        self.UpdateFeedbackWeights(
+                            params=parameters,
+                            h_parameters=feedback_params,
+                            error=error,
+                            activations_and_output=activations_and_output,
+                        )
+
+                        # -- update feedback time index
+                        self.UpdateFeedbackWeights.update_time_index()
 
             """ meta test"""
             # -- predict
@@ -534,7 +538,7 @@ def run(
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    """trainingDataPerClass = [
+    trainingDataPerClass = [
         0,
         5,
         10,
@@ -564,8 +568,8 @@ def run(
         325,
         350,
         375,
-    ]"""
-    trainingDataPerClass = [
+    ]
+    """trainingDataPerClass = [
         10,
         # 20,
         # 30,
@@ -591,13 +595,13 @@ def run(
         # 1200,
         # 1250,
         # 1300,
-    ]
+    ]"""
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "FASHION-MNIST"
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -753,7 +757,7 @@ def run(
         modelPath=modelPath,
         results_subdir=result_subdirectory,
         seed=seed,
-        size=sizeEnum.six_layer,
+        size=sizeEnum.normal,
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
@@ -768,6 +772,7 @@ def run(
         queryDataPerClass=queryDataPerClass,
         typeOfFeedback=typeOfFeedback,
         dimOut=dimOut,
+        data_repetitions=5,
     )
 
     #   -- number of chemicals
@@ -806,8 +811,8 @@ def runner_main():
         # os.getcwd() + "/results/mode_6_1_chem_1/0/20250910-221744",
         # os.getcwd() + "/results/mode_6_3_chem_1/0/20250910-204609",
         # os.getcwd() + "/results/mode_6_5_chem_1/0/20250910-204750",
-        #os.getcwd() + "/results/mode_6_5_chem_lr_6/0/20250715-172436"
-        os.getcwd() + "/results/DFA_5_chem_longer/2/20251014-003536"
+        # os.getcwd() + "/results/mode_6_5_chem_lr_6/0/20250715-172436"
+        # os.getcwd() + "/results/DFA_5_chem_longer/2/20251014-003536"
         # #"/results/mode_6_7_chem_1/0/20250910-222310",
         # s.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-184038",
         # os.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-195827",
@@ -815,10 +820,12 @@ def runner_main():
         # os.getcwd() + "/results/rl_error_scalar_grad_longer_7/0/20251007-180458",
         # os.getcwd() + "/results/DFA_longer_7/0/20251008-023234/"
         # os.getcwd() + "/results/DFA_longer_1/0/20251008-021457"
-        #os.getcwd()
-        #+ "/results/DFA_longer_5/0/20251008-023058"
-        #os.getcwd() + "/results/DFA_longer_2/0/20251008-052203"
-        # s.getcwd() + "/results/error_5_fixed/0/20251011-194736"
+        # os.getcwd()
+        # + "/results/DFA_longer_5/0/20251008-023058"
+        os.getcwd()
+        + "/results/DFA_longer_2/0/20251008-052203"
+        # os.getcwd()
+        # + "/results/error_5_fixed/0/20251011-194736"
         # os.getcwd() + "/results/error_1_fixed/0/20251009-194350"
         # os.getcwd()
         # + "/results/scalar_3_5/2/20251012-171341"
@@ -834,7 +841,7 @@ def runner_main():
                     # "runner_mode_6_5_chem_scalar",
                     # "runner_scalar_fixed_3_6",
                     # "runner_scalar_5_angle_fixed",
-                    "runner_DFA_6_layer_5_chem_fashion_new"
+                    "runner_DFA_5_chem_longer_5_repetitions",
                 ][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
