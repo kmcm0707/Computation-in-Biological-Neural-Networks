@@ -121,6 +121,14 @@ class ChemicalNN(nn.Module):
                 self.feedback8 = nn.Linear(100, 90, bias=False)
                 self.feedback9 = nn.Linear(90, 70, bias=False)
                 self.feedback10 = nn.Linear(70, dim_out, bias=False)
+            elif self.size == sizeEnum.three_layer_wide:
+                self.feedback1 = nn.Linear(784, 1500, bias=False)
+                self.feedback2 = nn.Linear(1500, 1500, bias=False)
+                self.feedback3 = nn.Linear(1500, self.dim_out, bias=False)
+            elif self.size == sizeEnum.three_layer:
+                self.feedback1 = nn.Linear(784, 512, bias=False)
+                self.feedback2 = nn.Linear(512, 256, bias=False)
+                self.feedback3 = nn.Linear(256, self.dim_out, bias=False)
             else:
                 self.feedback1 = nn.Linear(784, 170, bias=False)
                 self.feedback2 = nn.Linear(170, 130, bias=False)
@@ -162,7 +170,14 @@ class ChemicalNN(nn.Module):
                 self.feedback8 = nn.Linear(100, self.dim_out, bias=False)
                 self.feedback9 = nn.Linear(90, self.dim_out, bias=False)
                 self.feedback10 = nn.Linear(70, self.dim_out, bias=False)
-
+            elif self.size == sizeEnum.three_layer:
+                self.feedback1 = nn.Linear(784, self.dim_out, bias=False)
+                self.feedback2 = nn.Linear(512, self.dim_out, bias=False)
+                self.feedback3 = nn.Linear(256, self.dim_out, bias=False)
+            elif self.size == sizeEnum.three_layer_wide:
+                self.feedback1 = nn.Linear(784, self.dim_out, bias=False)
+                self.feedback2 = nn.Linear(1500, self.dim_out, bias=False)
+                self.feedback3 = nn.Linear(1500, self.dim_out, bias=False)
             else:
                 self.feedback1 = nn.Linear(784, self.dim_out, bias=False)
                 self.feedback2 = nn.Linear(170, self.dim_out, bias=False)
@@ -267,6 +282,16 @@ class ChemicalNN(nn.Module):
                     self.chemical10,
                 ]
             )
+        elif self.size == sizeEnum.three_layer:
+            self.chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 512, 784), device=self.device))
+            self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 256, 512), device=self.device))
+            self.chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, dim_out, 256), device=self.device))
+            self.chemicals = nn.ParameterList([self.chemical1, self.chemical2, self.chemical3])
+        elif self.size == sizeEnum.three_layer_wide:
+            self.chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 1500, 784), device=self.device))
+            self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 1500, 1500), device=self.device))
+            self.chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, dim_out, 1500), device=self.device))
+            self.chemicals = nn.ParameterList([self.chemical1, self.chemical2, self.chemical3])
         elif self.size == sizeEnum.six_layer:
             self.chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 170, 784), device=self.device))
             self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 150, 170), device=self.device))
@@ -331,6 +356,15 @@ class ChemicalNN(nn.Module):
             y1 = self.forward1(y0)
             y1 = self.activation(y1)
             y2 = self.forward2(y1)
+            return (y0, y1), y2
+        elif self.size == sizeEnum.three_layer_wide or self.size == sizeEnum.three_layer:
+            y0 = x.squeeze(1)
+            y1 = self.forward1(y0)
+            y1 = self.activation(y1)
+            y2 = self.forward2(y1)
+            y2 = self.activation(y2)
+            y3 = self.forward3(y2)
+            return (y0, y1, y2), y3
         elif self.size == sizeEnum.nine_layer:
             y0 = x.squeeze(1)
             y1 = self.forward1(y0)
@@ -389,51 +423,36 @@ class ChemicalNN(nn.Module):
             y10 = self.forward10(y9)
             return (y0, y1, y2, y3, y4, y5, y6, y7, y8, y9), y10
         else:
-
             if self.error_control:
                 y0 = x.squeeze(1) + self.errors[0]
                 y0 = self.activation(y0)
-
                 y1 = self.forward1(y0) + self.errors[1]
                 y1 = self.activation(y1)
-
                 y2 = self.forward2(y1) + self.errors[2]
                 y2 = self.activation(y2)
-
                 y3 = self.forward3(y2) + self.errors[3]
                 y3 = self.activation(y3)
-
                 y4 = self.forward4(y3) + self.errors[4]
                 y4 = self.activation(y4)
-
                 y5 = self.forward5(y4) + self.errors[5]
-
             else:
                 y0 = x.squeeze(1)
-
                 y1 = self.forward1(y0)
                 y1 = self.activation(y1)
                 # y1 = self.dropout(y1)
                 # y1 = self.layer_norm1(y1)
-
                 y2 = self.forward2(y1)
                 y2 = self.activation(y2)
                 # y2 = self.dropout(y2)
                 # y2 = self.layer_norm2(y2)
-
                 y3 = self.forward3(y2)
                 y3 = self.activation(y3)
                 # y3 = self.dropout(y3)
                 # y3 = self.layer_norm3(y3)
-
                 y4 = self.forward4(y3)
                 y4 = self.activation(y4)
                 # y4 = self.dropout(y4)
                 # y4 = self.layer_norm4(y4)
                 # y4 = self.layer_norm4(y4)
                 y5 = self.forward5(y4)
-
-        if self.size == sizeEnum.small:
-            return (y0, y1), y2
-        else:
             return (y0, y1, y2, y3, y4), y5

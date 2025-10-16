@@ -57,6 +57,8 @@ class sizeEnum(Enum):
     nine_layer = "nine_layer"
     ten_layer = "ten_layer"
     six_layer = "six_layer"
+    three_layer = "three_layer"
+    three_layer_wide = "three_layer_wide"
 
 
 class MetaLearnerOptions:
