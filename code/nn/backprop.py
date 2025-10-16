@@ -114,6 +114,7 @@ class MetaLearner:
         number_of_classes: int = 5,
         trainingDataPerClass: int = 50,
         dimOut: int = 47,
+        numberOfDataRepetitions: int = 1,
     ):
 
         # -- processor params
@@ -132,6 +133,7 @@ class MetaLearner:
             device=self.device,
         )
         self.number_of_classes = number_of_classes
+        self.numberOfDataRepetitions = numberOfDataRepetitions
 
         # -- model params
         if self.device == "cpu":  # Remove if using a newer GPU
@@ -205,17 +207,7 @@ class MetaLearner:
 
     def train(self):
         """
-            Perform meta-training.
-
-        This function iterates over episodes to meta-train the model. At each
-        episode, it samples a task from the meta-training dataset, initializes
-        the model parameters, and clones them. The meta-training data for each
-        episode is processed and divided into training and query data. During
-        adaptation, the model is updated using `self.OptimAdpt` function, one
-        sample at a time, on the training data. In the meta-optimization loop,
-        the model is evaluated using the query data, and the plasticity
-        meta-parameters are then updated using the `self.OptimMeta` function.
-        Accuracy, loss, and other meta statistics are computed and logged.
+            Perform Backprop
 
         :return: None
         """
@@ -233,11 +225,10 @@ class MetaLearner:
 
             # -- training data
             x_trn, y_trn, x_qry, y_qry, current_training_data = self.data_process(data, self.number_of_classes)
-            self.number_epochs = 1
             # x_trn_copy = x_trn.clone()
             # y_trn_copy = y_trn.clone()
 
-            for epoch in range(self.number_epochs):
+            for epoch in range(self.numberOfDataRepetitions):
                 """adaptation"""
                 for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
 
@@ -357,6 +348,7 @@ def run(
         number_of_classes=numberOfClasses,
         trainingDataPerClass=trainingDataPerClass,
         dimOut=dimOut,
+        numberOfDataRepetitions=5,
     )
     metalearning_model.train()
 
@@ -438,6 +430,6 @@ def backprop_main():
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_backprop_10_layer_EMNIST_3",
+            result_subdirectory="runner_backprop_10_layer_EMNIST_5_repetitions",
             trainingDataPerClass=trainingData,
         )
