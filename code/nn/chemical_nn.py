@@ -49,6 +49,14 @@ class ChemicalNN(nn.Module):
             self.forward3 = nn.Linear(10, 5, bias=False)"""
             self.forward2 = nn.Linear(128, self.dim_out, bias=False)
             """self.forward_layers = nn.ModuleList([self.forward1, self.forward2, self.forward3, self.forward4])"""
+        elif self.size == sizeEnum.three_layer_wide:
+            self.forward1 = nn.Linear(784, 1500, bias=False)
+            self.forward2 = nn.Linear(1500, 1500, bias=False)
+            self.forward3 = nn.Linear(1500, self.dim_out, bias=False)
+        elif self.size == sizeEnum.three_layer:
+            self.forward1 = nn.Linear(784, 512, bias=False)
+            self.forward2 = nn.Linear(512, 256, bias=False)
+            self.forward3 = nn.Linear(256, self.dim_out, bias=False)
         elif self.size == sizeEnum.nine_layer:
             self.forward1 = nn.Linear(784, 650, bias=False)
             self.forward2 = nn.Linear(650, 512, bias=False)

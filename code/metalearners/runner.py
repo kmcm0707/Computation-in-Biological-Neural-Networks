@@ -97,7 +97,7 @@ class Runner:
         state_dict = torch.load(
             self.options.modelPath + "/UpdateWeights.pth", weights_only=True, map_location=self.device
         )
-        if self.modelOptions.bias == False and self.options.model is modelEnum.complex:
+        if not self.modelOptions.bias and self.options.model is modelEnum.complex:
             for key in list(state_dict.keys()):
                 if "bias" in key:
                     state_dict.pop(key)
@@ -812,7 +812,7 @@ def runner_main():
         # os.getcwd() + "/results/mode_6_3_chem_1/0/20250910-204609",
         # os.getcwd() + "/results/mode_6_5_chem_1/0/20250910-204750",
         # os.getcwd() + "/results/mode_6_5_chem_lr_6/0/20250715-172436"
-        #os.getcwd() + "/results/DFA_5_chem_longer/2/20251014-003536"
+        # os.getcwd() + "/results/DFA_5_chem_longer/2/20251014-003536"
         # #"/results/mode_6_7_chem_1/0/20250910-222310",
         # s.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-184038",
         # os.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-195827",
@@ -822,7 +822,8 @@ def runner_main():
         # os.getcwd() + "/results/DFA_longer_1/0/20251008-021457"
         # os.getcwd()
         # + "/results/DFA_longer_5/0/20251008-023058"
-        os.getcwd() + "/results/DFA_longer_2/0/20251008-052203"
+        os.getcwd()
+        + "/results/DFA_longer_2/0/20251008-052203"
         # os.getcwd()
         # + "/results/error_5_fixed/0/20251011-194736"
         # os.getcwd() + "/results/error_1_fixed/0/20251009-194350"
@@ -840,7 +841,7 @@ def runner_main():
                     # "runner_mode_6_5_chem_scalar",
                     # "runner_scalar_fixed_3_6",
                     # "runner_scalar_5_angle_fixed",
-                    "runner_DFA_5_chem_3_layer_EMNIST",
+                    "runner_DFA_5_chem_3_layer_EMNIST_2",
                 ][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
