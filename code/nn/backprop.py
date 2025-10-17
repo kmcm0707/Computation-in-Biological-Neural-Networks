@@ -313,7 +313,7 @@ def run(
     numberOfClasses = 5
     trainingDataPerClass = trainingDataPerClass
     dimOut = 47
-    dataset_name = "EMNIST"
+    dataset_name = "FASHION-MNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -340,7 +340,7 @@ def run(
     )
 
     metalearning_model = MetaLearner(
-        device="cuda:1",
+        device="cuda:0",
         result_subdirectory=result_subdirectory,
         save_results=True,
         metatrain_dataset=metatrain_dataset,
@@ -368,7 +368,7 @@ def backprop_main():
     :return: None
     """
     # -- run
-    trainingDataPerClass = [
+    """trainingDataPerClass = [
         10,
         20,
         30,
@@ -396,40 +396,40 @@ def backprop_main():
         325,
         350,
         375,
-    ]
-    """trainingDataPerClass = [
-        # 10,
-        # 50,
-        # 100,
-        150,
-        # 200,
-        # 250,
-        # 300,
-        # 350,
-        # 400,
-        # 450,
-        # 500,
-        # 550,
-        # 600,
-        # 650,
-        # 700,
-        # 750,
-        # 800,
-        850,
-        900,
-        950,
-        1000,
-        1050,
-        1100,
-        1150,
-        1200,
-        1250,
-        # 1300,
     ]"""
+    trainingDataPerClass = [
+        10,
+        50,
+        100,
+        150,
+        200,
+        250,
+        300,
+        350,
+        400,
+        450,
+        500,
+        550,
+        600,
+        650,
+        700,
+        750,
+        800,
+        #850,
+        #900,
+        #950,
+        #1000,
+        #1050,
+        #1100,
+        #1150,
+        #1200,
+        #1250,
+        # 1300,
+    ]
     for trainingData in trainingDataPerClass:
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_backprop_10_layer_EMNIST_5_repetitions",
+            result_subdirectory="runner_backprop_10_layer_FASHION-MNIST_5_repetitions_true",
             trainingDataPerClass=trainingData,
         )

@@ -757,7 +757,7 @@ def run(
         modelPath=modelPath,
         results_subdir=result_subdirectory,
         seed=seed,
-        size=sizeEnum.ten_layer,
+        size=sizeEnum.three_layer,
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
@@ -772,7 +772,7 @@ def run(
         queryDataPerClass=queryDataPerClass,
         typeOfFeedback=typeOfFeedback,
         dimOut=dimOut,
-        data_repetitions=5,
+        data_repetitions=1,
     )
 
     #   -- number of chemicals
@@ -840,7 +840,7 @@ def runner_main():
                     # "runner_mode_6_5_chem_scalar",
                     # "runner_scalar_fixed_3_6",
                     # "runner_scalar_5_angle_fixed",
-                    "runner_DFA_5_chem_10_layer_repetitions_EMNIST_2",
+                    "runner_DFA_5_chem_3_layer_EMNIST",
                 ][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
