@@ -812,7 +812,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 1500
+    epochs = 2000
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
@@ -957,12 +957,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     feedbackModel = model
     feedbackModelOptions = modelOptions
-    current_dir = os.getcwd()
+    # current_dir = os.getcwd()
     # continue_training = current_dir + "/results/mode_6_very_small_examples/0/20250323-222336"
     # continue_training = current_dir + "/results/error_5_fixed/0/20251010-045944"
-    continue_training = current_dir + "/results/scalar_3_4/0/20251012-035548"
+    # continue_training = current_dir + "/results/scalar_3_4/0/20251012-035548"
     # -- meta-learner options
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P and K matrices (check 1.5)
@@ -996,7 +996,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 20
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1027,4 +1027,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=2, display=True, result_subdirectory="DFA_5_chem_longer", index=i)
+        run(seed=0, display=True, result_subdirectory="DFA_20_chem", index=i)

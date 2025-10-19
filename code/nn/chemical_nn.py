@@ -91,7 +91,6 @@ class ChemicalNN(nn.Module):
             self.forward3 = nn.Linear(130, 100, bias=False)
             self.forward4 = nn.Linear(100, 70, bias=False)
             self.forward5 = nn.Linear(70, self.dim_out, bias=False)
-            """self.forward_layers = nn.ModuleList([self.forward1, self.forward2, self.forward3, self.forward4, self.forward5])"""
 
         # Feedback pathway for plasticity
         # Feedback alignment

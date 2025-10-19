@@ -8,6 +8,7 @@ import numpy as np
 import torch
 from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset
 from misc.utils import log
+from options.meta_learner_options import sizeEnum
 from torch import nn, optim
 from torch.utils.data import DataLoader, RandomSampler
 from torch.utils.tensorboard import SummaryWriter
@@ -20,39 +21,63 @@ class RosenbaumNN(nn.Module):
 
     """
 
-    def __init__(self, device: Literal["cpu", "cuda"] = "cpu", dim_out: int = 47):
+    def __init__(self, device: Literal["cpu", "cuda"] = "cpu", dim_out: int = 47, size: sizeEnum = sizeEnum.normal):
 
         # Initialize the parent class
         super(RosenbaumNN, self).__init__()
 
         # Set the device
         self.device = device
+        self.size = size
+        self.dim_out = dim_out
 
         # Model
         dim_out = dim_out
-        """self.forward1 = nn.Linear(784, 650, bias=False)
-        self.forward2 = nn.Linear(650, 512, bias=False)
-        self.forward3 = nn.Linear(512, 384, bias=False)
-        self.forward4 = nn.Linear(384, 256, bias=False)
-        self.forward5 = nn.Linear(256, 170, bias=False)
-        self.forward6 = nn.Linear(170, 130, bias=False)
-        self.forward7 = nn.Linear(130, 100, bias=False)
-        self.forward8 = nn.Linear(100, 70, bias=False)
-        self.forward9 = nn.Linear(70, dim_out, bias=False)"""
-        """self.forward2 = nn.Linear(170, 130, bias=False)
-        self.forward3 = nn.Linear(130, 100, bias=False)
-        self.forward4 = nn.Linear(100, 70, bias=False)
-        self.forward5 = nn.Linear(120, dim_out, bias=False)"""
-        self.forward1 = nn.Linear(784, 256, bias=False)
-        self.forward2 = nn.Linear(256, 200, bias=False)
-        self.forward3 = nn.Linear(200, 170, bias=False)
-        self.forward4 = nn.Linear(170, 150, bias=False)
-        self.forward5 = nn.Linear(150, 130, bias=False)
-        self.forward6 = nn.Linear(130, 110, bias=False)
-        self.forward7 = nn.Linear(110, 100, bias=False)
-        self.forward8 = nn.Linear(100, 90, bias=False)
-        self.forward9 = nn.Linear(90, 70, bias=False)
-        self.forward10 = nn.Linear(70, dim_out, bias=False)
+        if self.size == sizeEnum.small:
+            self.forward1 = nn.Linear(784, 128, bias=False)
+            self.forward2 = nn.Linear(128, self.dim_out, bias=False)
+        elif self.size == sizeEnum.three_layer_wide:
+            self.forward1 = nn.Linear(784, 1500, bias=False)
+            self.forward2 = nn.Linear(1500, 1500, bias=False)
+            self.forward3 = nn.Linear(1500, self.dim_out, bias=False)
+        elif self.size == sizeEnum.three_layer:
+            self.forward1 = nn.Linear(784, 512, bias=False)
+            self.forward2 = nn.Linear(512, 256, bias=False)
+            self.forward3 = nn.Linear(256, self.dim_out, bias=False)
+        elif self.size == sizeEnum.nine_layer:
+            self.forward1 = nn.Linear(784, 650, bias=False)
+            self.forward2 = nn.Linear(650, 512, bias=False)
+            self.forward3 = nn.Linear(512, 384, bias=False)
+            self.forward4 = nn.Linear(384, 256, bias=False)
+            self.forward5 = nn.Linear(256, 170, bias=False)
+            self.forward6 = nn.Linear(170, 130, bias=False)
+            self.forward7 = nn.Linear(130, 100, bias=False)
+            self.forward8 = nn.Linear(100, 70, bias=False)
+            self.forward9 = nn.Linear(70, dim_out, bias=False)
+        elif self.size == sizeEnum.six_layer:
+            self.forward1 = nn.Linear(784, 170, bias=False)
+            self.forward2 = nn.Linear(170, 150, bias=False)
+            self.forward3 = nn.Linear(150, 130, bias=False)
+            self.forward4 = nn.Linear(130, 100, bias=False)
+            self.forward5 = nn.Linear(100, 70, bias=False)
+            self.forward6 = nn.Linear(70, dim_out, bias=False)
+        elif self.size == sizeEnum.ten_layer:
+            self.forward1 = nn.Linear(784, 256, bias=False)
+            self.forward2 = nn.Linear(256, 200, bias=False)
+            self.forward3 = nn.Linear(200, 170, bias=False)
+            self.forward4 = nn.Linear(170, 150, bias=False)
+            self.forward5 = nn.Linear(150, 130, bias=False)
+            self.forward6 = nn.Linear(130, 110, bias=False)
+            self.forward7 = nn.Linear(110, 100, bias=False)
+            self.forward8 = nn.Linear(100, 90, bias=False)
+            self.forward9 = nn.Linear(90, 70, bias=False)
+            self.forward10 = nn.Linear(70, dim_out, bias=False)
+        else:
+            self.forward1 = nn.Linear(784, 170, bias=False)
+            self.forward2 = nn.Linear(170, 130, bias=False)
+            self.forward3 = nn.Linear(130, 100, bias=False)
+            self.forward4 = nn.Linear(100, 70, bias=False)
+            self.forward5 = nn.Linear(70, self.dim_out, bias=False)
 
         # Activation function
         self.beta = 10
@@ -60,41 +85,88 @@ class RosenbaumNN(nn.Module):
 
     # @torch.compile
     def forward(self, x):
-        y0 = x.squeeze(1)
-
-        y1 = self.forward1(y0)
-        y1 = self.activation(y1)
-
-        y2 = self.forward2(y1)
-        y2 = self.activation(y2)
-
-        y3 = self.forward3(y2)
-        y3 = self.activation(y3)
-
-        y4 = self.forward4(y3)
-        y4 = self.activation(y4)
-
-        y5 = self.forward5(y4)
-        y5 = self.activation(y5)
-
-        y6 = self.forward6(y5)
-        y6 = self.activation(y6)
-
-        y7 = self.forward7(y6)
-        y7 = self.activation(y7)
-
-        y8 = self.forward8(y7)
-        y8 = self.activation(y8)
-
-        y9 = self.forward9(y8)
-        y9 = self.activation(y9)
-
-        y10 = self.forward10(y9)
-
-        # return (y0, y1, y2, y3, y4), y5
-        # return (y0, y1, y2, y3, y4, y5, y6), y7
-
-        return (y0, y1, y2, y3, y4, y5, y6, y7, y8, y9), y10
+        if self.size == sizeEnum.small:
+            y0 = x.squeeze(1)
+            y1 = self.forward1(y0)
+            y1 = self.activation(y1)
+            y2 = self.forward2(y1)
+            return (y0, y1), y2
+        elif self.size == sizeEnum.three_layer_wide or self.size == sizeEnum.three_layer:
+            y0 = x.squeeze(1)
+            y1 = self.forward1(y0)
+            y1 = self.activation(y1)
+            y2 = self.forward2(y1)
+            y2 = self.activation(y2)
+            y3 = self.forward3(y2)
+            return (y0, y1, y2), y3
+        elif self.size == sizeEnum.nine_layer:
+            y0 = x.squeeze(1)
+            y1 = self.forward1(y0)
+            y1 = self.activation(y1)
+            y2 = self.forward2(y1)
+            y2 = self.activation(y2)
+            y3 = self.forward3(y2)
+            y3 = self.activation(y3)
+            y4 = self.forward4(y3)
+            y4 = self.activation(y4)
+            y5 = self.forward5(y4)
+            y5 = self.activation(y5)
+            y6 = self.forward6(y5)
+            y6 = self.activation(y6)
+            y7 = self.forward7(y6)
+            y7 = self.activation(y7)
+            y8 = self.forward8(y7)
+            y8 = self.activation(y8)
+            y9 = self.forward9(y8)
+            return (y0, y1, y2, y3, y4, y5, y6, y7, y8), y9
+        elif self.size == sizeEnum.six_layer:
+            y0 = x.squeeze(1)
+            y1 = self.forward1(y0)
+            y1 = self.activation(y1)
+            y2 = self.forward2(y1)
+            y2 = self.activation(y2)
+            y3 = self.forward3(y2)
+            y3 = self.activation(y3)
+            y4 = self.forward4(y3)
+            y4 = self.activation(y4)
+            y5 = self.forward5(y4)
+            y5 = self.activation(y5)
+            y6 = self.forward6(y5)
+            return (y0, y1, y2, y3, y4, y5), y6
+        elif self.size == sizeEnum.ten_layer:
+            y0 = x.squeeze(1)
+            y1 = self.forward1(y0)
+            y1 = self.activation(y1)
+            y2 = self.forward2(y1)
+            y2 = self.activation(y2)
+            y3 = self.forward3(y2)
+            y3 = self.activation(y3)
+            y4 = self.forward4(y3)
+            y4 = self.activation(y4)
+            y5 = self.forward5(y4)
+            y5 = self.activation(y5)
+            y6 = self.forward6(y5)
+            y6 = self.activation(y6)
+            y7 = self.forward7(y6)
+            y7 = self.activation(y7)
+            y8 = self.forward8(y7)
+            y8 = self.activation(y8)
+            y9 = self.forward9(y8)
+            y9 = self.activation(y9)
+            y10 = self.forward10(y9)
+            return (y0, y1, y2, y3, y4, y5, y6, y7, y8, y9), y10
+        else:
+            y0 = x.squeeze(1)
+            y1 = self.forward1(y0)
+            y1 = self.activation(y1)
+            y2 = self.forward2(y1)
+            y2 = self.activation(y2)
+            y3 = self.forward3(y2)
+            y3 = self.activation(y3)
+            y4 = self.forward4(y3)
+            y4 = self.activation(y4)
+            y5 = self.forward5(y4)
+            return (y0, y1, y2, y3, y4), y5
 
 
 class MetaLearner:
@@ -115,11 +187,13 @@ class MetaLearner:
         trainingDataPerClass: int = 50,
         dimOut: int = 47,
         numberOfDataRepetitions: int = 1,
+        size: sizeEnum = sizeEnum.normal,
     ):
 
         # -- processor params
         self.device = torch.device(device)
         self.dimOut = dimOut
+        self.size = size
 
         # -- data params
         self.trainingDataPerClass = trainingDataPerClass
@@ -137,8 +211,8 @@ class MetaLearner:
 
         # -- model params
         if self.device == "cpu":  # Remove if using a newer GPU
-            self.UnOptimizedmodel = self.load_model().to(self.device)
-            self.model = torch.compile(self.UnOptimizedmodel, mode="reduce-overhead")
+            self.UnOptimizedModel = self.load_model().to(self.device)
+            self.model = torch.compile(self.UnOptimizedModel, mode="reduce-overhead")
         else:
             self.model = self.load_model().to(self.device)
 
@@ -190,7 +264,7 @@ class MetaLearner:
         :param args: (argparse.Namespace) The command-line arguments.
         :return: model with flags , "adapt", set for its parameters
         """
-        model = RosenbaumNN(self.device, self.dimOut)
+        model = RosenbaumNN(self.device, self.dimOut, self.size)
         return model
 
     @staticmethod
@@ -349,6 +423,7 @@ def run(
         trainingDataPerClass=trainingDataPerClass,
         dimOut=dimOut,
         numberOfDataRepetitions=5,
+        size=sizeEnum.normal,
     )
     metalearning_model.train()
 
@@ -415,21 +490,21 @@ def backprop_main():
         700,
         750,
         800,
-        #850,
-        #900,
-        #950,
-        #1000,
-        #1050,
-        #1100,
-        #1150,
-        #1200,
-        #1250,
+        # 850,
+        # 900,
+        # 950,
+        # 1000,
+        # 1050,
+        # 1100,
+        # 1150,
+        # 1200,
+        # 1250,
         # 1300,
     ]
     for trainingData in trainingDataPerClass:
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_backprop_10_layer_FASHION-MNIST_5_repetitions_true",
+            result_subdirectory="runner_backprop_5_layer_FASHION-MNIST_5_repetitions",
             trainingDataPerClass=trainingData,
         )
