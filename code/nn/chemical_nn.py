@@ -224,6 +224,8 @@ class ChemicalNN(nn.Module):
                 self.DFA_feedback3 = nn.Linear(130, self.dim_out, bias=False)
                 self.DFA_feedback4 = nn.Linear(100, self.dim_out, bias=False)
                 self.DFA_feedback5 = nn.Linear(70, self.dim_out, bias=False)
+        elif self.typeOfFeedback == typeOfFeedbackEnum.zero:
+            pass
         else:
             raise ValueError("Invalid type of feedback")
 

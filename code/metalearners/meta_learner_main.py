@@ -574,6 +574,9 @@ class MetaLearner:
                             error_scalar = torch.tensor(1.0, device=self.device)
                         for y, i in zip(reversed(activations), reversed(list(feedback))):
                             error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.zero:
+                        for y in reversed(activations):
+                            error.insert(0, torch.zeros_like(y, device=self.device))
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
                         DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
                         feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
@@ -812,11 +815,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 2000
+    epochs = 1200
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 30
-    maxTrainingDataPerClass = 90
+    minTrainingDataPerClass = 5
+    maxTrainingDataPerClass = 80
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
@@ -976,7 +979,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0001,
+        lr=0.00003,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -988,7 +991,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=None,
-        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+        typeOfFeedback=typeOfFeedbackEnum.zero,
         dimOut=dimOut,
         hrm_discount=150,
         error_control=False,
@@ -996,7 +999,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 20
+    numberOfChemicals = 1
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1027,4 +1030,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="DFA_20_chem", index=i)
+        run(seed=0, display=True, result_subdirectory="error_zero_1_chem", index=i)

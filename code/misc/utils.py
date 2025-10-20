@@ -304,6 +304,9 @@ def meta_stats(logits, params, label, y, Beta, res_dir, save=True, typeOfFeedbac
             error_scalars[indices_more_than_half] = 0.0
             for y_, i in zip(reversed(y), reversed(list(B))):
                 e.insert(0, error_scalars * B[i] * (1 - torch.exp(-Beta * y_)))
+        elif typeOfFeedback == typeOfFeedbackEnum.zero:
+            for y_ in reversed(y):
+                e.insert(0, torch.zeros_like(y_, device=logits.device))
         elif typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
             feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
             DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
