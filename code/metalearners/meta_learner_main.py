@@ -820,7 +820,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 1200
+    epochs = 10
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
@@ -965,10 +965,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     feedbackModel = model
     feedbackModelOptions = modelOptions
-    # current_dir = os.getcwd()
-    # continue_training = current_dir + "/results/mode_6_very_small_examples/0/20250323-222336"
-    # continue_training = current_dir + "/results/error_5_fixed/0/20251010-045944"
-    # continue_training = current_dir + "/results/scalar_3_4/0/20251012-035548"
+    current_dir = os.getcwd()
+    continue_training = current_dir + "/results/error_scalar_rich_5_chem/0/20251020-163146"
     # -- meta-learner options
     device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
@@ -995,7 +993,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=None,
+        continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.scalar_rich,
         dimOut=dimOut,
         hrm_discount=150,
