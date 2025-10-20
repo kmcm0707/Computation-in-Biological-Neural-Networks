@@ -387,7 +387,7 @@ def run(
     numberOfClasses = 5
     trainingDataPerClass = trainingDataPerClass
     dimOut = 47
-    dataset_name = "FASHION-MNIST"
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -443,7 +443,7 @@ def backprop_main():
     :return: None
     """
     # -- run
-    """trainingDataPerClass = [
+    trainingDataPerClass = [
         10,
         20,
         30,
@@ -471,8 +471,8 @@ def backprop_main():
         325,
         350,
         375,
-    ]"""
-    trainingDataPerClass = [
+    ]
+    """trainingDataPerClass = [
         10,
         50,
         100,
@@ -500,11 +500,11 @@ def backprop_main():
         # 1200,
         # 1250,
         # 1300,
-    ]
+    ]"""
     for trainingData in trainingDataPerClass:
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_backprop_5_layer_FASHION-MNIST_5_repetitions",
+            result_subdirectory="runner_backprop_5_layer_EMNIST_5_repetitions_true",
             trainingDataPerClass=trainingData,
         )

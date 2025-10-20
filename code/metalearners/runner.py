@@ -757,7 +757,7 @@ def run(
         modelPath=modelPath,
         results_subdir=result_subdirectory,
         seed=seed,
-        size=sizeEnum.three_layer_wide,
+        size=sizeEnum.normal,
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
@@ -812,7 +812,7 @@ def runner_main():
         # os.getcwd() + "/results/mode_6_3_chem_1/0/20250910-204609",
         # os.getcwd() + "/results/mode_6_5_chem_1/0/20250910-204750",
         # os.getcwd() + "/results/mode_6_5_chem_lr_6/0/20250715-172436"
-        os.getcwd() + "/results/DFA_5_chem_longer/2/20251014-003536"
+        #os.getcwd() + "/results/DFA_5_chem_longer/2/20251014-003536"
         # #"/results/mode_6_7_chem_1/0/20250910-222310",
         # s.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-184038",
         # os.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-195827",
@@ -828,6 +828,7 @@ def runner_main():
         # os.getcwd() + "/results/error_1_fixed/0/20251009-194350"
         # os.getcwd()
         # + "/results/scalar_3_5/2/20251012-171341"
+        os.getcwd() + "/results/DFA_20_chem/0/20251020-002002"
     ]
     for i in range(len(modelPath_s)):
         for index in range(0, 28):
@@ -840,10 +841,10 @@ def runner_main():
                     # "runner_mode_6_5_chem_scalar",
                     # "runner_scalar_fixed_3_6",
                     # "runner_scalar_5_angle_fixed",
-                    "runner_DFA_5_chem_3_layer_wide_FASHION-MNIST",
+                    "runner_DFA_20_chem_fashion",
                 ][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=[5][i],
+                numberOfChemicals=[20][i],
             )
