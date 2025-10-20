@@ -852,7 +852,7 @@ def runner_main():
                     # "runner_mode_6_5_chem_scalar",
                     # "runner_scalar_fixed_3_6",
                     # "runner_scalar_5_angle_fixed",
-                    "runner_zero_5_chem",
+                    "runner_zero_5_chem_FASHION",
                 ][i],
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.zero,
