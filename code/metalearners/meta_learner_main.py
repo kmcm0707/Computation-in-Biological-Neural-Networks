@@ -490,23 +490,23 @@ class MetaLearner:
             if self.options.error_control:
                 self.model.set_errors(
                     [
-                        torch.zeros(size=(1, 784), device=self.device) * 1e-6,
-                        torch.zeros(size=(1, 170), device=self.device) * 1e-6,
-                        torch.zeros(size=(1, 130), device=self.device) * 1e-6,
-                        torch.zeros(size=(1, 100), device=self.device) * 1e-6,
-                        torch.zeros(size=(1, 70), device=self.device) * 1e-6,
-                        torch.zeros(size=(1, self.options.dimOut), device=self.device) * 1e-6,
+                        torch.zeros(size=(1, 784), device=self.device),
+                        torch.zeros(size=(1, 170), device=self.device),
+                        torch.zeros(size=(1, 130), device=self.device),
+                        torch.zeros(size=(1, 100), device=self.device),
+                        torch.zeros(size=(1, 70), device=self.device),
+                        torch.zeros(size=(1, self.options.dimOut), device=self.device),
                     ]
                 )
 
             # -- leaky error control
             current_errors = [
-                torch.zeros(size=(1, 784), device=self.device) * 1e-6,
-                torch.zeros(size=(1, 170), device=self.device) * 1e-6,
-                torch.zeros(size=(1, 130), device=self.device) * 1e-6,
-                torch.zeros(size=(1, 100), device=self.device) * 1e-6,
-                torch.zeros(size=(1, 70), device=self.device) * 1e-6,
-                torch.zeros(size=(1, self.options.dimOut), device=self.device) * 1e-6,
+                torch.zeros(size=(1, 784), device=self.device),
+                torch.zeros(size=(1, 170), device=self.device),
+                torch.zeros(size=(1, 130), device=self.device),
+                torch.zeros(size=(1, 100), device=self.device),
+                torch.zeros(size=(1, 70), device=self.device),
+                torch.zeros(size=(1, self.options.dimOut), device=self.device),
             ]
 
             """ adaptation """
@@ -574,6 +574,11 @@ class MetaLearner:
                             error_scalar = torch.tensor(1.0, device=self.device)
                         for y, i in zip(reversed(activations), reversed(list(feedback))):
                             error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar_rich:
+                        scalar_val = 1 - output[0][label]
+                        # error_scalar = torch.tensor(scalar_val, device=self.device)
+                        for y, i in zip(reversed(activations), reversed(list(feedback))):
+                            error.insert(0, scalar_val * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.zero:
                         for y in reversed(activations):
                             error.insert(0, torch.zeros_like(y, device=self.device))
@@ -991,7 +996,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=None,
-        typeOfFeedback=typeOfFeedbackEnum.zero,
+        typeOfFeedback=typeOfFeedbackEnum.scalar_rich,
         dimOut=dimOut,
         hrm_discount=150,
         error_control=False,
@@ -1030,4 +1035,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="error_zero_3_chem", index=i)
+        run(seed=0, display=True, result_subdirectory="error_scalar_rich_5_chem", index=i)
