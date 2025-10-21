@@ -578,16 +578,16 @@ def run(
         375,
     ]"""
     trainingDataPerClass = [
-        10,
+        #10,
         # 20,
         # 30,
         # 40,
-        50,
-        100,
-        150,
-        200,
-        250,
-        300,
+        #50,
+        #100,
+        #150,
+        #200,
+        #250,
+        #300,
         350,
         400,
         500,
@@ -831,15 +831,14 @@ def runner_main():
         # os.getcwd()
         # + "/results/DFA_longer_5/0/20251008-023058"
         # os.getcwd()+ "/results/DFA_longer_2/0/20251008-052203"
-        # os.getcwd()
-        # + "/results/error_5_fixed/0/20251011-194736"
+        os.getcwd() + "/results/error_5_fixed/0/20251011-194736"
         # os.getcwd() + "/results/error_1_fixed/0/20251009-194350"
         # os.getcwd()
         # + "/results/scalar_3_5/2/20251012-171341"
         # os.getcwd()
         # + "/results/DFA_20_chem/0/20251020-002002"
-        os.getcwd()
-        + "/results/error_zero_3_chem/0/20251020-033619"
+        #os.getcwd()
+        #+ "/results/error_zero_3_chem/0/20251020-033619"
     ]
     for i in range(len(modelPath_s)):
         for index in range(0, 28):
@@ -852,10 +851,10 @@ def runner_main():
                     # "runner_mode_6_5_chem_scalar",
                     # "runner_scalar_fixed_3_6",
                     # "runner_scalar_5_angle_fixed",
-                    "runner_zero_5_chem_FASHION",
+                    "runner_scalar_5_chem_FASHION",
                 ][i],
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.zero,
+                typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=[5][i],
             )

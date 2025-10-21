@@ -820,7 +820,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 200
+    epochs = 1200
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
@@ -867,8 +867,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=2,  # + 1 / 50,
-            maxTau=500,
+            minTau=5,  # + 1 / 50,
+            maxTau=20,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
             operator=operatorEnum.mode_6,
@@ -982,7 +982,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.00003,
+        lr=0.0001,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -994,7 +994,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=None,
-        typeOfFeedback=typeOfFeedbackEnum.scalar_rich,
+        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
         hrm_discount=150,
         error_control=False,
@@ -1033,4 +1033,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="error_scalar_rich_5_chem", index=i)
+        run(seed=0, display=True, result_subdirectory="no_z_all_ones", index=i)
