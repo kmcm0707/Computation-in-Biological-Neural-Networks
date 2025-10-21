@@ -292,7 +292,6 @@ def meta_stats(logits, params, label, y, Beta, res_dir, save=True, typeOfFeedbac
             mask_indices = mask.nonzero(as_tuple=True)[0]
             indices_more_than_half = mask_indices.squeeze()
             error_scalars[indices_more_than_half] = 0.0
-            print(indices_more_than_half)
             for y_, i in zip(reversed(y), reversed(list(B))):
                 e.insert(0, error_scalars * B[i] * (1 - torch.exp(-Beta * y_)))
         elif typeOfFeedback == typeOfFeedbackEnum.scalar_rate:

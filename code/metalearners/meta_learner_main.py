@@ -820,7 +820,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 10
+    epochs = 200
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
@@ -870,7 +870,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             minTau=2,  # + 1 / 50,
             maxTau=500,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.all_ones,
+            z_vector=zVectorEnum.default,
             operator=operatorEnum.mode_6,
             train_z_vector=False,
             mode=modeEnum.all,
@@ -993,7 +993,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=continue_training,
+        continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.scalar_rich,
         dimOut=dimOut,
         hrm_discount=150,

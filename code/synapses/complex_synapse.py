@@ -790,7 +790,7 @@ class ComplexSynapse(nn.Module):
         To connect the forward and chemical parameters.
         """
         currentAdaptionPathway = self.adaptionPathway
-        if override_adaption_pathway != None:
+        if override_adaption_pathway is not None:
             assert override_adaption_pathway in ["forward", "feedback"]
             currentAdaptionPathway = override_adaption_pathway
 
