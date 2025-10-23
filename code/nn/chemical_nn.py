@@ -22,6 +22,7 @@ class ChemicalNN(nn.Module):
         typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
         dim_out: int = 47,
         error_control: bool = False,
+        meta_learn_fixed_feedback: bool = False,
     ):
 
         # Initialize the parent class
@@ -33,6 +34,7 @@ class ChemicalNN(nn.Module):
         self.train_feedback = train_feedback  # Train feedback for feedback alignment
         self.typeOfFeedback = typeOfFeedback  # Feedback alignment or direct feedback alignment
         self.error_control = error_control  # Error control for feedback alignment
+        self.meta_learn_fixed_feedback = meta_learn_fixed_feedback  # Meta-learn fixed feedback weights
 
         if self.typeOfFeedback == "DFA" and self.train_feedback:
             raise ValueError("DFA and train_feedback cannot be used together")
@@ -232,6 +234,12 @@ class ChemicalNN(nn.Module):
             pass
         else:
             raise ValueError("Invalid type of feedback")
+        
+        if self.meta_learn_fixed_feedback:
+            self.feedback_list = nn.ModuleList()
+            for param in self.parameters():
+                if "feedback" in param.__class__.__name__.lower():
+                    self.feedback_list.append(param)
 
         # Layer normalization
         """self.layer_norm1 = nn.LayerNorm(170)

@@ -100,6 +100,8 @@ class MetaLearnerOptions:
         hrm_discount: int = 0,
         error_control: bool = False,
         leaky_error_alpha: float = 0,
+        train_feedback_weights: bool = False,
+        train_RCN: bool = False,
     ):
         # print(trainSameFeedback)
         # assert (
@@ -136,6 +138,8 @@ class MetaLearnerOptions:
         self.hrm_discount = hrm_discount
         self.error_control = error_control
         self.leaky_error_alpha = leaky_error_alpha
+        self.train_feedback_weights = train_feedback_weights
+        self.train_RCN = train_RCN
 
     def __str__(self):
         string = ""
