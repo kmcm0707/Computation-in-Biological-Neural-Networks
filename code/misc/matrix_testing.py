@@ -162,7 +162,7 @@ if __name__ == "__main__":
     result_vector = y_vector * test_vector + z_vector * (test_vector @ test_matrix)
     print(torch.norm(result_vector) / torch.norm(test_vector))"""
 
-    linear = nn.Linear(4, 3, bias=False)
+    """linear = nn.Linear(4, 3, bias=False)
     x_vector = torch.randn((1, 4), requires_grad=True)
     output = linear(x_vector)
     activated_output = torch.nn.functional.softplus(output, beta=1)
@@ -171,4 +171,90 @@ if __name__ == "__main__":
     grad = torch.autograd.grad(outputs=output, inputs=output, grad_outputs=torch.ones_like(activated_output))
     print(grad[0])
     print(torch.sigmoid(output))
-    print(torch.equal(grad[0], (torch.exp(10 * output) / (1 + torch.exp(10 * output)))))
+    print(torch.equal(grad[0], (torch.exp(10 * output) / (1 + torch.exp(10 * output)))))"""
+
+    matrix_1 = torch.randn((3, 4))
+    matrix_2 = torch.randn((3, 4))
+    matrix_3 = torch.randn((3, 4))
+    matrix_4 = torch.randn((3, 4))
+    matrix_5 = torch.randn((3, 4))
+
+    print("Norms:")
+    print(torch.norm(matrix_1, p=2))
+    print(torch.norm(matrix_2, p=2))
+    print(torch.norm(matrix_3, p=2))
+    print(torch.norm(matrix_4, p=2))
+    print(torch.norm(matrix_5, p=2))
+    mean_matrix = (matrix_1 + matrix_2 + matrix_3 + matrix_4 + matrix_5) / 5
+    print("Mean Norm:")
+    print(torch.norm(mean_matrix, p=2))
+
+    normalized_matrix_1 = matrix_1 * (torch.norm(mean_matrix, p=2) / torch.norm(matrix_1, p=2))
+    normalized_matrix_2 = matrix_2 * (torch.norm(mean_matrix, p=2) / torch.norm(matrix_2, p=2))
+    normalized_matrix_3 = matrix_3 * (torch.norm(mean_matrix, p=2) / torch.norm(matrix_3, p=2))
+    normalized_matrix_4 = matrix_4 * (torch.norm(mean_matrix, p=2) / torch.norm(matrix_4, p=2))
+    normalized_matrix_5 = matrix_5 * (torch.norm(mean_matrix, p=2) / torch.norm(matrix_5, p=2))
+    print("Normalized Norms:")
+    print(torch.norm(normalized_matrix_1, p=2))
+    print(torch.norm(normalized_matrix_2, p=2))
+    print(torch.norm(normalized_matrix_3, p=2))
+    print(torch.norm(normalized_matrix_4, p=2))
+    print(torch.norm(normalized_matrix_5, p=2))
+
+    normalized_mean_matrix = (
+        normalized_matrix_1 + normalized_matrix_2 + normalized_matrix_3 + normalized_matrix_4 + normalized_matrix_5
+    ) / 5
+    print("Normalized Mean Norm:")
+    print(torch.norm(normalized_mean_matrix, p=2))
+
+    normalized_matrix_1_mode_2 = torch.nn.functional.normalize(matrix_1, p=2, dim=0) / torch.sqrt(
+        torch.tensor(matrix_1.shape[1], dtype=torch.float32)
+    )
+    normalized_matrix_2_mode_2 = torch.nn.functional.normalize(matrix_2, p=2, dim=0) / torch.sqrt(
+        torch.tensor(matrix_2.shape[1], dtype=torch.float32)
+    )
+    normalized_matrix_3_mode_2 = torch.nn.functional.normalize(matrix_3, p=2, dim=0) / torch.sqrt(
+        torch.tensor(matrix_3.shape[1], dtype=torch.float32)
+    )
+    normalized_matrix_4_mode_2 = torch.nn.functional.normalize(matrix_4, p=2, dim=0) / torch.sqrt(
+        torch.tensor(matrix_4.shape[1], dtype=torch.float32)
+    )
+    normalized_matrix_5_mode_2 = torch.nn.functional.normalize(matrix_5, p=2, dim=0) / torch.sqrt(
+        torch.tensor(matrix_5.shape[1], dtype=torch.float32)
+    )
+    print("Normalized Mode 2 Norms:")
+    print(torch.norm(normalized_matrix_1_mode_2, p=2))
+    print(torch.norm(normalized_matrix_2_mode_2, p=2))
+    print(torch.norm(normalized_matrix_3_mode_2, p=2))
+    print(torch.norm(normalized_matrix_4_mode_2, p=2))
+    print(torch.norm(normalized_matrix_5_mode_2, p=2))
+
+    normalized_mean_matrix_mode_2 = (
+        normalized_matrix_1_mode_2
+        + normalized_matrix_2_mode_2
+        + normalized_matrix_3_mode_2
+        + normalized_matrix_4_mode_2
+        + normalized_matrix_5_mode_2
+    ) / 5
+    print("Normalized Mean Mode 2 Norm:")
+    print(torch.norm(normalized_mean_matrix_mode_2, p=2))
+
+    bigger_matrix_1 = torch.randn((30, 40))
+    normalized_bigger_matrix_1_mode_2 = torch.nn.functional.normalize(bigger_matrix_1, p=2, dim=0) / torch.sqrt(
+        torch.tensor(bigger_matrix_1.shape[1], dtype=torch.float32)
+    )
+    print("Bigger Matrix Mode 2 Norm:")
+    print(torch.norm(normalized_bigger_matrix_1_mode_2, p=2))
+
+    print(bigger_matrix_1.shape)
+
+    linear = nn.Linear(4, 3, bias=False)
+    print(linear.weight.shape)
+
+    three_d_matrix = torch.randn((5, 4, 3))
+    normalized_three_d_matrix_mode_2 = torch.nn.functional.normalize(three_d_matrix, p=2, dim=1) / torch.sqrt(
+        torch.tensor(three_d_matrix.shape[2], dtype=torch.float32)
+    )
+    for i in range(5):
+        print("3D Matrix Mode 2 Norm for slice ", i, ":")
+        print(torch.norm(normalized_three_d_matrix_mode_2[i], p=2))

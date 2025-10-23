@@ -1,6 +1,5 @@
 from typing import Literal
 
-import numpy as np
 import torch
 from options.complex_options import (
     complexOptions,
@@ -340,7 +339,7 @@ class ComplexSynapse(nn.Module):
                         # mean=0,
                         # std=1,
                     )
-                    / np.sqrt(self.number_chemicals)
+                    / torch.sqrt(torch.tensor(self.number_chemicals, device=self.device, dtype=torch.float32))
                 )
             self.all_meta_parameters.append(self.v_vector)
 
@@ -569,6 +568,7 @@ class ComplexSynapse(nn.Module):
                         or self.operator == operatorEnum.mode_5
                         or self.operator == operatorEnum.mode_6
                         or self.operator == operatorEnum.mode_7
+                        or self.operator == operatorEnum.mode_8
                         or self.operator == operatorEnum.compressed_full_attention
                         or self.operator == operatorEnum.v_linear
                         or self.operator == operatorEnum.compressed_v_linear
@@ -591,6 +591,10 @@ class ComplexSynapse(nn.Module):
                             )  # chemical_norms[:, None, None] (mode 5 v2 is commented out)
                         elif self.operator == operatorEnum.mode_7:
                             new_chemical = torch.nn.functional.normalize(new_chemical, p=2, dim=1)
+                        elif self.operator == operatorEnum.mode_8:
+                            new_chemical = torch.nn.functional.normalize(new_chemical, p=2, dim=1) / torch.sqrt(
+                                torch.tensor(new_chemical.shape[2], device=self.device, dtype=torch.float32)
+                            )
                     elif self.operator == operatorEnum.sub or self.operator == operatorEnum.sub_4:
                         # Equation 1 - operator = sub: h(s+1) = yh(s) + sign(h(s)) * z( f( sign(h(s)) * (Kh(s) + \theta * F(Parameter) + b) ))
                         new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.sign(
@@ -761,6 +765,7 @@ class ComplexSynapse(nn.Module):
                         or self.operator == operatorEnum.mode_5
                         or self.operator == operatorEnum.mode_6
                         or self.operator == operatorEnum.mode_7
+                        or self.operator == operatorEnum.mode_8
                     ):
                         v_vector_softmax = torch.nn.functional.softmax(self.v_vector, dim=1)
                         new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)
@@ -771,6 +776,10 @@ class ComplexSynapse(nn.Module):
                             new_value = new_value * multiplier
                         elif self.operator == operatorEnum.mode_7:
                             new_value = torch.nn.functional.normalize(new_value, p=2, dim=0)
+                        elif self.operator == operatorEnum.mode_8:
+                            new_value = torch.nn.functional.normalize(new_value, p=2, dim=0) / torch.sqrt(
+                                torch.tensor(new_value.shape[1], device=self.device, dtype=torch.float32)
+                            )  # Remember shape[1] is input dimension, shape[0] is output dimension
                     else:
                         new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
 
@@ -813,6 +822,11 @@ class ComplexSynapse(nn.Module):
                         current_norm = torch.norm(new_value, p=2)
                         multiplier = parameter_norm / current_norm
                         new_value = new_value * multiplier
+                    elif self.operator == operatorEnum.mode_8:
+                        new_value = torch.nn.functional.normalize(new_value, p=2, dim=0) / torch.sqrt(
+                            torch.tensor(new_value.shape[1], device=self.device, dtype=torch.float32)
+                        )
+
                     params[name] = new_value
 
                     params[name].adapt = currentAdaptionPathway

@@ -653,7 +653,7 @@ def run(
             maxTau=max_tau,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_6,
+            operator=operatorEnum.mode_8,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -840,20 +840,20 @@ def runner_main():
         # + "/results/DFA_20_chem/0/20251020-002002"
         # os.getcwd()
         # + "/results/error_zero_3_chem/0/20251020-033619"
-        #os.getcwd() + "/results/no_z_all_ones/0/max_tau_10",
-        os.getcwd() + "/results/no_z_all_ones/0/max_tau_20",
+        # os.getcwd() + "/results/no_z_all_ones/0/max_tau_10",
+        # os.getcwd() + "/results/no_z_all_ones/0/max_tau_20",
         os.getcwd() + "/results/no_z_all_ones/0/max_tau_50",
-        os.getcwd() + "/results/no_z_all_ones/0/max_tau_500",
+        # os.getcwd() + "/results/no_z_all_ones/0/max_tau_500",
     ]
     for i in range(len(modelPath_s)):
         for index in range(0, 28):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_no_z_all_ones_max_tau_{}".format([20, 50, 500][i]),
+                result_subdirectory="mode_8_runner_no_z_all_ones_max_tau_{}".format([50][i]),
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=5,
-                max_tau=[20, 50, 500][i],
+                max_tau=[50][i],
             )
