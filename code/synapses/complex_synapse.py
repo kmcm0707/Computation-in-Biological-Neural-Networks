@@ -540,7 +540,7 @@ class ComplexSynapse(nn.Module):
 
         i = 0
         currentAdaptionPathway = self.adaptionPathway
-        if override_adaption_pathway != None:
+        if override_adaption_pathway is not None:
             currentAdaptionPathway = override_adaption_pathway
         for name, parameter in params.items():
             if currentAdaptionPathway in name:
@@ -633,7 +633,7 @@ class ComplexSynapse(nn.Module):
                         # Equation 2: w(s) = w(s) + f(v * h(s))
                         y_schedular = 1
                         z_schedular = 1
-                        if self.options.scheduler_t0 != None:
+                        if self.options.scheduler_t0 is not None:
                             z_schedular = self.options.scheduler_t0 / (self.options.scheduler_t0 + self.time_index)
                             y_schedular = 1 - z_schedular
 
@@ -802,7 +802,6 @@ class ComplexSynapse(nn.Module):
                 if parameter.adapt == currentAdaptionPathway and "weight" in name:
                     # Equation 2: w(s) = v * h(s)
                     # if self.operator == operatorEnum.mode_7:
-                    gradient = params[name].require_grad
                     self.saved_norm[h_name] = torch.norm(parameter, p=2)
                     new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
                     if (
@@ -817,7 +816,6 @@ class ComplexSynapse(nn.Module):
                     params[name] = new_value
 
                     params[name].adapt = currentAdaptionPathway
-                    params[name].require_grad = gradient
 
     def calculate_update_vector(self, error, activations_and_output, parameter, i, h_name) -> torch.Tensor:
         """
