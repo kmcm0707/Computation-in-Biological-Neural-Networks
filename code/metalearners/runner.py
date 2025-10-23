@@ -840,7 +840,7 @@ def runner_main():
         # + "/results/DFA_20_chem/0/20251020-002002"
         # os.getcwd()
         # + "/results/error_zero_3_chem/0/20251020-033619"
-        os.getcwd() + "/results/no_z_all_ones/0/max_tau_10",
+        #os.getcwd() + "/results/no_z_all_ones/0/max_tau_10",
         os.getcwd() + "/results/no_z_all_ones/0/max_tau_20",
         os.getcwd() + "/results/no_z_all_ones/0/max_tau_50",
         os.getcwd() + "/results/no_z_all_ones/0/max_tau_500",
@@ -850,10 +850,10 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_no_z_all_ones_max_tau_{}".format([10, 20, 50, 500][i]),
+                result_subdirectory="runner_no_z_all_ones_max_tau_{}".format([20, 50, 500][i]),
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=[5][i],
-                max_tau=[10, 20, 50, 500][i],
+                numberOfChemicals=5,
+                max_tau=[20, 50, 500][i],
             )
