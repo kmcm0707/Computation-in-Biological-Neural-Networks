@@ -518,6 +518,7 @@ def run(
     typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
     modelPath=None,
     numberOfChemicals=1,
+    max_tau=50,
 ) -> None:
     """
         Main function for Meta-learning the plasticity rule.
@@ -546,7 +547,7 @@ def run(
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    """trainingDataPerClass = [
+    trainingDataPerClass = [
         0,
         5,
         10,
@@ -576,8 +577,8 @@ def run(
         325,
         350,
         375,
-    ]"""
-    trainingDataPerClass = [
+    ]
+    """trainingDataPerClass = [
         #10,
         # 20,
         # 30,
@@ -603,13 +604,13 @@ def run(
         # 1200,
         # 1250,
         # 1300,
-    ]
+    ]"""
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "FASHION-MNIST"
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -649,9 +650,9 @@ def run(
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,
-            maxTau=500,
+            maxTau=max_tau,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.all_ones,
+            z_vector=zVectorEnum.default,
             operator=operatorEnum.mode_6,
             train_z_vector=False,
             mode=modeEnum.all,
@@ -831,30 +832,28 @@ def runner_main():
         # os.getcwd()
         # + "/results/DFA_longer_5/0/20251008-023058"
         # os.getcwd()+ "/results/DFA_longer_2/0/20251008-052203"
-        os.getcwd() + "/results/error_5_fixed/0/20251011-194736"
+        # os.getcwd() + "/results/error_5_fixed/0/20251011-194736"
         # os.getcwd() + "/results/error_1_fixed/0/20251009-194350"
         # os.getcwd()
         # + "/results/scalar_3_5/2/20251012-171341"
         # os.getcwd()
         # + "/results/DFA_20_chem/0/20251020-002002"
-        #os.getcwd()
-        #+ "/results/error_zero_3_chem/0/20251020-033619"
+        # os.getcwd()
+        # + "/results/error_zero_3_chem/0/20251020-033619"
+        os.getcwd() + "/results/no_z_all_ones/0/max_tau_10",
+        os.getcwd() + "/results/no_z_all_ones/0/max_tau_20",
+        os.getcwd() + "/results/no_z_all_ones/0/max_tau_50",
+        os.getcwd() + "/results/no_z_all_ones/0/max_tau_500",
     ]
     for i in range(len(modelPath_s)):
         for index in range(0, 28):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=[
-                    # runner_mode_6_1_chem_scalar",
-                    # "runner_mode_6_3_chem_scalar",
-                    # "runner_mode_6_5_chem_scalar",
-                    # "runner_scalar_fixed_3_6",
-                    # "runner_scalar_5_angle_fixed",
-                    "runner_scalar_5_chem_FASHION",
-                ][i],
+                result_subdirectory="runner_no_z_all_ones_max_tau_{}".format([10, 20, 50, 500][i]),
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.scalar,
+                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=[5][i],
+                max_tau=[10, 20, 50, 500][i],
             )
