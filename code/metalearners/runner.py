@@ -653,7 +653,7 @@ def run(
             maxTau=max_tau,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_8,
+            operator=operatorEnum.mode_7,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
