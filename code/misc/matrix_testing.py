@@ -179,7 +179,23 @@ if __name__ == "__main__":
     matrix_4 = torch.randn((3, 4))
     matrix_5 = torch.randn((3, 4))
 
-    print("Norms:")
+    normalized_matrix_1_mode_2 = torch.nn.functional.normalize(matrix_1, p=2, dim=0)
+
+    normaliser = torch.norm(matrix_1, p=2, dim=0)
+    print("Manual Normaliser:")
+    print(normaliser)
+    check_normalized_matrix_1_mode_2 = matrix_1 / normaliser
+    print("Check Normaliser:")
+    print(torch.norm(check_normalized_matrix_1_mode_2, p=2, dim=0))
+    print(torch.equal(normalized_matrix_1_mode_2, check_normalized_matrix_1_mode_2))
+
+    three_d_matrix_1 = torch.randn((5, 3, 4))
+    three_d_matrix_1[:, :, :] = matrix_1
+    normalized_three_d_matrix_1_mode_2 = three_d_matrix_1 / normaliser[None, :]
+    print("3D Check Normaliser:")
+    print(torch.norm(normalized_three_d_matrix_1_mode_2, p=2, dim=1))
+
+    """print("Norms:")
     print(torch.norm(matrix_1, p=2))
     print(torch.norm(matrix_2, p=2))
     print(torch.norm(matrix_3, p=2))
@@ -257,4 +273,4 @@ if __name__ == "__main__":
     )
     for i in range(5):
         print("3D Matrix Mode 2 Norm for slice ", i, ":")
-        print(torch.norm(normalized_three_d_matrix_mode_2[i], p=2))
+        print(torch.norm(normalized_three_d_matrix_mode_2[i], p=2))"""
