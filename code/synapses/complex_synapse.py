@@ -568,6 +568,7 @@ class ComplexSynapse(nn.Module):
                         or self.operator == operatorEnum.mode_5
                         or self.operator == operatorEnum.mode_6
                         or self.operator == operatorEnum.mode_7
+                        or self.operator == operatorEnum.mode_7_no_h_norm
                         or self.operator == operatorEnum.mode_8
                         or self.operator == operatorEnum.compressed_full_attention
                         or self.operator == operatorEnum.v_linear
@@ -765,6 +766,7 @@ class ComplexSynapse(nn.Module):
                         or self.operator == operatorEnum.mode_5
                         or self.operator == operatorEnum.mode_6
                         or self.operator == operatorEnum.mode_7
+                        or self.operator == operatorEnum.mode_7_no_h_norm
                         or self.operator == operatorEnum.mode_8
                     ):
                         v_vector_softmax = torch.nn.functional.softmax(self.v_vector, dim=1)
@@ -774,7 +776,7 @@ class ComplexSynapse(nn.Module):
                             current_norm = torch.norm(new_value, p=2)
                             multiplier = parameter_norm / current_norm
                             new_value = new_value * multiplier
-                        elif self.operator == operatorEnum.mode_7:
+                        elif self.operator == operatorEnum.mode_7 or self.operator == operatorEnum.mode_7_no_h_norm:
                             new_value = torch.nn.functional.normalize(new_value, p=2, dim=0)
                         elif self.operator == operatorEnum.mode_8:
                             new_value = torch.nn.functional.normalize(new_value, p=2, dim=0) / torch.sqrt(
@@ -817,6 +819,7 @@ class ComplexSynapse(nn.Module):
                         self.operator == operatorEnum.mode_5
                         or self.operator == operatorEnum.mode_6
                         or self.operator == operatorEnum.mode_7
+                        or self.operator == operatorEnum.mode_7_no_h_norm
                     ):
                         parameter_norm = self.saved_norm[h_name]
                         current_norm = torch.norm(new_value, p=2)
