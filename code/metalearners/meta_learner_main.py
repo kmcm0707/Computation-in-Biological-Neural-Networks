@@ -968,7 +968,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     current_dir = os.getcwd()
     continue_training = current_dir + "/results/error_scalar_rich_5_chem/0/20251020-163146"
     # -- meta-learner options
-    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P and K matrices (check 1.5)
@@ -982,7 +982,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0005,
+        lr=0.000005,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -996,7 +996,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
-        hrm_discount=150,
+        hrm_discount=200,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
