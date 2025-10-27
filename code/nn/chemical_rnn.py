@@ -156,7 +156,8 @@ class ChemicalRnn(nn.Module):
             # Mode 2: RNN_forward1_hh_hx1 = self.RNN_forward1_hh(self.activation(self.hx1))
             # Mode 3: RNN_forward1_hh_hx1 = self.RNN_forward1_hh(torch.tanh(self.hx1))
             # Mode 5: RNN_forward1_hh_hx1 = torch.tanh(self.RNN_forward1_hh(self.hx1))
-            intermediate_hx1 = self.activation(self.hx1)
+            past_hx1 = self.hx1
+            intermediate_hx1 = self.activation(past_hx1)
             RNN_forward1_hh_hx1 = self.RNN_forward1_hh(intermediate_hx1)  # torch.tanh(intermediate_hx1)
 
             activated_RNN_forward1_ih_x = self.activation(RNN_forward1_ih_x)
@@ -189,7 +190,7 @@ class ChemicalRnn(nn.Module):
                     torch.ones_like(hx1_prev),
                     torch.autograd.grad(
                         outputs=RNN_forward1_hh_hx1,
-                        inputs=hx1_prev,
+                        inputs=past_hx1,
                         grad_outputs=torch.ones_like(RNN_forward1_hh_hx1),
                         retain_graph=True,
                     )[0],
