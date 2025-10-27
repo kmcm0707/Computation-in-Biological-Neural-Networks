@@ -274,3 +274,31 @@ if __name__ == "__main__":
     for i in range(5):
         print("3D Matrix Mode 2 Norm for slice ", i, ":")
         print(torch.norm(normalized_three_d_matrix_mode_2[i], p=2))"""
+
+    three_d_matrix_1 = torch.randn((4, 3, 2))
+    for i in range(4):
+        torch.nn.init.xavier_uniform_(three_d_matrix_1[i])
+
+    v_vector = torch.tensor([0.25, 0.25, 0.25, 0.25])
+    weighted_sum = torch.einsum("i,ijk->jk", v_vector, three_d_matrix_1)
+    print("Weighted Sum:")
+    print(weighted_sum)
+    normaliser_weighted_sum = torch.norm(weighted_sum, p=2, dim=0)
+    print(normaliser_weighted_sum.shape)
+    print(normaliser_weighted_sum)
+    normaizsed_weighted_sum = weighted_sum / normaliser_weighted_sum
+    print("Weighted Sum Norm:")
+    print(torch.norm(normaizsed_weighted_sum, p=2, dim=0))
+    print("Weighted Sum Actual:")
+    print(normaizsed_weighted_sum)
+    normaizsed_three_d_matrix_1 = three_d_matrix_1 / normaliser_weighted_sum[None, :]
+    for i in range(4):
+        print("3D Matrix slice ", i, " Norm:")
+        print(torch.norm(normaizsed_three_d_matrix_1[i], p=2, dim=0))
+        print("total norm")
+        print(torch.norm(normaizsed_three_d_matrix_1[i], p=2, dim=(0, 1)))
+        print("actual slice")
+        print(normaizsed_three_d_matrix_1[i])
+        print("original slice")
+        print(three_d_matrix_1[i])
+        exit()

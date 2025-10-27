@@ -76,6 +76,7 @@ class RnnMetaLearnerOptions:
         test_time_training: bool = False,
         diff_hidden_error: bool = False,
         gradient: bool = False,
+        hrm_discount: int = 200,
     ):
 
         self.model = model
@@ -111,6 +112,7 @@ class RnnMetaLearnerOptions:
         self.test_time_training = test_time_training
         self.diff_hidden_error = diff_hidden_error
         self.gradient = gradient
+        self.hrm_discount = hrm_discount
 
     def __str__(self):
         string = ""

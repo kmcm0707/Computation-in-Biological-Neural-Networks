@@ -336,116 +336,125 @@ class RnnMetaLearner:
 
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
+                with (
+                    torch.no_grad()
+                    if (
+                        self.options.hrm_discount > 0
+                        and current_training_data_per_class * self.options.numberOfClasses - itr_adapt
+                        > self.options.hrm_discount
+                    )
+                    else torch.enable_grad()
+                ):
 
-                # -- reset time index
-                self.UpdateWeights.reset_time_index()
+                    # -- reset time index
+                    self.UpdateWeights.reset_time_index()
 
-                # -- reset fast weights
-                if self.options.reset_fast_weights:
-                    if self.options.requireFastChemical:
-                        self.UpdateWeights.reset_fast_chemicals(params=parameters, h_fast_parameters=fast_h_parameters)
-                    else:
-                        self.UpdateWeights.reset_fast_chemicals(params=parameters)
+                    # -- reset fast weights
+                    if self.options.reset_fast_weights:
+                        if self.options.requireFastChemical:
+                            self.UpdateWeights.reset_fast_chemicals(params=parameters, h_fast_parameters=fast_h_parameters)
+                        else:
+                            self.UpdateWeights.reset_fast_chemicals(params=parameters)
 
-                # -- reset rnn hidden state
-                if self.options.hidden_reset:
-                    self.model.reset_hidden(1)
+                    # -- reset rnn hidden state
+                    if self.options.hidden_reset:
+                        self.model.reset_hidden(1)
 
-                # -- fix device
-                if self.str_device != self.options.datasetDevice:
-                    x, label = x.to(self.device), label.to(self.device)
+                    # -- fix device
+                    if self.str_device != self.options.datasetDevice:
+                        x, label = x.to(self.device), label.to(self.device)
 
-                x_reshaped = torch.reshape(x, (784 // self.options.rnn_input_size, self.options.rnn_input_size))
+                    x_reshaped = torch.reshape(x, (784 // self.options.rnn_input_size, self.options.rnn_input_size))
 
-                for index_rnn, input in enumerate(x_reshaped):
-                    # -- predict
-                    if self.options.requireFastChemical:
-                        y_dict, output, gradients = torch.func.functional_call(
-                            self.model, (parameters, slow_h_parameters, fast_h_parameters), input.unsqueeze(0)
-                        )
-                    else:
-                        y_dict, output, gradients = torch.func.functional_call(
-                            self.model, (parameters, slow_h_parameters), input.unsqueeze(0)
-                        )
-
-                    # -- compute error
-                    error_dict = {}
-                    if index_rnn == x_reshaped.shape[0] - 1 or self.options.error == errorEnum.all:
-                        error = [
-                            functional.softmax(output, dim=1)
-                            - functional.one_hot(label, num_classes=self.options.dimOut)
-                        ]
-
-                        for name, value in feedback.items():
-                            current_error_dict[name] = (
-                                torch.matmul(error[0], value) + self.options.leaky_error * current_error_dict[name]
+                    for index_rnn, input in enumerate(x_reshaped):
+                        # -- predict
+                        if self.options.requireFastChemical:
+                            y_dict, output, gradients = torch.func.functional_call(
+                                self.model, (parameters, slow_h_parameters, fast_h_parameters), input.unsqueeze(0)
+                            )
+                        else:
+                            y_dict, output, gradients = torch.func.functional_call(
+                                self.model, (parameters, slow_h_parameters), input.unsqueeze(0)
                             )
 
-                        for name, value in current_error_dict.items():
-                            if name in self.model.feedback_to_parameters:
+                        # -- compute error
+                        error_dict = {}
+                        if index_rnn == x_reshaped.shape[0] - 1 or self.options.error == errorEnum.all:
+                            error = [
+                                functional.softmax(output, dim=1)
+                                - functional.one_hot(label, num_classes=self.options.dimOut)
+                            ]
+
+                            for name, value in feedback.items():
+                                current_error_dict[name] = (
+                                    torch.matmul(error[0], value) + self.options.leaky_error * current_error_dict[name]
+                                )
+
+                            for name, value in current_error_dict.items():
+                                if name in self.model.feedback_to_parameters:
+                                    parameter_name = self.model.feedback_to_parameters[name]
+                                    error_below = None
+                                    if self.model.error_dict[parameter_name] != "last":
+                                        error_below = current_error_dict[self.model.error_dict[parameter_name]]
+                                    else:
+                                        error_below = error[0]
+                                    error_dict[parameter_name] = (value, error_below)
+                                    if self.options.gradient:
+                                        error_dict[parameter_name] = (
+                                            value * gradients[parameter_name][0],
+                                            error_below * gradients[parameter_name][1],
+                                        )
+                                else:
+                                    continue
+                        else:
+                            error = [torch.zeros_like(functional.softmax(output, dim=1))]
+                            error_temp_dict = {}
+
+                            for name, value in feedback.items():
+                                error_temp_dict[name] = torch.matmul(error[0], value)
+
+                            for name, value in error_temp_dict.items():
                                 parameter_name = self.model.feedback_to_parameters[name]
                                 error_below = None
                                 if self.model.error_dict[parameter_name] != "last":
-                                    error_below = current_error_dict[self.model.error_dict[parameter_name]]
+                                    error_below = error_temp_dict[self.model.error_dict[parameter_name]]
                                 else:
                                     error_below = error[0]
                                 error_dict[parameter_name] = (value, error_below)
-                                if self.options.gradient:
-                                    error_dict[parameter_name] = (
-                                        value * gradients[parameter_name][0],
-                                        error_below * gradients[parameter_name][1],
-                                    )
-                            else:
-                                continue
-                    else:
-                        error = [torch.zeros_like(functional.softmax(output, dim=1))]
-                        error_temp_dict = {}
 
-                        for name, value in feedback.items():
-                            error_temp_dict[name] = torch.matmul(error[0], value)
+                        if self.options.requireFastChemical:
+                            # -- update network params
+                            self.UpdateWeights.fast_update(
+                                params=parameters,
+                                h_fast_parameters=fast_h_parameters,
+                                error=error_dict,
+                                activations_and_output=y_dict,
+                            )
+                        elif self.options.slowIsFast:
+                            self.UpdateWeights.fast_update(
+                                params=parameters,
+                                error=error_dict,
+                                h_parameters=slow_h_parameters,
+                                activations_and_output=y_dict,
+                            )
+                        else:
+                            self.UpdateWeights.fast_update(
+                                params=parameters,
+                                error=error_dict,
+                                activations_and_output=y_dict,
+                            )
 
-                        for name, value in error_temp_dict.items():
-                            parameter_name = self.model.feedback_to_parameters[name]
-                            error_below = None
-                            if self.model.error_dict[parameter_name] != "last":
-                                error_below = error_temp_dict[self.model.error_dict[parameter_name]]
-                            else:
-                                error_below = error[0]
-                            error_dict[parameter_name] = (value, error_below)
-
+                    # -- update network params
                     if self.options.requireFastChemical:
-                        # -- update network params
-                        self.UpdateWeights.fast_update(
+                        self.UpdateWeights.slow_update(
                             params=parameters,
+                            h_slow_parameters=slow_h_parameters,
                             h_fast_parameters=fast_h_parameters,
-                            error=error_dict,
-                            activations_and_output=y_dict,
                         )
                     elif self.options.slowIsFast:
-                        self.UpdateWeights.fast_update(
-                            params=parameters,
-                            error=error_dict,
-                            h_parameters=slow_h_parameters,
-                            activations_and_output=y_dict,
-                        )
+                        pass
                     else:
-                        self.UpdateWeights.fast_update(
-                            params=parameters,
-                            error=error_dict,
-                            activations_and_output=y_dict,
-                        )
-
-                # -- update network params
-                if self.options.requireFastChemical:
-                    self.UpdateWeights.slow_update(
-                        params=parameters,
-                        h_slow_parameters=slow_h_parameters,
-                        h_fast_parameters=fast_h_parameters,
-                    )
-                elif self.options.slowIsFast:
-                    pass
-                else:
-                    self.UpdateWeights.slow_update(params=parameters, h_slow_parameters=slow_h_parameters)
+                        self.UpdateWeights.slow_update(params=parameters, h_slow_parameters=slow_h_parameters)
 
             """ meta update """
             # -- fix device
@@ -760,10 +769,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         test_time_training=False,  # True to use test-time training
         diff_hidden_error=False,  # True to use different error for hidden state
         gradient=True,  # True to use gradient-based learning
+        hrm_discount=120,  # Truncated BPTT length
     )
 
     #   -- number of chemicals
-    numberOfSlowChemicals = 3  # fast uses this
+    numberOfSlowChemicals = 5  # fast uses this
     numberOfFastChemicals = 3
     # -- meta-train
 
@@ -797,4 +807,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_mode_4_gradient_linear_input_hh", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_mode_2_gradient", index=i)
