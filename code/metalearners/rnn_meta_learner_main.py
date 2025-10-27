@@ -352,7 +352,9 @@ class RnnMetaLearner:
                     # -- reset fast weights
                     if self.options.reset_fast_weights:
                         if self.options.requireFastChemical:
-                            self.UpdateWeights.reset_fast_chemicals(params=parameters, h_fast_parameters=fast_h_parameters)
+                            self.UpdateWeights.reset_fast_chemicals(
+                                params=parameters, h_fast_parameters=fast_h_parameters
+                            )
                         else:
                             self.UpdateWeights.reset_fast_chemicals(params=parameters)
 
@@ -398,12 +400,13 @@ class RnnMetaLearner:
                                         error_below = current_error_dict[self.model.error_dict[parameter_name]]
                                     else:
                                         error_below = error[0]
-                                    error_dict[parameter_name] = (value, error_below)
                                     if self.options.gradient:
                                         error_dict[parameter_name] = (
                                             value * gradients[parameter_name][0],
                                             error_below * gradients[parameter_name][1],
                                         )
+                                    else:
+                                        error_dict[parameter_name] = (value, error_below)
                                 else:
                                     continue
                         else:
@@ -750,7 +753,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        rnn_input_size=56,
+        rnn_input_size=112,
         datasetDevice=device,  # cuda:1,  # if running out of memory, change to "cpu"
         continueTraining=None,
         reset_fast_weights=False,  # False for fast RNN, True for kernel RNN
@@ -759,7 +762,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         dimOut=dimOut,
         biological=True,
         biological_min_tau=1,
-        biological_max_tau=14,
+        biological_max_tau=7,
         error=errorEnum.all,
         leaky_error=0.0,  # 0.0 for no leaky error
         hidden_reset=True,  # True to reset hidden state between samples
@@ -769,6 +772,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         test_time_training=False,  # True to use test-time training
         diff_hidden_error=False,  # True to use different error for hidden state
         gradient=False,  # True to use gradient-based learning
+        easy_gradient=True,  # True to use easy gradient computation
         hrm_discount=100,  # Truncated BPTT length
     )
 
@@ -807,4 +811,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_mode_2_gradient_56", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_mode_2_gradient_changed", index=i)
