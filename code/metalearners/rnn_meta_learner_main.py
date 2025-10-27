@@ -671,8 +671,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     random.seed(seed)
 
     # -- load data
-    numWorkers = 1
-    epochs = 1000
+    numWorkers = 2
+    epochs = 1200
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
@@ -731,7 +731,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             operator=operatorEnum.mode_6,
         )
 
-    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cpu"
     # current_dir = os.getcwd()
     # -- meta-learner options
@@ -750,7 +750,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        rnn_input_size=112,
+        rnn_input_size=56,
         datasetDevice=device,  # cuda:1,  # if running out of memory, change to "cpu"
         continueTraining=None,
         reset_fast_weights=False,  # False for fast RNN, True for kernel RNN
@@ -759,7 +759,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         dimOut=dimOut,
         biological=True,
         biological_min_tau=1,
-        biological_max_tau=7,
+        biological_max_tau=14,
         error=errorEnum.all,
         leaky_error=0.0,  # 0.0 for no leaky error
         hidden_reset=True,  # True to reset hidden state between samples
@@ -768,8 +768,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         recurrent_init=recurrentInitEnum.xavierUniform,  # identity or xavierUniform
         test_time_training=False,  # True to use test-time training
         diff_hidden_error=False,  # True to use different error for hidden state
-        gradient=True,  # True to use gradient-based learning
-        hrm_discount=120,  # Truncated BPTT length
+        gradient=False,  # True to use gradient-based learning
+        hrm_discount=100,  # Truncated BPTT length
     )
 
     #   -- number of chemicals
@@ -807,4 +807,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_mode_2_gradient", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_mode_2_gradient_56", index=i)
