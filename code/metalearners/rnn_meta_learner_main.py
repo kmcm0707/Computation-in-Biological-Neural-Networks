@@ -734,7 +734,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             operator=operatorEnum.mode_6,
         )
 
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cpu"
     # current_dir = os.getcwd()
     # -- meta-learner options
@@ -771,8 +771,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         recurrent_init=recurrentInitEnum.xavierUniform,  # identity or xavierUniform
         test_time_training=False,  # True to use test-time training
         diff_hidden_error=False,  # True to use different error for hidden state
-        gradient=False,  # True to use gradient-based learning
-        easy_gradient=True,  # True to use easy gradient computation
+        gradient=True,  # True to use gradient-based learning
+        easy_gradient=False,  # True to use easy gradient computation
         hrm_discount=100,  # Truncated BPTT length
     )
 
@@ -811,4 +811,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_mode_2_gradient_changed", index=i)
+        run(seed=0, display=True, result_subdirectory="rnn_mode_2_gradient_changed_not_output", index=i)
