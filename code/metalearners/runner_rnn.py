@@ -144,6 +144,8 @@ class RnnMetaLearner:
             biological_min_tau=self.options.biological_min_tau,
             biological_max_tau=self.options.biological_max_tau,
             hidden_size=self.options.hidden_size,
+            diff_hidden_error=self.options.diff_hidden_error,
+            gradient=self.options.gradient,
         )
 
         # -- learning flags
@@ -334,11 +336,11 @@ class RnnMetaLearner:
                 for index_rnn, input in enumerate(x_reshaped):
                     # -- predict
                     if self.options.requireFastChemical:
-                        y_dict, output = torch.func.functional_call(
+                        y_dict, output, _  = torch.func.functional_call(
                             self.model, (parameters, slow_h_parameters, fast_h_parameters), input.unsqueeze(0)
                         )
                     else:
-                        y_dict, output = torch.func.functional_call(
+                        y_dict, output, _ = torch.func.functional_call(
                             self.model, (parameters, slow_h_parameters), input.unsqueeze(0)
                         )
 
@@ -436,11 +438,11 @@ class RnnMetaLearner:
                 for input_index in range(x_qry.shape[1]):
                     x_in = x_qry[:, input_index, :]
                     if self.options.requireFastChemical:
-                        y, logits = torch.func.functional_call(
+                        y, logits, _ = torch.func.functional_call(
                             self.model, (parameters, slow_h_parameters, fast_h_parameters), x_in
                         )
                     else:
-                        y, logits = torch.func.functional_call(self.model, (parameters, slow_h_parameters), x_in)
+                        y, logits, _ = torch.func.functional_call(self.model, (parameters, slow_h_parameters), x_in)
                     all_logits[:, input_index, :] = logits
             else:
                 for image_index in range(x_qry.shape[0]):
@@ -471,13 +473,13 @@ class RnnMetaLearner:
                     for index_rnn, input in enumerate(x_reshaped):
                         # -- predict
                         if self.options.requireFastChemical:
-                            y_dict, output = torch.func.functional_call(
+                            y_dict, output, _ = torch.func.functional_call(
                                 self.model,
                                 (current_parameters, current_slow_h_parameters, current_fast_h_parameters),
                                 input.unsqueeze(0),
                             )
                         else:
-                            y_dict, output = torch.func.functional_call(
+                            y_dict, output, _ = torch.func.functional_call(
                                 self.model, (current_parameters, current_slow_h_parameters), input.unsqueeze(0)
                             )
                         all_logits[image_index, index_rnn, :] = output
@@ -667,7 +669,7 @@ def run(
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        rnn_input_size=112,
+        rnn_input_size=56,
         datasetDevice=device,  # cuda:1,  # if running out of memory, change to "cpu"
         continueTraining=continue_training_path,
         reset_fast_weights=False,  # False for fast RNN, True for kernel RNN
@@ -676,12 +678,14 @@ def run(
         dimOut=dimOut,
         biological=True,
         biological_min_tau=1,
-        biological_max_tau=7,
+        biological_max_tau=14,
         error=errorEnum.all,
         leaky_error=0.0,  # 0.0 for no leaky error
         hidden_reset=True,  # True to reset hidden state between samples
         hidden_size=128,
         test_time_training=False,  # True to perform test time training
+        diff_hidden_error=False,
+        gradient=False,
     )
 
     #   -- number of chemicals
@@ -724,7 +728,7 @@ def main_runner_rnn():
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_rnn_fast_mode_4_128_even_longer",
+            result_subdirectory="runner_rnn_fast_mode_4_128_even_longer_56_6",
             num_images=num_images[i],
             continue_training_path=continue_training_path,
         )
