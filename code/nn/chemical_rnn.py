@@ -144,7 +144,7 @@ class ChemicalRnn(nn.Module):
         x.requires_grad = True
 
         # Forward pass
-        hx1_prev = self.hx1.clone()
+        # hx1_prev = self.hx1.clone()
         # hx2_prev = self.hx2
         RNN_forward1_ih_x = self.RNN_forward1_ih(x)
         if not self.biological:
@@ -203,7 +203,7 @@ class ChemicalRnn(nn.Module):
                         retain_graph=True,
                     )[0]
                     * self.z_vector
-                    + self.y_vector,
+                    + torch.ones_like(self.hx1),  # (was + self.y_vector)
                     torch.ones_like(output),
                 ),
             }
