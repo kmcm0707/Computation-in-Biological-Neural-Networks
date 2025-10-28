@@ -195,7 +195,14 @@ class ChemicalRnn(nn.Module):
                     )[0],
                     torch.ones_like(RNN_forward1_hh_hx1),
                 ),
-                "forward1.weight": (torch.ones_like(self.hx1), torch.ones_like(output)),
+                "forward1.weight": (torch.autograd.grad(
+                        outputs=activated_RNN_forward1_ih_x,
+                        inputs=RNN_forward1_ih_x,
+                        grad_outputs=torch.ones_like(activated_RNN_forward1_ih_x),
+                        retain_graph=True,
+                    )[0]
+                    * self.z_vector
+                    + self.y_vector, torch.ones_like(output)),
             }
 
         if self.gradient:
