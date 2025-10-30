@@ -306,6 +306,8 @@ class MetaLearner:
             typeOfFeedback=self.options.typeOfFeedback,
             dim_out=self.options.dimOut,
             error_control=self.options.error_control,
+            # meta_learn_fixed_feedback=self.options.meta_learn_fixed_feedback,
+            wta=self.options.wta,
         )
 
         # -- learning flags
@@ -871,7 +873,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_9,
+            operator=operatorEnum.mode_6,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1001,6 +1003,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
         train_RCN=True,
+        wta=False,
     )
 
     # -- number of chemicals
@@ -1035,4 +1038,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_9", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_6_wta", index=i)

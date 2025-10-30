@@ -789,6 +789,15 @@ class ComplexSynapse(nn.Module):
                             new_value = new_value / (normalizer + 1e-12)
                             chemical = h_parameters[h_name]
                             new_chemical = chemical / (normalizer[None, :] + 1e-12)
+                            """print(f"Updating parameter: {name}")
+                            print("Norm of parameter after update:")
+                            print(torch.norm(new_value, p=2))
+                            print("Norms of chemicals before update:")
+                            for iii in chemical:
+                                print(torch.norm(iii, p=2))
+                            print("Norms of chemicals after update:")
+                            for iii in new_chemical:
+                                print(torch.norm(iii, p=2))"""
                             h_parameters[h_name] = new_chemical
                     else:
                         new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)

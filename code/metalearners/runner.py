@@ -205,6 +205,7 @@ class Runner:
             train_feedback=self.options.trainFeedback or self.options.trainSameFeedback,
             typeOfFeedback=self.options.typeOfFeedback,
             dim_out=self.options.dimOut,
+            wta=self.options.wta,
         )
 
         # -- learning flags
@@ -548,7 +549,7 @@ def run(
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
     trainingDataPerClass = [
-        0,
+        # 0,
         5,
         10,
         20,
@@ -653,7 +654,7 @@ def run(
             maxTau=max_tau,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_7,
+            operator=operatorEnum.mode_6,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -782,6 +783,7 @@ def run(
         typeOfFeedback=typeOfFeedback,
         dimOut=dimOut,
         data_repetitions=1,
+        wta=True,
     )
 
     #   -- number of chemicals
@@ -850,7 +852,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="mode_8_runner_no_z_all_ones_max_tau_{}".format([50][i]),
+                result_subdirectory="mode_6_runner_no_z_all_ones_max_tau_{}_wta_2".format([50][i]),
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],

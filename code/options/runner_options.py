@@ -36,6 +36,7 @@ class RunnerOptions:
         typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
         dimOut: int = 47,
         data_repetitions: int = 1,
+        wta: bool = False,
     ):
 
         self.model = model
@@ -58,6 +59,7 @@ class RunnerOptions:
         self.typeOfFeedback = typeOfFeedback
         self.dimOut = dimOut
         self.data_repetitions = data_repetitions
+        self.wta = wta
 
     def __str__(self):
         string = ""

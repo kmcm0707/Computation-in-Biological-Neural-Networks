@@ -23,6 +23,7 @@ class ChemicalNN(nn.Module):
         dim_out: int = 47,
         error_control: bool = False,
         meta_learn_fixed_feedback: bool = False,
+        wta: bool = False,
     ):
 
         # Initialize the parent class
@@ -35,6 +36,7 @@ class ChemicalNN(nn.Module):
         self.typeOfFeedback = typeOfFeedback  # Feedback alignment or direct feedback alignment
         self.error_control = error_control  # Error control for feedback alignment
         self.meta_learn_fixed_feedback = meta_learn_fixed_feedback  # Meta-learn fixed feedback weights
+        self.wta = wta  # Winner-take-all mechanism
 
         if self.typeOfFeedback == "DFA" and self.train_feedback:
             raise ValueError("DFA and train_feedback cannot be used together")
@@ -234,12 +236,12 @@ class ChemicalNN(nn.Module):
             pass
         else:
             raise ValueError("Invalid type of feedback")
-        
-        if self.meta_learn_fixed_feedback:
+
+        """if self.meta_learn_fixed_feedback:
             self.feedback_list = nn.ModuleList()
             for param in self.parameters():
                 if "feedback" in param.__class__.__name__.lower():
-                    self.feedback_list.append(param)
+                    self.feedback_list.append(param)"""
 
         # Layer normalization
         """self.layer_norm1 = nn.LayerNorm(170)
@@ -363,6 +365,7 @@ class ChemicalNN(nn.Module):
         # Activation function
         self.beta = 10
         self.activation = nn.Softplus(beta=self.beta)
+        self.wta_activation = torch.nn.functional.softmax
 
         # Dropout
         # self.dropout = nn.Dropout(p=0.2)
@@ -456,6 +459,21 @@ class ChemicalNN(nn.Module):
                 y4 = self.forward4(y3) + self.errors[4]
                 y4 = self.activation(y4)
                 y5 = self.forward5(y4) + self.errors[5]
+            elif self.wta:
+                y0 = x.squeeze(1)
+                y1 = self.forward1(y0)
+                y1 = self.activation(y1)
+
+                y2 = self.forward2(self.wta_activation(y1))
+                y2 = self.activation(y2)
+
+                y3 = self.forward3(self.wta_activation(y2))
+                y3 = self.activation(y3)
+
+                y4 = self.forward4(self.wta_activation(y3))
+                y4 = self.activation(y4)
+
+                y5 = self.forward5(self.wta_activation(y4))
             else:
                 y0 = x.squeeze(1)
                 y1 = self.forward1(y0)
