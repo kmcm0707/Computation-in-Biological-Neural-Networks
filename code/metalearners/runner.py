@@ -653,7 +653,7 @@ def run(
             maxTau=max_tau,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_7,
+            operator=operatorEnum.mode_9,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -850,7 +850,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="mode_8_runner_no_z_all_ones_max_tau_{}".format([50][i]),
+                result_subdirectory="mode_9_runner_no_z_all_ones_max_tau_{}".format([50][i]),
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
