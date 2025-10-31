@@ -5,7 +5,7 @@ from typing import Literal, Union
 import numpy as np
 import torch
 from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset
-from misc.utils import Plot, log, meta_stats
+from misc.utils import ChemicalAnalysis, Plot, log, meta_stats
 from nn.chemical_nn import ChemicalNN
 from options.benna_options import bennaOptions
 from options.complex_options import (
@@ -149,6 +149,7 @@ class Runner:
             self.average_window = 10
             self.plot = Plot(self.result_directory, self.average_window)
             self.summary_writer = SummaryWriter(log_dir=self.result_directory)
+            self.chemical_analysis = ChemicalAnalysis(self.result_directory)
 
     def chemical_model_setter(
         self, options: Union[complexOptions, reservoirOptions], adaptionPathway="forward", typeOfModel=None
@@ -309,7 +310,6 @@ class Runner:
         current_training_data_per_class = None
 
         for eps, data in enumerate(self.metatrain_dataset):
-
             # -- initialize
             # Using a clone of the model parameters to allow for in-place operations
             # Maintains the computational graph for the model as .detach() is not used
@@ -336,9 +336,20 @@ class Runner:
                 data, self.options.numberOfClasses
             )
 
+            # -- reset chemical analysis
+            if self.options.chemical_analysis:
+                self.chemical_analysis.reset()
+
             """ adaptation """
             for itr_rep in range(self.options.data_repetitions):
                 for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
+
+                    # -- chemical analysis
+                    if self.options.chemical_analysis:
+                        self.chemical_analysis.chemical_autocorrelation(h_parameters)
+                        self.chemical_analysis.parameter_autocorrelation(parameters)
+                        self.chemical_analysis.chemical_tracking(h_parameters, 20)
+                        self.chemical_analysis.parameter_tracking(parameters, 20)
 
                     # -- predict
                     y, logits = None, None
@@ -435,6 +446,7 @@ class Runner:
                         h_parameters=h_parameters,
                         error=error,
                         activations_and_output=activations_and_output,
+                        analysis_mode=self.options.chemical_analysis,
                     )
 
                     # -- update same model feedback params
@@ -445,7 +457,11 @@ class Runner:
                             error=error,
                             activations_and_output=activations_and_output,
                             override_adaption_pathway="feedback",
+                            analysis_mode=self.options.chemical_analysis,
                         )
+
+                    if self.options.chemical_analysis:
+                        self.chemical_analysis.Kh_Pf_tracking(self.UpdateWeights.Kh, self.UpdateWeights.Pf, 20)
 
                     # -- update time index
                     self.UpdateWeights.update_time_index()
@@ -457,6 +473,7 @@ class Runner:
                             h_parameters=feedback_params,
                             error=error,
                             activations_and_output=activations_and_output,
+                            analysis_mode=self.options.chemical_analysis,
                         )
 
                         # -- update feedback time index
@@ -550,28 +567,28 @@ def run(
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
     trainingDataPerClass = [
         # 0,
-        5,
-        10,
-        20,
-        30,
-        40,
-        50,
-        60,
-        70,
-        80,
-        90,
-        100,
-        110,
-        120,
-        130,
-        140,
-        150,
-        160,
-        170,
-        180,
-        190,
-        200,
-        225,
+        # 5,
+        #10,
+        # 20,
+        # 30,
+        # 40,
+        # 50,
+        # 60,
+        # 70,
+        # 80,
+        # 90,
+        # 100,
+        # 110,
+        # 120,
+        # 130,
+        # 140,
+        # 150,
+        # 160,
+        # 170,
+        # 180,
+        # 190,
+        #200,
+        #225,
         250,
         275,
         300,
@@ -654,7 +671,7 @@ def run(
             maxTau=max_tau,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_9,
+            operator=operatorEnum.mode_7,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -783,7 +800,8 @@ def run(
         typeOfFeedback=typeOfFeedback,
         dimOut=dimOut,
         data_repetitions=1,
-        wta=True,
+        wta=False,
+        chemical_analysis=True,
     )
 
     #   -- number of chemicals
@@ -852,7 +870,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="mode_9_runner_no_z_all_ones_max_tau_{}".format([50][i]),
+                result_subdirectory="mode_7_chem_analysis_{}".format([50][i]),
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],

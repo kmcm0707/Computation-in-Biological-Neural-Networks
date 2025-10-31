@@ -392,6 +392,216 @@ def multi_plot_accuracy(directories, window_size=11, save_dir=None):
     plt.close()
 
 
+class ChemicalAnalysis:
+    """
+    Chemical Analysis object.
+    """
+
+    @torch.no_grad()
+    def __init__(self, res_dir):
+        """
+        Initialize an instance of the ChemicalAnalysis class.
+        """
+        self.past_chemicals = None
+        self.past_parameters = None
+        self.res_dir = res_dir
+        self.time_step = 0
+        self.file_name = self.res_dir + "/chemical_autocorrelation"
+        self.parameter_file_name = self.res_dir + "/parameter_autocorrelation"
+
+    def reset(self):
+        """
+        Reset time step counter.
+        """
+        self.time_step = 0
+        self.past_chemicals = {}
+        self.past_parameters = {}
+
+    @torch.no_grad()
+    def chemical_autocorrelation(self, chemicals):
+        """
+            Compute weight autocorrelation.
+
+        :param chemicals: (dict) dictionary of chemical tensors,
+
+        """
+        with torch.no_grad():
+            self.time_step += 1
+            layer = 0
+            for key in chemicals.keys():
+                layer += 1
+                if key not in self.past_chemicals:
+                    self.past_chemicals[key] = chemicals[key].clone()
+                    string_of_keys = " ".join(chemicals.keys())
+                    with open(self.file_name + "{}.txt".format(str(layer)), "a") as f:
+                        np.savetxt(f, [string_of_keys], newline=" ", fmt="%s")
+                        f.writelines("\n")
+                else:
+                    c_current = chemicals[key].squeeze()
+                    c_past = self.past_chemicals[key].squeeze()
+                    autocorrelations = []
+                    for i in range(c_current.shape[0]):
+                        c_current_i = normalize_vec(c_current[i].flatten())
+                        c_past_i = normalize_vec(c_past[i].flatten())
+                        angle = measure_angle(c_current_i, c_past_i)
+                        autocorrelations.append(angle)
+                    self.past_chemicals[key] = chemicals[key].clone()
+                    with open(self.file_name + "{}.txt".format(str(layer)), "a") as f:
+                        np.savetxt(f, ["Timestep: {}".format(self.time_step)], newline=" ", fmt="%s")
+                        f.writelines("\n")
+                        np.savetxt(f, np.array(autocorrelations), newline=" ", fmt="%0.6f")
+                        f.writelines("\n")
+
+    @torch.no_grad()
+    def parameter_autocorrelation(self, parameters):
+        """
+            Compute weight autocorrelation.
+        :param parameters: (dict) dictionary of parameter tensors,
+        """
+        with torch.no_grad():
+            layer = 0
+            for key in parameters.keys():
+                layer += 1
+                if "forward" in key:
+                    if key not in self.past_parameters:
+                        with open(self.parameter_file_name + "{}.txt".format(str(layer)), "a") as f:
+                            text = "Parameter"
+                            np.savetxt(f, [text], newline=" ", fmt="%s")
+                            f.writelines("\n")
+                        self.past_parameters[key] = parameters[key].clone()
+                    else:
+                        p_current = parameters[key].squeeze()
+                        p_past = self.past_parameters[key].squeeze()
+                        autocorrelations = []
+                        p_current = normalize_vec(p_current.flatten())
+                        p_past = normalize_vec(p_past.flatten())
+                        angle = measure_angle(p_current, p_past)
+                        autocorrelations.append(angle)
+                        self.past_parameters[key] = parameters[key].clone()
+                        with open(self.parameter_file_name + "{}.txt".format(str(layer)), "a") as f:
+                            np.savetxt(f, ["Timestep: {}".format(self.time_step)], newline=" ", fmt="%s")
+                            f.writelines("\n")
+                            np.savetxt(f, np.array(autocorrelations), newline=" ", fmt="%0.6f")
+                            f.writelines("\n")
+
+    @torch.no_grad()
+    def chemical_tracking(self, chemicals, number_of_parameters):
+        """
+            Track chemicals over time.
+
+        :param chemicals: (dict) dictionary of chemical tensors,
+
+        """
+        with torch.no_grad():
+            layer = 0
+            for key in chemicals.keys():
+                layer += 1
+                chemical = chemicals[key]
+                for i in range(chemical.shape[0]):
+                    flattened_chemical = chemical[i].flatten()
+                    parameter_numbers = torch.linspace(
+                        0, flattened_chemical.shape[0] - 1, number_of_parameters, dtype=torch.int
+                    )
+                    if self.time_step == 1:
+                        with open(
+                            self.res_dir + "/chemical_tracking_layer_{}_chemical_{}.txt".format(str(layer), str(i)), "a"
+                        ) as f:
+                            header = "Parameter_Numbers " + " ".join(
+                                [str(int(num.item())) for num in parameter_numbers]
+                            )
+                            np.savetxt(f, [header], newline=" ", fmt="%s")
+                            f.writelines("\n")
+                    else:
+                        with open(
+                            self.res_dir + "/chemical_tracking_layer_{}_chemical_{}.txt".format(str(layer), str(i)), "a"
+                        ) as f:
+                            np.savetxt(f, flattened_chemical[parameter_numbers].cpu().numpy(), newline=" ", fmt="%0.6f")
+                            f.writelines("\n")
+
+    @torch.no_grad()
+    def parameter_tracking(self, parameters, number_of_parameters):
+        """
+            Track parameters over time.
+
+        :param parameters: (dict) dictionary of parameter tensors,
+
+        """
+        with torch.no_grad():
+            layer = 0
+            for key in parameters.keys():
+                layer += 1
+                if "forward" in key:
+                    parameter = parameters[key]
+                    flattened_parameter = parameter.flatten()
+                    parameter_numbers = torch.linspace(
+                        0, flattened_parameter.shape[0] - 1, number_of_parameters, dtype=torch.int
+                    )
+                    if self.time_step == 1:
+                        with open(self.res_dir + "/parameter_tracking_layer_{}.txt".format(str(layer)), "a") as f:
+                            header = "Parameter_Numbers " + " ".join(
+                                [str(int(num.item())) for num in parameter_numbers]
+                            )
+                            np.savetxt(f, [header], newline=" ", fmt="%s")
+                            f.writelines("\n")
+                    else:
+                        with open(self.res_dir + "/parameter_tracking_layer_{}.txt".format(str(layer)), "a") as f:
+                            np.savetxt(
+                                f, flattened_parameter[parameter_numbers].cpu().numpy(), newline=" ", fmt="%0.6f"
+                            )
+                            f.writelines("\n")
+
+    @torch.no_grad()
+    def Kh_Pf_tracking(self, Kh, Pf, number_of_parameters):
+        """
+            Track Kh and Pf over time.
+
+        :param Kh: (dict) dictionary of Kh tensors,
+        :param Pf: (dict) dictionary of Pf tensors,
+
+        """
+        with torch.no_grad():
+            layer = 0
+            for key in Kh.keys():
+                layer += 1
+                kh = Kh[key]
+                pf = Pf[key]
+                for i in range(kh.shape[0]):
+
+                    flattened_kh = kh[i].flatten()
+                    flattened_pf = pf[i].flatten()
+                    parameter_numbers = torch.linspace(
+                        0, flattened_kh.shape[0] - 1, number_of_parameters, dtype=torch.int
+                    )
+                    if self.time_step == 1:
+                        with open(
+                            self.res_dir + "/Kh_tracking_layer_{}_chemical_{}.txt".format(str(layer), str(i)), "a"
+                        ) as f:
+                            header = "Parameter_Numbers " + " ".join(
+                                [str(int(num.item())) for num in parameter_numbers]
+                            )
+                            np.savetxt(f, [header], newline=" ", fmt="%s")
+                            f.writelines("\n")
+                        with open(
+                            self.res_dir + "/Pf_tracking_layer_{}_chemical_{}.txt".format(str(layer), str(i)), "a"
+                        ) as f:
+                            header = "Parameter_Numbers " + " ".join(
+                                [str(int(num.item())) for num in parameter_numbers]
+                            )
+                            np.savetxt(f, [header], newline=" ", fmt="%s")
+                            f.writelines("\n")
+                    else:
+                        with open(
+                            self.res_dir + "/Kh_tracking_layer_{}_chemical_{}.txt".format(str(layer), str(i)), "a"
+                        ) as f:
+                            np.savetxt(f, flattened_kh[parameter_numbers].cpu().numpy(), newline=" ", fmt="%0.6f")
+                            f.writelines("\n")
+                        with open(
+                            self.res_dir + "/Pf_tracking_layer_{}_chemical_{}.txt".format(str(layer), str(i)), "a"
+                        ) as f:
+                            np.savetxt(f, flattened_pf[parameter_numbers].cpu().numpy(), newline=" ", fmt="%0.6f")
+                            f.writelines("\n")
+
+
 if __name__ == "__main__":
     # -- test code
     """

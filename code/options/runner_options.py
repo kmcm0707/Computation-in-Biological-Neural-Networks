@@ -37,6 +37,7 @@ class RunnerOptions:
         dimOut: int = 47,
         data_repetitions: int = 1,
         wta: bool = False,
+        chemical_analysis: bool = False,
     ):
 
         self.model = model
@@ -60,6 +61,7 @@ class RunnerOptions:
         self.dimOut = dimOut
         self.data_repetitions = data_repetitions
         self.wta = wta
+        self.chemical_analysis = chemical_analysis
 
     def __str__(self):
         string = ""

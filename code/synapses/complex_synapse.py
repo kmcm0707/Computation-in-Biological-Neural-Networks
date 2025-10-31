@@ -512,12 +512,15 @@ class ComplexSynapse(nn.Module):
         activations_and_output: list,
         error: list,
         override_adaption_pathway: Literal["forward", "feedback"] = None,
+        analysis_mode: bool = False,
     ):
         """
         :param activations and output: (list) model activations and output - dimension L x (W_1, W_2) (per layer),
         :param error: (list) model error - dimension L x (W_1, W_2) (per layer),
         :param params: (dict) model weights - dimension (W_1, W_2) (per parameter),
         :param h_parameters: (dict) model chemicals - dimension L x (W_1, W_2) (per parameter),
+        :param override_adaption_pathway: (str) The adaption pathway to use. Default is None,
+        :param analysis_mode: (bool) Whether to run in analysis mode. Default is False,
         """
 
         """for i in range(len(activations_and_output)):
@@ -536,6 +539,10 @@ class ComplexSynapse(nn.Module):
             self.z_vector = 1 / self.tau_vector
             if self.options.y_vector == yVectorEnum.none:
                 self.y_vector = 1 - self.z_vector
+
+        if analysis_mode:
+            self.Kh = {}
+            self.Pf = {}
 
         i = 0
         currentAdaptionPathway = self.adaptionPathway
@@ -584,6 +591,11 @@ class ComplexSynapse(nn.Module):
                                 # + self.bias_dictionary[h_name]  # [:, None, None]
                             ),
                         )
+
+                        if analysis_mode:
+                            self.Kh[h_name] = torch.einsum("ic,ijk->cjk", self.K_matrix, chemical)
+                            self.Pf[h_name] = torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
+
                         if self.operator == operatorEnum.mode_5 or self.operator == operatorEnum.mode_6:
                             parameter_norm = self.saved_norm[h_name]
                             chemical_norms = torch.norm(new_chemical, dim=(1, 2))
