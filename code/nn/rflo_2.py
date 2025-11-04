@@ -34,6 +34,7 @@ class RfloRNN(nn.Module):
         lr_in: float = 0.001,
         lr_hh: float = 0.001,
         lr_out: float = 0.001,
+        reset_modulators: bool = True,
     ):
 
         # Initialize the parent class
@@ -48,6 +49,7 @@ class RfloRNN(nn.Module):
         self.biological_min_tau = biological_min_tau
         self.biological_max_tau = biological_max_tau
         self.hidden_size = hidden_size
+        self.reset_modulators = reset_modulators
         if biological_nonlinearity == nonLinearEnum.softplus:
             self.beta = 10
             self.biological_nonlinearity = nn.Softplus(beta=self.beta)
@@ -107,6 +109,10 @@ class RfloRNN(nn.Module):
     def reset_hidden(self, batch_size):
         # -- hidden states
         self.hx1 = torch.zeros(batch_size, self.hidden_size).to(self.device)
+        if self.reset_modulators:
+            self.p = torch.zeros(size=(self.hidden_size, self.hidden_size), device=self.device)
+            self.q = torch.zeros(size=(self.dim_in, self.hidden_size), device=self.device)
+            self.past_x = torch.zeros(size=(batch_size, self.dim_in), device=self.device)
         # self.hx2 = torch.zeros(batch_size, 128).to(self.device)
 
     def update(self, error):
@@ -151,6 +157,7 @@ class RfloLearner:
         lr_in: float = 0.001,
         lr_hh: float = 0.001,
         lr_out: float = 0.001,
+        reset_modulators: bool = True,
     ):
 
         # -- processor params
@@ -166,6 +173,7 @@ class RfloLearner:
         self.lr_in = lr_in
         self.lr_hh = lr_hh
         self.lr_out = lr_out
+        self.reset_modulators = reset_modulators
 
         # -- data params
         self.trainingDataPerClass = trainingDataPerClass
@@ -256,6 +264,7 @@ class RfloLearner:
             lr_in=self.lr_in,
             lr_hh=self.lr_hh,
             lr_out=self.lr_out,
+            reset_modulators=self.reset_modulators,
         )
         return model
 
@@ -442,12 +451,13 @@ def run(
         dimIn=dimIn,
         # -- model params
         biological_min_tau=1,
-        biological_max_tau=7,
+        biological_max_tau=14,
         biological_nonlinearity=nonLinearEnum.tanh,
         hidden_size=128,
         lr_in=0.005,
         lr_hh=0.005,
         lr_out=0.005,
+        reset_modulators=True,
     )
     metalearning_model.train()
 
@@ -457,7 +467,7 @@ def rflo_main_2():
     Main function for running RFLO experiments.
     """
     # -- run
-    dimIn = [112]
+    dimIn = [56]
     """trainingDataPerClass = [
         10,
         20,
@@ -503,7 +513,7 @@ def rflo_main_2():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_murray_rflo_5/{}".format(dim),
+                result_subdirectory="runner_murray_rflo_56/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )

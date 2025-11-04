@@ -125,9 +125,8 @@ class Runner:
         # -- log params
         self.save_results = self.options.save_results
         self.display = self.options.display
-        self.result_directory = os.getcwd() + "/results"
         if self.save_results:
-            self.result_directory = os.getcwd() + "/results"
+            self.result_directory = os.getcwd() + "/results_2"
             os.makedirs(self.result_directory, exist_ok=True)
             self.result_directory += (
                 "/"
@@ -348,8 +347,12 @@ class Runner:
                     if self.options.chemical_analysis:
                         self.chemical_analysis.chemical_autocorrelation(h_parameters)
                         self.chemical_analysis.parameter_autocorrelation(parameters)
-                        self.chemical_analysis.chemical_tracking(h_parameters, 20)
-                        self.chemical_analysis.parameter_tracking(parameters, 20)
+                        self.chemical_analysis.chemical_actual_autocorrelation(
+                            h_parameters, lags=[1, 2, 3, 5, 7, 10, 12, 15, 20, 25, 30, 35, 40, 45, 50], min_time_step=1
+                        )
+
+                        # self.chemical_analysis.chemical_tracking(h_parameters, 20)
+                        # self.chemical_analysis.parameter_tracking(parameters, 20)
 
                     # -- predict
                     y, logits = None, None
@@ -461,7 +464,8 @@ class Runner:
                         )
 
                     if self.options.chemical_analysis:
-                        self.chemical_analysis.Kh_Pf_tracking(self.UpdateWeights.Kh, self.UpdateWeights.Pf, 20)
+                        # self.chemical_analysis.Kh_Pf_tracking(self.UpdateWeights.Kh, self.UpdateWeights.Pf, 20)
+                        pass
 
                     # -- update time index
                     self.UpdateWeights.update_time_index()
@@ -566,29 +570,29 @@ def run(
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
     trainingDataPerClass = [
-        # 0,
-        # 5,
-        #10,
-        # 20,
-        # 30,
-        # 40,
-        # 50,
-        # 60,
-        # 70,
-        # 80,
-        # 90,
-        # 100,
-        # 110,
-        # 120,
-        # 130,
-        # 140,
-        # 150,
-        # 160,
-        # 170,
-        # 180,
-        # 190,
-        #200,
-        #225,
+        0,
+        5,
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        70,
+        80,
+        90,
+        100,
+        110,
+        120,
+        130,
+        140,
+        150,
+        160,
+        170,
+        180,
+        190,
+        200,
+        225,
         250,
         275,
         300,
@@ -639,6 +643,7 @@ def run(
             dimensionOfImage=28,
         )
         dimOut = 47
+        epochs = 10
     elif dataset_name == "FASHION-MNIST":
         numberOfClasses = 10
         dataset = FashionMnistDataset(
@@ -671,7 +676,7 @@ def run(
             maxTau=max_tau,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_7,
+            operator=operatorEnum.mode_9,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -862,7 +867,9 @@ def runner_main():
         # + "/results/error_zero_3_chem/0/20251020-033619"
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_10",
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_20",
-        os.getcwd() + "/results/no_z_all_ones/0/max_tau_50",
+        # os.getcwd() + "/results/no_z_all_ones/0/max_tau_50",
+        os.getcwd()
+        + "/results_2/20251103-183210"
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_500",
     ]
     for i in range(len(modelPath_s)):
@@ -870,7 +877,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="mode_7_chem_analysis_{}".format([50][i]),
+                result_subdirectory="runner_mode_9",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],

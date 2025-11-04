@@ -234,6 +234,21 @@ def measure_angle(v1, v2):
     return np.nan_to_num((torch.acos(torch.einsum("i, i -> ", n1, n2)) * 180 / torch.pi).cpu().numpy())
 
 
+def inner_product(v1, v2):
+    """
+        Compute the inner product between two vectors.
+
+    :param v1: (torch.Tensor) the first vector,
+    :param v2: (torch.Tensor) the second vector,
+    :return: the inner product between the two vectors.
+    """
+    # -- normalize
+    n1 = normalize_vec(v1.squeeze())
+    n2 = normalize_vec(v2.squeeze())
+
+    return torch.einsum("i, i -> ", n1, n2).cpu().numpy()
+
+
 def accuracy(logits, label):
     """
         Compute accuracy.
@@ -416,6 +431,7 @@ class ChemicalAnalysis:
         self.time_step = 0
         self.past_chemicals = {}
         self.past_parameters = {}
+        self.past_chemicals_big = []
 
     @torch.no_grad()
     def chemical_autocorrelation(self, chemicals):
@@ -599,6 +615,94 @@ class ChemicalAnalysis:
                             self.res_dir + "/Pf_tracking_layer_{}_chemical_{}.txt".format(str(layer), str(i)), "a"
                         ) as f:
                             np.savetxt(f, flattened_pf[parameter_numbers].cpu().numpy(), newline=" ", fmt="%0.6f")
+                            f.writelines("\n")
+
+    @torch.no_grad()
+    def chemical_parameter_autocorrelation(self, chemicals, parameters):
+        """
+            Compute weight autocorrelation.
+        :param chemicals: (dict) dictionary of chemical tensors,
+        :param parameters: (dict) dictionary of parameter tensors,
+        """
+        with torch.no_grad():
+            layer = 0
+            for key in chemicals.keys():
+                layer += 1
+                if "forward" in key:
+                    c_current = chemicals[key].squeeze()
+                    p_current = parameters[key].squeeze()
+                    p_current = normalize_vec(p_current.flatten())
+                    autocorrelations = []
+                    for i in range(c_current.shape[0]):
+                        c_current_i = normalize_vec(c_current[i].flatten())
+                        angle = measure_angle(c_current_i, p_current)
+                        autocorrelations.append(angle)
+                    with open(
+                        self.res_dir + "/chemical_parameter_autocorrelation_layer_{}.txt".format(str(layer)), "a"
+                    ) as f:
+                        np.savetxt(f, ["Timestep: {}".format(self.time_step)], newline=" ", fmt="%s")
+                        f.writelines("\n")
+                        np.savetxt(f, np.array(autocorrelations), newline=" ", fmt="%0.6f")
+                        f.writelines("\n")
+
+    @torch.no_grad()
+    def chemical_actual_autocorrelation(self, chemicals, lags=[5, 10, 20, 50, 100], min_time_step=100):
+        """
+            Compute weight autocorrelation.
+
+        :param chemicals: (dict) dictionary of chemical tensors,
+
+        """
+        if self.time_step == 1:
+            self.past_chemicals_big = []
+        elif self.time_step == min_time_step + 1:
+            current_chemicals = {}
+            for key in chemicals.keys():
+                current_chemicals[key] = chemicals[key].clone()
+            self.past_chemicals_big.append(current_chemicals)
+            for lag in lags:
+                layer = 0
+                for key in chemicals.keys():
+                    layer += 1
+                    with open(
+                        self.res_dir
+                        + "/chemical_actual_autocorrelation_lag_{}_layer_{}.txt".format(str(lag), str(layer)),
+                        "a",
+                    ) as f:
+                        text_of_keys = " ".join(chemicals.keys())
+                        np.savetxt(f, [text_of_keys], newline=" ", fmt="%s")
+                        f.writelines("\n")
+        elif self.time_step > min_time_step + 1:
+            current_chemicals = {}
+            for key in chemicals.keys():
+                current_chemicals[key] = chemicals[key].clone()
+            self.past_chemicals_big.append(current_chemicals)
+            if len(self.past_chemicals_big) > (max(lags) + 1):
+                self.past_chemicals_big.pop(0)
+            for lag in lags:
+                if self.time_step - lag - 1 >= min_time_step:
+                    layer = 0
+                    for key in chemicals.keys():
+                        layer += 1
+                        c_current = chemicals[key].squeeze()
+                        if self.time_step - 1 > max(lags):
+                            c_past = self.past_chemicals_big[max(lags) - lag][key].squeeze()
+                        else:
+                            c_past = self.past_chemicals_big[-lag - 1][key].squeeze()
+                        autocorrelations = []
+                        for i in range(c_current.shape[0]):
+                            c_current_i = normalize_vec(c_current[i].flatten())
+                            c_past_i = normalize_vec(c_past[i].flatten())
+                            inner_product_value = inner_product(c_current_i, c_past_i)
+                            autocorrelations.append(inner_product_value)
+                        with open(
+                            self.res_dir
+                            + "/chemical_actual_autocorrelation_lag_{}_layer_{}.txt".format(str(lag), str(layer)),
+                            "a",
+                        ) as f:
+                            np.savetxt(f, ["Timestep: {}".format(self.time_step)], newline=" ", fmt="%s")
+                            f.writelines("\n")
+                            np.savetxt(f, np.array(autocorrelations), newline=" ", fmt="%0.6f")
                             f.writelines("\n")
 
 
