@@ -347,9 +347,14 @@ class Runner:
                     if self.options.chemical_analysis:
                         self.chemical_analysis.chemical_autocorrelation(h_parameters)
                         self.chemical_analysis.parameter_autocorrelation(parameters)
+                        self.chemical_analysis.chemical_parameter_autocorrelation(h_parameters, parameters)
                         self.chemical_analysis.chemical_actual_autocorrelation(
                             h_parameters, lags=[1, 2, 3, 5, 7, 10, 12, 15, 20, 25, 30, 35, 40, 45, 50], min_time_step=1
                         )
+                        self.chemical_analysis.parameter_actual_autocorrelation(
+                            parameters, lags=[1, 2, 3, 5, 7, 10, 12, 15, 20, 25, 30, 35, 40, 45, 50], min_time_step=1
+                        )
+                        self.chemical_analysis.chemical_norms(h_parameters)
 
                         # self.chemical_analysis.chemical_tracking(h_parameters, 20)
                         # self.chemical_analysis.parameter_tracking(parameters, 20)
@@ -569,7 +574,7 @@ def run(
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    trainingDataPerClass = [
+    """trainingDataPerClass = [
         0,
         5,
         10,
@@ -599,6 +604,9 @@ def run(
         325,
         350,
         375,
+    ]"""
+    trainingDataPerClass = [
+        250,
     ]
     """trainingDataPerClass = [
         #10,
@@ -795,7 +803,7 @@ def run(
         display=display,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
@@ -812,8 +820,8 @@ def run(
     #   -- number of chemicals
     numberOfChemicals = numberOfChemicals
     # -- meta-traing
-    device = "cuda:1" if torch.cuda.is_available() else "cpu"
-    # device = "cpu"
+    # device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    device = "cpu"
     runner = Runner(
         device=device,
         numberOfChemicals=numberOfChemicals,
@@ -877,7 +885,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9",
+                result_subdirectory="runner_mode_9_diff_chem_analysis",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],

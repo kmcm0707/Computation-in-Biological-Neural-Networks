@@ -626,10 +626,11 @@ class ChemicalAnalysis:
         """
         with torch.no_grad():
             layer = 0
-            for key in chemicals.keys():
+            for key in parameters.keys():
                 layer += 1
                 if "forward" in key:
-                    c_current = chemicals[key].squeeze()
+                    h_name = key.replace("forward", "chemical").split(".")[0]
+                    c_current = chemicals[h_name].squeeze()
                     p_current = parameters[key].squeeze()
                     p_current = normalize_vec(p_current.flatten())
                     autocorrelations = []
@@ -704,6 +705,88 @@ class ChemicalAnalysis:
                             f.writelines("\n")
                             np.savetxt(f, np.array(autocorrelations), newline=" ", fmt="%0.6f")
                             f.writelines("\n")
+
+    @torch.no_grad()
+    def parameter_actual_autocorrelation(self, parameters, lags=[5, 10, 20, 50, 100], min_time_step=100):
+        """
+            Compute weight autocorrelation.
+        :param parameters: (dict) dictionary of parameter tensors,
+        """
+        if self.time_step == 1:
+            self.past_parameters_big = []
+        elif self.time_step == min_time_step + 1:
+            current_parameters = {}
+            for key in parameters.keys():
+                if "forward" in key:
+                    current_parameters[key] = parameters[key].clone()
+            self.past_parameters_big.append(current_parameters)
+            for lag in lags:
+                layer = 0
+                for key in parameters.keys():
+                    if "forward" in key:
+                        layer += 1
+                        with open(
+                            self.res_dir
+                            + "/parameter_actual_autocorrelation_lag_{}_layer_{}.txt".format(str(lag), str(layer)),
+                            "a",
+                        ) as f:
+                            text = "Parameter"
+                            np.savetxt(f, [text], newline=" ", fmt="%s")
+                            f.writelines("\n")
+        elif self.time_step > min_time_step + 1:
+            current_parameters = {}
+            for key in parameters.keys():
+                if "forward" in key:
+                    current_parameters[key] = parameters[key].clone()
+            self.past_parameters_big.append(current_parameters)
+            if len(self.past_parameters_big) > (max(lags) + 1):
+                self.past_parameters_big.pop(0)
+            for lag in lags:
+                if self.time_step - lag - 1 >= min_time_step:
+                    layer = 0
+                    for key in parameters.keys():
+                        if "forward" in key:
+                            layer += 1
+                            p_current = parameters[key].squeeze()
+                            p_current = normalize_vec(p_current.flatten())
+                            if self.time_step - 1 > max(lags):
+                                p_past = self.past_parameters_big[max(lags) - lag][key].squeeze()
+                            else:
+                                p_past = self.past_parameters_big[-lag - 1][key].squeeze()
+                            p_past = normalize_vec(p_past.flatten())
+                            inner_product_value = inner_product(p_current, p_past)
+                            with open(
+                                self.res_dir
+                                + "/parameter_actual_autocorrelation_lag_{}_layer_{}.txt".format(str(lag), str(layer)),
+                                "a",
+                            ) as f:
+                                np.savetxt(f, ["Timestep: {}".format(self.time_step)], newline=" ", fmt="%s")
+                                f.writelines("\n")
+                                np.savetxt(f, np.array([inner_product_value]), newline=" ", fmt="%0.6f")
+                                f.writelines("\n")
+
+    @torch.no_grad()
+    def chemical_norms(self, chemicals):
+        """
+            Compute chemical norms.
+
+        :param chemicals: (dict) dictionary of chemical tensors,
+
+        """
+        with torch.no_grad():
+            layer = 0
+            for key in chemicals.keys():
+                layer += 1
+                chemical = chemicals[key]
+                norms = []
+                for i in range(chemical.shape[0]):
+                    norm = torch.norm(chemical[i], p=2).item()
+                    norms.append(norm)
+                with open(self.res_dir + "/chemical_norms_layer_{}.txt".format(str(layer)), "a") as f:
+                    np.savetxt(f, ["Timestep: {}".format(self.time_step)], newline=" ", fmt="%s")
+                    f.writelines("\n")
+                    np.savetxt(f, np.array(norms), newline=" ", fmt="%0.6f")
+                    f.writelines("\n")
 
 
 if __name__ == "__main__":
