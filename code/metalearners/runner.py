@@ -574,7 +574,7 @@ def run(
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    """trainingDataPerClass = [
+    trainingDataPerClass = [
         0,
         5,
         10,
@@ -604,10 +604,10 @@ def run(
         325,
         350,
         375,
-    ]"""
-    trainingDataPerClass = [
-        250,
     ]
+    """trainingDataPerClass = [
+        250,
+    ]"""
     """trainingDataPerClass = [
         #10,
         # 20,
@@ -815,7 +815,7 @@ def run(
         dimOut=dimOut,
         data_repetitions=1,
         wta=False,
-        chemical_analysis=True,
+        chemical_analysis=False,
     )
 
     #   -- number of chemicals
@@ -888,7 +888,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_rand_chem_analysis",
+                result_subdirectory="runner_mode_9_rand",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
