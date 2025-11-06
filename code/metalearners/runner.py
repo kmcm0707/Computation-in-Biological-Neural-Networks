@@ -694,7 +694,7 @@ def run(
             individual_different_v_vector=True,  # Individual Model Only
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
-            scale_chemical_weights=True,
+            scale_chemical_weights=False,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -804,7 +804,7 @@ def run(
         display=display,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
@@ -877,8 +877,10 @@ def runner_main():
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_10",
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_20",
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_50",
+        # """os.getcwd()
+        # + "/results_2/20251103-183210"""
         os.getcwd()
-        + "/results_2/20251103-183210"
+        + "/results_2/mode_9_rand/0/20251105-152312"
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_500",
     ]
     for i in range(len(modelPath_s)):
@@ -886,7 +888,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_scaled_chems_CA",
+                result_subdirectory="runner_mode_9_rand_chem_analysis",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
