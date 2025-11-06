@@ -114,6 +114,7 @@ class complexOptions:
         individual_different_v_vector: bool = False,
         scheduler_t0: Union[int, None] = None,
         train_tau: bool = False,
+        scale_chemical_weights: bool = False,
     ):
         self.nonLinear = nonLinear
         self.bias = bias
@@ -134,6 +135,7 @@ class complexOptions:
         self.individual_different_v_vector = individual_different_v_vector
         self.scheduler_t0 = scheduler_t0
         self.train_tau = train_tau
+        self.scale_chemical_weights = scale_chemical_weights
 
     def __str__(self):
         string = ""

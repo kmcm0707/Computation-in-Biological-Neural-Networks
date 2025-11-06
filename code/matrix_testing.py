@@ -1,5 +1,7 @@
 import torch
 import torch.nn as nn
+from misc.dataset import DataProcess, FashionMnistDataset
+from torch.utils.data import DataLoader, RandomSampler
 
 if __name__ == "__main__":
     # -- test matrix
@@ -173,7 +175,7 @@ if __name__ == "__main__":
     print(torch.sigmoid(output))
     print(torch.equal(grad[0], (torch.exp(10 * output) / (1 + torch.exp(10 * output)))))"""
 
-    matrix_1 = torch.randn((3, 4))
+    """matrix_1 = torch.randn((3, 4))
     matrix_2 = torch.randn((3, 4))
     matrix_3 = torch.randn((3, 4))
     matrix_4 = torch.randn((3, 4))
@@ -193,7 +195,7 @@ if __name__ == "__main__":
     three_d_matrix_1[:, :, :] = matrix_1
     normalized_three_d_matrix_1_mode_2 = three_d_matrix_1 / normaliser[None, :]
     print("3D Check Normaliser:")
-    print(torch.norm(normalized_three_d_matrix_1_mode_2, p=2, dim=1))
+    print(torch.norm(normalized_three_d_matrix_1_mode_2, p=2, dim=1))"""
 
     """print("Norms:")
     print(torch.norm(matrix_1, p=2))
@@ -275,7 +277,7 @@ if __name__ == "__main__":
         print("3D Matrix Mode 2 Norm for slice ", i, ":")
         print(torch.norm(normalized_three_d_matrix_mode_2[i], p=2))"""
 
-    three_d_matrix_1 = torch.randn((4, 3, 2))
+    """three_d_matrix_1 = torch.randn((4, 3, 2))
     for i in range(4):
         torch.nn.init.xavier_uniform_(three_d_matrix_1[i])
 
@@ -301,4 +303,34 @@ if __name__ == "__main__":
         print(normaizsed_three_d_matrix_1[i])
         print("original slice")
         print(three_d_matrix_1[i])
-        exit()
+        exit()"""
+
+    matrix = torch.nn.init.xavier_uniform_(torch.empty(size=(780, 200), device="cpu"))
+    matrix = torch.nn.functional.normalize(matrix, p=2, dim=0) * torch.sqrt(
+        torch.tensor(matrix.shape[0], dtype=torch.float32)
+    )
+    print(matrix)
+
+    dataset = FashionMnistDataset(
+        minTrainingDataPerClass=1,
+        maxTrainingDataPerClass=1,
+        queryDataPerClass=1,
+        dimensionOfImage=28,
+        all_classes=True,
+    )
+    dimOut = 10
+
+    sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=1 * 10)
+    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=10, drop_last=True, num_workers=2)
+    data_process = DataProcess(
+        minTrainingDataPerClass=1,
+        maxTrainingDataPerClass=1,
+        queryDataPerClass=1,
+        dimensionOfImage=28,
+        device=torch.device("cpu"),
+    )
+
+    for eps, data in enumerate(metatrain_dataset):
+
+        x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = data_process(data, 10)
+        print(y_trn)

@@ -600,14 +600,25 @@ class ComplexSynapse(nn.Module):
                             parameter_norm = self.saved_norm[h_name]
                             chemical_norms = torch.norm(new_chemical, dim=(1, 2))
                             multiplier = parameter_norm / (chemical_norms)
+
                             new_chemical = (
                                 new_chemical * multiplier[:, None, None]
                             )  # chemical_norms[:, None, None] (mode 5 v2 is commented out)
+                            if self.options.scale_chemical_weights:
+                                scale_factor = torch.sqrt(
+                                    torch.tensor(new_chemical.shape[1], device=self.device, dtype=torch.float32)
+                                )
+                                new_chemical = new_chemical * scale_factor
                         elif self.operator == operatorEnum.mode_7:
                             new_chemical = torch.nn.functional.normalize(new_chemical, p=2, dim=1)
+                            if self.options.scale_chemical_weights:
+                                scale_factor = torch.sqrt(
+                                    torch.tensor(new_chemical.shape[1], device=self.device, dtype=torch.float32)
+                                )
+                                new_chemical = new_chemical * scale_factor
                         elif self.operator == operatorEnum.mode_8:
                             new_chemical = torch.nn.functional.normalize(new_chemical, p=2, dim=1) / torch.sqrt(
-                                torch.tensor(new_chemical.shape[2], device=self.device, dtype=torch.float32)
+                                torch.tensor(new_chemical.shape[1], device=self.device, dtype=torch.float32)
                             )
                     elif self.operator == operatorEnum.sub or self.operator == operatorEnum.sub_4:
                         # Equation 1 - operator = sub: h(s+1) = yh(s) + sign(h(s)) * z( f( sign(h(s)) * (Kh(s) + \theta * F(Parameter) + b) ))
@@ -785,6 +796,10 @@ class ComplexSynapse(nn.Module):
                     ):
                         v_vector_softmax = torch.nn.functional.softmax(self.v_vector, dim=1)
                         new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)
+                        if self.options.scale_chemical_weights:
+                            scale_factor = torch.sqrt(torch.tensor(new_value.shape[0], dtype=torch.float32))
+                            new_value = new_value / scale_factor
+
                         if self.operator == operatorEnum.mode_6:
                             parameter_norm = self.saved_norm[h_name]
                             current_norm = torch.norm(new_value, p=2)
@@ -794,7 +809,7 @@ class ComplexSynapse(nn.Module):
                             new_value = torch.nn.functional.normalize(new_value, p=2, dim=0)
                         elif self.operator == operatorEnum.mode_8:
                             new_value = torch.nn.functional.normalize(new_value, p=2, dim=0) / torch.sqrt(
-                                torch.tensor(new_value.shape[1], device=self.device, dtype=torch.float32)
+                                torch.tensor(new_value.shape[0], device=self.device, dtype=torch.float32)
                             )  # Remember shape[1] is input dimension, shape[0] is output dimension
                         elif self.operator == operatorEnum.mode_9:
                             normalizer = torch.norm(new_value, p=2, dim=0)
@@ -860,8 +875,13 @@ class ComplexSynapse(nn.Module):
                             torch.tensor(new_value.shape[1], device=self.device, dtype=torch.float32)
                         )
 
-                    params[name] = new_value
+                    if self.options.scale_chemical_weights:
+                        scale_factor = torch.sqrt(torch.tensor(new_value.shape[0], dtype=torch.float32))
+                        current_chemical = h_parameters[h_name]
+                        scaled_chemical = current_chemical * scale_factor
+                        h_parameters[h_name] = scaled_chemical
 
+                    params[name] = new_value
                     params[name].adapt = currentAdaptionPathway
 
     def calculate_update_vector(self, error, activations_and_output, parameter, i, h_name) -> torch.Tensor:

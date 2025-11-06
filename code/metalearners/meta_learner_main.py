@@ -883,6 +883,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             individual_different_v_vector=True,  # Individual Model Only
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
+            scale_chemical_weights=True,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -1038,4 +1039,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_6_wta", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_scaled_chem", index=i)

@@ -570,7 +570,7 @@ def run(
 
     # -- load data
     numWorkers = 4
-    epochs = 20
+    epochs = 10
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
@@ -694,6 +694,7 @@ def run(
             individual_different_v_vector=True,  # Individual Model Only
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
+            scale_chemical_weights=True,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -803,7 +804,7 @@ def run(
         display=display,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
@@ -885,7 +886,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_diff_chem_analysis",
+                result_subdirectory="runner_mode_9_scaled_chems_CA",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],

@@ -254,7 +254,7 @@ class FashionMnistDataset(Dataset):
 
     def __getitem__(self, index: int):
         """
-            Return a tuple of tensors containing training and query images and
+            Get a tuple of tensors containing training and query images and
             corresponding labels for a given index.
 
         The images are loaded from the Fashion MNIST dataset. Each image is
@@ -268,6 +268,7 @@ class FashionMnistDataset(Dataset):
         :param index: (int) Index of the character folder from which images are to be retrieved.
         :return: tuple: A tuple of tensors containing training and query images and
             corresponding labels for a given index and current training data per class.
+
         """
         if self.all_classes:
             index = self.current_idx
@@ -298,6 +299,85 @@ class FashionMnistDataset(Dataset):
             torch.tensor([index] * self.maxTrainingDataPerClass),
             q_transformed_data,  # .float() / 255,
             torch.tensor([index] * self.queryDataPerClass),
+        )
+
+
+class CombinedDataset(Dataset):
+    """
+        Combined Dataset class.
+
+    Combines multiple datasets into a single dataset for meta-training.
+    """
+
+    def __init__(
+        self,
+        EMNIST_before_FashionMNIST: bool,
+        minEmnistTrainingDataPerClass: int,
+        maxEmnistTrainingDataPerClass: int,
+        emnistQueryDataPerClass: int,
+        minFashionMnistTrainingDataPerClass: int,
+        maxFashionMnistTrainingDataPerClass: int,
+        fashionMnistQueryDataPerClass: int,
+        dimensionOfImage: int,
+        all_fashion_mnist_classes: bool = True,
+    ):
+        """
+        Initialize the CombinedDataset class.
+        """
+        self.EMNIST_before_FashionMNIST = EMNIST_before_FashionMNIST
+        self.minEmnistTrainingDataPerClass = minEmnistTrainingDataPerClass
+        self.maxEmnistTrainingDataPerClass = maxEmnistTrainingDataPerClass
+        self.emnistQueryDataPerClass = emnistQueryDataPerClass
+        self.minFashionMnistTrainingDataPerClass = minFashionMnistTrainingDataPerClass
+        self.maxFashionMnistTrainingDataPerClass = maxFashionMnistTrainingDataPerClass
+        self.fashionMnistQueryDataPerClass = fashionMnistQueryDataPerClass
+        self.dimensionOfImage = dimensionOfImage
+        self.all_fashion_mnist_classes = all_fashion_mnist_classes
+
+        s_dir = os.getcwd()
+        self.emnist_dir = s_dir + "/data/emnist/"
+        self.fashion_mnist_dir = s_dir + "/data/fashion_mnist/"
+
+        self.Emnist_char_path = [folder for folder, folders, _ in os.walk(self.emnist_dir) if not folders]
+        self.Emnist_transform = transforms.Compose(
+            [
+                transforms.Resize((dimensionOfImage, dimensionOfImage)),
+                transforms.ToTensor(),
+            ]
+        )
+
+    def __len__(self):
+        """
+            Get the length of the combined dataset.
+
+        :return: int: the length of the combined dataset, i.e., the sum of lengths
+            of all individual datasets.
+        """
+        return 47 + 10  # EMNIST has 47 classes, Fashion MNIST has 10 classes
+
+    def __getitem__(self, index: int):
+        """
+            Return a data point from the combined dataset based on the given index.
+
+        The method determines which individual dataset the index corresponds to
+        and retrieves the data point from that dataset.
+
+        :param index: (int) Index of the data point to be retrieved.
+        :return: The data point from the appropriate individual dataset.
+        """
+        img = []
+        for img_ in os.listdir(self.char_path[index]):
+            ims = self.transform(Image.open(self.char_path[index] + "/" + img_, mode="r").convert("L"))
+            img.append(ims)
+
+        img = torch.cat(img)
+        idx_vec = index * torch.ones(self.maxTrainingDataPerClass + self.queryDataPerClass, dtype=int)
+
+        return (
+            img[: self.maxTrainingDataPerClass],
+            idx_vec[: self.maxTrainingDataPerClass],
+            img[self.maxTrainingDataPerClass : self.maxTrainingDataPerClass + self.queryDataPerClass],
+            idx_vec[self.maxTrainingDataPerClass : self.maxTrainingDataPerClass + self.queryDataPerClass],
         )
 
 
