@@ -209,9 +209,9 @@ class MetaLearner:
         # -- log params
         self.save_results = metaLearnerOptions.save_results
         self.display = metaLearnerOptions.display
-        self.result_directory = os.getcwd() + "/results"
+        self.result_directory = os.getcwd() + "/results_2"
         if self.save_results:
-            self.result_directory = os.getcwd() + "/results"
+            self.result_directory = os.getcwd() + "/results_2"
             os.makedirs(self.result_directory, exist_ok=True)
             self.result_directory += (
                 "/"
@@ -873,7 +873,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_4,
+            operator=operatorEnum.mode_9,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -883,7 +883,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             individual_different_v_vector=True,  # Individual Model Only
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
-            scale_chemical_weights=True,
+            scale_chemical_weights=False,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -971,7 +971,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     current_dir = os.getcwd()
     continue_training = current_dir + "/results/error_scalar_rich_5_chem/0/20251020-163146"
     # -- meta-learner options
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P and K matrices (check 1.5)
@@ -985,10 +985,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.005,
+        lr=0.001,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         trainSeparateFeedback=False,
         feedbackSeparateModel=feedbackModel,
         trainSameFeedback=False,
@@ -999,7 +999,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
-        hrm_discount=-1,
+        hrm_discount=370,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1008,7 +1008,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 7
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1039,4 +1039,6 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_9_scaled_chem", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_9", index=i)
+
+
