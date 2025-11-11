@@ -181,10 +181,14 @@ class MetaLearner:
         device: Literal["cpu", "cuda"] = "cpu",
         result_subdirectory: str = datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),
         save_results: bool = True,
-        metatrain_dataset=None,
+        metatrain_dataset_1=None,
+        metatrain_dataset_2=None,
         seed: int = 0,
-        number_of_classes: int = 5,
-        trainingDataPerClass: int = 50,
+        number_of_classes_1: int = 5,
+        number_of_classes_2: int = None,
+        shift_class_2: int = 47,
+        trainingDataPerClass_1: int = 50,
+        trainingDataPerClass_2: int = 50,
         dimOut: int = 47,
         numberOfDataRepetitions: int = 1,
         size: sizeEnum = sizeEnum.normal,
@@ -196,17 +200,28 @@ class MetaLearner:
         self.size = size
 
         # -- data params
-        self.trainingDataPerClass = trainingDataPerClass
+        self.trainingDataPerClass_1 = trainingDataPerClass_1
+        self.trainingDataPerClass_2 = trainingDataPerClass_2
         self.queryDataPerClass = 20
-        self.metatrain_dataset = metatrain_dataset
-        self.data_process = DataProcess(
-            minTrainingDataPerClass=self.trainingDataPerClass,
-            maxTrainingDataPerClass=self.trainingDataPerClass,
+        self.metatrain_dataset_1 = metatrain_dataset_1
+        self.metatrain_dataset_2 = metatrain_dataset_2
+        self.data_process_1 = DataProcess(
+            minTrainingDataPerClass=self.trainingDataPerClass_1,
+            maxTrainingDataPerClass=self.trainingDataPerClass_1,
             queryDataPerClass=self.queryDataPerClass,
             dimensionOfImage=28,
             device=self.device,
         )
-        self.number_of_classes = number_of_classes
+        self.data_process_2 = DataProcess(
+            minTrainingDataPerClass=self.trainingDataPerClass_2,
+            maxTrainingDataPerClass=self.trainingDataPerClass_2,
+            queryDataPerClass=self.queryDataPerClass,
+            dimensionOfImage=28,
+            device=self.device,
+        )
+        self.number_of_classes_1 = number_of_classes_1
+        self.number_of_classes_2 = number_of_classes_2
+        self.shift_class_2 = shift_class_2
         self.numberOfDataRepetitions = numberOfDataRepetitions
 
         # -- model params
@@ -228,13 +243,26 @@ class MetaLearner:
         if self.save_results:
             self.result_directory = os.getcwd() + "/results"
             os.makedirs(self.result_directory, exist_ok=True)
-            self.result_directory += "/" + result_subdirectory + "/" + str(seed) + "/" + str(self.trainingDataPerClass)
+            self.result_directory += (
+                "/"
+                + result_subdirectory
+                + "/"
+                + str(seed)
+                + "/"
+                + str(
+                    self.trainingDataPerClass_2
+                    if self.trainingDataPerClass_2 is not None
+                    else self.trainingDataPerClass_1
+                )
+            )
             try:
                 os.makedirs(self.result_directory, exist_ok=False)
                 with open(self.result_directory + "/arguments.txt", "w") as f:
                     f.writelines("Seed: {}\n".format(seed))
                     f.writelines("Model: {}\n".format("backprop"))
-                    f.writelines("Number of training data per class: {}\n".format(self.trainingDataPerClass))
+                    f.writelines("Number of training data per class 1: {}\n".format(self.trainingDataPerClass_1))
+                    if self.trainingDataPerClass_2 is not None:
+                        f.writelines("Number of training data per class 2: {}\n".format(self.trainingDataPerClass_2))
                     f.writelines("Number of query data per class: {}\n".format(self.queryDataPerClass))
             except FileExistsError:
                 warnings.warn("The directory already exists. The results will be overwritten.")
@@ -290,7 +318,14 @@ class MetaLearner:
         x_qry = None
         y_qry = None
 
-        for eps, data in enumerate(self.metatrain_dataset):
+        for eps, data in enumerate(
+            self.metatrain_dataset_1
+            if self.metatrain_dataset_2 is None
+            else zip(self.metatrain_dataset_1, self.metatrain_dataset_2)
+        ):
+
+            data_1 = data if self.metatrain_dataset_2 is None else data[0]
+            data_2 = None if self.metatrain_dataset_2 is None else data[1]
 
             # -- re initialize model
             self.model.train()
@@ -298,13 +333,34 @@ class MetaLearner:
             self.UpdateParameters = optim.Adam(self.model.parameters(), lr=1e-3)
 
             # -- training data
-            x_trn, y_trn, x_qry, y_qry, current_training_data = self.data_process(data, self.number_of_classes)
+            x_trn_1, y_trn_1, x_qry_1, y_qry_1, current_training_data = self.data_process_1(
+                data_1, self.number_of_classes_1
+            )
+            if self.metatrain_dataset_2 is not None:
+                x_trn_2, y_trn_2, x_qry_2, y_qry_2, _ = self.data_process_2(data_2, self.number_of_classes_2)
+                y_trn_2 = y_trn_2 + self.shift_class_2
+                y_qry_2 = y_qry_2 + self.shift_class_2
             # x_trn_copy = x_trn.clone()
             # y_trn_copy = y_trn.clone()
 
             for epoch in range(self.numberOfDataRepetitions):
                 """adaptation"""
-                for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
+                for itr_adapt, (x, label) in enumerate(zip(x_trn_1, y_trn_1)):
+
+                    # -- predict
+                    y, logits = self.model(x.unsqueeze(0).unsqueeze(0))
+
+                    # -- update network params
+                    loss_adapt = self.loss_func(logits, label)
+
+                    # -- backprop
+                    self.UpdateParameters.zero_grad()
+                    loss_adapt.backward()
+                    self.UpdateParameters.step()
+
+                for itr_adapt, (x, label) in (
+                    enumerate(zip(x_trn_2, y_trn_2)) if self.metatrain_dataset_2 is not None else []
+                ):
 
                     # -- predict
                     y, logits = self.model(x.unsqueeze(0).unsqueeze(0))
@@ -319,20 +375,32 @@ class MetaLearner:
 
             # -- predict
             self.model.eval()
-            y, logits = self.model(x_qry)
+            y_1, logits_1 = self.model(x_qry_1)
 
             # -- compute and store stats
-            pred = torch.argmax(logits, dim=1)
-            acc = torch.eq(pred, y_qry.ravel()).sum().item() / len(y_qry.ravel())
-            loss_meta = self.loss_func(logits, y_qry.ravel())
+            pred = torch.argmax(logits_1, dim=1)
+            acc = torch.eq(pred, y_qry_1.ravel()).sum().item() / len(y_qry_1.ravel())
+            loss_meta = self.loss_func(logits_1, y_qry_1.ravel())
+
+            if self.metatrain_dataset_2 is not None:
+                y_2, logits_2 = self.model(x_qry_2)
+
+                # -- compute and store stats
+                pred = torch.argmax(logits_2, dim=1)
+                acc_2 = torch.eq(pred, y_qry_2.ravel()).sum().item() / len(y_qry_2.ravel())
+                loss_meta_2 = self.loss_func(logits_2, y_qry_2.ravel())
 
             # -- log
             if self.save_results:
                 log([loss_meta.item()], self.result_directory + "/loss_meta.txt")
+                if self.metatrain_dataset_2 is not None:
+                    log([loss_meta_2.item()], self.result_directory + "/loss_meta_2.txt")
 
             line = "Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}\t Current training data: {}".format(
                 eps + 1, loss_meta.item(), acc, current_training_data
             )
+            if self.metatrain_dataset_2 is not None:
+                line += "\tLoss 2: {:.6f}\tAccuracy 2: {:.3f}".format(loss_meta_2.item(), acc_2)
             if self.display:
                 print(line)
 
@@ -385,9 +453,10 @@ def run(
     numWorkers = 3
     epochs = 20
     numberOfClasses = 5
-    trainingDataPerClass = trainingDataPerClass
+    trainingDataPerClass_1 = 150
+    trainingDataPerClass_2 = trainingDataPerClass
     dimOut = 47
-    dataset_name = "EMNIST"
+    dataset_name = "COMBINED"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -408,24 +477,57 @@ def run(
             all_classes=True,
         )
         dimOut = 10
-    sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
-    metatrain_dataset = DataLoader(
-        dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True, num_workers=numWorkers
-    )
+    elif dataset_name == "COMBINED":
+        numberOfClasses_1 = 5
+        numberOfClasses_2 = 5
+        dataset_1 = EmnistDataset(
+            minTrainingDataPerClass=trainingDataPerClass_1,
+            maxTrainingDataPerClass=trainingDataPerClass_1,
+            queryDataPerClass=20,
+            dimensionOfImage=28,
+        )
+        dataset_2 = FashionMnistDataset(
+            minTrainingDataPerClass=trainingDataPerClass_2,
+            maxTrainingDataPerClass=trainingDataPerClass_2,
+            queryDataPerClass=20,
+            dimensionOfImage=28,
+            all_classes=False,
+        )
+        dimOut = 57
 
-    
-    
+    if dataset_name != "COMBINED":
+        sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
+        metatrain_dataset = DataLoader(
+            dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True, num_workers=numWorkers
+        )
+    else:
+        sampler_1 = RandomSampler(data_source=dataset_1, replacement=True, num_samples=epochs * numberOfClasses_1)
+        sampler_2 = RandomSampler(data_source=dataset_2, replacement=True, num_samples=epochs * numberOfClasses_2)
+        metatrain_dataset_1 = DataLoader(
+            dataset=dataset_1,
+            sampler=sampler_1,
+            batch_size=numberOfClasses_1,
+            drop_last=True,
+            num_workers=numWorkers,
+        )
+        metatrain_dataset_2 = DataLoader(
+            dataset=dataset_2, sampler=sampler_2, batch_size=numberOfClasses_2, drop_last=True, num_workers=numWorkers
+        )
 
     metalearning_model = MetaLearner(
-        device="cuda:0",
+        device="cuda:0" if torch.cuda.is_available() else "cpu",
         result_subdirectory=result_subdirectory,
         save_results=True,
-        metatrain_dataset=metatrain_dataset,
+        metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
+        metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         seed=seed,
-        number_of_classes=numberOfClasses,
-        trainingDataPerClass=trainingDataPerClass,
+        number_of_classes_1=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
+        number_of_classes_2=numberOfClasses_2 if dataset_name == "COMBINED" else None,
+        shift_class_2=47 if dataset_name == "COMBINED" else 0,
+        trainingDataPerClass_1=trainingDataPerClass_1 if dataset_name == "COMBINED" else trainingDataPerClass,
+        trainingDataPerClass_2=trainingDataPerClass_2 if dataset_name == "COMBINED" else None,
         dimOut=dimOut,
-        numberOfDataRepetitions=5,
+        numberOfDataRepetitions=1,
         size=sizeEnum.normal,
     )
     metalearning_model.train()
@@ -447,6 +549,7 @@ def backprop_main():
     """
     # -- run
     trainingDataPerClass = [
+        0,
         10,
         20,
         30,
@@ -462,18 +565,18 @@ def backprop_main():
         130,
         140,
         150,
-        160,
-        170,
-        180,
-        190,
-        200,
-        225,
-        250,
-        275,
-        300,
-        325,
-        350,
-        375,
+        # 160,
+        # 170,
+        # 180,
+        # 190,
+        # 200,
+        # 225,
+        # 250,
+        # 275,
+        # 300,
+        # 325,
+        # 350,
+        # 375,
     ]
     """trainingDataPerClass = [
         10,
@@ -508,6 +611,6 @@ def backprop_main():
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_backprop_5_layer_EMNIST_5_repetitions_true",
+            result_subdirectory="runner_backprop_CL_5",
             trainingDataPerClass=trainingData,
         )

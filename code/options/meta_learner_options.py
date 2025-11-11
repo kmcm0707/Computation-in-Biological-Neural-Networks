@@ -80,7 +80,8 @@ class MetaLearnerOptions:
         size: sizeEnum = sizeEnum.normal,
         raytune: bool = False,
         save_results: bool = True,
-        metatrain_dataset: str = None,
+        metatrain_dataset_1: str = None,
+        metatrain_dataset_2: str = None,
         display: bool = True,
         lr: float = 1e-3,
         numberOfClasses: int = 5,
@@ -103,6 +104,7 @@ class MetaLearnerOptions:
         train_feedback_weights: bool = False,
         train_RCN: bool = False,
         wta: bool = False,
+        shift_labels_2: int = 0,
     ):
         # print(trainSameFeedback)
         # assert (
@@ -119,7 +121,8 @@ class MetaLearnerOptions:
         self.raytune = raytune
         self.save_results = save_results
         self.results_subdir = results_subdir
-        self.metatrain_dataset = metatrain_dataset
+        self.metatrain_dataset_1 = metatrain_dataset_1
+        self.metatrain_dataset_2 = metatrain_dataset_2
         self.display = display
         self.lr = lr
         self.numberOfClasses = numberOfClasses
@@ -142,6 +145,7 @@ class MetaLearnerOptions:
         self.train_feedback_weights = train_feedback_weights
         self.train_RCN = train_RCN
         self.wta = wta
+        self.shift_labels_2 = shift_labels_2
 
     def __str__(self):
         string = ""

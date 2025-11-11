@@ -266,7 +266,9 @@ def accuracy(logits, label):
     return torch.eq(pred, label).sum().item() / len(label)
 
 
-def meta_stats(logits, params, label, y, Beta, res_dir, save=True, typeOfFeedback=typeOfFeedbackEnum.FA, dimOut=47):
+def meta_stats(
+    logits, params, label, y, Beta, res_dir, save=True, typeOfFeedback=typeOfFeedbackEnum.FA, dimOut=47, save_index=""
+):
     """
         Compute meta statistics.
 
@@ -356,7 +358,7 @@ def meta_stats(logits, params, label, y, Beta, res_dir, save=True, typeOfFeedbac
             )
 
         if save:
-            log(E1, res_dir + "/E1_meta.txt")
+            log(E1, res_dir + "/E1_meta{}.txt".format(save_index))
 
         e_sym = [e[-1]]
         W = dict({k: v for k, v in params.items() if "forward" in k})
@@ -369,13 +371,13 @@ def meta_stats(logits, params, label, y, Beta, res_dir, save=True, typeOfFeedbac
             e_angl.append(measure_angle(e_fix_.mean(dim=0), e_sym_.mean(dim=0)))
 
         if save:
-            log(e_angl, res_dir + "/e_ang_meta.txt")
+            log(e_angl, res_dir + "/e_ang_meta{}.txt".format(save_index))
 
         # -- accuracy
         acc = accuracy(logits, label)
 
         if save:
-            log([acc], res_dir + "/acc_meta.txt")
+            log([acc], res_dir + "/acc_meta{}.txt".format(save_index))
 
     return acc
 

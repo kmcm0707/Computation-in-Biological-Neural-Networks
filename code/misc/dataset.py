@@ -287,7 +287,11 @@ class FashionMnistDataset(Dataset):
         transformed_data = []
         for idx in train_idx:
             transformed_data.append(self.transform(self.train_dataset.data[idx].float().unsqueeze_(0) / 255))
-        transformed_data = torch.cat(transformed_data)
+
+        if self.maxTrainingDataPerClass > 0:
+            transformed_data = torch.cat(transformed_data)
+        else:
+            transformed_data = torch.empty((0, 1, 28, 28))
 
         q_transformed_data = []
         for idx in query_idx:
@@ -343,6 +347,19 @@ class CombinedDataset(Dataset):
             [
                 transforms.Resize((dimensionOfImage, dimensionOfImage)),
                 transforms.ToTensor(),
+            ]
+        )
+
+        # -- download data
+        self.fashion_train_dataset = torchvision.datasets.FashionMNIST(
+            root=self.fashion_mnist_dir, download=True, train=True, transform=self.transform
+        )
+        self.fashion_test_dataset = torchvision.datasets.FashionMNIST(
+            root=self.fashion_mnist_dir, download=True, train=False, transform=self.transform
+        )
+        self.fashion_transform = transforms.Compose(
+            [
+                transforms.Resize((dimensionOfImage, dimensionOfImage)),
             ]
         )
 

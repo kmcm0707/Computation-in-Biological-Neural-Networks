@@ -39,7 +39,6 @@ from synapses.reservoir_synapse import ReservoirSynapse
 from torch import nn
 from torch.nn import functional
 from torch.utils.data import DataLoader, RandomSampler
-from torch.utils.tensorboard import SummaryWriter
 
 
 class Runner:
@@ -68,14 +67,24 @@ class Runner:
 
         # -- data params
         self.queryDataPerClass = self.options.queryDataPerClass
-        self.metatrain_dataset = self.options.metatrain_dataset
-        self.data_process = DataProcess(
-            minTrainingDataPerClass=self.options.minTrainingDataPerClass,
-            maxTrainingDataPerClass=self.options.maxTrainingDataPerClass,
+        self.metatrain_dataset_1 = self.options.metatrain_dataset_1
+        self.metatrain_dataset_2 = self.options.metatrain_dataset_2
+
+        self.data_process_1 = DataProcess(
+            minTrainingDataPerClass=self.options.minTrainingDataPerClass_1,
+            maxTrainingDataPerClass=self.options.maxTrainingDataPerClass_1,
             queryDataPerClass=self.queryDataPerClass,
             dimensionOfImage=28,
             device=self.device,
         )
+        if self.metatrain_dataset_2 is not None:
+            self.data_process_2 = DataProcess(
+                minTrainingDataPerClass=self.options.minTrainingDataPerClass_2,
+                maxTrainingDataPerClass=self.options.maxTrainingDataPerClass_2,
+                queryDataPerClass=self.queryDataPerClass,
+                dimensionOfImage=28,
+                device=self.device,
+            )
 
         # -- model params
         self.numberOfChemicals = numberOfChemicals
@@ -134,7 +143,11 @@ class Runner:
                 + "/"
                 + str(self.options.seed)
                 + "/"
-                + str(self.options.minTrainingDataPerClass)
+                + str(
+                    self.options.minTrainingDataPerClass_2
+                    if self.metatrain_dataset_2 is not None
+                    else self.options.minTrainingDataPerClass_1
+                )
             )
             os.makedirs(self.result_directory, exist_ok=False)
             with open(self.result_directory + "/arguments.txt", "w") as f:
@@ -147,7 +160,7 @@ class Runner:
 
             self.average_window = 10
             self.plot = Plot(self.result_directory, self.average_window)
-            self.summary_writer = SummaryWriter(log_dir=self.result_directory)
+            # self.summary_writer = SummaryWriter(log_dir=self.result_directory)
             self.chemical_analysis = ChemicalAnalysis(self.result_directory)
 
     def chemical_model_setter(
@@ -304,14 +317,17 @@ class Runner:
         if self.options.trainFeedback:
             self.UpdateFeedbackWeights.eval()
 
-        x_qry = None
-        y_qry = None
-        current_training_data_per_class = None
-
-        for eps, data in enumerate(self.metatrain_dataset):
+        for eps, data in enumerate(
+            self.metatrain_dataset_1
+            if self.metatrain_dataset_2 is None
+            else zip(self.metatrain_dataset_1, self.metatrain_dataset_2)
+        ):
             # -- initialize
             # Using a clone of the model parameters to allow for in-place operations
             # Maintains the computational graph for the model as .detach() is not used
+            data_1 = data if self.metatrain_dataset_2 is None else data[0]
+            data_2 = None if self.metatrain_dataset_2 is None else data[1]
+
             self.model.train()
             parameters, h_parameters, feedback_params = self.reinitialize()
 
@@ -331,9 +347,22 @@ class Runner:
                 self.UpdateFeedbackWeights.reset_time_index()
 
             # -- training data
-            x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(
-                data, self.options.numberOfClasses
+            x_trn_1, y_trn_1, x_qry_1, y_qry_1, current_training_data_per_class_1 = self.data_process_1(
+                data_1, self.options.numberOfClasses_1
             )
+            if self.metatrain_dataset_2 is not None:
+                x_trn_2, y_trn_2, x_qry_2, y_qry_2, current_training_data_per_class_2 = self.data_process_2(
+                    data_2, self.options.numberOfClasses_2
+                )
+                y_trn_2 = y_trn_2 + self.options.shift_labels_2
+                y_qry_2 = y_qry_2 + self.options.shift_labels_2
+
+                x_trn = torch.cat((x_trn_1, x_trn_2), dim=0)
+                y_trn = torch.cat((y_trn_1, y_trn_2), dim=0)
+                y_trn = y_trn.to(torch.int64)
+            else:
+                x_trn = x_trn_1
+                y_trn = y_trn_1
 
             # -- reset chemical analysis
             if self.options.chemical_analysis:
@@ -345,7 +374,7 @@ class Runner:
 
                     # -- chemical analysis
                     if self.options.chemical_analysis:
-                        self.chemical_analysis.chemical_autocorrelation(h_parameters)
+                        """self.chemical_analysis.chemical_autocorrelation(h_parameters)
                         self.chemical_analysis.parameter_autocorrelation(parameters)
                         self.chemical_analysis.chemical_parameter_autocorrelation(h_parameters, parameters)
                         self.chemical_analysis.chemical_actual_autocorrelation(
@@ -354,10 +383,10 @@ class Runner:
                         self.chemical_analysis.parameter_actual_autocorrelation(
                             parameters, lags=[1, 2, 3, 5, 7, 10, 12, 15, 20, 25, 30, 35, 40, 45, 50], min_time_step=1
                         )
-                        self.chemical_analysis.chemical_norms(h_parameters)
+                        self.chemical_analysis.chemical_norms(h_parameters)"""
 
-                        # self.chemical_analysis.chemical_tracking(h_parameters, 20)
-                        # self.chemical_analysis.parameter_tracking(parameters, 20)
+                        self.chemical_analysis.chemical_tracking(h_parameters, 20)
+                        self.chemical_analysis.parameter_tracking(parameters, 20)
 
                     # -- predict
                     y, logits = None, None
@@ -469,8 +498,8 @@ class Runner:
                         )
 
                     if self.options.chemical_analysis:
-                        # self.chemical_analysis.Kh_Pf_tracking(self.UpdateWeights.Kh, self.UpdateWeights.Pf, 20)
-                        pass
+                        self.chemical_analysis.Kh_Pf_tracking(self.UpdateWeights.Kh, self.UpdateWeights.Pf, 20)
+                        # pass
 
                     # -- update time index
                     self.UpdateWeights.update_time_index()
@@ -491,47 +520,77 @@ class Runner:
             """ meta test"""
             # -- predict
             self.model.eval()
-            y, logits = None, None
+            y_1, logits_1 = None, None
             if self.options.trainFeedback or self.options.trainSameFeedback:
-                y, logits = torch.func.functional_call(self.model, (parameters, h_parameters, feedback_params), x_qry)
+                y_1, logits_1 = torch.func.functional_call(
+                    self.model, (parameters, h_parameters, feedback_params), x_qry_1
+                )
             else:
-                y, logits = torch.func.functional_call(self.model, (parameters, h_parameters), x_qry)
+                y_1, logits_1 = torch.func.functional_call(self.model, (parameters, h_parameters), x_qry_1)
+            loss_meta_1 = self.loss_func(logits_1, y_qry_1.ravel())
 
-            loss_meta = self.loss_func(logits, y_qry.ravel())
+            if self.metatrain_dataset_2 is not None:
+                y_2, logits_2 = None, None
+                if self.options.trainFeedback or self.options.trainSameFeedback:
+                    y_2, logits_2 = torch.func.functional_call(
+                        self.model, (parameters, h_parameters, feedback_params), x_qry_2
+                    )
+                else:
+                    y_2, logits_2 = torch.func.functional_call(self.model, (parameters, h_parameters), x_qry_2)
+                loss_meta_2 = self.loss_func(logits_2, y_qry_2.ravel())
 
             # -- compute and store meta stats
-            acc = meta_stats(
-                logits,
+            acc_1 = meta_stats(
+                logits_1,
                 parameters,
-                y_qry.ravel(),
-                y,
+                y_qry_1.ravel(),
+                y_1,
                 self.model.beta,
                 self.result_directory,
                 self.save_results,
                 typeOfFeedback=self.options.typeOfFeedback,
                 dimOut=self.options.dimOut,
             )
+            if self.metatrain_dataset_2 is not None:
+                acc_2 = meta_stats(
+                    logits_2,
+                    parameters,
+                    y_qry_2.ravel(),
+                    y_2,
+                    self.model.beta,
+                    self.result_directory,
+                    self.save_results,
+                    typeOfFeedback=self.options.typeOfFeedback,
+                    dimOut=self.options.dimOut,
+                    save_index="_2",
+                )
 
             # -- log
             if self.save_results:
-                log([loss_meta.item()], self.result_directory + "/loss_meta.txt")
+                log([loss_meta_1.item()], self.result_directory + "/loss_meta.txt")
+                if self.metatrain_dataset_2 is not None:
+                    log([loss_meta_2.item()], self.result_directory + "/loss_meta_2.txt")
 
             line = "Runner Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f} \t Current Training Data Per Class: {}".format(
-                eps + 1, loss_meta.item(), acc, current_training_data_per_class
+                eps + 1, loss_meta_1.item(), acc_1, current_training_data_per_class_1
             )
+            if self.metatrain_dataset_2 is not None:
+                line += "\tLoss_2: {:.6f}\tAccuracy_2: {:.3f}\t Current Training Data Per Class_2: {}".format(
+                    loss_meta_2.item(), acc_2, current_training_data_per_class_2
+                )
             if self.display:
                 print(line)
 
             if self.save_results:
-                self.summary_writer.add_scalar("Loss/meta", loss_meta.item(), eps)
-                self.summary_writer.add_scalar("Accuracy/meta", acc, eps)
+                # self.summary_writer.add_scalar("Loss/meta", loss_meta.item(), eps)
+                # self.summary_writer.add_scalar("Accuracy/meta", acc, eps)
 
                 with open(self.result_directory + "/params.txt", "a") as f:
                     f.writelines(line + "\n")
 
         # -- plot
         if self.save_results:
-            self.summary_writer.close()
+            # self.summary_writer.close()
             self.plot()
 
         print("Runner complete.")
@@ -587,23 +646,23 @@ def run(
         80,
         90,
         100,
-        110,
-        120,
-        130,
-        140,
-        150,
-        160,
-        170,
-        180,
-        190,
-        200,
-        225,
-        250,
-        275,
-        300,
-        325,
-        350,
-        375,
+        # 110,
+        # 120,
+        # 130,
+        # 140,
+        # 150,
+        # 160,
+        # 170,
+        # 180,
+        # 190,
+        # 200,
+        # 225,
+        # 250,
+        # 275,
+        # 300,
+        # 325,
+        # 350,
+        # 375,
     ]
     """trainingDataPerClass = [
         250,
@@ -640,7 +699,7 @@ def run(
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "EMNIST"
+    dataset_name = "COMBINED"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -663,11 +722,49 @@ def run(
         )
         dimOut = 10
         epochs = 20
+    elif dataset_name == "COMBINED":
+        numberOfClasses_1 = 5
+        numberOfClasses_2 = 10
+        minTrainingDataPerClass_1 = 150
+        maxTrainingDataPerClass_1 = 150
+        dataset_1 = EmnistDataset(
+            minTrainingDataPerClass=minTrainingDataPerClass_1,
+            maxTrainingDataPerClass=maxTrainingDataPerClass_1,
+            queryDataPerClass=queryDataPerClass,
+            dimensionOfImage=28,
+        )
+        dataset_2 = FashionMnistDataset(
+            minTrainingDataPerClass=minTrainingDataPerClass,
+            maxTrainingDataPerClass=maxTrainingDataPerClass,
+            queryDataPerClass=queryDataPerClass,
+            dimensionOfImage=28,
+            all_classes=True,
+        )
+        shift_labels_2 = 47  # EMNIST has 47 classes
+        dimOut = 57
 
-    sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
-    metatrain_dataset = DataLoader(
-        dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True, num_workers=numWorkers
-    )
+    if dataset_name != "COMBINED":
+        sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
+        metatrain_dataset = DataLoader(
+            dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True, num_workers=numWorkers
+        )
+    else:
+        sampler_1 = RandomSampler(data_source=dataset_1, replacement=True, num_samples=epochs * numberOfClasses_1)
+        sampler_2 = RandomSampler(data_source=dataset_2, replacement=True, num_samples=epochs * numberOfClasses_2)
+        metatrain_dataset_1 = DataLoader(
+            dataset=dataset_1,
+            sampler=sampler_1,
+            batch_size=numberOfClasses_1,
+            drop_last=True,
+            num_workers=numWorkers,
+        )
+        metatrain_dataset_2 = DataLoader(
+            dataset=dataset_2,
+            sampler=sampler_2,
+            batch_size=numberOfClasses_2,
+            drop_last=True,
+            num_workers=numWorkers,
+        )
 
     # -- options
     model = modelEnum.complex
@@ -683,8 +780,8 @@ def run(
             minTau=2,
             maxTau=max_tau,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_9,
+            z_vector=zVectorEnum.all_ones,
+            operator=operatorEnum.mode_6,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -800,16 +897,23 @@ def run(
         seed=seed,
         size=sizeEnum.normal,
         save_results=True,
-        metatrain_dataset=metatrain_dataset,
+        metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
+        metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
+        shift_labels_2=0,  # shift_labels_2 if dataset_name == "COMBINED" else 0,
         display=display,
-        numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
+        numberOfClasses_1=(
+            numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses
+        ),  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
+        numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" else None,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
-        minTrainingDataPerClass=minTrainingDataPerClass,
-        maxTrainingDataPerClass=maxTrainingDataPerClass,
+        minTrainingDataPerClass_1=minTrainingDataPerClass_1 if dataset_name == "COMBINED" else minTrainingDataPerClass,
+        maxTrainingDataPerClass_1=maxTrainingDataPerClass_1 if dataset_name == "COMBINED" else maxTrainingDataPerClass,
+        minTrainingDataPerClass_2=minTrainingDataPerClass if dataset_name == "COMBINED" else None,
+        maxTrainingDataPerClass_2=maxTrainingDataPerClass if dataset_name == "COMBINED" else None,
         queryDataPerClass=queryDataPerClass,
         typeOfFeedback=typeOfFeedback,
         dimOut=dimOut,
@@ -855,7 +959,8 @@ def runner_main():
         # os.getcwd() + "/results/mode_6_3_chem_1/0/20250910-204609",
         # os.getcwd() + "/results/mode_6_5_chem_1/0/20250910-204750",
         # os.getcwd() + "/results/mode_6_5_chem_lr_6/0/20250715-172436"
-        # os.getcwd() + "/results/DFA_5_chem_longer/2/20251014-003536"
+        os.getcwd()
+        + "/results/DFA_5_chem_longer/2/20251014-003536"
         # #"/results/mode_6_7_chem_1/0/20250910-222310",
         # s.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-184038",
         # os.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-195827",
@@ -877,10 +982,9 @@ def runner_main():
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_10",
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_20",
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_50",
-        # """os.getcwd()
-        # + "/results_2/20251103-183210"""
-        os.getcwd()
-        + "/results_2/mode_9_rand/0/20251105-152312"
+        # os.getcwd() + "/results_2/20251103-183210",
+        # os.getcwd()
+        # + "/results_2/mode_9_rand/0/20251105-152312"
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_500",
     ]
     for i in range(len(modelPath_s)):
@@ -888,10 +992,10 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_rand",
+                result_subdirectory="runner_mode_6_CL_no_shift",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=5,
-                max_tau=[50][i],
+                max_tau=[500][i],
             )
