@@ -646,23 +646,23 @@ def run(
         80,
         90,
         100,
-        # 110,
-        # 120,
-        # 130,
-        # 140,
-        # 150,
-        # 160,
-        # 170,
-        # 180,
-        # 190,
-        # 200,
-        # 225,
-        # 250,
-        # 275,
-        # 300,
-        # 325,
-        # 350,
-        # 375,
+        110,
+        120,
+        130,
+        140,
+        150,
+        160,
+        170,
+        180,
+        190,
+        200,
+        225,
+        250,
+        275,
+        300,
+        325,
+        350,
+        375,
     ]
     """trainingDataPerClass = [
         250,
@@ -699,7 +699,7 @@ def run(
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "COMBINED"
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -780,8 +780,8 @@ def run(
             minTau=2,
             maxTau=max_tau,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_6,
+            z_vector=zVectorEnum.default,
+            operator=operatorEnum.mode_9,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -989,17 +989,17 @@ def runner_main():
         # os.getcwd()
         # + "/results_2/mode_6_CB/1/20251111-151155"
         os.getcwd()
-        + "/results_2/mode_6_CB/1/20251111-152115"
+        + "/results_2/mode_9_CB/5/20251112-001951"
     ]
     for i in range(len(modelPath_s)):
         for index in range(0, 28):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_6_CL_7",
+                result_subdirectory="runner_mode_9_CB_EMNIST",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=7,
-                max_tau=[500][i],
+                numberOfChemicals=5,
+                max_tau=[50][i],
             )
