@@ -431,13 +431,13 @@ class MetaLearner:
                     self.options.continueTraining + "/UpdateWeights.pth", weights_only=True, map_location=self.device
                 )
             )
-            self.UpdateMetaParameters.load_state_dict(
-                torch.load(
-                    self.options.continueTraining + "/UpdateMetaParameters.pth",
-                    weights_only=True,
-                    map_location=self.device,
-                )
-            )
+            #self.UpdateMetaParameters.load_state_dict(
+            #    torch.load(
+            #        self.options.continueTraining + "/UpdateMetaParameters.pth",
+            #        weights_only=True,
+            #        map_location=self.device,
+            #    )
+            #)
             if self.options.trainSeparateFeedback:
                 self.UpdateFeedbackWeights.load_state_dict(
                     torch.load(
@@ -970,10 +970,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=500,
+            maxTau=50,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_6,
+            z_vector=zVectorEnum.default,
+            operator=operatorEnum.mode_9,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1069,7 +1069,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results/error_scalar_rich_5_chem/0/20251020-163146"
+    continue_training = current_dir + "/results_2/20251103-183210"
     # -- meta-learner options
     device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
@@ -1086,7 +1086,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.00009,
+        lr=0.001,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -1097,7 +1097,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=None,
+        continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
         hrm_discount=300,
@@ -1110,7 +1110,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 9
+    numberOfChemicals = 5
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1141,4 +1141,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="mode_6_CB", index=i)
+        run(seed=5, display=True, result_subdirectory="mode_9_CB", index=i)
