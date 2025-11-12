@@ -261,8 +261,10 @@ class MetaLearner:
                     f.writelines("Seed: {}\n".format(seed))
                     f.writelines("Model: {}\n".format("backprop"))
                     f.writelines("Number of training data per class 1: {}\n".format(self.trainingDataPerClass_1))
+                    f.writelines("Number of classes 1: {}\n".format(self.number_of_classes_1))
                     if self.trainingDataPerClass_2 is not None:
                         f.writelines("Number of training data per class 2: {}\n".format(self.trainingDataPerClass_2))
+                        f.writelines("Number of classes 2: {}\n".format(self.number_of_classes_2))
                     f.writelines("Number of query data per class: {}\n".format(self.queryDataPerClass))
             except FileExistsError:
                 warnings.warn("The directory already exists. The results will be overwritten.")
@@ -451,9 +453,9 @@ def run(
 
     # -- load data
     numWorkers = 3
-    epochs = 20
+    epochs = 10
     numberOfClasses = 5
-    trainingDataPerClass_1 = 150
+    trainingDataPerClass_1 = 40
     trainingDataPerClass_2 = trainingDataPerClass
     dimOut = 47
     dataset_name = "COMBINED"
@@ -550,21 +552,30 @@ def backprop_main():
     # -- run
     trainingDataPerClass = [
         0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
         10,
         20,
         30,
         40,
         50,
         60,
-        70,
-        80,
-        90,
-        100,
-        110,
-        120,
-        130,
-        140,
-        150,
+        # 70,
+        # 80,
+        # 90,
+        # 100,
+        # 110,
+        # 120,
+        # 130,
+        # 140,
+        # 150,
         # 160,
         # 170,
         # 180,
@@ -611,6 +622,6 @@ def backprop_main():
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_backprop_CL_5",
+            result_subdirectory="runner_backprop_CL_2",
             trainingDataPerClass=trainingData,
         )

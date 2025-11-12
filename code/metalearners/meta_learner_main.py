@@ -784,6 +784,7 @@ class MetaLearner:
             if self.save_results:
                 log([loss_meta.item()], self.result_directory + "/loss_meta.txt")
                 if self.metatrain_dataset_2 is not None:
+                    log([acc_2], self.result_directory + "/acc_meta_total.txt")
                     log([loss_meta_1.item()], self.result_directory + "/loss_meta_1.txt")
                     log([loss_meta_2.item()], self.result_directory + "/loss_meta_2.txt")
 

@@ -724,9 +724,9 @@ def run(
         epochs = 20
     elif dataset_name == "COMBINED":
         numberOfClasses_1 = 5
-        numberOfClasses_2 = 10
-        minTrainingDataPerClass_1 = 150
-        maxTrainingDataPerClass_1 = 150
+        numberOfClasses_2 = 5
+        minTrainingDataPerClass_1 = 40
+        maxTrainingDataPerClass_1 = 40
         dataset_1 = EmnistDataset(
             minTrainingDataPerClass=minTrainingDataPerClass_1,
             maxTrainingDataPerClass=maxTrainingDataPerClass_1,
@@ -899,7 +899,7 @@ def run(
         save_results=True,
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
-        shift_labels_2=0,  # shift_labels_2 if dataset_name == "COMBINED" else 0,
+        shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" else 0,
         display=display,
         numberOfClasses_1=(
             numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses
@@ -959,8 +959,8 @@ def runner_main():
         # os.getcwd() + "/results/mode_6_3_chem_1/0/20250910-204609",
         # os.getcwd() + "/results/mode_6_5_chem_1/0/20250910-204750",
         # os.getcwd() + "/results/mode_6_5_chem_lr_6/0/20250715-172436"
-        os.getcwd()
-        + "/results/DFA_5_chem_longer/2/20251014-003536"
+        # os.getcwd()
+        # + "/results/DFA_5_chem_longer/2/20251014-003536"
         # #"/results/mode_6_7_chem_1/0/20250910-222310",
         # s.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-184038",
         # os.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-195827",
@@ -986,16 +986,20 @@ def runner_main():
         # os.getcwd()
         # + "/results_2/mode_9_rand/0/20251105-152312"
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_500",
+        # os.getcwd()
+        # + "/results_2/mode_6_CB/1/20251111-151155"
+        os.getcwd()
+        + "/results_2/mode_6_CB/1/20251111-152115"
     ]
     for i in range(len(modelPath_s)):
         for index in range(0, 28):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_6_CL_no_shift",
+                result_subdirectory="runner_mode_6_CL_7",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=5,
+                numberOfChemicals=7,
                 max_tau=[500][i],
             )
