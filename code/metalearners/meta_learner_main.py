@@ -431,13 +431,13 @@ class MetaLearner:
                     self.options.continueTraining + "/UpdateWeights.pth", weights_only=True, map_location=self.device
                 )
             )
-            #self.UpdateMetaParameters.load_state_dict(
+            # self.UpdateMetaParameters.load_state_dict(
             #    torch.load(
             #        self.options.continueTraining + "/UpdateMetaParameters.pth",
             #        weights_only=True,
             #        map_location=self.device,
             #    )
-            #)
+            # )
             if self.options.trainSeparateFeedback:
                 self.UpdateFeedbackWeights.load_state_dict(
                     torch.load(
@@ -1070,7 +1070,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/20251103-183210"
+    continue_training = current_dir + "/results_2/20251103-214650"
     # -- meta-learner options
     device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
@@ -1111,7 +1111,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 3
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
