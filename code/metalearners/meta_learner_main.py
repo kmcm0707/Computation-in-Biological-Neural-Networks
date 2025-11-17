@@ -1075,10 +1075,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/20251103-183210"
-    #continue_training = (
-    #    current_dir + "/results_2/mode_9_scalar/5/20251117-021713"
-    #)  # "/results_2/mode_9/0/20251107-172732"
+    #ontinue_training = current_dir + "/results_2/20251103-183210"
+    continue_training = (
+        current_dir + "/results_2/mode_9_scalar/0/20251117-170714"
+    )  # "/results_2/mode_9/0/20251107-172732"
     # -- meta-learner options
     device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
@@ -1095,10 +1095,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.0001,
+        lr=0.0007,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,
         trainSeparateFeedback=False,
         feedbackSeparateModel=feedbackModel,
         trainSameFeedback=False,
@@ -1106,7 +1106,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=continue_training,
+        continueTraining=None, #continue_training,
         typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
         hrm_discount=-1,
