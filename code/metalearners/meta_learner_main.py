@@ -519,6 +519,9 @@ class MetaLearner:
                 else:
                     x_trn, y_trn = torch.cat((x_trn_2, x_trn_1), dim=0), torch.cat((y_trn_2, y_trn_1), dim=0)
                     y_trn = y_trn.to(torch.int64)
+            else:
+                x_trn = x_trn_1
+                y_trn = y_trn_1
 
             # -- error control
             if self.options.error_control:
@@ -894,12 +897,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     random.seed(seed)
 
     # -- load data
-    numWorkers = 2
-    epochs = 1500
+    numWorkers = 0
+    epochs = 1200
 
-    dataset_name = "COMBINED"
+    dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
-    maxTrainingDataPerClass = 40
+    maxTrainingDataPerClass = 80
     queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
@@ -924,19 +927,19 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     elif dataset_name == "COMBINED":
         numberOfClasses_1 = 5
         numberOfClasses_2 = 5
-        dataset_1 = EmnistDataset(
-            minTrainingDataPerClass=minTrainingDataPerClass,
-            maxTrainingDataPerClass=maxTrainingDataPerClass,
-            queryDataPerClass=queryDataPerClass,
-            dimensionOfImage=28,
-        )
-        dataset_2 = FashionMnistDataset(
-            minTrainingDataPerClass=minTrainingDataPerClass,
-            maxTrainingDataPerClass=maxTrainingDataPerClass,
-            queryDataPerClass=queryDataPerClass,
-            dimensionOfImage=28,
-            all_classes=True,
-        )
+        #dataset_1 = EmnistDataset(
+        #   minTrainingDataPerClass=minTrainingDataPerClass,
+        #   maxTrainingDataPerClass=maxTrainingDataPerClass,
+        #   queryDataPerClass=queryDataPerClass,
+        #   dimensionOfImage=28,
+        #)
+        #dataset_2 = FashionMnistDataset(
+        #   minTrainingDataPerClass=minTrainingDataPerClass,
+        #   maxTrainingDataPerClass=maxTrainingDataPerClass,
+        #   queryDataPerClass=queryDataPerClass,
+        #   dimensionOfImage=28,
+        #   all_classes=True,
+        #
         shift_labels_2 = 47  # EMNIST has 47 classes
         dimOut = 57
 
@@ -969,7 +972,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             update_rules=[0, 1, 2, 3, 4, 6, 8, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
-            kMatrix=kMatrixEnum.zero,
+            kMatrix=kMatrixEnum.xavier,
             minTau=2,  # + 1 / 50,
             maxTau=50,
             y_vector=yVectorEnum.none,
@@ -1099,10 +1102,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+        continueTraining=None,#continue_training,
+        typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
-        hrm_discount=300,
+        hrm_discount=-1,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1112,7 +1115,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 7
+    numberOfChemicals = 5
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1143,4 +1146,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=5, display=True, result_subdirectory="mode_9_CB", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_scalar", index=i)
