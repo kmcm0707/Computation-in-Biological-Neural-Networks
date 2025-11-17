@@ -1,3 +1,4 @@
+import copy
 import datetime
 import os
 import random
@@ -192,6 +193,7 @@ class MetaLearner:
         dimOut: int = 47,
         numberOfDataRepetitions: int = 1,
         size: sizeEnum = sizeEnum.normal,
+        elastic_weight_consolidation: bool = False,
     ):
 
         # -- processor params
@@ -223,6 +225,7 @@ class MetaLearner:
         self.number_of_classes_2 = number_of_classes_2
         self.shift_class_2 = shift_class_2
         self.numberOfDataRepetitions = numberOfDataRepetitions
+        self.elastic_weight_consolidation = elastic_weight_consolidation
 
         # -- model params
         if self.device == "cpu":  # Remove if using a newer GPU
@@ -266,6 +269,9 @@ class MetaLearner:
                         f.writelines("Number of training data per class 2: {}\n".format(self.trainingDataPerClass_2))
                         f.writelines("Number of classes 2: {}\n".format(self.number_of_classes_2))
                     f.writelines("Number of query data per class: {}\n".format(self.queryDataPerClass))
+                    f.writelines("Dimension of output: {}\n".format(self.dimOut))
+                    f.writelines("Size: {}\n".format(self.size))
+                    f.writelines("Elastic Weight Consolidation: {}\n".format(self.elastic_weight_consolidation))
             except FileExistsError:
                 warnings.warn("The directory already exists. The results will be overwritten.")
 
@@ -317,9 +323,6 @@ class MetaLearner:
         """
         self.model.train()
 
-        x_qry = None
-        y_qry = None
-
         for eps, data in enumerate(
             self.metatrain_dataset_1
             if self.metatrain_dataset_2 is None
@@ -328,6 +331,7 @@ class MetaLearner:
 
             data_1 = data if self.metatrain_dataset_2 is None else data[0]
             data_2 = None if self.metatrain_dataset_2 is None else data[1]
+            fim = {}
 
             # -- re initialize model
             self.model.train()
@@ -360,6 +364,32 @@ class MetaLearner:
                     loss_adapt.backward()
                     self.UpdateParameters.step()
 
+                fim = {}
+                if self.elastic_weight_consolidation:
+                    # -- compute Fisher Information Matrix
+
+                    for itr_fim, (x, label) in enumerate(zip(x_trn_1, y_trn_1)):
+                        # -- predict
+                        y, logits = self.model(x.unsqueeze(0).unsqueeze(0))
+
+                        # -- compute loss
+                        loss_fim = self.loss_func(logits, label)
+
+                        # -- backprop
+                        self.UpdateParameters.zero_grad()
+                        loss_fim.backward()
+
+                        for n, p in self.model.named_parameters():
+                            if p.requires_grad:
+                                if n not in fim:
+                                    fim[n] = p.grad.data.clone().pow(2)
+                                else:
+                                    fim[n] += p.grad.data.clone().pow(2)
+                    for n, p in self.model.named_parameters():
+                        if p.requires_grad:
+                            fim[n] = fim[n] / float(len(x_trn_1))
+                    saved_params = copy.deepcopy(self.model.state_dict())
+
                 for itr_adapt, (x, label) in (
                     enumerate(zip(x_trn_2, y_trn_2)) if self.metatrain_dataset_2 is not None else []
                 ):
@@ -369,6 +399,16 @@ class MetaLearner:
 
                     # -- update network params
                     loss_adapt = self.loss_func(logits, label)
+                    all_ewc_loss = 0
+                    if self.elastic_weight_consolidation:
+                        # -- EWC penalty
+                        ewc_loss = 0
+                        for n, p in self.model.named_parameters():
+                            if p.requires_grad:
+                                ewc_loss += (fim[n] * (p - saved_params[n]).pow(2)).flatten().sum(dim=-1)
+                        loss_adapt += ewc_loss * 10000
+                        all_ewc_loss += ewc_loss
+                    # loss_adapt += all_ewc_loss * 1000
 
                     # -- backprop
                     self.UpdateParameters.zero_grad()
@@ -531,6 +571,7 @@ def run(
         dimOut=dimOut,
         numberOfDataRepetitions=1,
         size=sizeEnum.normal,
+        elastic_weight_consolidation=True,
     )
     metalearning_model.train()
 
@@ -551,16 +592,16 @@ def backprop_main():
     """
     # -- run
     trainingDataPerClass = [
-        0,
-        1,
-        2,
-        3,
-        4,
+        # 0,
+        # 1,
+        # 2,
+        # 3,
+        # 4,
         5,
-        6,
-        7,
-        8,
-        9,
+        # 6,
+        # 7,
+        # 8,
+        # 9,
         10,
         20,
         30,
@@ -622,6 +663,6 @@ def backprop_main():
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_backprop_CL_2",
+            result_subdirectory="runner_backprop_CL_EWC_10000",
             trainingDataPerClass=trainingData,
         )

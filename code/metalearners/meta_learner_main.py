@@ -904,6 +904,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     minTrainingDataPerClass = 5
     maxTrainingDataPerClass = 80
     queryDataPerClass = 20
+    dataset_1 = None
+    dataset_2 = None
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -927,13 +929,13 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     elif dataset_name == "COMBINED":
         numberOfClasses_1 = 5
         numberOfClasses_2 = 5
-        #dataset_1 = EmnistDataset(
+        # dataset_1 = EmnistDataset(
         #   minTrainingDataPerClass=minTrainingDataPerClass,
         #   maxTrainingDataPerClass=maxTrainingDataPerClass,
         #   queryDataPerClass=queryDataPerClass,
         #   dimensionOfImage=28,
-        #)
-        #dataset_2 = FashionMnistDataset(
+        # )
+        # dataset_2 = FashionMnistDataset(
         #   minTrainingDataPerClass=minTrainingDataPerClass,
         #   maxTrainingDataPerClass=maxTrainingDataPerClass,
         #   queryDataPerClass=queryDataPerClass,
@@ -972,7 +974,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             update_rules=[0, 1, 2, 3, 4, 6, 8, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
-            kMatrix=kMatrixEnum.xavier,
+            kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
             maxTau=50,
             y_vector=yVectorEnum.none,
@@ -1073,8 +1075,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    #continue_training = current_dir + "/results_2/20251103-214650"
-    continue_training = current_dir + "/results_2/mode_9/0/20251107-172732"
+    # continue_training = current_dir + "/results_2/20251103-214650"
+    continue_training = (
+        current_dir + "/results_2/mode_9_scalar/5/20251117-021713"
+    )  # "/results_2/mode_9/0/20251107-172732"
     # -- meta-learner options
     device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
@@ -1102,7 +1106,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=None,#continue_training,
+        continueTraining=continue_training,  # continue_training,
         typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
         hrm_discount=-1,

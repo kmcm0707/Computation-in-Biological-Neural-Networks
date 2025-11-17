@@ -6,8 +6,8 @@ size: sizeEnum.normal
 seed: 0
 save_results: True
 results_subdir: runner_mode_9_CB_1_chem
-metatrain_dataset_1: <torch.utils.data.dataloader.DataLoader object at 0x00000219AB52ED60>
-metatrain_dataset_2: <torch.utils.data.dataloader.DataLoader object at 0x00000219AB52E250>
+metatrain_dataset_1: <torch.utils.data.dataloader.DataLoader object at 0x000002439B58EE80>
+metatrain_dataset_2: <torch.utils.data.dataloader.DataLoader object at 0x000002439B55C070>
 shift_labels_2: 47
 display: True
 numberOfClasses_1: 5
@@ -27,13 +27,13 @@ dimOut: 57
 data_repetitions: 1
 wta: False
 chemical_analysis: False
-nonLinear: <function tanh at 0x00000219A116F160>
+nonLinear: <function tanh at 0x00000243911C0160>
 bias: False
 update_rules: [0, 1, 2, 3, 4, 6, 8, 9]
 pMatrix: pMatrixEnum.first_col
 kMatrix: kMatrixEnum.zero
 minTau: 2
-maxTau: 500
+maxTau: 50
 y_vector: yVectorEnum.none
 z_vector: zVectorEnum.all_ones
 operator: operatorEnum.mode_6

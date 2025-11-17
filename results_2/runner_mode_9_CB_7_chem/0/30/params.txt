@@ -1,0 +1,10 @@
+Runner Episode: 1	Loss: 1.458535	Accuracy: 0.590 	 Current Training Data Per Class: 40	Loss_2: 1.338274	Accuracy_2: 0.570	 Current Training Data Per Class_2: 30
+Runner Episode: 2	Loss: 0.900809	Accuracy: 0.800 	 Current Training Data Per Class: 40	Loss_2: 1.256418	Accuracy_2: 0.640	 Current Training Data Per Class_2: 30
+Runner Episode: 3	Loss: 1.606939	Accuracy: 0.520 	 Current Training Data Per Class: 40	Loss_2: 1.460722	Accuracy_2: 0.510	 Current Training Data Per Class_2: 30
+Runner Episode: 4	Loss: 1.404376	Accuracy: 0.550 	 Current Training Data Per Class: 40	Loss_2: 1.785570	Accuracy_2: 0.510	 Current Training Data Per Class_2: 30
+Runner Episode: 5	Loss: 1.851072	Accuracy: 0.300 	 Current Training Data Per Class: 40	Loss_2: 1.086535	Accuracy_2: 0.670	 Current Training Data Per Class_2: 30
+Runner Episode: 6	Loss: 1.981587	Accuracy: 0.340 	 Current Training Data Per Class: 40	Loss_2: 1.325859	Accuracy_2: 0.530	 Current Training Data Per Class_2: 30
+Runner Episode: 7	Loss: 1.935448	Accuracy: 0.300 	 Current Training Data Per Class: 40	Loss_2: 1.144121	Accuracy_2: 0.720	 Current Training Data Per Class_2: 30
+Runner Episode: 8	Loss: 1.985570	Accuracy: 0.400 	 Current Training Data Per Class: 40	Loss_2: 1.323446	Accuracy_2: 0.570	 Current Training Data Per Class_2: 30
+Runner Episode: 9	Loss: 1.338391	Accuracy: 0.550 	 Current Training Data Per Class: 40	Loss_2: 1.131489	Accuracy_2: 0.640	 Current Training Data Per Class_2: 30
+Runner Episode: 10	Loss: 2.079012	Accuracy: 0.440 	 Current Training Data Per Class: 40	Loss_2: 1.329810	Accuracy_2: 0.570	 Current Training Data Per Class_2: 30
