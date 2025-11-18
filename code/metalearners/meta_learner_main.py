@@ -776,6 +776,7 @@ class MetaLearner:
 
             # -- gradient clipping
             # torch.nn.utils.clip_grad_norm_(self.UpdateWeights.all_meta_parameters.parameters(), 5000)
+            torch.nn.utils.clip_grad_value_(self.UpdateWeights.all_meta_parameters.parameters(), 1)
 
             # -- update
             self.UpdateMetaParameters.step()
@@ -1075,7 +1076,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    #ontinue_training = current_dir + "/results_2/20251103-183210"
+    # ontinue_training = current_dir + "/results_2/20251103-183210"
     continue_training = (
         current_dir + "/results_2/mode_9_scalar/0/20251117-192632"
     )  # "/results_2/mode_9/0/20251107-172732"

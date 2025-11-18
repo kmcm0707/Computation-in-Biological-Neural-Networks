@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from misc.dataset import DataProcess, FashionMnistDataset
+from misc.dataset import DataProcess, SplitFashionMnistDataset
 from torch.utils.data import DataLoader, RandomSampler
 
 if __name__ == "__main__":
@@ -311,20 +311,21 @@ if __name__ == "__main__":
     )
     print(matrix)
 
-    dataset = FashionMnistDataset(
-        minTrainingDataPerClass=1,
-        maxTrainingDataPerClass=1,
+    dataset = SplitFashionMnistDataset(
+        minTrainingDataPerClass=3,
+        maxTrainingDataPerClass=3,
         queryDataPerClass=1,
         dimensionOfImage=28,
+        class_indices=[1, 2],
         all_classes=True,
     )
     dimOut = 10
 
-    sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=1 * 10)
-    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=10, drop_last=True, num_workers=2)
+    sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=3 * 2)
+    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=2, drop_last=True, num_workers=2)
     data_process = DataProcess(
-        minTrainingDataPerClass=1,
-        maxTrainingDataPerClass=1,
+        minTrainingDataPerClass=3,
+        maxTrainingDataPerClass=3,
         queryDataPerClass=1,
         dimensionOfImage=28,
         device=torch.device("cpu"),
@@ -332,5 +333,6 @@ if __name__ == "__main__":
 
     for eps, data in enumerate(metatrain_dataset):
 
-        x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = data_process(data, 10)
+        x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = data_process(data, 2)
         print(y_trn)
+        print(y_qry)

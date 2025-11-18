@@ -629,7 +629,7 @@ def run(
 
     # -- load data
     numWorkers = 4
-    epochs = 10
+    epochs = 20
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
@@ -643,16 +643,16 @@ def run(
         50,
         60,
         70,
-        # 80,
-        # 90,
-        # 100,
-        # 110,
-        # 120,
-        # 130,
-        # 140,
-        # 150,
-        # 160,
-        # 170,
+        80,
+        90,
+        100,
+        110,
+        120,
+        130,
+        140,
+        150,
+        160,
+        170,
         # 180,
         # 190,
         # 200,
@@ -699,7 +699,7 @@ def run(
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "COMBINED"
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -710,7 +710,7 @@ def run(
             dimensionOfImage=28,
         )
         dimOut = 47
-        epochs = 10
+        epochs = 20
     elif dataset_name == "FASHION-MNIST":
         numberOfClasses = 10
         dataset = FashionMnistDataset(
@@ -780,8 +780,8 @@ def run(
             minTau=2,
             maxTau=max_tau,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_6,
+            z_vector=zVectorEnum.default,
+            operator=operatorEnum.mode_9,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -906,7 +906,7 @@ def run(
         ),  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" else None,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
@@ -988,8 +988,10 @@ def runner_main():
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_500",
         # os.getcwd()
         # + "/results_2/mode_6_CB/1/20251111-151155" 20251111-203959
-        os.getcwd()
-        + "/results_2/mode_6_CB/1/20251111-203959"
+        # os.getcwd()
+        # + "/results_2/mode_6_CB/1/20251111-203959"
+        # os.getcwd() + "/results_2/mode_9_scalar/0/20251117-190610",
+        os.getcwd() + "/results_2/mode_9_scalar/0/20251117-212550",
         # os.getcwd()
         # + "/results_2/mode_9_CB/5/20251112-001951"
         # os.getcwd()
@@ -1000,10 +1002,10 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_CB_1_chem",
+                result_subdirectory="runner_mode_9_scalar_3",
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+                typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=1,
+                numberOfChemicals=5,
                 max_tau=[50][i],
             )

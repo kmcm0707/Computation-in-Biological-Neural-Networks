@@ -306,6 +306,125 @@ class FashionMnistDataset(Dataset):
         )
 
 
+class SplitFashionMnistDataset(Dataset):
+    """
+        Split Fashion MNIST Dataset class.
+
+    Constructs training and query sets for meta-training from a subset of
+    Fashion MNIST classes. Note that rather than a single image and the
+    corresponding label, each data point represents samples from a class of
+    images, containing training and query data from that category.
+    """
+
+    def __init__(
+        self,
+        minTrainingDataPerClass: int,
+        maxTrainingDataPerClass: int,
+        queryDataPerClass: int,
+        dimensionOfImage: int,
+        class_indices: list[int],
+        all_classes: bool = False,
+    ):
+        """
+            Initialize the SplitFashionMnistDataset class.
+
+        The method first downloads and preprocesses the Fashion MNIST dataset,
+        creating directories and files necessary for later use.
+
+        :param trainingDataPerClass: (int) integer value representing the number of training data per class,
+        :param queryDataPerClass: (int) integer value representing the number of query data per class,
+        :param dimensionOfImage: (int) integer value representing the dimension size of the images.
+        :param class_indices: (list[int]) list of class indices to include in the dataset.
+        """
+
+        # -- create directory
+        s_dir = os.getcwd()
+        self.fashion_mnist_dir = s_dir + "/data/fashion_mnist/"
+        os.makedirs(self.fashion_mnist_dir, exist_ok=True)
+
+        self.minTrainingDataPerClass = minTrainingDataPerClass
+        self.maxTrainingDataPerClass = maxTrainingDataPerClass
+        self.queryDataPerClass = queryDataPerClass
+        self.class_indices = class_indices
+        self.all_classes = all_classes
+        self.current_idx = 0
+
+        # -- process data
+        self.transform = transforms.Compose(
+            [
+                transforms.Resize((dimensionOfImage, dimensionOfImage)),
+            ]
+        )
+
+        # -- download data
+        self.train_dataset = torchvision.datasets.FashionMNIST(
+            root=self.fashion_mnist_dir, download=True, train=True, transform=self.transform
+        )
+        self.test_dataset = torchvision.datasets.FashionMNIST(
+            root=self.fashion_mnist_dir, download=True, train=False, transform=self.transform
+        )
+
+    def __len__(self):
+        """
+            Get the length of the dataset.
+
+        :return: int: the length of the dataset, i.e., the number of classes in the
+            dataset
+        """
+        return len(self.class_indices)
+
+    def __getitem__(self, index: int):
+        """
+            Get a tuple of tensors containing training and query images and
+            corresponding labels for a given index.
+        The images are loaded from the Fashion MNIST dataset. Each image is
+        converted to grayscale and resized to the specified dimension using
+        `torchvision.transforms.Resize` and `torchvision.transforms.ToTensor`.
+        The returned tuples contain tensors of K and Q images, where K is the
+        training data size per class and Q is the query data size per class.
+        Both K and Q are specified at initialization. The indices corresponding
+        to the images are also returned in tensors of size K and Q, respectively.
+        :param index: (int) Index of the character folder from which images are to be retrieved.
+        :return: tuple: A tuple of tensors containing training and query images and
+            corresponding labels for a given index and current training data per class.
+        """
+        if self.all_classes:
+            index = self.current_idx
+            self.current_idx += 1
+            if self.current_idx == len(self.class_indices):
+                self.current_idx = 0
+        class_index = self.class_indices[index]
+
+        train_idx = self.train_dataset.targets == torch.tensor(class_index)
+        train_idx = np.where(train_idx)[0]
+        query_idx = self.test_dataset.targets == class_index
+        query_idx = np.where(query_idx)[0]
+
+        train_idx = np.random.choice(train_idx, self.maxTrainingDataPerClass, False)
+        query_idx = np.random.choice(query_idx, self.queryDataPerClass, False)
+
+        transformed_data = []
+        for idx in train_idx:
+            transformed_data.append(self.transform(self.train_dataset.data[idx].float().unsqueeze_(0) / 255))
+
+        if self.maxTrainingDataPerClass > 0:
+            transformed_data = torch.cat(transformed_data)
+        else:
+            transformed_data = torch.empty((0, 1, 28, 28))
+
+        q_transformed_data = []
+        for idx in query_idx:
+            q_transformed_data.append(self.transform(self.test_dataset.data[idx].float().unsqueeze_(0) / 255))
+        q_transformed_data = torch.cat(q_transformed_data)
+
+        return (
+            transformed_data,  # .float() / 255,
+            torch.tensor([class_index] * self.maxTrainingDataPerClass),
+            q_transformed_data,  # .float() / 255,
+            torch.tensor([class_index] * self.queryDataPerClass),
+        )
+
+
 class CombinedDataset(Dataset):
     """
         Combined Dataset class.
