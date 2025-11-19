@@ -990,7 +990,7 @@ def runner_main():
         # + "/results_2/mode_6_CB/1/20251111-151155" 20251111-203959
         # os.getcwd()
         # + "/results_2/mode_6_CB/1/20251111-203959"
-        os.getcwd() + "/results_2/mode_9_scalar_3_clip/1/120251118-164808",
+        os.getcwd() + "/results_2/mode_9_scalar_3_clip/1/20251118-164808",
         # s.getcwd() + "/results_2/mode_9_scalar/1/20251117-232052",
         # os.getcwd()
         # + "/results_2/mode_9_CB/5/20251112-001951"
