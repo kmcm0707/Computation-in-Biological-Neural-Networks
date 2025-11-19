@@ -990,7 +990,7 @@ def runner_main():
         # + "/results_2/mode_6_CB/1/20251111-151155" 20251111-203959
         # os.getcwd()
         # + "/results_2/mode_6_CB/1/20251111-203959"
-        os.getcwd() + "/results_2/mode_9_scalar_3_clip/1/20251118-164808",
+        os.getcwd() + "/results_2/20251103-214650",
         # s.getcwd() + "/results_2/mode_9_scalar/1/20251117-232052",
         # os.getcwd()
         # + "/results_2/mode_9_CB/5/20251112-001951"
@@ -1002,9 +1002,9 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_scalar_3_chems_2",
+                result_subdirectory="runner_mode_9_3_chems",
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.scalar,
+                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=3,
                 max_tau=[50][i],
