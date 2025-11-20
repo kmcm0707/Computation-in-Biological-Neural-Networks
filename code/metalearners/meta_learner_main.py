@@ -431,13 +431,13 @@ class MetaLearner:
                     self.options.continueTraining + "/UpdateWeights.pth", weights_only=True, map_location=self.device
                 )
             )
-            self.UpdateMetaParameters.load_state_dict(
-                torch.load(
-                    self.options.continueTraining + "/UpdateMetaParameters.pth",
-                    weights_only=True,
-                    map_location=self.device,
-                )
-            )
+            #elf.UpdateMetaParameters.load_state_dict(
+            #   torch.load(
+            #       self.options.continueTraining + "/UpdateMetaParameters.pth",
+            #       weights_only=True,
+            #       map_location=self.device,
+            #   )
+            #)
             if self.options.trainSeparateFeedback:
                 self.UpdateFeedbackWeights.load_state_dict(
                     torch.load(
@@ -447,7 +447,7 @@ class MetaLearner:
                     )
                 )
             z = np.loadtxt(self.options.continueTraining + "/acc_meta.txt")
-            # last_trained_epoch = z.shape[0]
+            last_trained_epoch = z.shape[0]
 
         # -- set model to training mode
         self.model.train()
@@ -908,8 +908,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     random.seed(seed)
 
     # -- load data
-    numWorkers = 1
-    epochs = 300
+    numWorkers = 2
+    epochs = 600
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
@@ -1086,7 +1086,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/mode_9_scalar_3_all_ones/0/20251120-042134"
+    continue_training = current_dir + "/results_2/mode_9_scalar_3_all_ones/0/20251120-070131"
     #continue_training = (
     #    current_dir + "/results_2/mode_9_rand/0/20251105-152312"
     #)  # "/results_2/mode_9/0/20251107-172732"
@@ -1106,7 +1106,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.0001,
+        lr=0.00001,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
