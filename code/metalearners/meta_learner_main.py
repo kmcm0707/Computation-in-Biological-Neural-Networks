@@ -986,10 +986,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=1+1/50,  # + 1 / 50,
-            maxTau=50,
+            minTau=2,  # + 1 / 50,
+            maxTau=500,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.default,
+            z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_9,
             train_z_vector=False,
             mode=modeEnum.all,
@@ -1086,7 +1086,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/mode_9_3/0/20251119-233936"
+    continue_training = current_dir + "/results_2/mode_9_scalar/0/20251119-191938"
     #continue_training = (
     #    current_dir + "/results_2/mode_9_rand/0/20251105-152312"
     #)  # "/results_2/mode_9/0/20251107-172732"
@@ -1117,7 +1117,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=None,
+        continueTraining=None, #continue_training,
         typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
         hrm_discount=-1,
@@ -1130,7 +1130,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 3
+    numberOfChemicals = 5
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1161,4 +1161,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="mode_9_scalar_3", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_scalar_3_all_ones", index=i)

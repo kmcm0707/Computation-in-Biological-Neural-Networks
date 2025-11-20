@@ -992,7 +992,7 @@ def runner_main():
         # + "/results_2/mode_6_CB/1/20251111-203959"
         #os.getcwd() + "/results_2/20251103-214650",
         #os.getcwd() + "/results_2/mode_9_scalar/1/20251120-002556",
-        os.getcwd() + "/results_2/mode_9_scalar/0/20251119-191938"
+        os.getcwd() + "/results_2/mode_9_scalar_2/0/20251120-022526"
         # os.getcwd()
         # + "/results_2/mode_9_CB/5/20251112-001951"
         # os.getcwd()
@@ -1003,7 +1003,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_fixed_8",
+                result_subdirectory="runner_mode_9_22",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
