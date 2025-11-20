@@ -992,7 +992,7 @@ def runner_main():
         # + "/results_2/mode_6_CB/1/20251111-203959"
         #os.getcwd() + "/results_2/20251103-214650",
         #os.getcwd() + "/results_2/mode_9_scalar/1/20251120-002556",
-        os.getcwd() + "/results_2/mode_9_scalar_3_all_ones/0/20251120-070131"
+        os.getcwd() + "/results_2/mode_9_scalar_3_all_ones/0/20251120-041129"
         # os.getcwd()
         # + "/results_2/mode_9_CB/5/20251112-001951"
         # os.getcwd()
@@ -1003,10 +1003,10 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_5_all_ones_diff",
+                result_subdirectory="runner_mode_9_3_all_ones",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=5,
+                numberOfChemicals=3,
                 max_tau=[500][i],
             )
