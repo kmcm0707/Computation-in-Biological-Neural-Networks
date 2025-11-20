@@ -431,13 +431,13 @@ class MetaLearner:
                     self.options.continueTraining + "/UpdateWeights.pth", weights_only=True, map_location=self.device
                 )
             )
-            #self.UpdateMetaParameters.load_state_dict(
-            #    torch.load(
-            #        self.options.continueTraining + "/UpdateMetaParameters.pth",
-            #        weights_only=True,
-            #        map_location=self.device,
-            #    )
-            #)
+            self.UpdateMetaParameters.load_state_dict(
+                torch.load(
+                    self.options.continueTraining + "/UpdateMetaParameters.pth",
+                    weights_only=True,
+                    map_location=self.device,
+                )
+            )
             if self.options.trainSeparateFeedback:
                 self.UpdateFeedbackWeights.load_state_dict(
                     torch.load(
@@ -986,7 +986,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=5,  # + 1 / 50,
+            minTau=7,  # + 1 / 50,
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
@@ -1086,7 +1086,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/20251103-214650"
+    continue_training = current_dir + "/results_2/mode_9_3/0/20251119-233936"
     #continue_training = (
     #    current_dir + "/results_2/mode_9_rand/0/20251105-152312"
     #)  # "/results_2/mode_9/0/20251107-172732"
@@ -1109,7 +1109,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         lr=0.0007,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,
         trainSeparateFeedback=False,
         feedbackSeparateModel=feedbackModel,
         trainSameFeedback=False,
@@ -1117,8 +1117,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=None,#ontinue_training,
-        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+        continueTraining=None,
+        typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
         hrm_discount=-1,
         error_control=False,
@@ -1161,4 +1161,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_9_3", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_9_scalar_3", index=i)
