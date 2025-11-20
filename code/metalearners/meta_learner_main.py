@@ -986,7 +986,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=7,  # + 1 / 50,
+            minTau=1+1/50,  # + 1 / 50,
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
