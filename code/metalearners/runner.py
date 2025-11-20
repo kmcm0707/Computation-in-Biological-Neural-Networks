@@ -780,7 +780,7 @@ def run(
             minTau=2,
             maxTau=max_tau,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.default,
+            z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_9,
             train_z_vector=False,
             mode=modeEnum.all,
@@ -906,7 +906,7 @@ def run(
         ),  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" else None,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
@@ -992,7 +992,7 @@ def runner_main():
         # + "/results_2/mode_6_CB/1/20251111-203959"
         #os.getcwd() + "/results_2/20251103-214650",
         #os.getcwd() + "/results_2/mode_9_scalar/1/20251120-002556",
-        os.getcwd() + "/results_2/mode_9_scalar_2/0/20251120-022526"
+        os.getcwd() + "/results_2/mode_9_scalar_3_all_ones/0/20251120-070131"
         # os.getcwd()
         # + "/results_2/mode_9_CB/5/20251112-001951"
         # os.getcwd()
@@ -1003,10 +1003,10 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_22",
+                result_subdirectory="runner_mode_9_5_all_ones_diff",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=5,
-                max_tau=[50][i],
+                max_tau=[500][i],
             )
