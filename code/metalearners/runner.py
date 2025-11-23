@@ -374,7 +374,7 @@ class Runner:
 
                     # -- chemical analysis
                     if self.options.chemical_analysis:
-                        """self.chemical_analysis.chemical_autocorrelation(h_parameters)
+                        self.chemical_analysis.chemical_autocorrelation(h_parameters)
                         self.chemical_analysis.parameter_autocorrelation(parameters)
                         self.chemical_analysis.chemical_parameter_autocorrelation(h_parameters, parameters)
                         self.chemical_analysis.chemical_actual_autocorrelation(
@@ -383,10 +383,10 @@ class Runner:
                         self.chemical_analysis.parameter_actual_autocorrelation(
                             parameters, lags=[1, 2, 3, 5, 7, 10, 12, 15, 20, 25, 30, 35, 40, 45, 50], min_time_step=1
                         )
-                        self.chemical_analysis.chemical_norms(h_parameters)"""
+                        self.chemical_analysis.chemical_norms(h_parameters)
 
-                        self.chemical_analysis.chemical_tracking(h_parameters, 20)
-                        self.chemical_analysis.parameter_tracking(parameters, 20)
+                        self.chemical_analysis.chemical_tracking(h_parameters, 40)
+                        self.chemical_analysis.parameter_tracking(parameters, 40)
 
                     # -- predict
                     y, logits = None, None
@@ -498,8 +498,9 @@ class Runner:
                         )
 
                     if self.options.chemical_analysis:
-                        self.chemical_analysis.Kh_Pf_tracking(self.UpdateWeights.Kh, self.UpdateWeights.Pf, 20)
-                        # pass
+                        self.chemical_analysis.Kh_Pf_tracking(self.UpdateWeights.Kh, self.UpdateWeights.Pf, 40)
+                        self.chemical_analysis.Kh_Pf_norm(self.UpdateWeights.Kh, self.UpdateWeights.Pf)
+                        self.chemical_analysis.Kh_Pf_second_derivative(self.UpdateWeights.Kh, self.UpdateWeights.Pf, 40)
 
                     # -- update time index
                     self.UpdateWeights.update_time_index()
@@ -629,11 +630,11 @@ def run(
 
     # -- load data
     numWorkers = 4
-    epochs = 20
+    epochs = 10
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    trainingDataPerClass = [
+    """trainingDataPerClass = [
         0,
         5,
         10,
@@ -663,10 +664,10 @@ def run(
         # 325,
         # 350,
         # 375,
-    ]
-    """trainingDataPerClass = [
-        250,
     ]"""
+    trainingDataPerClass = [
+        250,
+    ]
     """trainingDataPerClass = [
         #10,
         # 20,
@@ -780,7 +781,7 @@ def run(
             minTau=2,
             maxTau=max_tau,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.all_ones,
+            z_vector=zVectorEnum.default,
             operator=operatorEnum.mode_9,
             train_z_vector=False,
             mode=modeEnum.all,
@@ -906,7 +907,7 @@ def run(
         ),  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" else None,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
@@ -919,7 +920,7 @@ def run(
         dimOut=dimOut,
         data_repetitions=1,
         wta=False,
-        chemical_analysis=False,
+        chemical_analysis=True,
     )
 
     #   -- number of chemicals
@@ -971,7 +972,8 @@ def runner_main():
         # os.getcwd()
         # + "/results/DFA_longer_5/0/20251008-023058"
         # os.getcwd()+ "/results/DFA_longer_2/0/20251008-052203"
-        # os.getcwd() + "/results/error_5_fixed/0/20251011-194736"
+        # os.getcwd()
+        # + "/results/error_5_fixed/0/20251011-194736"
         # os.getcwd() + "/results/error_1_fixed/0/20251009-194350"
         # os.getcwd()
         # + "/results/scalar_3_5/2/20251012-171341"
@@ -990,23 +992,26 @@ def runner_main():
         # + "/results_2/mode_6_CB/1/20251111-151155" 20251111-203959
         # os.getcwd()
         # + "/results_2/mode_6_CB/1/20251111-203959"
-        #os.getcwd() + "/results_2/20251103-214650",
-        #os.getcwd() + "/results_2/mode_9_scalar/1/20251120-002556",
-        os.getcwd() + "/results_2/mode_9_5_scalar_all_ones/1/20251120-184910"
+        # os.getcwd() + "/results_2/20251103-214650",
+        # os.getcwd() + "/results_2/mode_9_scalar/1/20251120-002556",
+        # os.getcwd()
+        # + "/results_2/mode_9_scalar_3_all_ones/0/20251120-084802"
         # os.getcwd()
         # + "/results_2/mode_9_CB/5/20251112-001951"
         # os.getcwd()
         # + "/results_2/mode_9_CB/5/20251112-225711"
+        os.getcwd()
+        + "/results_2/mode_9_scalar/0/20251119-191938"
     ]
     for i in range(len(modelPath_s)):
         for index in range(0, 28):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_scalar_all_ones_3",
-                index=index,    
+                result_subdirectory="runner_mode_9_scalar_CA",
+                index=index,
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=5,
-                max_tau=[500][i],
+                max_tau=[50][i],
             )

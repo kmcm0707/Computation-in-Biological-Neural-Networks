@@ -620,6 +620,89 @@ class ChemicalAnalysis:
                             f.writelines("\n")
 
     @torch.no_grad()
+    def Kh_Pf_norm(self, Kh, Pf):
+        """
+            Track Kh and Pf norms over time.
+
+        :param Kh: (dict) dictionary of Kh tensors,
+        :param Pf: (dict) dictionary of Pf tensors,
+
+        """
+        with torch.no_grad():
+            layer = 0
+            for key in Kh.keys():
+                layer += 1
+                kh = Kh[key]
+                pf = Pf[key]
+                kh_norms = []
+                pf_norms = []
+                for i in range(kh.shape[0]):
+                    kh_i = kh[i]
+                    pf_i = pf[i]
+                    kh_norm = torch.norm(kh_i).cpu().numpy()
+                    pf_norm = torch.norm(pf_i).cpu().numpy()
+                    kh_norms.append(kh_norm)
+                    pf_norms.append(pf_norm)
+                with open(self.res_dir + "/Kh_norm_layer_{}.txt".format(str(layer)), "a") as f:
+                    np.savetxt(f, ["Timestep: {}".format(self.time_step)], newline=" ", fmt="%s")
+                    f.writelines("\n")
+                    np.savetxt(f, np.array(kh_norms), newline=" ", fmt="%0.6f")
+                    f.writelines("\n")
+                with open(self.res_dir + "/Pf_norm_layer_{}.txt".format(str(layer)), "a") as f:
+                    np.savetxt(f, ["Timestep: {}".format(self.time_step)], newline=" ", fmt="%s")
+                    f.writelines("\n")
+                    np.savetxt(f, np.array(pf_norms), newline=" ", fmt="%0.6f")
+                    f.writelines("\n")
+
+    def Kh_Pf_second_derivative(self, Kh, Pf, number_of_parameters):
+        """
+            Track Kh and Pf second derivative over time.
+
+        :param Kh: (dict) dictionary of Kh tensors,
+        :param Pf: (dict) dictionary of Pf tensors,
+
+        """
+        layer = 0
+        for key in Kh.keys():
+            layer += 1
+            kh = Kh[key]
+            pf = Pf[key]
+            second_derivative_norm = []
+            sample_numbers = torch.linspace(0, kh.shape[0] - 1, number_of_parameters, dtype=torch.int)
+            for i in kh.shape[0]:
+                kh_i = kh[i]
+                pf_i = pf[i]
+                summed_kh_pf = kh_i + pf_i
+                second_derivative = -2 * torch.tanh(summed_kh_pf) * (1 - torch.tanh(summed_kh_pf) ** 2)
+                second_derivative_norm.append(torch.norm(second_derivative).cpu().numpy())
+                flattened_second_derivative = second_derivative.flatten()
+                if self.time_step == 1:
+                    with open(
+                        self.res_dir + "/Kh_Pf_second_derivative_layer_{}_chemical_{}.txt".format(str(layer), str(i)),
+                        "a",
+                    ) as f:
+                        header = "Parameter_Numbers " + " ".join([str(int(num.item())) for num in sample_numbers])
+                        np.savetxt(f, [header], newline=" ", fmt="%s")
+                        f.writelines("\n")
+                else:
+                    with open(
+                        self.res_dir + "/Kh_Pf_second_derivative_layer_{}_chemical_{}.txt".format(str(layer), str(i)),
+                        "a",
+                    ) as f:
+                        np.savetxt(
+                            f,
+                            flattened_second_derivative[sample_numbers].cpu().numpy(),
+                            newline=" ",
+                            fmt="%0.6f",
+                        )
+                        f.writelines("\n")
+            with open(self.res_dir + "/Kh_Pf_second_derivative_layer_{}_norm.txt".format(str(layer)), "a") as f:
+                np.savetxt(f, ["Timestep: {}".format(self.time_step)], newline=" ", fmt="%s")
+                f.writelines("\n")
+                np.savetxt(f, np.array(second_derivative_norm), newline=" ", fmt="%0.6f")
+                f.writelines("\n")
+
+    @torch.no_grad()
     def chemical_parameter_autocorrelation(self, chemicals, parameters):
         """
             Compute weight autocorrelation.
