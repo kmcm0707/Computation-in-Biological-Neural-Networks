@@ -710,7 +710,7 @@ def run(
             dimensionOfImage=28,
         )
         dimOut = 47
-        epochs = 10
+        epochs = 20
     elif dataset_name == "FASHION-MNIST":
         numberOfClasses = 10
         dataset = FashionMnistDataset(
@@ -993,7 +993,7 @@ def runner_main():
         #os.getcwd() + "/results_2/20251103-214650",
         #os.getcwd() + "/results_2/mode_9_scalar/1/20251120-002556",
         #os.getcwd() + "/results_2/mode_9_5_scalar_all_ones/0/20251120-191135"
-        os.getcwd() + "/results_2/mode_6_scalar_not_all_ones_same/1/20251123-185107"
+        os.getcwd() + "/results_2/mode_6_scalar_not_all_ones_same_500/0/20251123-205043"
         # os.getcwd()
         # + "/results_2/mode_9_CB/5/20251112-001951"
         # os.getcwd()
@@ -1004,10 +1004,10 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_6_scalar_NAO_7",
+                result_subdirectory="runner_mode_6_scalar_500_4_same",
                 index=index,    
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=5,
-                max_tau=[50][i],
+                max_tau=[500][i],
             )
