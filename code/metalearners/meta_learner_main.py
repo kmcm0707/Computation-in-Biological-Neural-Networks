@@ -426,18 +426,20 @@ class MetaLearner:
         # -- continue training
         last_trained_epoch = -1
         if self.options.continueTraining is not None:
+            current_z_vector = self.UpdateWeights.z_vector.clone().detach()
             self.UpdateWeights.load_state_dict(
                 torch.load(
                     self.options.continueTraining + "/UpdateWeights.pth", weights_only=True, map_location=self.device
                 )
             )
-            #self.UpdateMetaParameters.load_state_dict(
-            #   torch.load(
-            #       self.options.continueTraining + "/UpdateMetaParameters.pth",
-            #       weights_only=True,
-            #       map_location=self.device,
-            #   )
-            #)
+            self.UpdateWeights.z_vector = torch.nn.Parameter(current_z_vector)
+            # self.UpdateMetaParameters.load_state_dict(
+            #    torch.load(
+            #        self.options.continueTraining + "/UpdateMetaParameters.pth",
+            #        weights_only=True,
+            #        map_location=self.device,
+            #    )
+            # )
             if self.options.trainSeparateFeedback:
                 self.UpdateFeedbackWeights.load_state_dict(
                     torch.load(
@@ -447,7 +449,7 @@ class MetaLearner:
                     )
                 )
             z = np.loadtxt(self.options.continueTraining + "/acc_meta.txt")
-            #last_trained_epoch = z.shape[0]
+            # last_trained_epoch = z.shape[0]
 
         # -- set model to training mode
         self.model.train()
@@ -909,7 +911,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 1200
+    epochs = 1500
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
@@ -1086,12 +1088,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/mode_6_scalar_not_all_ones_same/1/20251123-183135"
-    #continue_training = (
+    continue_training = current_dir + "/results/error_5_fixed/0/20251011-194736"
+    # continue_training = (
     #    current_dir + "/results_2/mode_9_rand/0/20251105-152312"
-    #)  # "/results_2/mode_9/0/20251107-172732"
+    # )  # "/results_2/mode_9/0/20251107-172732"
     # -- meta-learner options
-    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P and K matrices (check 1.5)
@@ -1117,7 +1119,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=None, #continue_training,
+        continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
         hrm_discount=150,
@@ -1161,4 +1163,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="mode_6_scalar_not_all_ones_same_500", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_6_scalar_not_all_ones_same_500", index=i)

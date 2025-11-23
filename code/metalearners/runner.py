@@ -634,7 +634,7 @@ def run(
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    """trainingDataPerClass = [
+    trainingDataPerClass = [
         0,
         5,
         10,
@@ -664,10 +664,10 @@ def run(
         # 325,
         # 350,
         # 375,
-    ]"""
-    trainingDataPerClass = [
-        250,
     ]
+    """trainingDataPerClass = [
+        250,
+    ]"""
     """trainingDataPerClass = [
         #10,
         # 20,
@@ -711,7 +711,7 @@ def run(
             dimensionOfImage=28,
         )
         dimOut = 47
-        epochs = 10
+        epochs = 20
     elif dataset_name == "FASHION-MNIST":
         numberOfClasses = 10
         dataset = FashionMnistDataset(
@@ -782,11 +782,7 @@ def run(
             maxTau=max_tau,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-<<<<<<< HEAD
-            operator=operatorEnum.mode_9,
-=======
             operator=operatorEnum.mode_6,
->>>>>>> 99a7af98e592cd7353df87bd1ef809244f90c4f8
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -924,7 +920,7 @@ def run(
         dimOut=dimOut,
         data_repetitions=1,
         wta=False,
-        chemical_analysis=True,
+        chemical_analysis=False,
     )
 
     #   -- number of chemicals
@@ -976,8 +972,8 @@ def runner_main():
         # os.getcwd()
         # + "/results/DFA_longer_5/0/20251008-023058"
         # os.getcwd()+ "/results/DFA_longer_2/0/20251008-052203"
-        # os.getcwd()
-        # + "/results/error_5_fixed/0/20251011-194736"
+        os.getcwd()
+        + "/results/error_5_fixed/0/20251011-194736"
         # os.getcwd() + "/results/error_1_fixed/0/20251009-194350"
         # os.getcwd()
         # + "/results/scalar_3_5/2/20251012-171341"
@@ -996,38 +992,27 @@ def runner_main():
         # + "/results_2/mode_6_CB/1/20251111-151155" 20251111-203959
         # os.getcwd()
         # + "/results_2/mode_6_CB/1/20251111-203959"
-<<<<<<< HEAD
         # os.getcwd() + "/results_2/20251103-214650",
         # os.getcwd() + "/results_2/mode_9_scalar/1/20251120-002556",
+        # os.getcwd() + "/results_2/mode_9_5_scalar_all_ones/0/20251120-191135"
         # os.getcwd()
-        # + "/results_2/mode_9_scalar_3_all_ones/0/20251120-084802"
-=======
-        #os.getcwd() + "/results_2/20251103-214650",
-        #os.getcwd() + "/results_2/mode_9_scalar/1/20251120-002556",
-        #os.getcwd() + "/results_2/mode_9_5_scalar_all_ones/0/20251120-191135"
-        os.getcwd() + "/results_2/mode_6_scalar_not_all_ones_same/1/20251123-185107"
->>>>>>> 99a7af98e592cd7353df87bd1ef809244f90c4f8
+        # + "/results_2/mode_6_scalar_not_all_ones_same/1/20251123-185107"
         # os.getcwd()
         # + "/results_2/mode_9_CB/5/20251112-001951"
         # os.getcwd()
         # + "/results_2/mode_9_CB/5/20251112-225711"
-        os.getcwd()
-        + "/results_2/mode_9_scalar/0/20251119-191938"
+        # os.getcwd()
+        # + "/results_2/mode_9_scalar/0/20251119-191938"
     ]
     for i in range(len(modelPath_s)):
         for index in range(0, 28):
             run(
                 seed=0,
                 display=True,
-<<<<<<< HEAD
-                result_subdirectory="runner_mode_9_scalar_CA",
+                result_subdirectory="runner_mode_6_scalar_convert",
                 index=index,
-=======
-                result_subdirectory="runner_mode_6_scalar_NAO_7",
-                index=index,    
->>>>>>> 99a7af98e592cd7353df87bd1ef809244f90c4f8
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=5,
-                max_tau=[50][i],
+                max_tau=[500][i],
             )
