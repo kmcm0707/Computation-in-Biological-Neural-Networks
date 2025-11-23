@@ -431,7 +431,7 @@ class MetaLearner:
                     self.options.continueTraining + "/UpdateWeights.pth", weights_only=True, map_location=self.device
                 )
             )
-            #elf.UpdateMetaParameters.load_state_dict(
+            #self.UpdateMetaParameters.load_state_dict(
             #   torch.load(
             #       self.options.continueTraining + "/UpdateMetaParameters.pth",
             #       weights_only=True,
@@ -447,7 +447,7 @@ class MetaLearner:
                     )
                 )
             z = np.loadtxt(self.options.continueTraining + "/acc_meta.txt")
-            #ast_trained_epoch = z.shape[0]
+            #last_trained_epoch = z.shape[0]
 
         # -- set model to training mode
         self.model.train()
@@ -989,8 +989,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             minTau=2,  # + 1 / 50,
             maxTau=500,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_9,
+            z_vector=zVectorEnum.default,
+            operator=operatorEnum.mode_6,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1086,7 +1086,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/mode_9_5_all_ones/0/20251120-173316"
+    continue_training = current_dir + "/results_2/mode_6_scalar_not_all_ones_same/1/20251123-183135"
     #continue_training = (
     #    current_dir + "/results_2/mode_9_rand/0/20251105-152312"
     #)  # "/results_2/mode_9/0/20251107-172732"
@@ -1106,7 +1106,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.0003,
+        lr=0.0001,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -1117,10 +1117,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=None,
+        continueTraining=None, #continue_training,
         typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
-        hrm_discount=-1,
+        hrm_discount=150,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1161,4 +1161,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_9_5_scalar_all_ones_same", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_6_scalar_not_all_ones_same_500", index=i)
