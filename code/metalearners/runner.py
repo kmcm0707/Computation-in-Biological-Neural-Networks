@@ -711,7 +711,7 @@ def run(
             dimensionOfImage=28,
         )
         dimOut = 47
-        epochs = 20
+        epochs = 10
     elif dataset_name == "FASHION-MNIST":
         numberOfClasses = 10
         dataset = FashionMnistDataset(
@@ -782,7 +782,11 @@ def run(
             maxTau=max_tau,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
+<<<<<<< HEAD
             operator=operatorEnum.mode_9,
+=======
+            operator=operatorEnum.mode_6,
+>>>>>>> 99a7af98e592cd7353df87bd1ef809244f90c4f8
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -992,10 +996,17 @@ def runner_main():
         # + "/results_2/mode_6_CB/1/20251111-151155" 20251111-203959
         # os.getcwd()
         # + "/results_2/mode_6_CB/1/20251111-203959"
+<<<<<<< HEAD
         # os.getcwd() + "/results_2/20251103-214650",
         # os.getcwd() + "/results_2/mode_9_scalar/1/20251120-002556",
         # os.getcwd()
         # + "/results_2/mode_9_scalar_3_all_ones/0/20251120-084802"
+=======
+        #os.getcwd() + "/results_2/20251103-214650",
+        #os.getcwd() + "/results_2/mode_9_scalar/1/20251120-002556",
+        #os.getcwd() + "/results_2/mode_9_5_scalar_all_ones/0/20251120-191135"
+        os.getcwd() + "/results_2/mode_6_scalar_not_all_ones_same/1/20251123-185107"
+>>>>>>> 99a7af98e592cd7353df87bd1ef809244f90c4f8
         # os.getcwd()
         # + "/results_2/mode_9_CB/5/20251112-001951"
         # os.getcwd()
@@ -1008,8 +1019,13 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
+<<<<<<< HEAD
                 result_subdirectory="runner_mode_9_scalar_CA",
                 index=index,
+=======
+                result_subdirectory="runner_mode_6_scalar_NAO_7",
+                index=index,    
+>>>>>>> 99a7af98e592cd7353df87bd1ef809244f90c4f8
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=5,
