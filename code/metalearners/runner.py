@@ -972,8 +972,8 @@ def runner_main():
         # os.getcwd()
         # + "/results/DFA_longer_5/0/20251008-023058"
         # os.getcwd()+ "/results/DFA_longer_2/0/20251008-052203"
-        os.getcwd()
-        + "/results/error_5_fixed/0/20251011-194736"
+        # os.getcwd()
+        # + "/results/error_5_fixed/0/20251011-194736"
         # os.getcwd() + "/results/error_1_fixed/0/20251009-194350"
         # os.getcwd()
         # + "/results/scalar_3_5/2/20251012-171341"
@@ -995,8 +995,8 @@ def runner_main():
         # os.getcwd() + "/results_2/20251103-214650",
         # os.getcwd() + "/results_2/mode_9_scalar/1/20251120-002556",
         # os.getcwd() + "/results_2/mode_9_5_scalar_all_ones/0/20251120-191135"
-        # os.getcwd()
-        # + "/results_2/mode_6_scalar_not_all_ones_same/1/20251123-185107"
+        os.getcwd()
+        + "/results_2/mode_6_scalar_not_all_ones_same_500/0/20251123-205043"
         # os.getcwd()
         # + "/results_2/mode_9_CB/5/20251112-001951"
         # os.getcwd()
@@ -1009,7 +1009,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_6_scalar_convert",
+                result_subdirectory="runner_mode_6_scalar_500_4_same",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
