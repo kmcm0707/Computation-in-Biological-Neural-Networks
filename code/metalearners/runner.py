@@ -500,7 +500,7 @@ class Runner:
                     if self.options.chemical_analysis:
                         self.chemical_analysis.Kh_Pf_tracking(self.UpdateWeights.Kh, self.UpdateWeights.Pf, 40)
                         self.chemical_analysis.Kh_Pf_norm(self.UpdateWeights.Kh, self.UpdateWeights.Pf)
-                        self.chemical_analysis.Kh_Pf_second_derivative(self.UpdateWeights.Kh, self.UpdateWeights.Pf, 40)
+                        #self.chemical_analysis.Kh_Pf_second_derivative(self.UpdateWeights.Kh, self.UpdateWeights.Pf, 40)
 
                     # -- update time index
                     self.UpdateWeights.update_time_index()
@@ -634,7 +634,7 @@ def run(
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    trainingDataPerClass = [
+    """trainingDataPerClass = [
         0,
         5,
         10,
@@ -664,10 +664,10 @@ def run(
         # 325,
         # 350,
         # 375,
-    ]
-    """trainingDataPerClass = [
-        250,
     ]"""
+    trainingDataPerClass = [
+        250,
+    ]
     """trainingDataPerClass = [
         #10,
         # 20,
@@ -711,7 +711,7 @@ def run(
             dimensionOfImage=28,
         )
         dimOut = 47
-        epochs = 20
+        epochs = 10
     elif dataset_name == "FASHION-MNIST":
         numberOfClasses = 10
         dataset = FashionMnistDataset(
@@ -920,7 +920,7 @@ def run(
         dimOut=dimOut,
         data_repetitions=1,
         wta=False,
-        chemical_analysis=False,
+        chemical_analysis=True,
     )
 
     #   -- number of chemicals
@@ -996,7 +996,7 @@ def runner_main():
         # os.getcwd() + "/results_2/mode_9_scalar/1/20251120-002556",
         # os.getcwd() + "/results_2/mode_9_5_scalar_all_ones/0/20251120-191135"
         os.getcwd()
-        + "/results_2/mode_9_scalar_10/1/20251124-005417"
+        + "/results_2/mode_9_scalar_10/1/20251124-002143"
         # os.getcwd()
         # + "/results_2/mode_9_CB/5/20251112-001951"
         # os.getcwd()
@@ -1009,7 +1009,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_scalar_10_same_3",
+                result_subdirectory="runner_mode_9_scalar_10_same_2_CA_2",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
