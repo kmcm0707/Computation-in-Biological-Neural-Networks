@@ -911,7 +911,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 600
+    epochs = 300
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
@@ -1088,7 +1088,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/mode_9_longer/1/20251124-235942"
+    continue_training = current_dir + "/results_2/20251103-183210"
     # continue_training = (
     #    current_dir + "/results_2/mode_9_rand/0/20251105-152312"
     # )  # "/results_2/mode_9/0/20251107-172732"
@@ -1108,7 +1108,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.0007,
+        lr=0.005,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -1119,10 +1119,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=None,
+        continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
-        hrm_discount=-1,
+        hrm_discount=200,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1163,4 +1163,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="mode_9_longer", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_9_longer_post_train_fashion", index=i)
