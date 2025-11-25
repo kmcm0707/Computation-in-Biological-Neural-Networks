@@ -1,0 +1,14550 @@
+Parameter 
+Timestep: 5 
+0.998834 
+Timestep: 6 
+0.998247 
+Timestep: 7 
+0.998039 
+Timestep: 8 
+0.997715 
+Timestep: 9 
+0.998302 
+Timestep: 10 
+0.998143 
+Timestep: 11 
+0.998458 
+Timestep: 12 
+0.998779 
+Timestep: 13 
+0.999026 
+Timestep: 14 
+0.998736 
+Timestep: 15 
+0.998980 
+Timestep: 16 
+0.999089 
+Timestep: 17 
+0.999036 
+Timestep: 18 
+0.998598 
+Timestep: 19 
+0.998507 
+Timestep: 20 
+0.998631 
+Timestep: 21 
+0.998988 
+Timestep: 22 
+0.998884 
+Timestep: 23 
+0.999159 
+Timestep: 24 
+0.999319 
+Timestep: 25 
+0.999442 
+Timestep: 26 
+0.999295 
+Timestep: 27 
+0.998799 
+Timestep: 28 
+0.998053 
+Timestep: 29 
+0.998206 
+Timestep: 30 
+0.998327 
+Timestep: 31 
+0.998723 
+Timestep: 32 
+0.999080 
+Timestep: 33 
+0.999263 
+Timestep: 34 
+0.999189 
+Timestep: 35 
+0.999278 
+Timestep: 36 
+0.999054 
+Timestep: 37 
+0.999199 
+Timestep: 38 
+0.999151 
+Timestep: 39 
+0.999282 
+Timestep: 40 
+0.999225 
+Timestep: 41 
+0.998944 
+Timestep: 42 
+0.999157 
+Timestep: 43 
+0.999117 
+Timestep: 44 
+0.999363 
+Timestep: 45 
+0.999397 
+Timestep: 46 
+0.999167 
+Timestep: 47 
+0.997930 
+Timestep: 48 
+0.998367 
+Timestep: 49 
+0.998638 
+Timestep: 50 
+0.999040 
+Timestep: 51 
+0.999487 
+Timestep: 52 
+0.999307 
+Timestep: 53 
+0.999198 
+Timestep: 54 
+0.998830 
+Timestep: 55 
+0.999287 
+Timestep: 56 
+0.999007 
+Timestep: 57 
+0.999136 
+Timestep: 58 
+0.998971 
+Timestep: 59 
+0.999420 
+Timestep: 60 
+0.999238 
+Timestep: 61 
+0.999517 
+Timestep: 62 
+0.999626 
+Timestep: 63 
+0.999443 
+Timestep: 64 
+0.999683 
+Timestep: 65 
+0.999615 
+Timestep: 66 
+0.999055 
+Timestep: 67 
+0.999196 
+Timestep: 68 
+0.999531 
+Timestep: 69 
+0.999485 
+Timestep: 70 
+0.999159 
+Timestep: 71 
+0.999456 
+Timestep: 72 
+0.999108 
+Timestep: 73 
+0.999108 
+Timestep: 74 
+0.999371 
+Timestep: 75 
+0.999494 
+Timestep: 76 
+0.999436 
+Timestep: 77 
+0.999680 
+Timestep: 78 
+0.999669 
+Timestep: 79 
+0.999723 
+Timestep: 80 
+0.999033 
+Timestep: 81 
+0.998601 
+Timestep: 82 
+0.998799 
+Timestep: 83 
+0.999220 
+Timestep: 84 
+0.999292 
+Timestep: 85 
+0.999383 
+Timestep: 86 
+0.999212 
+Timestep: 87 
+0.999186 
+Timestep: 88 
+0.998886 
+Timestep: 89 
+0.998775 
+Timestep: 90 
+0.998464 
+Timestep: 91 
+0.998511 
+Timestep: 92 
+0.998848 
+Timestep: 93 
+0.998524 
+Timestep: 94 
+0.998728 
+Timestep: 95 
+0.998852 
+Timestep: 96 
+0.999180 
+Timestep: 97 
+0.999223 
+Timestep: 98 
+0.999325 
+Timestep: 99 
+0.999352 
+Timestep: 100 
+0.999281 
+Timestep: 101 
+0.999345 
+Timestep: 102 
+0.999570 
+Timestep: 103 
+0.998962 
+Timestep: 104 
+0.998864 
+Timestep: 105 
+0.998755 
+Timestep: 106 
+0.999623 
+Timestep: 107 
+0.999476 
+Timestep: 108 
+0.999472 
+Timestep: 109 
+0.999240 
+Timestep: 110 
+0.998754 
+Timestep: 111 
+0.999029 
+Timestep: 112 
+0.998824 
+Timestep: 113 
+0.998859 
+Timestep: 114 
+0.998485 
+Timestep: 115 
+0.999231 
+Timestep: 116 
+0.999212 
+Timestep: 117 
+0.999637 
+Timestep: 118 
+0.999303 
+Timestep: 119 
+0.999312 
+Timestep: 120 
+0.999101 
+Timestep: 121 
+0.999393 
+Timestep: 122 
+0.999489 
+Timestep: 123 
+0.999174 
+Timestep: 124 
+0.999250 
+Timestep: 125 
+0.999273 
+Timestep: 126 
+0.999591 
+Timestep: 127 
+0.999372 
+Timestep: 128 
+0.999115 
+Timestep: 129 
+0.999094 
+Timestep: 130 
+0.999259 
+Timestep: 131 
+0.998657 
+Timestep: 132 
+0.998458 
+Timestep: 133 
+0.998576 
+Timestep: 134 
+0.997574 
+Timestep: 135 
+0.998536 
+Timestep: 136 
+0.999095 
+Timestep: 137 
+0.999074 
+Timestep: 138 
+0.998892 
+Timestep: 139 
+0.998830 
+Timestep: 140 
+0.998980 
+Timestep: 141 
+0.999193 
+Timestep: 142 
+0.999221 
+Timestep: 143 
+0.999394 
+Timestep: 144 
+0.999472 
+Timestep: 145 
+0.999057 
+Timestep: 146 
+0.999118 
+Timestep: 147 
+0.999109 
+Timestep: 148 
+0.999203 
+Timestep: 149 
+0.999393 
+Timestep: 150 
+0.999188 
+Timestep: 151 
+0.999136 
+Timestep: 152 
+0.999004 
+Timestep: 153 
+0.998643 
+Timestep: 154 
+0.999412 
+Timestep: 155 
+0.999582 
+Timestep: 156 
+0.999519 
+Timestep: 157 
+0.999081 
+Timestep: 158 
+0.999103 
+Timestep: 159 
+0.999057 
+Timestep: 160 
+0.998937 
+Timestep: 161 
+0.998989 
+Timestep: 162 
+0.999051 
+Timestep: 163 
+0.999064 
+Timestep: 164 
+0.999112 
+Timestep: 165 
+0.999223 
+Timestep: 166 
+0.999454 
+Timestep: 167 
+0.999366 
+Timestep: 168 
+0.999558 
+Timestep: 169 
+0.999507 
+Timestep: 170 
+0.999597 
+Timestep: 171 
+0.999571 
+Timestep: 172 
+0.999418 
+Timestep: 173 
+0.999315 
+Timestep: 174 
+0.998610 
+Timestep: 175 
+0.998876 
+Timestep: 176 
+0.999138 
+Timestep: 177 
+0.998446 
+Timestep: 178 
+0.998680 
+Timestep: 179 
+0.998727 
+Timestep: 180 
+0.999122 
+Timestep: 181 
+0.999441 
+Timestep: 182 
+0.999592 
+Timestep: 183 
+0.999774 
+Timestep: 184 
+0.999111 
+Timestep: 185 
+0.998712 
+Timestep: 186 
+0.998928 
+Timestep: 187 
+0.998888 
+Timestep: 188 
+0.998834 
+Timestep: 189 
+0.999094 
+Timestep: 190 
+0.999170 
+Timestep: 191 
+0.999600 
+Timestep: 192 
+0.999772 
+Timestep: 193 
+0.999848 
+Timestep: 194 
+0.999582 
+Timestep: 195 
+0.999544 
+Timestep: 196 
+0.998843 
+Timestep: 197 
+0.999211 
+Timestep: 198 
+0.998819 
+Timestep: 199 
+0.998839 
+Timestep: 200 
+0.998651 
+Timestep: 201 
+0.999148 
+Timestep: 202 
+0.999489 
+Timestep: 203 
+0.999411 
+Timestep: 204 
+0.999445 
+Timestep: 205 
+0.998990 
+Timestep: 206 
+0.999195 
+Timestep: 207 
+0.998899 
+Timestep: 208 
+0.998971 
+Timestep: 209 
+0.999223 
+Timestep: 210 
+0.999544 
+Timestep: 211 
+0.999686 
+Timestep: 212 
+0.999556 
+Timestep: 213 
+0.999461 
+Timestep: 214 
+0.999547 
+Timestep: 215 
+0.999143 
+Timestep: 216 
+0.999091 
+Timestep: 217 
+0.999301 
+Timestep: 218 
+0.999505 
+Timestep: 219 
+0.999292 
+Timestep: 220 
+0.999507 
+Timestep: 221 
+0.999208 
+Timestep: 222 
+0.999303 
+Timestep: 223 
+0.999426 
+Timestep: 224 
+0.999628 
+Timestep: 225 
+0.999461 
+Timestep: 226 
+0.999171 
+Timestep: 227 
+0.999349 
+Timestep: 228 
+0.999011 
+Timestep: 229 
+0.999014 
+Timestep: 230 
+0.999381 
+Timestep: 231 
+0.999430 
+Timestep: 232 
+0.999120 
+Timestep: 233 
+0.999160 
+Timestep: 234 
+0.999151 
+Timestep: 235 
+0.999181 
+Timestep: 236 
+0.999478 
+Timestep: 237 
+0.998656 
+Timestep: 238 
+0.998875 
+Timestep: 239 
+0.999010 
+Timestep: 240 
+0.999150 
+Timestep: 241 
+0.999133 
+Timestep: 242 
+0.999336 
+Timestep: 243 
+0.999303 
+Timestep: 244 
+0.999185 
+Timestep: 245 
+0.999515 
+Timestep: 246 
+0.999563 
+Timestep: 247 
+0.999583 
+Timestep: 248 
+0.999367 
+Timestep: 249 
+0.999195 
+Timestep: 250 
+0.999345 
+Timestep: 251 
+0.999240 
+Timestep: 252 
+0.999444 
+Timestep: 253 
+0.998816 
+Timestep: 254 
+0.999407 
+Timestep: 255 
+0.999444 
+Timestep: 256 
+0.999374 
+Timestep: 257 
+0.999515 
+Timestep: 258 
+0.999379 
+Timestep: 259 
+0.999554 
+Timestep: 260 
+0.998603 
+Timestep: 261 
+0.998910 
+Timestep: 262 
+0.998999 
+Timestep: 263 
+0.999584 
+Timestep: 264 
+0.999481 
+Timestep: 265 
+0.999351 
+Timestep: 266 
+0.999430 
+Timestep: 267 
+0.999410 
+Timestep: 268 
+0.999029 
+Timestep: 269 
+0.998540 
+Timestep: 270 
+0.998901 
+Timestep: 271 
+0.998737 
+Timestep: 272 
+0.999033 
+Timestep: 273 
+0.999415 
+Timestep: 274 
+0.999228 
+Timestep: 275 
+0.999533 
+Timestep: 276 
+0.999160 
+Timestep: 277 
+0.999221 
+Timestep: 278 
+0.999178 
+Timestep: 279 
+0.999362 
+Timestep: 280 
+0.998810 
+Timestep: 281 
+0.999415 
+Timestep: 282 
+0.999384 
+Timestep: 283 
+0.999306 
+Timestep: 284 
+0.998913 
+Timestep: 285 
+0.999120 
+Timestep: 286 
+0.999206 
+Timestep: 287 
+0.999339 
+Timestep: 288 
+0.999485 
+Timestep: 289 
+0.999602 
+Timestep: 290 
+0.999604 
+Timestep: 291 
+0.999376 
+Timestep: 292 
+0.999216 
+Timestep: 293 
+0.999343 
+Timestep: 294 
+0.999222 
+Timestep: 295 
+0.999353 
+Timestep: 296 
+0.999071 
+Timestep: 297 
+0.999376 
+Timestep: 298 
+0.999239 
+Timestep: 299 
+0.999675 
+Timestep: 300 
+0.999699 
+Timestep: 301 
+0.998953 
+Timestep: 302 
+0.999269 
+Timestep: 303 
+0.999427 
+Timestep: 304 
+0.999538 
+Timestep: 305 
+0.999512 
+Timestep: 306 
+0.999386 
+Timestep: 307 
+0.999389 
+Timestep: 308 
+0.999343 
+Timestep: 309 
+0.999616 
+Timestep: 310 
+0.999623 
+Timestep: 311 
+0.999542 
+Timestep: 312 
+0.999574 
+Timestep: 313 
+0.999686 
+Timestep: 314 
+0.999606 
+Timestep: 315 
+0.999531 
+Timestep: 316 
+0.999622 
+Timestep: 317 
+0.999632 
+Timestep: 318 
+0.999245 
+Timestep: 319 
+0.999268 
+Timestep: 320 
+0.999398 
+Timestep: 321 
+0.999559 
+Timestep: 322 
+0.999750 
+Timestep: 323 
+0.999657 
+Timestep: 324 
+0.999344 
+Timestep: 325 
+0.999403 
+Timestep: 326 
+0.999331 
+Timestep: 327 
+0.999572 
+Timestep: 328 
+0.999372 
+Timestep: 329 
+0.999585 
+Timestep: 330 
+0.999614 
+Timestep: 331 
+0.999418 
+Timestep: 332 
+0.999559 
+Timestep: 333 
+0.999434 
+Timestep: 334 
+0.999487 
+Timestep: 335 
+0.999549 
+Timestep: 336 
+0.999503 
+Timestep: 337 
+0.999546 
+Timestep: 338 
+0.999807 
+Timestep: 339 
+0.999640 
+Timestep: 340 
+0.999359 
+Timestep: 341 
+0.999435 
+Timestep: 342 
+0.999276 
+Timestep: 343 
+0.998901 
+Timestep: 344 
+0.999378 
+Timestep: 345 
+0.999213 
+Timestep: 346 
+0.998839 
+Timestep: 347 
+0.999287 
+Timestep: 348 
+0.999472 
+Timestep: 349 
+0.999086 
+Timestep: 350 
+0.999601 
+Timestep: 351 
+0.999505 
+Timestep: 352 
+0.999310 
+Timestep: 353 
+0.999555 
+Timestep: 354 
+0.999373 
+Timestep: 355 
+0.999331 
+Timestep: 356 
+0.999301 
+Timestep: 357 
+0.999345 
+Timestep: 358 
+0.999126 
+Timestep: 359 
+0.998569 
+Timestep: 360 
+0.999037 
+Timestep: 361 
+0.999401 
+Timestep: 362 
+0.999500 
+Timestep: 363 
+0.999600 
+Timestep: 364 
+0.999597 
+Timestep: 365 
+0.999180 
+Timestep: 366 
+0.999315 
+Timestep: 367 
+0.999446 
+Timestep: 368 
+0.999568 
+Timestep: 369 
+0.999521 
+Timestep: 370 
+0.999647 
+Timestep: 371 
+0.999640 
+Timestep: 372 
+0.999606 
+Timestep: 373 
+0.999707 
+Timestep: 374 
+0.999770 
+Timestep: 375 
+0.999361 
+Timestep: 376 
+0.999296 
+Timestep: 377 
+0.999342 
+Timestep: 378 
+0.999497 
+Timestep: 379 
+0.999353 
+Timestep: 380 
+0.999268 
+Timestep: 381 
+0.999361 
+Timestep: 382 
+0.999398 
+Timestep: 383 
+0.999050 
+Timestep: 384 
+0.999524 
+Timestep: 385 
+0.999417 
+Timestep: 386 
+0.999566 
+Timestep: 387 
+0.999265 
+Timestep: 388 
+0.999245 
+Timestep: 389 
+0.999473 
+Timestep: 390 
+0.999480 
+Timestep: 391 
+0.999604 
+Timestep: 392 
+0.999564 
+Timestep: 393 
+0.999541 
+Timestep: 394 
+0.999287 
+Timestep: 395 
+0.999154 
+Timestep: 396 
+0.998736 
+Timestep: 397 
+0.998820 
+Timestep: 398 
+0.998602 
+Timestep: 399 
+0.998469 
+Timestep: 400 
+0.998617 
+Timestep: 401 
+0.998723 
+Timestep: 402 
+0.997642 
+Timestep: 403 
+0.997765 
+Timestep: 404 
+0.998010 
+Timestep: 405 
+0.999350 
+Timestep: 406 
+0.999486 
+Timestep: 407 
+0.999479 
+Timestep: 408 
+0.999527 
+Timestep: 409 
+0.999629 
+Timestep: 410 
+0.998982 
+Timestep: 411 
+0.999397 
+Timestep: 412 
+0.999395 
+Timestep: 413 
+0.999261 
+Timestep: 414 
+0.999213 
+Timestep: 415 
+0.999329 
+Timestep: 416 
+0.999409 
+Timestep: 417 
+0.999578 
+Timestep: 418 
+0.999588 
+Timestep: 419 
+0.999623 
+Timestep: 420 
+0.999682 
+Timestep: 421 
+0.999705 
+Timestep: 422 
+0.999721 
+Timestep: 423 
+0.999740 
+Timestep: 424 
+0.999766 
+Timestep: 425 
+0.999756 
+Timestep: 426 
+0.999764 
+Timestep: 427 
+0.999697 
+Timestep: 428 
+0.999699 
+Timestep: 429 
+0.999246 
+Timestep: 430 
+0.999227 
+Timestep: 431 
+0.999208 
+Timestep: 432 
+0.999024 
+Timestep: 433 
+0.999116 
+Timestep: 434 
+0.999409 
+Timestep: 435 
+0.999230 
+Timestep: 436 
+0.999330 
+Timestep: 437 
+0.998378 
+Timestep: 438 
+0.998994 
+Timestep: 439 
+0.999307 
+Timestep: 440 
+0.999595 
+Timestep: 441 
+0.999609 
+Timestep: 442 
+0.999542 
+Timestep: 443 
+0.999501 
+Timestep: 444 
+0.999645 
+Timestep: 445 
+0.999476 
+Timestep: 446 
+0.999561 
+Timestep: 447 
+0.999596 
+Timestep: 448 
+0.999612 
+Timestep: 449 
+0.999429 
+Timestep: 450 
+0.999398 
+Timestep: 451 
+0.999433 
+Timestep: 452 
+0.999484 
+Timestep: 453 
+0.999412 
+Timestep: 454 
+0.998465 
+Timestep: 455 
+0.998755 
+Timestep: 456 
+0.998874 
+Timestep: 457 
+0.999606 
+Timestep: 458 
+0.999328 
+Timestep: 459 
+0.999224 
+Timestep: 460 
+0.999279 
+Timestep: 461 
+0.998984 
+Timestep: 462 
+0.998945 
+Timestep: 463 
+0.999392 
+Timestep: 464 
+0.999259 
+Timestep: 465 
+0.999447 
+Timestep: 466 
+0.999476 
+Timestep: 467 
+0.999305 
+Timestep: 468 
+0.999450 
+Timestep: 469 
+0.999260 
+Timestep: 470 
+0.999563 
+Timestep: 471 
+0.999625 
+Timestep: 472 
+0.999608 
+Timestep: 473 
+0.999543 
+Timestep: 474 
+0.999556 
+Timestep: 475 
+0.999307 
+Timestep: 476 
+0.999473 
+Timestep: 477 
+0.999287 
+Timestep: 478 
+0.998652 
+Timestep: 479 
+0.999108 
+Timestep: 480 
+0.999003 
+Timestep: 481 
+0.999140 
+Timestep: 482 
+0.999110 
+Timestep: 483 
+0.998806 
+Timestep: 484 
+0.998953 
+Timestep: 485 
+0.999186 
+Timestep: 486 
+0.999252 
+Timestep: 487 
+0.999308 
+Timestep: 488 
+0.999150 
+Timestep: 489 
+0.999340 
+Timestep: 490 
+0.999463 
+Timestep: 491 
+0.999160 
+Timestep: 492 
+0.999508 
+Timestep: 493 
+0.999501 
+Timestep: 494 
+0.999518 
+Timestep: 495 
+0.999175 
+Timestep: 496 
+0.999475 
+Timestep: 497 
+0.999549 
+Timestep: 498 
+0.999571 
+Timestep: 499 
+0.999438 
+Timestep: 500 
+0.999549 
+Timestep: 501 
+0.999582 
+Timestep: 502 
+0.999410 
+Timestep: 503 
+0.999035 
+Timestep: 504 
+0.999233 
+Timestep: 505 
+0.999008 
+Timestep: 506 
+0.999407 
+Timestep: 507 
+0.999483 
+Timestep: 508 
+0.999708 
+Timestep: 509 
+0.999720 
+Timestep: 510 
+0.999427 
+Timestep: 511 
+0.999510 
+Timestep: 512 
+0.999487 
+Timestep: 513 
+0.999414 
+Timestep: 514 
+0.999422 
+Timestep: 515 
+0.999450 
+Timestep: 516 
+0.999348 
+Timestep: 517 
+0.998950 
+Timestep: 518 
+0.999370 
+Timestep: 519 
+0.999367 
+Timestep: 520 
+0.999387 
+Timestep: 521 
+0.999484 
+Timestep: 522 
+0.999421 
+Timestep: 523 
+0.999408 
+Timestep: 524 
+0.999518 
+Timestep: 525 
+0.999410 
+Timestep: 526 
+0.998667 
+Timestep: 527 
+0.998526 
+Timestep: 528 
+0.998951 
+Timestep: 529 
+0.999243 
+Timestep: 530 
+0.999204 
+Timestep: 531 
+0.999424 
+Timestep: 532 
+0.999468 
+Timestep: 533 
+0.999553 
+Timestep: 534 
+0.999500 
+Timestep: 535 
+0.999603 
+Timestep: 536 
+0.999251 
+Timestep: 537 
+0.999588 
+Timestep: 538 
+0.999509 
+Timestep: 539 
+0.999279 
+Timestep: 540 
+0.999492 
+Timestep: 541 
+0.999494 
+Timestep: 542 
+0.999529 
+Timestep: 543 
+0.999396 
+Timestep: 544 
+0.999352 
+Timestep: 545 
+0.999523 
+Timestep: 546 
+0.999304 
+Timestep: 547 
+0.999493 
+Timestep: 548 
+0.999386 
+Timestep: 549 
+0.999456 
+Timestep: 550 
+0.999473 
+Timestep: 551 
+0.998639 
+Timestep: 552 
+0.998807 
+Timestep: 553 
+0.998870 
+Timestep: 554 
+0.999101 
+Timestep: 555 
+0.999446 
+Timestep: 556 
+0.999484 
+Timestep: 557 
+0.999444 
+Timestep: 558 
+0.999509 
+Timestep: 559 
+0.999507 
+Timestep: 560 
+0.999478 
+Timestep: 561 
+0.999658 
+Timestep: 562 
+0.999382 
+Timestep: 563 
+0.999394 
+Timestep: 564 
+0.999409 
+Timestep: 565 
+0.999528 
+Timestep: 566 
+0.999403 
+Timestep: 567 
+0.999524 
+Timestep: 568 
+0.999730 
+Timestep: 569 
+0.999404 
+Timestep: 570 
+0.999608 
+Timestep: 571 
+0.999603 
+Timestep: 572 
+0.999707 
+Timestep: 573 
+0.999703 
+Timestep: 574 
+0.999408 
+Timestep: 575 
+0.999264 
+Timestep: 576 
+0.999350 
+Timestep: 577 
+0.999359 
+Timestep: 578 
+0.999547 
+Timestep: 579 
+0.999338 
+Timestep: 580 
+0.999331 
+Timestep: 581 
+0.998761 
+Timestep: 582 
+0.998554 
+Timestep: 583 
+0.999226 
+Timestep: 584 
+0.998994 
+Timestep: 585 
+0.999124 
+Timestep: 586 
+0.999179 
+Timestep: 587 
+0.999560 
+Timestep: 588 
+0.999667 
+Timestep: 589 
+0.999497 
+Timestep: 590 
+0.999547 
+Timestep: 591 
+0.999542 
+Timestep: 592 
+0.999534 
+Timestep: 593 
+0.999642 
+Timestep: 594 
+0.999530 
+Timestep: 595 
+0.999361 
+Timestep: 596 
+0.999322 
+Timestep: 597 
+0.999173 
+Timestep: 598 
+0.999316 
+Timestep: 599 
+0.999446 
+Timestep: 600 
+0.999277 
+Timestep: 601 
+0.999434 
+Timestep: 602 
+0.999602 
+Timestep: 603 
+0.999405 
+Timestep: 604 
+0.999235 
+Timestep: 605 
+0.999551 
+Timestep: 606 
+0.999449 
+Timestep: 607 
+0.999459 
+Timestep: 608 
+0.999553 
+Timestep: 609 
+0.999774 
+Timestep: 610 
+0.999809 
+Timestep: 611 
+0.999704 
+Timestep: 612 
+0.999485 
+Timestep: 613 
+0.999504 
+Timestep: 614 
+0.999457 
+Timestep: 615 
+0.999534 
+Timestep: 616 
+0.999623 
+Timestep: 617 
+0.999583 
+Timestep: 618 
+0.999538 
+Timestep: 619 
+0.999592 
+Timestep: 620 
+0.999740 
+Timestep: 621 
+0.999731 
+Timestep: 622 
+0.999518 
+Timestep: 623 
+0.999464 
+Timestep: 624 
+0.999492 
+Timestep: 625 
+0.999443 
+Timestep: 626 
+0.999628 
+Timestep: 627 
+0.999824 
+Timestep: 628 
+0.999739 
+Timestep: 629 
+0.999379 
+Timestep: 630 
+0.999494 
+Timestep: 631 
+0.999578 
+Timestep: 632 
+0.999600 
+Timestep: 633 
+0.999616 
+Timestep: 634 
+0.999608 
+Timestep: 635 
+0.999703 
+Timestep: 636 
+0.999721 
+Timestep: 637 
+0.999841 
+Timestep: 638 
+0.999784 
+Timestep: 639 
+0.999666 
+Timestep: 640 
+0.999705 
+Timestep: 641 
+0.999599 
+Timestep: 642 
+0.999542 
+Timestep: 643 
+0.999627 
+Timestep: 644 
+0.999863 
+Timestep: 645 
+0.999784 
+Timestep: 646 
+0.999696 
+Timestep: 647 
+0.999553 
+Timestep: 648 
+0.999304 
+Timestep: 649 
+0.999359 
+Timestep: 650 
+0.999317 
+Timestep: 651 
+0.999723 
+Timestep: 652 
+0.999657 
+Timestep: 653 
+0.999390 
+Timestep: 654 
+0.999532 
+Timestep: 655 
+0.999486 
+Timestep: 656 
+0.999453 
+Timestep: 657 
+0.999591 
+Timestep: 658 
+0.999636 
+Timestep: 659 
+0.999745 
+Timestep: 660 
+0.999718 
+Timestep: 661 
+0.999591 
+Timestep: 662 
+0.999700 
+Timestep: 663 
+0.999689 
+Timestep: 664 
+0.999595 
+Timestep: 665 
+0.999439 
+Timestep: 666 
+0.999608 
+Timestep: 667 
+0.999632 
+Timestep: 668 
+0.999257 
+Timestep: 669 
+0.999275 
+Timestep: 670 
+0.999202 
+Timestep: 671 
+0.999348 
+Timestep: 672 
+0.999174 
+Timestep: 673 
+0.999400 
+Timestep: 674 
+0.999298 
+Timestep: 675 
+0.999497 
+Timestep: 676 
+0.999629 
+Timestep: 677 
+0.999052 
+Timestep: 678 
+0.998739 
+Timestep: 679 
+0.998701 
+Timestep: 680 
+0.999329 
+Timestep: 681 
+0.998981 
+Timestep: 682 
+0.998841 
+Timestep: 683 
+0.999384 
+Timestep: 684 
+0.999290 
+Timestep: 685 
+0.999392 
+Timestep: 686 
+0.999280 
+Timestep: 687 
+0.999280 
+Timestep: 688 
+0.999259 
+Timestep: 689 
+0.999495 
+Timestep: 690 
+0.999569 
+Timestep: 691 
+0.999495 
+Timestep: 692 
+0.999419 
+Timestep: 693 
+0.999530 
+Timestep: 694 
+0.999518 
+Timestep: 695 
+0.999335 
+Timestep: 696 
+0.999498 
+Timestep: 697 
+0.999409 
+Timestep: 698 
+0.999510 
+Timestep: 699 
+0.999445 
+Timestep: 700 
+0.999334 
+Timestep: 701 
+0.999506 
+Timestep: 702 
+0.999528 
+Timestep: 703 
+0.999476 
+Timestep: 704 
+0.999574 
+Timestep: 705 
+0.999486 
+Timestep: 706 
+0.999451 
+Timestep: 707 
+0.999352 
+Timestep: 708 
+0.999379 
+Timestep: 709 
+0.999132 
+Timestep: 710 
+0.999441 
+Timestep: 711 
+0.999516 
+Timestep: 712 
+0.999658 
+Timestep: 713 
+0.999729 
+Timestep: 714 
+0.999521 
+Timestep: 715 
+0.999700 
+Timestep: 716 
+0.999569 
+Timestep: 717 
+0.999282 
+Timestep: 718 
+0.999338 
+Timestep: 719 
+0.999408 
+Timestep: 720 
+0.999367 
+Timestep: 721 
+0.998462 
+Timestep: 722 
+0.998517 
+Timestep: 723 
+0.998535 
+Timestep: 724 
+0.999041 
+Timestep: 725 
+0.998860 
+Timestep: 726 
+0.999000 
+Timestep: 727 
+0.999501 
+Timestep: 728 
+0.999549 
+Timestep: 729 
+0.999439 
+Timestep: 730 
+0.999140 
+Timestep: 731 
+0.999398 
+Timestep: 732 
+0.999600 
+Timestep: 733 
+0.999567 
+Timestep: 734 
+0.999521 
+Timestep: 735 
+0.999460 
+Timestep: 736 
+0.999283 
+Timestep: 737 
+0.999251 
+Timestep: 738 
+0.999348 
+Timestep: 739 
+0.999348 
+Timestep: 740 
+0.999421 
+Timestep: 741 
+0.999487 
+Timestep: 742 
+0.999382 
+Timestep: 743 
+0.999453 
+Timestep: 744 
+0.999646 
+Timestep: 745 
+0.999693 
+Timestep: 746 
+0.999618 
+Timestep: 747 
+0.999524 
+Timestep: 748 
+0.999521 
+Timestep: 749 
+0.999665 
+Timestep: 750 
+0.999670 
+Timestep: 751 
+0.999660 
+Timestep: 752 
+0.999576 
+Timestep: 753 
+0.999571 
+Timestep: 754 
+0.999306 
+Timestep: 755 
+0.999557 
+Timestep: 756 
+0.999071 
+Timestep: 757 
+0.999431 
+Timestep: 758 
+0.999465 
+Timestep: 759 
+0.999262 
+Timestep: 760 
+0.999508 
+Timestep: 761 
+0.999397 
+Timestep: 762 
+0.999443 
+Timestep: 763 
+0.999600 
+Timestep: 764 
+0.999247 
+Timestep: 765 
+0.999315 
+Timestep: 766 
+0.999389 
+Timestep: 767 
+0.999382 
+Timestep: 768 
+0.998545 
+Timestep: 769 
+0.999272 
+Timestep: 770 
+0.998932 
+Timestep: 771 
+0.998906 
+Timestep: 772 
+0.999088 
+Timestep: 773 
+0.999286 
+Timestep: 774 
+0.999384 
+Timestep: 775 
+0.999417 
+Timestep: 776 
+0.999498 
+Timestep: 777 
+0.999570 
+Timestep: 778 
+0.999196 
+Timestep: 779 
+0.999246 
+Timestep: 780 
+0.999200 
+Timestep: 781 
+0.999389 
+Timestep: 782 
+0.999464 
+Timestep: 783 
+0.999669 
+Timestep: 784 
+0.999404 
+Timestep: 785 
+0.999501 
+Timestep: 786 
+0.999559 
+Timestep: 787 
+0.999419 
+Timestep: 788 
+0.999640 
+Timestep: 789 
+0.999490 
+Timestep: 790 
+0.999399 
+Timestep: 791 
+0.999278 
+Timestep: 792 
+0.999269 
+Timestep: 793 
+0.999329 
+Timestep: 794 
+0.999333 
+Timestep: 795 
+0.999702 
+Timestep: 796 
+0.999624 
+Timestep: 797 
+0.999604 
+Timestep: 798 
+0.999537 
+Timestep: 799 
+0.999536 
+Timestep: 800 
+0.999674 
+Timestep: 801 
+0.999582 
+Timestep: 802 
+0.999710 
+Timestep: 803 
+0.999619 
+Timestep: 804 
+0.999764 
+Timestep: 805 
+0.999739 
+Timestep: 806 
+0.999743 
+Timestep: 807 
+0.999622 
+Timestep: 808 
+0.999429 
+Timestep: 809 
+0.998388 
+Timestep: 810 
+0.998784 
+Timestep: 811 
+0.999186 
+Timestep: 812 
+0.998977 
+Timestep: 813 
+0.999142 
+Timestep: 814 
+0.999149 
+Timestep: 815 
+0.999274 
+Timestep: 816 
+0.999454 
+Timestep: 817 
+0.999359 
+Timestep: 818 
+0.999475 
+Timestep: 819 
+0.999673 
+Timestep: 820 
+0.999438 
+Timestep: 821 
+0.999531 
+Timestep: 822 
+0.999603 
+Timestep: 823 
+0.999724 
+Timestep: 824 
+0.999215 
+Timestep: 825 
+0.999064 
+Timestep: 826 
+0.999189 
+Timestep: 827 
+0.998628 
+Timestep: 828 
+0.999255 
+Timestep: 829 
+0.999522 
+Timestep: 830 
+0.999491 
+Timestep: 831 
+0.999734 
+Timestep: 832 
+0.999685 
+Timestep: 833 
+0.999768 
+Timestep: 834 
+0.999502 
+Timestep: 835 
+0.999507 
+Timestep: 836 
+0.999576 
+Timestep: 837 
+0.999757 
+Timestep: 838 
+0.999504 
+Timestep: 839 
+0.999660 
+Timestep: 840 
+0.999619 
+Timestep: 841 
+0.999706 
+Timestep: 842 
+0.998966 
+Timestep: 843 
+0.998982 
+Timestep: 844 
+0.998703 
+Timestep: 845 
+0.998128 
+Timestep: 846 
+0.999099 
+Timestep: 847 
+0.999136 
+Timestep: 848 
+0.999186 
+Timestep: 849 
+0.998998 
+Timestep: 850 
+0.999157 
+Timestep: 851 
+0.999385 
+Timestep: 852 
+0.998990 
+Timestep: 853 
+0.999390 
+Timestep: 854 
+0.999413 
+Timestep: 855 
+0.999502 
+Timestep: 856 
+0.999485 
+Timestep: 857 
+0.999584 
+Timestep: 858 
+0.999420 
+Timestep: 859 
+0.999427 
+Timestep: 860 
+0.999485 
+Timestep: 861 
+0.999376 
+Timestep: 862 
+0.999682 
+Timestep: 863 
+0.999697 
+Timestep: 864 
+0.999548 
+Timestep: 865 
+0.999628 
+Timestep: 866 
+0.999691 
+Timestep: 867 
+0.999704 
+Timestep: 868 
+0.999709 
+Timestep: 869 
+0.999794 
+Timestep: 870 
+0.999547 
+Timestep: 871 
+0.999526 
+Timestep: 872 
+0.998986 
+Timestep: 873 
+0.999211 
+Timestep: 874 
+0.999393 
+Timestep: 875 
+0.999637 
+Timestep: 876 
+0.999731 
+Timestep: 877 
+0.999770 
+Timestep: 878 
+0.999760 
+Timestep: 879 
+0.999739 
+Timestep: 880 
+0.999737 
+Timestep: 881 
+0.999738 
+Timestep: 882 
+0.999701 
+Timestep: 883 
+0.999589 
+Timestep: 884 
+0.999705 
+Timestep: 885 
+0.999525 
+Timestep: 886 
+0.999526 
+Timestep: 887 
+0.999509 
+Timestep: 888 
+0.999639 
+Timestep: 889 
+0.999582 
+Timestep: 890 
+0.999737 
+Timestep: 891 
+0.999456 
+Timestep: 892 
+0.999194 
+Timestep: 893 
+0.999405 
+Timestep: 894 
+0.999338 
+Timestep: 895 
+0.999372 
+Timestep: 896 
+0.999369 
+Timestep: 897 
+0.999387 
+Timestep: 898 
+0.999405 
+Timestep: 899 
+0.999509 
+Timestep: 900 
+0.999440 
+Timestep: 901 
+0.999675 
+Timestep: 902 
+0.999632 
+Timestep: 903 
+0.999564 
+Timestep: 904 
+0.999679 
+Timestep: 905 
+0.999634 
+Timestep: 906 
+0.999535 
+Timestep: 907 
+0.999492 
+Timestep: 908 
+0.999540 
+Timestep: 909 
+0.999598 
+Timestep: 910 
+0.999385 
+Timestep: 911 
+0.999467 
+Timestep: 912 
+0.999572 
+Timestep: 913 
+0.999563 
+Timestep: 914 
+0.999596 
+Timestep: 915 
+0.999620 
+Timestep: 916 
+0.999574 
+Timestep: 917 
+0.999694 
+Timestep: 918 
+0.999738 
+Timestep: 919 
+0.999517 
+Timestep: 920 
+0.999639 
+Timestep: 921 
+0.999796 
+Timestep: 922 
+0.999697 
+Timestep: 923 
+0.999506 
+Timestep: 924 
+0.999591 
+Timestep: 925 
+0.999612 
+Timestep: 926 
+0.999607 
+Timestep: 927 
+0.999680 
+Timestep: 928 
+0.999577 
+Timestep: 929 
+0.999696 
+Timestep: 930 
+0.999710 
+Timestep: 931 
+0.999344 
+Timestep: 932 
+0.999574 
+Timestep: 933 
+0.999542 
+Timestep: 934 
+0.999209 
+Timestep: 935 
+0.999311 
+Timestep: 936 
+0.999480 
+Timestep: 937 
+0.999670 
+Timestep: 938 
+0.999760 
+Timestep: 939 
+0.999802 
+Timestep: 940 
+0.999812 
+Timestep: 941 
+0.999858 
+Timestep: 942 
+0.999602 
+Timestep: 943 
+0.999750 
+Timestep: 944 
+0.999562 
+Timestep: 945 
+0.999392 
+Timestep: 946 
+0.999522 
+Timestep: 947 
+0.999603 
+Timestep: 948 
+0.999379 
+Timestep: 949 
+0.999556 
+Timestep: 950 
+0.999435 
+Timestep: 951 
+0.999518 
+Timestep: 952 
+0.999633 
+Timestep: 953 
+0.999756 
+Timestep: 954 
+0.999800 
+Timestep: 955 
+0.999810 
+Timestep: 956 
+0.999518 
+Timestep: 957 
+0.999611 
+Timestep: 958 
+0.999480 
+Timestep: 959 
+0.999291 
+Timestep: 960 
+0.999447 
+Timestep: 961 
+0.999485 
+Timestep: 962 
+0.999333 
+Timestep: 963 
+0.999330 
+Timestep: 964 
+0.999310 
+Timestep: 965 
+0.999569 
+Timestep: 966 
+0.999460 
+Timestep: 967 
+0.999351 
+Timestep: 968 
+0.999659 
+Timestep: 969 
+0.999702 
+Timestep: 970 
+0.999762 
+Timestep: 971 
+0.999818 
+Timestep: 972 
+0.999856 
+Timestep: 973 
+0.999670 
+Timestep: 974 
+0.999569 
+Timestep: 975 
+0.999606 
+Timestep: 976 
+0.999677 
+Timestep: 977 
+0.999672 
+Timestep: 978 
+0.999756 
+Timestep: 979 
+0.999805 
+Timestep: 980 
+0.999659 
+Timestep: 981 
+0.999714 
+Timestep: 982 
+0.999763 
+Timestep: 983 
+0.999676 
+Timestep: 984 
+0.999663 
+Timestep: 985 
+0.999489 
+Timestep: 986 
+0.999428 
+Timestep: 987 
+0.999484 
+Timestep: 988 
+0.999422 
+Timestep: 989 
+0.999501 
+Timestep: 990 
+0.999601 
+Timestep: 991 
+0.999631 
+Timestep: 992 
+0.999223 
+Timestep: 993 
+0.999360 
+Timestep: 994 
+0.999486 
+Timestep: 995 
+0.999540 
+Timestep: 996 
+0.999757 
+Timestep: 997 
+0.999774 
+Timestep: 998 
+0.999764 
+Timestep: 999 
+0.999685 
+Timestep: 1000 
+0.999655 
+Timestep: 1001 
+0.999577 
+Timestep: 1002 
+0.999722 
+Timestep: 1003 
+0.999744 
+Timestep: 1004 
+0.999653 
+Timestep: 1005 
+0.999133 
+Timestep: 1006 
+0.999369 
+Timestep: 1007 
+0.999476 
+Timestep: 1008 
+0.999512 
+Timestep: 1009 
+0.999645 
+Timestep: 1010 
+0.999673 
+Timestep: 1011 
+0.999456 
+Timestep: 1012 
+0.999598 
+Timestep: 1013 
+0.999676 
+Timestep: 1014 
+0.999235 
+Timestep: 1015 
+0.999321 
+Timestep: 1016 
+0.999355 
+Timestep: 1017 
+0.999286 
+Timestep: 1018 
+0.999382 
+Timestep: 1019 
+0.999418 
+Timestep: 1020 
+0.999601 
+Timestep: 1021 
+0.999699 
+Timestep: 1022 
+0.999681 
+Timestep: 1023 
+0.999773 
+Timestep: 1024 
+0.999812 
+Timestep: 1025 
+0.999684 
+Timestep: 1026 
+0.999457 
+Timestep: 1027 
+0.999342 
+Timestep: 1028 
+0.999576 
+Timestep: 1029 
+0.999518 
+Timestep: 1030 
+0.998438 
+Timestep: 1031 
+0.998557 
+Timestep: 1032 
+0.998688 
+Timestep: 1033 
+0.999071 
+Timestep: 1034 
+0.999336 
+Timestep: 1035 
+0.999707 
+Timestep: 1036 
+0.999426 
+Timestep: 1037 
+0.999140 
+Timestep: 1038 
+0.999111 
+Timestep: 1039 
+0.999140 
+Timestep: 1040 
+0.999383 
+Timestep: 1041 
+0.999669 
+Timestep: 1042 
+0.999674 
+Timestep: 1043 
+0.999518 
+Timestep: 1044 
+0.999354 
+Timestep: 1045 
+0.999287 
+Timestep: 1046 
+0.999501 
+Timestep: 1047 
+0.999700 
+Timestep: 1048 
+0.999629 
+Timestep: 1049 
+0.999651 
+Timestep: 1050 
+0.999423 
+Timestep: 1051 
+0.999326 
+Timestep: 1052 
+0.999216 
+Timestep: 1053 
+0.999170 
+Timestep: 1054 
+0.999289 
+Timestep: 1055 
+0.999176 
+Timestep: 1056 
+0.999515 
+Timestep: 1057 
+0.999503 
+Timestep: 1058 
+0.999543 
+Timestep: 1059 
+0.999657 
+Timestep: 1060 
+0.999800 
+Timestep: 1061 
+0.999314 
+Timestep: 1062 
+0.999364 
+Timestep: 1063 
+0.999597 
+Timestep: 1064 
+0.999510 
+Timestep: 1065 
+0.999619 
+Timestep: 1066 
+0.999606 
+Timestep: 1067 
+0.999741 
+Timestep: 1068 
+0.999374 
+Timestep: 1069 
+0.999251 
+Timestep: 1070 
+0.998960 
+Timestep: 1071 
+0.999119 
+Timestep: 1072 
+0.998612 
+Timestep: 1073 
+0.999315 
+Timestep: 1074 
+0.999471 
+Timestep: 1075 
+0.999734 
+Timestep: 1076 
+0.999831 
+Timestep: 1077 
+0.999612 
+Timestep: 1078 
+0.999627 
+Timestep: 1079 
+0.999577 
+Timestep: 1080 
+0.999709 
+Timestep: 1081 
+0.999759 
+Timestep: 1082 
+0.999694 
+Timestep: 1083 
+0.999604 
+Timestep: 1084 
+0.999654 
+Timestep: 1085 
+0.999552 
+Timestep: 1086 
+0.999443 
+Timestep: 1087 
+0.999445 
+Timestep: 1088 
+0.999433 
+Timestep: 1089 
+0.999495 
+Timestep: 1090 
+0.999394 
+Timestep: 1091 
+0.999274 
+Timestep: 1092 
+0.999495 
+Timestep: 1093 
+0.999591 
+Timestep: 1094 
+0.999646 
+Timestep: 1095 
+0.999633 
+Timestep: 1096 
+0.999515 
+Timestep: 1097 
+0.999586 
+Timestep: 1098 
+0.999561 
+Timestep: 1099 
+0.999521 
+Timestep: 1100 
+0.999478 
+Timestep: 1101 
+0.999674 
+Timestep: 1102 
+0.999685 
+Timestep: 1103 
+0.999608 
+Timestep: 1104 
+0.999524 
+Timestep: 1105 
+0.999589 
+Timestep: 1106 
+0.999508 
+Timestep: 1107 
+0.999563 
+Timestep: 1108 
+0.999571 
+Timestep: 1109 
+0.999434 
+Timestep: 1110 
+0.999579 
+Timestep: 1111 
+0.999650 
+Timestep: 1112 
+0.999390 
+Timestep: 1113 
+0.999380 
+Timestep: 1114 
+0.999406 
+Timestep: 1115 
+0.999528 
+Timestep: 1116 
+0.999406 
+Timestep: 1117 
+0.999530 
+Timestep: 1118 
+0.999548 
+Timestep: 1119 
+0.999717 
+Timestep: 1120 
+0.999783 
+Timestep: 1121 
+0.999728 
+Timestep: 1122 
+0.999553 
+Timestep: 1123 
+0.999615 
+Timestep: 1124 
+0.999676 
+Timestep: 1125 
+0.999722 
+Timestep: 1126 
+0.999484 
+Timestep: 1127 
+0.999719 
+Timestep: 1128 
+0.999771 
+Timestep: 1129 
+0.999639 
+Timestep: 1130 
+0.999348 
+Timestep: 1131 
+0.999460 
+Timestep: 1132 
+0.999451 
+Timestep: 1133 
+0.999673 
+Timestep: 1134 
+0.999588 
+Timestep: 1135 
+0.999579 
+Timestep: 1136 
+0.999498 
+Timestep: 1137 
+0.999625 
+Timestep: 1138 
+0.999449 
+Timestep: 1139 
+0.999479 
+Timestep: 1140 
+0.999637 
+Timestep: 1141 
+0.999442 
+Timestep: 1142 
+0.999736 
+Timestep: 1143 
+0.999784 
+Timestep: 1144 
+0.999406 
+Timestep: 1145 
+0.999438 
+Timestep: 1146 
+0.999352 
+Timestep: 1147 
+0.999209 
+Timestep: 1148 
+0.999266 
+Timestep: 1149 
+0.998960 
+Timestep: 1150 
+0.999145 
+Timestep: 1151 
+0.999224 
+Timestep: 1152 
+0.999314 
+Timestep: 1153 
+0.999366 
+Timestep: 1154 
+0.999407 
+Timestep: 1155 
+0.999475 
+Timestep: 1156 
+0.999517 
+Timestep: 1157 
+0.999780 
+Timestep: 1158 
+0.999779 
+Timestep: 1159 
+0.999751 
+Timestep: 1160 
+0.999712 
+Timestep: 1161 
+0.999711 
+Timestep: 1162 
+0.999810 
+Timestep: 1163 
+0.999611 
+Timestep: 1164 
+0.999786 
+Timestep: 1165 
+0.999738 
+Timestep: 1166 
+0.999592 
+Timestep: 1167 
+0.999489 
+Timestep: 1168 
+0.999591 
+Timestep: 1169 
+0.999490 
+Timestep: 1170 
+0.999204 
+Timestep: 1171 
+0.999362 
+Timestep: 1172 
+0.999486 
+Timestep: 1173 
+0.999598 
+Timestep: 1174 
+0.999664 
+Timestep: 1175 
+0.999742 
+Timestep: 1176 
+0.999541 
+Timestep: 1177 
+0.999460 
+Timestep: 1178 
+0.999495 
+Timestep: 1179 
+0.999687 
+Timestep: 1180 
+0.999764 
+Timestep: 1181 
+0.999719 
+Timestep: 1182 
+0.999715 
+Timestep: 1183 
+0.999644 
+Timestep: 1184 
+0.999619 
+Timestep: 1185 
+0.999440 
+Timestep: 1186 
+0.999491 
+Timestep: 1187 
+0.999445 
+Timestep: 1188 
+0.999444 
+Timestep: 1189 
+0.999480 
+Timestep: 1190 
+0.999283 
+Timestep: 1191 
+0.999289 
+Timestep: 1192 
+0.999560 
+Timestep: 1193 
+0.999676 
+Timestep: 1194 
+0.999736 
+Timestep: 1195 
+0.999749 
+Timestep: 1196 
+0.999681 
+Timestep: 1197 
+0.999672 
+Timestep: 1198 
+0.999747 
+Timestep: 1199 
+0.999566 
+Timestep: 1200 
+0.999647 
+Timestep: 1201 
+0.999684 
+Timestep: 1202 
+0.999784 
+Timestep: 1203 
+0.999721 
+Timestep: 1204 
+0.999502 
+Timestep: 1205 
+0.999623 
+Timestep: 1206 
+0.999733 
+Timestep: 1207 
+0.999752 
+Timestep: 1208 
+0.999780 
+Timestep: 1209 
+0.999747 
+Timestep: 1210 
+0.999536 
+Timestep: 1211 
+0.999508 
+Timestep: 1212 
+0.999447 
+Timestep: 1213 
+0.999106 
+Timestep: 1214 
+0.999178 
+Timestep: 1215 
+0.999266 
+Timestep: 1216 
+0.999450 
+Timestep: 1217 
+0.999604 
+Timestep: 1218 
+0.999413 
+Timestep: 1219 
+0.999439 
+Timestep: 1220 
+0.999582 
+Timestep: 1221 
+0.999628 
+Timestep: 1222 
+0.999558 
+Timestep: 1223 
+0.999578 
+Timestep: 1224 
+0.999672 
+Timestep: 1225 
+0.999399 
+Timestep: 1226 
+0.999535 
+Timestep: 1227 
+0.999469 
+Timestep: 1228 
+0.998996 
+Timestep: 1229 
+0.999146 
+Timestep: 1230 
+0.999096 
+Timestep: 1231 
+0.999451 
+Timestep: 1232 
+0.999494 
+Timestep: 1233 
+0.999408 
+Timestep: 1234 
+0.999411 
+Timestep: 1235 
+0.999257 
+Timestep: 1236 
+0.999373 
+Timestep: 1237 
+0.999334 
+Timestep: 1238 
+0.999457 
+Timestep: 1239 
+0.999490 
+Timestep: 1240 
+0.999484 
+Timestep: 1241 
+0.999377 
+Timestep: 1242 
+0.999408 
+Timestep: 1243 
+0.999299 
+Timestep: 1244 
+0.999599 
+Timestep: 1245 
+0.999666 
+Timestep: 1246 
+0.999708 
+Timestep: 1247 
+0.999490 
+Timestep: 1248 
+0.999572 
+Timestep: 1249 
+0.999564 
+Timestep: 1250 
+0.999623 
+Parameter 
+Timestep: 5 
+0.998142 
+Timestep: 6 
+0.998058 
+Timestep: 7 
+0.997396 
+Timestep: 8 
+0.996833 
+Timestep: 9 
+0.996711 
+Timestep: 10 
+0.997780 
+Timestep: 11 
+0.998114 
+Timestep: 12 
+0.998740 
+Timestep: 13 
+0.999010 
+Timestep: 14 
+0.998772 
+Timestep: 15 
+0.998551 
+Timestep: 16 
+0.998863 
+Timestep: 17 
+0.998904 
+Timestep: 18 
+0.999053 
+Timestep: 19 
+0.998955 
+Timestep: 20 
+0.999353 
+Timestep: 21 
+0.998998 
+Timestep: 22 
+0.998673 
+Timestep: 23 
+0.999116 
+Timestep: 24 
+0.998780 
+Timestep: 25 
+0.999183 
+Timestep: 26 
+0.999276 
+Timestep: 27 
+0.999235 
+Timestep: 28 
+0.999578 
+Timestep: 29 
+0.998707 
+Timestep: 30 
+0.998350 
+Timestep: 31 
+0.998678 
+Timestep: 32 
+0.999209 
+Timestep: 33 
+0.998646 
+Timestep: 34 
+0.998676 
+Timestep: 35 
+0.998923 
+Timestep: 36 
+0.998383 
+Timestep: 37 
+0.998603 
+Timestep: 38 
+0.999495 
+Timestep: 39 
+0.999643 
+Timestep: 40 
+0.999221 
+Timestep: 41 
+0.998995 
+Timestep: 42 
+0.998789 
+Timestep: 43 
+0.999445 
+Timestep: 44 
+0.999613 
+Timestep: 45 
+0.998978 
+Timestep: 46 
+0.998778 
+Timestep: 47 
+0.999028 
+Timestep: 48 
+0.999167 
+Timestep: 49 
+0.999251 
+Timestep: 50 
+0.998791 
+Timestep: 51 
+0.997771 
+Timestep: 52 
+0.998085 
+Timestep: 53 
+0.998213 
+Timestep: 54 
+0.998685 
+Timestep: 55 
+0.999187 
+Timestep: 56 
+0.998954 
+Timestep: 57 
+0.999147 
+Timestep: 58 
+0.998950 
+Timestep: 59 
+0.999268 
+Timestep: 60 
+0.999319 
+Timestep: 61 
+0.999267 
+Timestep: 62 
+0.999070 
+Timestep: 63 
+0.998710 
+Timestep: 64 
+0.998737 
+Timestep: 65 
+0.998821 
+Timestep: 66 
+0.999153 
+Timestep: 67 
+0.999051 
+Timestep: 68 
+0.999027 
+Timestep: 69 
+0.998908 
+Timestep: 70 
+0.999241 
+Timestep: 71 
+0.999313 
+Timestep: 72 
+0.999188 
+Timestep: 73 
+0.999192 
+Timestep: 74 
+0.999163 
+Timestep: 75 
+0.999224 
+Timestep: 76 
+0.999323 
+Timestep: 77 
+0.999333 
+Timestep: 78 
+0.998987 
+Timestep: 79 
+0.999193 
+Timestep: 80 
+0.999248 
+Timestep: 81 
+0.999176 
+Timestep: 82 
+0.998338 
+Timestep: 83 
+0.998562 
+Timestep: 84 
+0.998331 
+Timestep: 85 
+0.998009 
+Timestep: 86 
+0.998684 
+Timestep: 87 
+0.998243 
+Timestep: 88 
+0.997542 
+Timestep: 89 
+0.998520 
+Timestep: 90 
+0.998615 
+Timestep: 91 
+0.998405 
+Timestep: 92 
+0.999022 
+Timestep: 93 
+0.998969 
+Timestep: 94 
+0.999054 
+Timestep: 95 
+0.998642 
+Timestep: 96 
+0.998831 
+Timestep: 97 
+0.998801 
+Timestep: 98 
+0.998842 
+Timestep: 99 
+0.998982 
+Timestep: 100 
+0.998902 
+Timestep: 101 
+0.999009 
+Timestep: 102 
+0.999142 
+Timestep: 103 
+0.999124 
+Timestep: 104 
+0.999056 
+Timestep: 105 
+0.998498 
+Timestep: 106 
+0.999101 
+Timestep: 107 
+0.998880 
+Timestep: 108 
+0.998724 
+Timestep: 109 
+0.998272 
+Timestep: 110 
+0.998660 
+Timestep: 111 
+0.998394 
+Timestep: 112 
+0.998784 
+Timestep: 113 
+0.999069 
+Timestep: 114 
+0.998294 
+Timestep: 115 
+0.998313 
+Timestep: 116 
+0.998253 
+Timestep: 117 
+0.998818 
+Timestep: 118 
+0.999191 
+Timestep: 119 
+0.999236 
+Timestep: 120 
+0.999331 
+Timestep: 121 
+0.999158 
+Timestep: 122 
+0.999188 
+Timestep: 123 
+0.999060 
+Timestep: 124 
+0.999481 
+Timestep: 125 
+0.999455 
+Timestep: 126 
+0.999442 
+Timestep: 127 
+0.999564 
+Timestep: 128 
+0.999314 
+Timestep: 129 
+0.999587 
+Timestep: 130 
+0.999543 
+Timestep: 131 
+0.999348 
+Timestep: 132 
+0.998985 
+Timestep: 133 
+0.998626 
+Timestep: 134 
+0.998401 
+Timestep: 135 
+0.999065 
+Timestep: 136 
+0.999034 
+Timestep: 137 
+0.999187 
+Timestep: 138 
+0.999309 
+Timestep: 139 
+0.999277 
+Timestep: 140 
+0.999451 
+Timestep: 141 
+0.999032 
+Timestep: 142 
+0.999223 
+Timestep: 143 
+0.999261 
+Timestep: 144 
+0.999126 
+Timestep: 145 
+0.999259 
+Timestep: 146 
+0.998940 
+Timestep: 147 
+0.998824 
+Timestep: 148 
+0.998612 
+Timestep: 149 
+0.998462 
+Timestep: 150 
+0.998955 
+Timestep: 151 
+0.999365 
+Timestep: 152 
+0.998915 
+Timestep: 153 
+0.998884 
+Timestep: 154 
+0.998763 
+Timestep: 155 
+0.998089 
+Timestep: 156 
+0.997518 
+Timestep: 157 
+0.998086 
+Timestep: 158 
+0.998025 
+Timestep: 159 
+0.998632 
+Timestep: 160 
+0.998802 
+Timestep: 161 
+0.998359 
+Timestep: 162 
+0.998646 
+Timestep: 163 
+0.998570 
+Timestep: 164 
+0.998757 
+Timestep: 165 
+0.998527 
+Timestep: 166 
+0.998401 
+Timestep: 167 
+0.999009 
+Timestep: 168 
+0.997462 
+Timestep: 169 
+0.997576 
+Timestep: 170 
+0.998260 
+Timestep: 171 
+0.998510 
+Timestep: 172 
+0.998738 
+Timestep: 173 
+0.998396 
+Timestep: 174 
+0.998742 
+Timestep: 175 
+0.999137 
+Timestep: 176 
+0.999209 
+Timestep: 177 
+0.998926 
+Timestep: 178 
+0.999083 
+Timestep: 179 
+0.998899 
+Timestep: 180 
+0.998878 
+Timestep: 181 
+0.998396 
+Timestep: 182 
+0.998717 
+Timestep: 183 
+0.998844 
+Timestep: 184 
+0.999400 
+Timestep: 185 
+0.999345 
+Timestep: 186 
+0.999474 
+Timestep: 187 
+0.999389 
+Timestep: 188 
+0.999218 
+Timestep: 189 
+0.999121 
+Timestep: 190 
+0.998928 
+Timestep: 191 
+0.998758 
+Timestep: 192 
+0.998005 
+Timestep: 193 
+0.998725 
+Timestep: 194 
+0.998919 
+Timestep: 195 
+0.998850 
+Timestep: 196 
+0.998952 
+Timestep: 197 
+0.998352 
+Timestep: 198 
+0.998637 
+Timestep: 199 
+0.998622 
+Timestep: 200 
+0.998319 
+Timestep: 201 
+0.998096 
+Timestep: 202 
+0.998630 
+Timestep: 203 
+0.998684 
+Timestep: 204 
+0.998855 
+Timestep: 205 
+0.998843 
+Timestep: 206 
+0.998987 
+Timestep: 207 
+0.998467 
+Timestep: 208 
+0.998309 
+Timestep: 209 
+0.998501 
+Timestep: 210 
+0.998116 
+Timestep: 211 
+0.998895 
+Timestep: 212 
+0.999216 
+Timestep: 213 
+0.999257 
+Timestep: 214 
+0.999184 
+Timestep: 215 
+0.999232 
+Timestep: 216 
+0.999094 
+Timestep: 217 
+0.999013 
+Timestep: 218 
+0.999176 
+Timestep: 219 
+0.999431 
+Timestep: 220 
+0.999573 
+Timestep: 221 
+0.999019 
+Timestep: 222 
+0.999148 
+Timestep: 223 
+0.997695 
+Timestep: 224 
+0.998018 
+Timestep: 225 
+0.998391 
+Timestep: 226 
+0.999239 
+Timestep: 227 
+0.998933 
+Timestep: 228 
+0.998718 
+Timestep: 229 
+0.999012 
+Timestep: 230 
+0.998981 
+Timestep: 231 
+0.998867 
+Timestep: 232 
+0.998939 
+Timestep: 233 
+0.999313 
+Timestep: 234 
+0.999330 
+Timestep: 235 
+0.999579 
+Timestep: 236 
+0.999385 
+Timestep: 237 
+0.999386 
+Timestep: 238 
+0.999257 
+Timestep: 239 
+0.998942 
+Timestep: 240 
+0.998849 
+Timestep: 241 
+0.999101 
+Timestep: 242 
+0.999219 
+Timestep: 243 
+0.998660 
+Timestep: 244 
+0.998606 
+Timestep: 245 
+0.998873 
+Timestep: 246 
+0.999226 
+Timestep: 247 
+0.999092 
+Timestep: 248 
+0.998890 
+Timestep: 249 
+0.999108 
+Timestep: 250 
+0.999284 
+Timestep: 251 
+0.999387 
+Timestep: 252 
+0.999018 
+Timestep: 253 
+0.998322 
+Timestep: 254 
+0.998279 
+Timestep: 255 
+0.998585 
+Timestep: 256 
+0.998709 
+Timestep: 257 
+0.998676 
+Timestep: 258 
+0.998837 
+Timestep: 259 
+0.998787 
+Timestep: 260 
+0.999091 
+Timestep: 261 
+0.999524 
+Timestep: 262 
+0.999026 
+Timestep: 263 
+0.998957 
+Timestep: 264 
+0.998816 
+Timestep: 265 
+0.998646 
+Timestep: 266 
+0.998894 
+Timestep: 267 
+0.999103 
+Timestep: 268 
+0.999442 
+Timestep: 269 
+0.999616 
+Timestep: 270 
+0.999362 
+Timestep: 271 
+0.998213 
+Timestep: 272 
+0.998750 
+Timestep: 273 
+0.997983 
+Timestep: 274 
+0.998956 
+Timestep: 275 
+0.999173 
+Timestep: 276 
+0.999247 
+Timestep: 277 
+0.999414 
+Timestep: 278 
+0.999625 
+Timestep: 279 
+0.999130 
+Timestep: 280 
+0.999181 
+Timestep: 281 
+0.999180 
+Timestep: 282 
+0.999396 
+Timestep: 283 
+0.999287 
+Timestep: 284 
+0.999081 
+Timestep: 285 
+0.999398 
+Timestep: 286 
+0.999067 
+Timestep: 287 
+0.998758 
+Timestep: 288 
+0.998449 
+Timestep: 289 
+0.998320 
+Timestep: 290 
+0.997699 
+Timestep: 291 
+0.999452 
+Timestep: 292 
+0.999250 
+Timestep: 293 
+0.998975 
+Timestep: 294 
+0.998885 
+Timestep: 295 
+0.998728 
+Timestep: 296 
+0.998654 
+Timestep: 297 
+0.999039 
+Timestep: 298 
+0.999104 
+Timestep: 299 
+0.998504 
+Timestep: 300 
+0.999150 
+Timestep: 301 
+0.999097 
+Timestep: 302 
+0.999294 
+Timestep: 303 
+0.999454 
+Timestep: 304 
+0.999490 
+Timestep: 305 
+0.999302 
+Timestep: 306 
+0.999481 
+Timestep: 307 
+0.999309 
+Timestep: 308 
+0.998944 
+Timestep: 309 
+0.999188 
+Timestep: 310 
+0.999225 
+Timestep: 311 
+0.999467 
+Timestep: 312 
+0.999274 
+Timestep: 313 
+0.999278 
+Timestep: 314 
+0.998326 
+Timestep: 315 
+0.998204 
+Timestep: 316 
+0.998157 
+Timestep: 317 
+0.999396 
+Timestep: 318 
+0.999389 
+Timestep: 319 
+0.999435 
+Timestep: 320 
+0.999407 
+Timestep: 321 
+0.999171 
+Timestep: 322 
+0.999212 
+Timestep: 323 
+0.999279 
+Timestep: 324 
+0.998638 
+Timestep: 325 
+0.998965 
+Timestep: 326 
+0.999273 
+Timestep: 327 
+0.999241 
+Timestep: 328 
+0.999348 
+Timestep: 329 
+0.999540 
+Timestep: 330 
+0.999739 
+Timestep: 331 
+0.999450 
+Timestep: 332 
+0.999329 
+Timestep: 333 
+0.999185 
+Timestep: 334 
+0.999460 
+Timestep: 335 
+0.999290 
+Timestep: 336 
+0.999474 
+Timestep: 337 
+0.999285 
+Timestep: 338 
+0.999494 
+Timestep: 339 
+0.999546 
+Timestep: 340 
+0.999580 
+Timestep: 341 
+0.998745 
+Timestep: 342 
+0.998858 
+Timestep: 343 
+0.998813 
+Timestep: 344 
+0.998161 
+Timestep: 345 
+0.998546 
+Timestep: 346 
+0.998778 
+Timestep: 347 
+0.998916 
+Timestep: 348 
+0.999040 
+Timestep: 349 
+0.999258 
+Timestep: 350 
+0.999240 
+Timestep: 351 
+0.999332 
+Timestep: 352 
+0.999331 
+Timestep: 353 
+0.999307 
+Timestep: 354 
+0.998321 
+Timestep: 355 
+0.998841 
+Timestep: 356 
+0.998804 
+Timestep: 357 
+0.998997 
+Timestep: 358 
+0.999252 
+Timestep: 359 
+0.999142 
+Timestep: 360 
+0.999342 
+Timestep: 361 
+0.999280 
+Timestep: 362 
+0.999239 
+Timestep: 363 
+0.998926 
+Timestep: 364 
+0.998557 
+Timestep: 365 
+0.998453 
+Timestep: 366 
+0.998702 
+Timestep: 367 
+0.998759 
+Timestep: 368 
+0.998259 
+Timestep: 369 
+0.997858 
+Timestep: 370 
+0.998666 
+Timestep: 371 
+0.998329 
+Timestep: 372 
+0.998542 
+Timestep: 373 
+0.998824 
+Timestep: 374 
+0.998775 
+Timestep: 375 
+0.998991 
+Timestep: 376 
+0.999005 
+Timestep: 377 
+0.999326 
+Timestep: 378 
+0.999218 
+Timestep: 379 
+0.999178 
+Timestep: 380 
+0.999040 
+Timestep: 381 
+0.999091 
+Timestep: 382 
+0.999215 
+Timestep: 383 
+0.999493 
+Timestep: 384 
+0.999406 
+Timestep: 385 
+0.998981 
+Timestep: 386 
+0.998947 
+Timestep: 387 
+0.999179 
+Timestep: 388 
+0.999011 
+Timestep: 389 
+0.998819 
+Timestep: 390 
+0.998676 
+Timestep: 391 
+0.999299 
+Timestep: 392 
+0.999320 
+Timestep: 393 
+0.999434 
+Timestep: 394 
+0.999125 
+Timestep: 395 
+0.999148 
+Timestep: 396 
+0.999140 
+Timestep: 397 
+0.999493 
+Timestep: 398 
+0.999336 
+Timestep: 399 
+0.999366 
+Timestep: 400 
+0.999464 
+Timestep: 401 
+0.999577 
+Timestep: 402 
+0.999556 
+Timestep: 403 
+0.999602 
+Timestep: 404 
+0.999513 
+Timestep: 405 
+0.999479 
+Timestep: 406 
+0.999553 
+Timestep: 407 
+0.999410 
+Timestep: 408 
+0.999269 
+Timestep: 409 
+0.999181 
+Timestep: 410 
+0.998656 
+Timestep: 411 
+0.998007 
+Timestep: 412 
+0.998748 
+Timestep: 413 
+0.998604 
+Timestep: 414 
+0.998784 
+Timestep: 415 
+0.998435 
+Timestep: 416 
+0.998530 
+Timestep: 417 
+0.999257 
+Timestep: 418 
+0.999081 
+Timestep: 419 
+0.998798 
+Timestep: 420 
+0.998894 
+Timestep: 421 
+0.999144 
+Timestep: 422 
+0.999150 
+Timestep: 423 
+0.999566 
+Timestep: 424 
+0.999514 
+Timestep: 425 
+0.999253 
+Timestep: 426 
+0.999253 
+Timestep: 427 
+0.999269 
+Timestep: 428 
+0.999331 
+Timestep: 429 
+0.999442 
+Timestep: 430 
+0.998874 
+Timestep: 431 
+0.999238 
+Timestep: 432 
+0.999117 
+Timestep: 433 
+0.998777 
+Timestep: 434 
+0.999096 
+Timestep: 435 
+0.999112 
+Timestep: 436 
+0.999212 
+Timestep: 437 
+0.999141 
+Timestep: 438 
+0.998749 
+Timestep: 439 
+0.999090 
+Timestep: 440 
+0.999067 
+Timestep: 441 
+0.999297 
+Timestep: 442 
+0.999496 
+Timestep: 443 
+0.999302 
+Timestep: 444 
+0.999525 
+Timestep: 445 
+0.999621 
+Timestep: 446 
+0.999639 
+Timestep: 447 
+0.999621 
+Timestep: 448 
+0.999639 
+Timestep: 449 
+0.999610 
+Timestep: 450 
+0.999618 
+Timestep: 451 
+0.999643 
+Timestep: 452 
+0.999571 
+Timestep: 453 
+0.998771 
+Timestep: 454 
+0.998866 
+Timestep: 455 
+0.998614 
+Timestep: 456 
+0.999098 
+Timestep: 457 
+0.999291 
+Timestep: 458 
+0.999185 
+Timestep: 459 
+0.998554 
+Timestep: 460 
+0.998957 
+Timestep: 461 
+0.999183 
+Timestep: 462 
+0.999027 
+Timestep: 463 
+0.999042 
+Timestep: 464 
+0.998927 
+Timestep: 465 
+0.999313 
+Timestep: 466 
+0.999537 
+Timestep: 467 
+0.999371 
+Timestep: 468 
+0.998994 
+Timestep: 469 
+0.999225 
+Timestep: 470 
+0.998883 
+Timestep: 471 
+0.998865 
+Timestep: 472 
+0.999240 
+Timestep: 473 
+0.999201 
+Timestep: 474 
+0.999152 
+Timestep: 475 
+0.999097 
+Timestep: 476 
+0.998912 
+Timestep: 477 
+0.999098 
+Timestep: 478 
+0.998670 
+Timestep: 479 
+0.999090 
+Timestep: 480 
+0.999051 
+Timestep: 481 
+0.999284 
+Timestep: 482 
+0.999237 
+Timestep: 483 
+0.999272 
+Timestep: 484 
+0.998911 
+Timestep: 485 
+0.999248 
+Timestep: 486 
+0.999592 
+Timestep: 487 
+0.999436 
+Timestep: 488 
+0.999409 
+Timestep: 489 
+0.999484 
+Timestep: 490 
+0.998959 
+Timestep: 491 
+0.998878 
+Timestep: 492 
+0.998257 
+Timestep: 493 
+0.998279 
+Timestep: 494 
+0.998602 
+Timestep: 495 
+0.998474 
+Timestep: 496 
+0.998774 
+Timestep: 497 
+0.998996 
+Timestep: 498 
+0.999162 
+Timestep: 499 
+0.999235 
+Timestep: 500 
+0.998965 
+Timestep: 501 
+0.999066 
+Timestep: 502 
+0.998672 
+Timestep: 503 
+0.999018 
+Timestep: 504 
+0.999067 
+Timestep: 505 
+0.999278 
+Timestep: 506 
+0.999169 
+Timestep: 507 
+0.999392 
+Timestep: 508 
+0.999026 
+Timestep: 509 
+0.999181 
+Timestep: 510 
+0.999015 
+Timestep: 511 
+0.999437 
+Timestep: 512 
+0.999412 
+Timestep: 513 
+0.999044 
+Timestep: 514 
+0.999373 
+Timestep: 515 
+0.998829 
+Timestep: 516 
+0.998882 
+Timestep: 517 
+0.998842 
+Timestep: 518 
+0.998844 
+Timestep: 519 
+0.999073 
+Timestep: 520 
+0.998885 
+Timestep: 521 
+0.998606 
+Timestep: 522 
+0.998820 
+Timestep: 523 
+0.998287 
+Timestep: 524 
+0.998702 
+Timestep: 525 
+0.999247 
+Timestep: 526 
+0.999020 
+Timestep: 527 
+0.998575 
+Timestep: 528 
+0.999162 
+Timestep: 529 
+0.999172 
+Timestep: 530 
+0.999167 
+Timestep: 531 
+0.999621 
+Timestep: 532 
+0.999572 
+Timestep: 533 
+0.999327 
+Timestep: 534 
+0.999296 
+Timestep: 535 
+0.999387 
+Timestep: 536 
+0.999036 
+Timestep: 537 
+0.999280 
+Timestep: 538 
+0.999528 
+Timestep: 539 
+0.999204 
+Timestep: 540 
+0.999350 
+Timestep: 541 
+0.999393 
+Timestep: 542 
+0.999078 
+Timestep: 543 
+0.999123 
+Timestep: 544 
+0.999500 
+Timestep: 545 
+0.999185 
+Timestep: 546 
+0.999290 
+Timestep: 547 
+0.999320 
+Timestep: 548 
+0.999427 
+Timestep: 549 
+0.999626 
+Timestep: 550 
+0.999377 
+Timestep: 551 
+0.999203 
+Timestep: 552 
+0.998897 
+Timestep: 553 
+0.998510 
+Timestep: 554 
+0.998714 
+Timestep: 555 
+0.999022 
+Timestep: 556 
+0.999143 
+Timestep: 557 
+0.999242 
+Timestep: 558 
+0.999382 
+Timestep: 559 
+0.999417 
+Timestep: 560 
+0.999351 
+Timestep: 561 
+0.998936 
+Timestep: 562 
+0.999129 
+Timestep: 563 
+0.999278 
+Timestep: 564 
+0.999026 
+Timestep: 565 
+0.999344 
+Timestep: 566 
+0.999401 
+Timestep: 567 
+0.999352 
+Timestep: 568 
+0.999525 
+Timestep: 569 
+0.999602 
+Timestep: 570 
+0.999421 
+Timestep: 571 
+0.998679 
+Timestep: 572 
+0.999049 
+Timestep: 573 
+0.999150 
+Timestep: 574 
+0.999493 
+Timestep: 575 
+0.999363 
+Timestep: 576 
+0.999033 
+Timestep: 577 
+0.999233 
+Timestep: 578 
+0.999008 
+Timestep: 579 
+0.999234 
+Timestep: 580 
+0.999310 
+Timestep: 581 
+0.999202 
+Timestep: 582 
+0.999162 
+Timestep: 583 
+0.998997 
+Timestep: 584 
+0.999211 
+Timestep: 585 
+0.998927 
+Timestep: 586 
+0.999209 
+Timestep: 587 
+0.999216 
+Timestep: 588 
+0.999553 
+Timestep: 589 
+0.999553 
+Timestep: 590 
+0.999431 
+Timestep: 591 
+0.999746 
+Timestep: 592 
+0.999541 
+Timestep: 593 
+0.999585 
+Timestep: 594 
+0.999595 
+Timestep: 595 
+0.999670 
+Timestep: 596 
+0.999170 
+Timestep: 597 
+0.999222 
+Timestep: 598 
+0.999353 
+Timestep: 599 
+0.999273 
+Timestep: 600 
+0.998754 
+Timestep: 601 
+0.998927 
+Timestep: 602 
+0.999268 
+Timestep: 603 
+0.999065 
+Timestep: 604 
+0.998968 
+Timestep: 605 
+0.999268 
+Timestep: 606 
+0.998942 
+Timestep: 607 
+0.998901 
+Timestep: 608 
+0.999233 
+Timestep: 609 
+0.999561 
+Timestep: 610 
+0.999542 
+Timestep: 611 
+0.999456 
+Timestep: 612 
+0.999496 
+Timestep: 613 
+0.999144 
+Timestep: 614 
+0.999355 
+Timestep: 615 
+0.999268 
+Timestep: 616 
+0.999246 
+Timestep: 617 
+0.999214 
+Timestep: 618 
+0.999379 
+Timestep: 619 
+0.999456 
+Timestep: 620 
+0.999539 
+Timestep: 621 
+0.999562 
+Timestep: 622 
+0.999595 
+Timestep: 623 
+0.999511 
+Timestep: 624 
+0.999580 
+Timestep: 625 
+0.999375 
+Timestep: 626 
+0.999491 
+Timestep: 627 
+0.999323 
+Timestep: 628 
+0.999330 
+Timestep: 629 
+0.999356 
+Timestep: 630 
+0.998573 
+Timestep: 631 
+0.999167 
+Timestep: 632 
+0.999031 
+Timestep: 633 
+0.998992 
+Timestep: 634 
+0.999281 
+Timestep: 635 
+0.999400 
+Timestep: 636 
+0.999209 
+Timestep: 637 
+0.999391 
+Timestep: 638 
+0.999454 
+Timestep: 639 
+0.999613 
+Timestep: 640 
+0.999412 
+Timestep: 641 
+0.999272 
+Timestep: 642 
+0.999661 
+Timestep: 643 
+0.999383 
+Timestep: 644 
+0.999549 
+Timestep: 645 
+0.998910 
+Timestep: 646 
+0.999152 
+Timestep: 647 
+0.999251 
+Timestep: 648 
+0.998530 
+Timestep: 649 
+0.998793 
+Timestep: 650 
+0.999120 
+Timestep: 651 
+0.999207 
+Timestep: 652 
+0.999453 
+Timestep: 653 
+0.999317 
+Timestep: 654 
+0.999239 
+Timestep: 655 
+0.998976 
+Timestep: 656 
+0.999057 
+Timestep: 657 
+0.999226 
+Timestep: 658 
+0.999286 
+Timestep: 659 
+0.999531 
+Timestep: 660 
+0.999590 
+Timestep: 661 
+0.999257 
+Timestep: 662 
+0.999389 
+Timestep: 663 
+0.999037 
+Timestep: 664 
+0.998991 
+Timestep: 665 
+0.999169 
+Timestep: 666 
+0.999134 
+Timestep: 667 
+0.998819 
+Timestep: 668 
+0.999201 
+Timestep: 669 
+0.998344 
+Timestep: 670 
+0.998760 
+Timestep: 671 
+0.999151 
+Timestep: 672 
+0.999223 
+Timestep: 673 
+0.998938 
+Timestep: 674 
+0.999488 
+Timestep: 675 
+0.999600 
+Timestep: 676 
+0.999544 
+Timestep: 677 
+0.999377 
+Timestep: 678 
+0.999503 
+Timestep: 679 
+0.999495 
+Timestep: 680 
+0.998770 
+Timestep: 681 
+0.999102 
+Timestep: 682 
+0.999360 
+Timestep: 683 
+0.998970 
+Timestep: 684 
+0.998700 
+Timestep: 685 
+0.998950 
+Timestep: 686 
+0.998955 
+Timestep: 687 
+0.999165 
+Timestep: 688 
+0.999400 
+Timestep: 689 
+0.999349 
+Timestep: 690 
+0.998704 
+Timestep: 691 
+0.998863 
+Timestep: 692 
+0.999428 
+Timestep: 693 
+0.999374 
+Timestep: 694 
+0.998860 
+Timestep: 695 
+0.999145 
+Timestep: 696 
+0.999296 
+Timestep: 697 
+0.999311 
+Timestep: 698 
+0.999421 
+Timestep: 699 
+0.999314 
+Timestep: 700 
+0.999139 
+Timestep: 701 
+0.999409 
+Timestep: 702 
+0.998937 
+Timestep: 703 
+0.999061 
+Timestep: 704 
+0.998892 
+Timestep: 705 
+0.999011 
+Timestep: 706 
+0.999377 
+Timestep: 707 
+0.999247 
+Timestep: 708 
+0.999504 
+Timestep: 709 
+0.999420 
+Timestep: 710 
+0.999346 
+Timestep: 711 
+0.999302 
+Timestep: 712 
+0.999314 
+Timestep: 713 
+0.998743 
+Timestep: 714 
+0.999210 
+Timestep: 715 
+0.999151 
+Timestep: 716 
+0.998899 
+Timestep: 717 
+0.998733 
+Timestep: 718 
+0.998823 
+Timestep: 719 
+0.999301 
+Timestep: 720 
+0.999525 
+Timestep: 721 
+0.999569 
+Timestep: 722 
+0.999592 
+Timestep: 723 
+0.999425 
+Timestep: 724 
+0.999366 
+Timestep: 725 
+0.999073 
+Timestep: 726 
+0.999371 
+Timestep: 727 
+0.999338 
+Timestep: 728 
+0.998869 
+Timestep: 729 
+0.998738 
+Timestep: 730 
+0.998575 
+Timestep: 731 
+0.999169 
+Timestep: 732 
+0.999094 
+Timestep: 733 
+0.999173 
+Timestep: 734 
+0.999282 
+Timestep: 735 
+0.999325 
+Timestep: 736 
+0.999487 
+Timestep: 737 
+0.999451 
+Timestep: 738 
+0.999458 
+Timestep: 739 
+0.999373 
+Timestep: 740 
+0.999319 
+Timestep: 741 
+0.999111 
+Timestep: 742 
+0.999327 
+Timestep: 743 
+0.999176 
+Timestep: 744 
+0.999282 
+Timestep: 745 
+0.999050 
+Timestep: 746 
+0.999020 
+Timestep: 747 
+0.999064 
+Timestep: 748 
+0.999044 
+Timestep: 749 
+0.999453 
+Timestep: 750 
+0.999414 
+Timestep: 751 
+0.999593 
+Timestep: 752 
+0.999627 
+Timestep: 753 
+0.999389 
+Timestep: 754 
+0.999318 
+Timestep: 755 
+0.999596 
+Timestep: 756 
+0.999331 
+Timestep: 757 
+0.999566 
+Timestep: 758 
+0.999558 
+Timestep: 759 
+0.999478 
+Timestep: 760 
+0.999687 
+Timestep: 761 
+0.999413 
+Timestep: 762 
+0.998958 
+Timestep: 763 
+0.999002 
+Timestep: 764 
+0.998993 
+Timestep: 765 
+0.998670 
+Timestep: 766 
+0.999057 
+Timestep: 767 
+0.999220 
+Timestep: 768 
+0.999352 
+Timestep: 769 
+0.998876 
+Timestep: 770 
+0.999202 
+Timestep: 771 
+0.998803 
+Timestep: 772 
+0.998360 
+Timestep: 773 
+0.998951 
+Timestep: 774 
+0.998656 
+Timestep: 775 
+0.999368 
+Timestep: 776 
+0.999599 
+Timestep: 777 
+0.999159 
+Timestep: 778 
+0.999337 
+Timestep: 779 
+0.999125 
+Timestep: 780 
+0.998941 
+Timestep: 781 
+0.999117 
+Timestep: 782 
+0.998866 
+Timestep: 783 
+0.999105 
+Timestep: 784 
+0.999334 
+Timestep: 785 
+0.999382 
+Timestep: 786 
+0.999442 
+Timestep: 787 
+0.999515 
+Timestep: 788 
+0.999089 
+Timestep: 789 
+0.999261 
+Timestep: 790 
+0.999395 
+Timestep: 791 
+0.999159 
+Timestep: 792 
+0.999298 
+Timestep: 793 
+0.999152 
+Timestep: 794 
+0.999188 
+Timestep: 795 
+0.999023 
+Timestep: 796 
+0.999022 
+Timestep: 797 
+0.999411 
+Timestep: 798 
+0.999047 
+Timestep: 799 
+0.999272 
+Timestep: 800 
+0.998988 
+Timestep: 801 
+0.999196 
+Timestep: 802 
+0.998812 
+Timestep: 803 
+0.999205 
+Timestep: 804 
+0.999087 
+Timestep: 805 
+0.998981 
+Timestep: 806 
+0.999484 
+Timestep: 807 
+0.999674 
+Timestep: 808 
+0.999653 
+Timestep: 809 
+0.999582 
+Timestep: 810 
+0.999563 
+Timestep: 811 
+0.999598 
+Timestep: 812 
+0.999434 
+Timestep: 813 
+0.999601 
+Timestep: 814 
+0.999534 
+Timestep: 815 
+0.999386 
+Timestep: 816 
+0.999313 
+Timestep: 817 
+0.999329 
+Timestep: 818 
+0.999547 
+Timestep: 819 
+0.999032 
+Timestep: 820 
+0.999257 
+Timestep: 821 
+0.998874 
+Timestep: 822 
+0.999282 
+Timestep: 823 
+0.999153 
+Timestep: 824 
+0.998969 
+Timestep: 825 
+0.999347 
+Timestep: 826 
+0.999374 
+Timestep: 827 
+0.999242 
+Timestep: 828 
+0.999132 
+Timestep: 829 
+0.999009 
+Timestep: 830 
+0.999147 
+Timestep: 831 
+0.999429 
+Timestep: 832 
+0.999256 
+Timestep: 833 
+0.999457 
+Timestep: 834 
+0.999570 
+Timestep: 835 
+0.999559 
+Timestep: 836 
+0.999636 
+Timestep: 837 
+0.999655 
+Timestep: 838 
+0.999619 
+Timestep: 839 
+0.999492 
+Timestep: 840 
+0.999559 
+Timestep: 841 
+0.999729 
+Timestep: 842 
+0.999482 
+Timestep: 843 
+0.999427 
+Timestep: 844 
+0.999525 
+Timestep: 845 
+0.999642 
+Timestep: 846 
+0.999679 
+Timestep: 847 
+0.999533 
+Timestep: 848 
+0.999469 
+Timestep: 849 
+0.999389 
+Timestep: 850 
+0.999419 
+Timestep: 851 
+0.999184 
+Timestep: 852 
+0.999248 
+Timestep: 853 
+0.999208 
+Timestep: 854 
+0.999333 
+Timestep: 855 
+0.999650 
+Timestep: 856 
+0.999579 
+Timestep: 857 
+0.999559 
+Timestep: 858 
+0.999519 
+Timestep: 859 
+0.999528 
+Timestep: 860 
+0.999451 
+Timestep: 861 
+0.999325 
+Timestep: 862 
+0.999429 
+Timestep: 863 
+0.999230 
+Timestep: 864 
+0.999495 
+Timestep: 865 
+0.999567 
+Timestep: 866 
+0.999512 
+Timestep: 867 
+0.999687 
+Timestep: 868 
+0.999435 
+Timestep: 869 
+0.999468 
+Timestep: 870 
+0.999575 
+Timestep: 871 
+0.999381 
+Timestep: 872 
+0.999271 
+Timestep: 873 
+0.999464 
+Timestep: 874 
+0.999189 
+Timestep: 875 
+0.999208 
+Timestep: 876 
+0.999292 
+Timestep: 877 
+0.999376 
+Timestep: 878 
+0.999598 
+Timestep: 879 
+0.999458 
+Timestep: 880 
+0.999523 
+Timestep: 881 
+0.999548 
+Timestep: 882 
+0.999562 
+Timestep: 883 
+0.999574 
+Timestep: 884 
+0.999393 
+Timestep: 885 
+0.999328 
+Timestep: 886 
+0.999448 
+Timestep: 887 
+0.999396 
+Timestep: 888 
+0.999481 
+Timestep: 889 
+0.999569 
+Timestep: 890 
+0.999405 
+Timestep: 891 
+0.999565 
+Timestep: 892 
+0.999484 
+Timestep: 893 
+0.999631 
+Timestep: 894 
+0.999660 
+Timestep: 895 
+0.999617 
+Timestep: 896 
+0.999269 
+Timestep: 897 
+0.999540 
+Timestep: 898 
+0.999407 
+Timestep: 899 
+0.999346 
+Timestep: 900 
+0.999558 
+Timestep: 901 
+0.999356 
+Timestep: 902 
+0.999333 
+Timestep: 903 
+0.998991 
+Timestep: 904 
+0.998858 
+Timestep: 905 
+0.999039 
+Timestep: 906 
+0.998874 
+Timestep: 907 
+0.999269 
+Timestep: 908 
+0.999345 
+Timestep: 909 
+0.999407 
+Timestep: 910 
+0.999308 
+Timestep: 911 
+0.999371 
+Timestep: 912 
+0.999487 
+Timestep: 913 
+0.999652 
+Timestep: 914 
+0.999517 
+Timestep: 915 
+0.999420 
+Timestep: 916 
+0.999539 
+Timestep: 917 
+0.999491 
+Timestep: 918 
+0.999419 
+Timestep: 919 
+0.999384 
+Timestep: 920 
+0.999166 
+Timestep: 921 
+0.999359 
+Timestep: 922 
+0.999353 
+Timestep: 923 
+0.999121 
+Timestep: 924 
+0.999296 
+Timestep: 925 
+0.999023 
+Timestep: 926 
+0.999104 
+Timestep: 927 
+0.999533 
+Timestep: 928 
+0.999264 
+Timestep: 929 
+0.998990 
+Timestep: 930 
+0.998746 
+Timestep: 931 
+0.999145 
+Timestep: 932 
+0.999438 
+Timestep: 933 
+0.999248 
+Timestep: 934 
+0.999195 
+Timestep: 935 
+0.999248 
+Timestep: 936 
+0.999433 
+Timestep: 937 
+0.999020 
+Timestep: 938 
+0.999291 
+Timestep: 939 
+0.999479 
+Timestep: 940 
+0.999498 
+Timestep: 941 
+0.999633 
+Timestep: 942 
+0.999650 
+Timestep: 943 
+0.999573 
+Timestep: 944 
+0.999410 
+Timestep: 945 
+0.999186 
+Timestep: 946 
+0.999197 
+Timestep: 947 
+0.999154 
+Timestep: 948 
+0.999076 
+Timestep: 949 
+0.999472 
+Timestep: 950 
+0.999590 
+Timestep: 951 
+0.999519 
+Timestep: 952 
+0.999676 
+Timestep: 953 
+0.999298 
+Timestep: 954 
+0.999318 
+Timestep: 955 
+0.999460 
+Timestep: 956 
+0.999166 
+Timestep: 957 
+0.999246 
+Timestep: 958 
+0.999405 
+Timestep: 959 
+0.999424 
+Timestep: 960 
+0.999624 
+Timestep: 961 
+0.999377 
+Timestep: 962 
+0.999673 
+Timestep: 963 
+0.999590 
+Timestep: 964 
+0.999503 
+Timestep: 965 
+0.999489 
+Timestep: 966 
+0.999442 
+Timestep: 967 
+0.999022 
+Timestep: 968 
+0.999070 
+Timestep: 969 
+0.998986 
+Timestep: 970 
+0.999121 
+Timestep: 971 
+0.999075 
+Timestep: 972 
+0.999141 
+Timestep: 973 
+0.999327 
+Timestep: 974 
+0.999222 
+Timestep: 975 
+0.999446 
+Timestep: 976 
+0.999314 
+Timestep: 977 
+0.999389 
+Timestep: 978 
+0.999263 
+Timestep: 979 
+0.999114 
+Timestep: 980 
+0.998515 
+Timestep: 981 
+0.998944 
+Timestep: 982 
+0.998837 
+Timestep: 983 
+0.999197 
+Timestep: 984 
+0.999183 
+Timestep: 985 
+0.999332 
+Timestep: 986 
+0.999084 
+Timestep: 987 
+0.999015 
+Timestep: 988 
+0.999124 
+Timestep: 989 
+0.999176 
+Timestep: 990 
+0.999503 
+Timestep: 991 
+0.999760 
+Timestep: 992 
+0.999735 
+Timestep: 993 
+0.999431 
+Timestep: 994 
+0.999510 
+Timestep: 995 
+0.999664 
+Timestep: 996 
+0.999514 
+Timestep: 997 
+0.999618 
+Timestep: 998 
+0.999580 
+Timestep: 999 
+0.999560 
+Timestep: 1000 
+0.999537 
+Timestep: 1001 
+0.999395 
+Timestep: 1002 
+0.999360 
+Timestep: 1003 
+0.999527 
+Timestep: 1004 
+0.999520 
+Timestep: 1005 
+0.999467 
+Timestep: 1006 
+0.999592 
+Timestep: 1007 
+0.999642 
+Timestep: 1008 
+0.999547 
+Timestep: 1009 
+0.999358 
+Timestep: 1010 
+0.999340 
+Timestep: 1011 
+0.999249 
+Timestep: 1012 
+0.999202 
+Timestep: 1013 
+0.999415 
+Timestep: 1014 
+0.999151 
+Timestep: 1015 
+0.999245 
+Timestep: 1016 
+0.999419 
+Timestep: 1017 
+0.999271 
+Timestep: 1018 
+0.999375 
+Timestep: 1019 
+0.999463 
+Timestep: 1020 
+0.999451 
+Timestep: 1021 
+0.999300 
+Timestep: 1022 
+0.999323 
+Timestep: 1023 
+0.999422 
+Timestep: 1024 
+0.999622 
+Timestep: 1025 
+0.999524 
+Timestep: 1026 
+0.999269 
+Timestep: 1027 
+0.999353 
+Timestep: 1028 
+0.999302 
+Timestep: 1029 
+0.999157 
+Timestep: 1030 
+0.999538 
+Timestep: 1031 
+0.999687 
+Timestep: 1032 
+0.999568 
+Timestep: 1033 
+0.999550 
+Timestep: 1034 
+0.999231 
+Timestep: 1035 
+0.999340 
+Timestep: 1036 
+0.999290 
+Timestep: 1037 
+0.999359 
+Timestep: 1038 
+0.998974 
+Timestep: 1039 
+0.999308 
+Timestep: 1040 
+0.999375 
+Timestep: 1041 
+0.999354 
+Timestep: 1042 
+0.999426 
+Timestep: 1043 
+0.999277 
+Timestep: 1044 
+0.999558 
+Timestep: 1045 
+0.999452 
+Timestep: 1046 
+0.999309 
+Timestep: 1047 
+0.999521 
+Timestep: 1048 
+0.999664 
+Timestep: 1049 
+0.999413 
+Timestep: 1050 
+0.999518 
+Timestep: 1051 
+0.999314 
+Timestep: 1052 
+0.999374 
+Timestep: 1053 
+0.999356 
+Timestep: 1054 
+0.999408 
+Timestep: 1055 
+0.999031 
+Timestep: 1056 
+0.999289 
+Timestep: 1057 
+0.998769 
+Timestep: 1058 
+0.998993 
+Timestep: 1059 
+0.999343 
+Timestep: 1060 
+0.999016 
+Timestep: 1061 
+0.999430 
+Timestep: 1062 
+0.999174 
+Timestep: 1063 
+0.999175 
+Timestep: 1064 
+0.998971 
+Timestep: 1065 
+0.999182 
+Timestep: 1066 
+0.999304 
+Timestep: 1067 
+0.999284 
+Timestep: 1068 
+0.999269 
+Timestep: 1069 
+0.999288 
+Timestep: 1070 
+0.999599 
+Timestep: 1071 
+0.999637 
+Timestep: 1072 
+0.999524 
+Timestep: 1073 
+0.999572 
+Timestep: 1074 
+0.999308 
+Timestep: 1075 
+0.999220 
+Timestep: 1076 
+0.999311 
+Timestep: 1077 
+0.999355 
+Timestep: 1078 
+0.999368 
+Timestep: 1079 
+0.999467 
+Timestep: 1080 
+0.999425 
+Timestep: 1081 
+0.999599 
+Timestep: 1082 
+0.999602 
+Timestep: 1083 
+0.999546 
+Timestep: 1084 
+0.999597 
+Timestep: 1085 
+0.999406 
+Timestep: 1086 
+0.999574 
+Timestep: 1087 
+0.999412 
+Timestep: 1088 
+0.999459 
+Timestep: 1089 
+0.999532 
+Timestep: 1090 
+0.999228 
+Timestep: 1091 
+0.999471 
+Timestep: 1092 
+0.999504 
+Timestep: 1093 
+0.999536 
+Timestep: 1094 
+0.999323 
+Timestep: 1095 
+0.999413 
+Timestep: 1096 
+0.999339 
+Timestep: 1097 
+0.999413 
+Timestep: 1098 
+0.999392 
+Timestep: 1099 
+0.999478 
+Timestep: 1100 
+0.999503 
+Timestep: 1101 
+0.999576 
+Timestep: 1102 
+0.999295 
+Timestep: 1103 
+0.999432 
+Timestep: 1104 
+0.999573 
+Timestep: 1105 
+0.999599 
+Timestep: 1106 
+0.999515 
+Timestep: 1107 
+0.999189 
+Timestep: 1108 
+0.999241 
+Timestep: 1109 
+0.999317 
+Timestep: 1110 
+0.999357 
+Timestep: 1111 
+0.999360 
+Timestep: 1112 
+0.999429 
+Timestep: 1113 
+0.999374 
+Timestep: 1114 
+0.999443 
+Timestep: 1115 
+0.999580 
+Timestep: 1116 
+0.999633 
+Timestep: 1117 
+0.999468 
+Timestep: 1118 
+0.999707 
+Timestep: 1119 
+0.999773 
+Timestep: 1120 
+0.999645 
+Timestep: 1121 
+0.999617 
+Timestep: 1122 
+0.999604 
+Timestep: 1123 
+0.999716 
+Timestep: 1124 
+0.999695 
+Timestep: 1125 
+0.999624 
+Timestep: 1126 
+0.999521 
+Timestep: 1127 
+0.999423 
+Timestep: 1128 
+0.999402 
+Timestep: 1129 
+0.999628 
+Timestep: 1130 
+0.999641 
+Timestep: 1131 
+0.999508 
+Timestep: 1132 
+0.999308 
+Timestep: 1133 
+0.999540 
+Timestep: 1134 
+0.999584 
+Timestep: 1135 
+0.999568 
+Timestep: 1136 
+0.999663 
+Timestep: 1137 
+0.999573 
+Timestep: 1138 
+0.999279 
+Timestep: 1139 
+0.999277 
+Timestep: 1140 
+0.999200 
+Timestep: 1141 
+0.998936 
+Timestep: 1142 
+0.998828 
+Timestep: 1143 
+0.999587 
+Timestep: 1144 
+0.999495 
+Timestep: 1145 
+0.999582 
+Timestep: 1146 
+0.999455 
+Timestep: 1147 
+0.999559 
+Timestep: 1148 
+0.999485 
+Timestep: 1149 
+0.999225 
+Timestep: 1150 
+0.999429 
+Timestep: 1151 
+0.999591 
+Timestep: 1152 
+0.999553 
+Timestep: 1153 
+0.999587 
+Timestep: 1154 
+0.999125 
+Timestep: 1155 
+0.999294 
+Timestep: 1156 
+0.999188 
+Timestep: 1157 
+0.998631 
+Timestep: 1158 
+0.999343 
+Timestep: 1159 
+0.999263 
+Timestep: 1160 
+0.999336 
+Timestep: 1161 
+0.998939 
+Timestep: 1162 
+0.999211 
+Timestep: 1163 
+0.999229 
+Timestep: 1164 
+0.999135 
+Timestep: 1165 
+0.999367 
+Timestep: 1166 
+0.999461 
+Timestep: 1167 
+0.998927 
+Timestep: 1168 
+0.998989 
+Timestep: 1169 
+0.999346 
+Timestep: 1170 
+0.999325 
+Timestep: 1171 
+0.999489 
+Timestep: 1172 
+0.999517 
+Timestep: 1173 
+0.999607 
+Timestep: 1174 
+0.999509 
+Timestep: 1175 
+0.999326 
+Timestep: 1176 
+0.999395 
+Timestep: 1177 
+0.999521 
+Timestep: 1178 
+0.999406 
+Timestep: 1179 
+0.999386 
+Timestep: 1180 
+0.999332 
+Timestep: 1181 
+0.999457 
+Timestep: 1182 
+0.999233 
+Timestep: 1183 
+0.999377 
+Timestep: 1184 
+0.999303 
+Timestep: 1185 
+0.999167 
+Timestep: 1186 
+0.999347 
+Timestep: 1187 
+0.999490 
+Timestep: 1188 
+0.999668 
+Timestep: 1189 
+0.999682 
+Timestep: 1190 
+0.999592 
+Timestep: 1191 
+0.999509 
+Timestep: 1192 
+0.999377 
+Timestep: 1193 
+0.999564 
+Timestep: 1194 
+0.999347 
+Timestep: 1195 
+0.999557 
+Timestep: 1196 
+0.999689 
+Timestep: 1197 
+0.999697 
+Timestep: 1198 
+0.999788 
+Timestep: 1199 
+0.999815 
+Timestep: 1200 
+0.999525 
+Timestep: 1201 
+0.999631 
+Timestep: 1202 
+0.999539 
+Timestep: 1203 
+0.999346 
+Timestep: 1204 
+0.999255 
+Timestep: 1205 
+0.999313 
+Timestep: 1206 
+0.999213 
+Timestep: 1207 
+0.999454 
+Timestep: 1208 
+0.999052 
+Timestep: 1209 
+0.999051 
+Timestep: 1210 
+0.999183 
+Timestep: 1211 
+0.999197 
+Timestep: 1212 
+0.999257 
+Timestep: 1213 
+0.998934 
+Timestep: 1214 
+0.999293 
+Timestep: 1215 
+0.999222 
+Timestep: 1216 
+0.999482 
+Timestep: 1217 
+0.999561 
+Timestep: 1218 
+0.999650 
+Timestep: 1219 
+0.999581 
+Timestep: 1220 
+0.999526 
+Timestep: 1221 
+0.999468 
+Timestep: 1222 
+0.999409 
+Timestep: 1223 
+0.999576 
+Timestep: 1224 
+0.999716 
+Timestep: 1225 
+0.999776 
+Timestep: 1226 
+0.999591 
+Timestep: 1227 
+0.999406 
+Timestep: 1228 
+0.999400 
+Timestep: 1229 
+0.999512 
+Timestep: 1230 
+0.999699 
+Timestep: 1231 
+0.999532 
+Timestep: 1232 
+0.999381 
+Timestep: 1233 
+0.999428 
+Timestep: 1234 
+0.999305 
+Timestep: 1235 
+0.999513 
+Timestep: 1236 
+0.999624 
+Timestep: 1237 
+0.999532 
+Timestep: 1238 
+0.999180 
+Timestep: 1239 
+0.998957 
+Timestep: 1240 
+0.999270 
+Timestep: 1241 
+0.999174 
+Timestep: 1242 
+0.999285 
+Timestep: 1243 
+0.999444 
+Timestep: 1244 
+0.999379 
+Timestep: 1245 
+0.999448 
+Timestep: 1246 
+0.999576 
+Timestep: 1247 
+0.999557 
+Timestep: 1248 
+0.999531 
+Timestep: 1249 
+0.999315 
+Timestep: 1250 
+0.999536 
+Parameter 
+Timestep: 5 
+0.998218 
+Timestep: 6 
+0.996489 
+Timestep: 7 
+0.996047 
+Timestep: 8 
+0.995907 
+Timestep: 9 
+0.996822 
+Timestep: 10 
+0.997257 
+Timestep: 11 
+0.997756 
+Timestep: 12 
+0.998063 
+Timestep: 13 
+0.998622 
+Timestep: 14 
+0.998039 
+Timestep: 15 
+0.998461 
+Timestep: 16 
+0.998419 
+Timestep: 17 
+0.998163 
+Timestep: 18 
+0.998582 
+Timestep: 19 
+0.997989 
+Timestep: 20 
+0.997732 
+Timestep: 21 
+0.998219 
+Timestep: 22 
+0.998853 
+Timestep: 23 
+0.998872 
+Timestep: 24 
+0.999136 
+Timestep: 25 
+0.998569 
+Timestep: 26 
+0.999082 
+Timestep: 27 
+0.999131 
+Timestep: 28 
+0.999162 
+Timestep: 29 
+0.999218 
+Timestep: 30 
+0.999236 
+Timestep: 31 
+0.999201 
+Timestep: 32 
+0.999307 
+Timestep: 33 
+0.998437 
+Timestep: 34 
+0.998519 
+Timestep: 35 
+0.999116 
+Timestep: 36 
+0.999148 
+Timestep: 37 
+0.999068 
+Timestep: 38 
+0.998835 
+Timestep: 39 
+0.998905 
+Timestep: 40 
+0.999185 
+Timestep: 41 
+0.999045 
+Timestep: 42 
+0.998940 
+Timestep: 43 
+0.999179 
+Timestep: 44 
+0.999116 
+Timestep: 45 
+0.998897 
+Timestep: 46 
+0.999132 
+Timestep: 47 
+0.999172 
+Timestep: 48 
+0.999242 
+Timestep: 49 
+0.999714 
+Timestep: 50 
+0.999355 
+Timestep: 51 
+0.999294 
+Timestep: 52 
+0.999438 
+Timestep: 53 
+0.999430 
+Timestep: 54 
+0.999418 
+Timestep: 55 
+0.999300 
+Timestep: 56 
+0.999104 
+Timestep: 57 
+0.999530 
+Timestep: 58 
+0.998860 
+Timestep: 59 
+0.998395 
+Timestep: 60 
+0.998790 
+Timestep: 61 
+0.999030 
+Timestep: 62 
+0.997855 
+Timestep: 63 
+0.997963 
+Timestep: 64 
+0.998482 
+Timestep: 65 
+0.998657 
+Timestep: 66 
+0.999131 
+Timestep: 67 
+0.999422 
+Timestep: 68 
+0.999310 
+Timestep: 69 
+0.999288 
+Timestep: 70 
+0.999393 
+Timestep: 71 
+0.999399 
+Timestep: 72 
+0.999373 
+Timestep: 73 
+0.999402 
+Timestep: 74 
+0.999418 
+Timestep: 75 
+0.998968 
+Timestep: 76 
+0.998845 
+Timestep: 77 
+0.998431 
+Timestep: 78 
+0.998586 
+Timestep: 79 
+0.998348 
+Timestep: 80 
+0.998436 
+Timestep: 81 
+0.999024 
+Timestep: 82 
+0.999143 
+Timestep: 83 
+0.997740 
+Timestep: 84 
+0.998571 
+Timestep: 85 
+0.998825 
+Timestep: 86 
+0.998835 
+Timestep: 87 
+0.998690 
+Timestep: 88 
+0.998864 
+Timestep: 89 
+0.998675 
+Timestep: 90 
+0.998896 
+Timestep: 91 
+0.999298 
+Timestep: 92 
+0.999331 
+Timestep: 93 
+0.998828 
+Timestep: 94 
+0.999065 
+Timestep: 95 
+0.999246 
+Timestep: 96 
+0.999276 
+Timestep: 97 
+0.999275 
+Timestep: 98 
+0.999012 
+Timestep: 99 
+0.998886 
+Timestep: 100 
+0.999216 
+Timestep: 101 
+0.999219 
+Timestep: 102 
+0.999241 
+Timestep: 103 
+0.999260 
+Timestep: 104 
+0.999624 
+Timestep: 105 
+0.999383 
+Timestep: 106 
+0.999443 
+Timestep: 107 
+0.999130 
+Timestep: 108 
+0.999221 
+Timestep: 109 
+0.999097 
+Timestep: 110 
+0.999194 
+Timestep: 111 
+0.999113 
+Timestep: 112 
+0.998644 
+Timestep: 113 
+0.998788 
+Timestep: 114 
+0.998713 
+Timestep: 115 
+0.999152 
+Timestep: 116 
+0.998800 
+Timestep: 117 
+0.998743 
+Timestep: 118 
+0.998742 
+Timestep: 119 
+0.999279 
+Timestep: 120 
+0.999298 
+Timestep: 121 
+0.999344 
+Timestep: 122 
+0.999424 
+Timestep: 123 
+0.998753 
+Timestep: 124 
+0.998660 
+Timestep: 125 
+0.998053 
+Timestep: 126 
+0.998545 
+Timestep: 127 
+0.998645 
+Timestep: 128 
+0.999085 
+Timestep: 129 
+0.998805 
+Timestep: 130 
+0.998593 
+Timestep: 131 
+0.998852 
+Timestep: 132 
+0.999210 
+Timestep: 133 
+0.999394 
+Timestep: 134 
+0.998636 
+Timestep: 135 
+0.998923 
+Timestep: 136 
+0.998333 
+Timestep: 137 
+0.998364 
+Timestep: 138 
+0.998128 
+Timestep: 139 
+0.998507 
+Timestep: 140 
+0.998745 
+Timestep: 141 
+0.999340 
+Timestep: 142 
+0.999171 
+Timestep: 143 
+0.999095 
+Timestep: 144 
+0.999529 
+Timestep: 145 
+0.999308 
+Timestep: 146 
+0.999343 
+Timestep: 147 
+0.999112 
+Timestep: 148 
+0.999109 
+Timestep: 149 
+0.998874 
+Timestep: 150 
+0.999234 
+Timestep: 151 
+0.999417 
+Timestep: 152 
+0.999024 
+Timestep: 153 
+0.999238 
+Timestep: 154 
+0.999263 
+Timestep: 155 
+0.998985 
+Timestep: 156 
+0.998480 
+Timestep: 157 
+0.998575 
+Timestep: 158 
+0.998791 
+Timestep: 159 
+0.998873 
+Timestep: 160 
+0.998910 
+Timestep: 161 
+0.998904 
+Timestep: 162 
+0.998837 
+Timestep: 163 
+0.999077 
+Timestep: 164 
+0.999215 
+Timestep: 165 
+0.999197 
+Timestep: 166 
+0.999528 
+Timestep: 167 
+0.999497 
+Timestep: 168 
+0.999438 
+Timestep: 169 
+0.999255 
+Timestep: 170 
+0.999262 
+Timestep: 171 
+0.998897 
+Timestep: 172 
+0.998899 
+Timestep: 173 
+0.998868 
+Timestep: 174 
+0.999103 
+Timestep: 175 
+0.999282 
+Timestep: 176 
+0.999260 
+Timestep: 177 
+0.998903 
+Timestep: 178 
+0.998974 
+Timestep: 179 
+0.998459 
+Timestep: 180 
+0.999113 
+Timestep: 181 
+0.999095 
+Timestep: 182 
+0.998814 
+Timestep: 183 
+0.998656 
+Timestep: 184 
+0.998752 
+Timestep: 185 
+0.999071 
+Timestep: 186 
+0.998413 
+Timestep: 187 
+0.999084 
+Timestep: 188 
+0.999220 
+Timestep: 189 
+0.999171 
+Timestep: 190 
+0.999275 
+Timestep: 191 
+0.998362 
+Timestep: 192 
+0.998824 
+Timestep: 193 
+0.998634 
+Timestep: 194 
+0.998181 
+Timestep: 195 
+0.998502 
+Timestep: 196 
+0.999166 
+Timestep: 197 
+0.999420 
+Timestep: 198 
+0.999511 
+Timestep: 199 
+0.999093 
+Timestep: 200 
+0.999223 
+Timestep: 201 
+0.999335 
+Timestep: 202 
+0.998995 
+Timestep: 203 
+0.999262 
+Timestep: 204 
+0.999359 
+Timestep: 205 
+0.998976 
+Timestep: 206 
+0.998748 
+Timestep: 207 
+0.998800 
+Timestep: 208 
+0.999113 
+Timestep: 209 
+0.999388 
+Timestep: 210 
+0.999474 
+Timestep: 211 
+0.999208 
+Timestep: 212 
+0.999327 
+Timestep: 213 
+0.997177 
+Timestep: 214 
+0.996873 
+Timestep: 215 
+0.997971 
+Timestep: 216 
+0.997618 
+Timestep: 217 
+0.998523 
+Timestep: 218 
+0.998309 
+Timestep: 219 
+0.999077 
+Timestep: 220 
+0.999169 
+Timestep: 221 
+0.999098 
+Timestep: 222 
+0.999460 
+Timestep: 223 
+0.999429 
+Timestep: 224 
+0.999285 
+Timestep: 225 
+0.999446 
+Timestep: 226 
+0.999430 
+Timestep: 227 
+0.999450 
+Timestep: 228 
+0.999492 
+Timestep: 229 
+0.998862 
+Timestep: 230 
+0.998951 
+Timestep: 231 
+0.998345 
+Timestep: 232 
+0.997692 
+Timestep: 233 
+0.998037 
+Timestep: 234 
+0.998000 
+Timestep: 235 
+0.998458 
+Timestep: 236 
+0.999011 
+Timestep: 237 
+0.999344 
+Timestep: 238 
+0.999085 
+Timestep: 239 
+0.999239 
+Timestep: 240 
+0.998670 
+Timestep: 241 
+0.999158 
+Timestep: 242 
+0.999319 
+Timestep: 243 
+0.999372 
+Timestep: 244 
+0.999227 
+Timestep: 245 
+0.999038 
+Timestep: 246 
+0.998083 
+Timestep: 247 
+0.998685 
+Timestep: 248 
+0.998730 
+Timestep: 249 
+0.998526 
+Timestep: 250 
+0.999086 
+Timestep: 251 
+0.999292 
+Timestep: 252 
+0.999400 
+Timestep: 253 
+0.999508 
+Timestep: 254 
+0.999571 
+Timestep: 255 
+0.999584 
+Timestep: 256 
+0.999538 
+Timestep: 257 
+0.998967 
+Timestep: 258 
+0.999100 
+Timestep: 259 
+0.998948 
+Timestep: 260 
+0.999215 
+Timestep: 261 
+0.999047 
+Timestep: 262 
+0.998875 
+Timestep: 263 
+0.998942 
+Timestep: 264 
+0.998688 
+Timestep: 265 
+0.998682 
+Timestep: 266 
+0.999407 
+Timestep: 267 
+0.999009 
+Timestep: 268 
+0.999082 
+Timestep: 269 
+0.998898 
+Timestep: 270 
+0.998250 
+Timestep: 271 
+0.998799 
+Timestep: 272 
+0.999434 
+Timestep: 273 
+0.999140 
+Timestep: 274 
+0.999408 
+Timestep: 275 
+0.998275 
+Timestep: 276 
+0.998557 
+Timestep: 277 
+0.998878 
+Timestep: 278 
+0.998896 
+Timestep: 279 
+0.999367 
+Timestep: 280 
+0.999211 
+Timestep: 281 
+0.999132 
+Timestep: 282 
+0.999175 
+Timestep: 283 
+0.999445 
+Timestep: 284 
+0.999046 
+Timestep: 285 
+0.999423 
+Timestep: 286 
+0.999555 
+Timestep: 287 
+0.999175 
+Timestep: 288 
+0.999227 
+Timestep: 289 
+0.999103 
+Timestep: 290 
+0.998856 
+Timestep: 291 
+0.999139 
+Timestep: 292 
+0.999139 
+Timestep: 293 
+0.999270 
+Timestep: 294 
+0.998543 
+Timestep: 295 
+0.998337 
+Timestep: 296 
+0.998759 
+Timestep: 297 
+0.998339 
+Timestep: 298 
+0.998553 
+Timestep: 299 
+0.998857 
+Timestep: 300 
+0.999047 
+Timestep: 301 
+0.999593 
+Timestep: 302 
+0.999573 
+Timestep: 303 
+0.999230 
+Timestep: 304 
+0.999356 
+Timestep: 305 
+0.999398 
+Timestep: 306 
+0.999543 
+Timestep: 307 
+0.999361 
+Timestep: 308 
+0.999348 
+Timestep: 309 
+0.999564 
+Timestep: 310 
+0.999717 
+Timestep: 311 
+0.999717 
+Timestep: 312 
+0.999239 
+Timestep: 313 
+0.999267 
+Timestep: 314 
+0.998803 
+Timestep: 315 
+0.998967 
+Timestep: 316 
+0.999174 
+Timestep: 317 
+0.998680 
+Timestep: 318 
+0.998577 
+Timestep: 319 
+0.998182 
+Timestep: 320 
+0.997095 
+Timestep: 321 
+0.998312 
+Timestep: 322 
+0.999104 
+Timestep: 323 
+0.998942 
+Timestep: 324 
+0.999340 
+Timestep: 325 
+0.999060 
+Timestep: 326 
+0.998659 
+Timestep: 327 
+0.998599 
+Timestep: 328 
+0.998802 
+Timestep: 329 
+0.998967 
+Timestep: 330 
+0.999334 
+Timestep: 331 
+0.999211 
+Timestep: 332 
+0.999240 
+Timestep: 333 
+0.999346 
+Timestep: 334 
+0.999380 
+Timestep: 335 
+0.999308 
+Timestep: 336 
+0.999546 
+Timestep: 337 
+0.999514 
+Timestep: 338 
+0.999315 
+Timestep: 339 
+0.998753 
+Timestep: 340 
+0.998501 
+Timestep: 341 
+0.998792 
+Timestep: 342 
+0.998889 
+Timestep: 343 
+0.998809 
+Timestep: 344 
+0.999191 
+Timestep: 345 
+0.998748 
+Timestep: 346 
+0.999085 
+Timestep: 347 
+0.999059 
+Timestep: 348 
+0.998662 
+Timestep: 349 
+0.998417 
+Timestep: 350 
+0.998893 
+Timestep: 351 
+0.998503 
+Timestep: 352 
+0.998425 
+Timestep: 353 
+0.998637 
+Timestep: 354 
+0.999035 
+Timestep: 355 
+0.999431 
+Timestep: 356 
+0.999190 
+Timestep: 357 
+0.999269 
+Timestep: 358 
+0.999387 
+Timestep: 359 
+0.999655 
+Timestep: 360 
+0.999579 
+Timestep: 361 
+0.999400 
+Timestep: 362 
+0.999480 
+Timestep: 363 
+0.998668 
+Timestep: 364 
+0.999331 
+Timestep: 365 
+0.999343 
+Timestep: 366 
+0.998970 
+Timestep: 367 
+0.999376 
+Timestep: 368 
+0.999442 
+Timestep: 369 
+0.999198 
+Timestep: 370 
+0.998699 
+Timestep: 371 
+0.998920 
+Timestep: 372 
+0.998878 
+Timestep: 373 
+0.999338 
+Timestep: 374 
+0.999449 
+Timestep: 375 
+0.999352 
+Timestep: 376 
+0.999508 
+Timestep: 377 
+0.999435 
+Timestep: 378 
+0.999255 
+Timestep: 379 
+0.999171 
+Timestep: 380 
+0.999044 
+Timestep: 381 
+0.998856 
+Timestep: 382 
+0.998388 
+Timestep: 383 
+0.999064 
+Timestep: 384 
+0.999211 
+Timestep: 385 
+0.999152 
+Timestep: 386 
+0.999302 
+Timestep: 387 
+0.999458 
+Timestep: 388 
+0.999572 
+Timestep: 389 
+0.999561 
+Timestep: 390 
+0.999548 
+Timestep: 391 
+0.999592 
+Timestep: 392 
+0.999406 
+Timestep: 393 
+0.999510 
+Timestep: 394 
+0.999665 
+Timestep: 395 
+0.999601 
+Timestep: 396 
+0.999686 
+Timestep: 397 
+0.999472 
+Timestep: 398 
+0.999547 
+Timestep: 399 
+0.999034 
+Timestep: 400 
+0.998864 
+Timestep: 401 
+0.999220 
+Timestep: 402 
+0.999150 
+Timestep: 403 
+0.999381 
+Timestep: 404 
+0.999204 
+Timestep: 405 
+0.999462 
+Timestep: 406 
+0.999588 
+Timestep: 407 
+0.999373 
+Timestep: 408 
+0.999061 
+Timestep: 409 
+0.998762 
+Timestep: 410 
+0.999310 
+Timestep: 411 
+0.999090 
+Timestep: 412 
+0.999291 
+Timestep: 413 
+0.999451 
+Timestep: 414 
+0.999523 
+Timestep: 415 
+0.999774 
+Timestep: 416 
+0.999783 
+Timestep: 417 
+0.999685 
+Timestep: 418 
+0.999608 
+Timestep: 419 
+0.999662 
+Timestep: 420 
+0.999479 
+Timestep: 421 
+0.999181 
+Timestep: 422 
+0.999332 
+Timestep: 423 
+0.999563 
+Timestep: 424 
+0.999407 
+Timestep: 425 
+0.999318 
+Timestep: 426 
+0.999384 
+Timestep: 427 
+0.999342 
+Timestep: 428 
+0.998994 
+Timestep: 429 
+0.999237 
+Timestep: 430 
+0.999475 
+Timestep: 431 
+0.999570 
+Timestep: 432 
+0.999318 
+Timestep: 433 
+0.999403 
+Timestep: 434 
+0.999550 
+Timestep: 435 
+0.999094 
+Timestep: 436 
+0.999052 
+Timestep: 437 
+0.999250 
+Timestep: 438 
+0.999380 
+Timestep: 439 
+0.999444 
+Timestep: 440 
+0.999459 
+Timestep: 441 
+0.998977 
+Timestep: 442 
+0.999074 
+Timestep: 443 
+0.999298 
+Timestep: 444 
+0.999498 
+Timestep: 445 
+0.999586 
+Timestep: 446 
+0.999692 
+Timestep: 447 
+0.999687 
+Timestep: 448 
+0.999651 
+Timestep: 449 
+0.999243 
+Timestep: 450 
+0.999111 
+Timestep: 451 
+0.999241 
+Timestep: 452 
+0.999548 
+Timestep: 453 
+0.999174 
+Timestep: 454 
+0.999365 
+Timestep: 455 
+0.999249 
+Timestep: 456 
+0.999253 
+Timestep: 457 
+0.999353 
+Timestep: 458 
+0.999537 
+Timestep: 459 
+0.999213 
+Timestep: 460 
+0.999432 
+Timestep: 461 
+0.999247 
+Timestep: 462 
+0.999186 
+Timestep: 463 
+0.999271 
+Timestep: 464 
+0.999329 
+Timestep: 465 
+0.999085 
+Timestep: 466 
+0.999051 
+Timestep: 467 
+0.999302 
+Timestep: 468 
+0.999566 
+Timestep: 469 
+0.999439 
+Timestep: 470 
+0.999434 
+Timestep: 471 
+0.999472 
+Timestep: 472 
+0.999236 
+Timestep: 473 
+0.999136 
+Timestep: 474 
+0.999304 
+Timestep: 475 
+0.999295 
+Timestep: 476 
+0.999180 
+Timestep: 477 
+0.999209 
+Timestep: 478 
+0.999429 
+Timestep: 479 
+0.999165 
+Timestep: 480 
+0.999054 
+Timestep: 481 
+0.999211 
+Timestep: 482 
+0.999148 
+Timestep: 483 
+0.999435 
+Timestep: 484 
+0.999392 
+Timestep: 485 
+0.999505 
+Timestep: 486 
+0.999535 
+Timestep: 487 
+0.999595 
+Timestep: 488 
+0.999583 
+Timestep: 489 
+0.999663 
+Timestep: 490 
+0.999409 
+Timestep: 491 
+0.999108 
+Timestep: 492 
+0.998435 
+Timestep: 493 
+0.998987 
+Timestep: 494 
+0.998959 
+Timestep: 495 
+0.999098 
+Timestep: 496 
+0.999384 
+Timestep: 497 
+0.999149 
+Timestep: 498 
+0.998045 
+Timestep: 499 
+0.998810 
+Timestep: 500 
+0.999207 
+Timestep: 501 
+0.999059 
+Timestep: 502 
+0.999390 
+Timestep: 503 
+0.999316 
+Timestep: 504 
+0.999495 
+Timestep: 505 
+0.999392 
+Timestep: 506 
+0.999297 
+Timestep: 507 
+0.999474 
+Timestep: 508 
+0.999381 
+Timestep: 509 
+0.999415 
+Timestep: 510 
+0.999505 
+Timestep: 511 
+0.999510 
+Timestep: 512 
+0.999592 
+Timestep: 513 
+0.999446 
+Timestep: 514 
+0.998964 
+Timestep: 515 
+0.999142 
+Timestep: 516 
+0.999384 
+Timestep: 517 
+0.999485 
+Timestep: 518 
+0.999426 
+Timestep: 519 
+0.999364 
+Timestep: 520 
+0.999013 
+Timestep: 521 
+0.998851 
+Timestep: 522 
+0.999006 
+Timestep: 523 
+0.999056 
+Timestep: 524 
+0.999421 
+Timestep: 525 
+0.999543 
+Timestep: 526 
+0.999565 
+Timestep: 527 
+0.999611 
+Timestep: 528 
+0.999568 
+Timestep: 529 
+0.999571 
+Timestep: 530 
+0.999600 
+Timestep: 531 
+0.999564 
+Timestep: 532 
+0.999436 
+Timestep: 533 
+0.999388 
+Timestep: 534 
+0.999522 
+Timestep: 535 
+0.999519 
+Timestep: 536 
+0.999544 
+Timestep: 537 
+0.999633 
+Timestep: 538 
+0.999525 
+Timestep: 539 
+0.999506 
+Timestep: 540 
+0.999550 
+Timestep: 541 
+0.999426 
+Timestep: 542 
+0.999608 
+Timestep: 543 
+0.999577 
+Timestep: 544 
+0.999466 
+Timestep: 545 
+0.999225 
+Timestep: 546 
+0.999343 
+Timestep: 547 
+0.999563 
+Timestep: 548 
+0.999680 
+Timestep: 549 
+0.999701 
+Timestep: 550 
+0.999684 
+Timestep: 551 
+0.999498 
+Timestep: 552 
+0.999413 
+Timestep: 553 
+0.998897 
+Timestep: 554 
+0.998884 
+Timestep: 555 
+0.999390 
+Timestep: 556 
+0.999037 
+Timestep: 557 
+0.999046 
+Timestep: 558 
+0.998848 
+Timestep: 559 
+0.999287 
+Timestep: 560 
+0.999388 
+Timestep: 561 
+0.999282 
+Timestep: 562 
+0.999246 
+Timestep: 563 
+0.999221 
+Timestep: 564 
+0.999402 
+Timestep: 565 
+0.999124 
+Timestep: 566 
+0.999287 
+Timestep: 567 
+0.999037 
+Timestep: 568 
+0.999263 
+Timestep: 569 
+0.999253 
+Timestep: 570 
+0.999278 
+Timestep: 571 
+0.998731 
+Timestep: 572 
+0.999189 
+Timestep: 573 
+0.998921 
+Timestep: 574 
+0.999292 
+Timestep: 575 
+0.998543 
+Timestep: 576 
+0.998642 
+Timestep: 577 
+0.998191 
+Timestep: 578 
+0.998953 
+Timestep: 579 
+0.998963 
+Timestep: 580 
+0.998940 
+Timestep: 581 
+0.999031 
+Timestep: 582 
+0.999313 
+Timestep: 583 
+0.999367 
+Timestep: 584 
+0.999326 
+Timestep: 585 
+0.998715 
+Timestep: 586 
+0.998797 
+Timestep: 587 
+0.999148 
+Timestep: 588 
+0.998959 
+Timestep: 589 
+0.999298 
+Timestep: 590 
+0.999494 
+Timestep: 591 
+0.999194 
+Timestep: 592 
+0.999270 
+Timestep: 593 
+0.999344 
+Timestep: 594 
+0.999395 
+Timestep: 595 
+0.999208 
+Timestep: 596 
+0.999335 
+Timestep: 597 
+0.999080 
+Timestep: 598 
+0.999485 
+Timestep: 599 
+0.999597 
+Timestep: 600 
+0.999541 
+Timestep: 601 
+0.999521 
+Timestep: 602 
+0.999574 
+Timestep: 603 
+0.999380 
+Timestep: 604 
+0.999245 
+Timestep: 605 
+0.999419 
+Timestep: 606 
+0.999489 
+Timestep: 607 
+0.999595 
+Timestep: 608 
+0.999331 
+Timestep: 609 
+0.999148 
+Timestep: 610 
+0.999285 
+Timestep: 611 
+0.999309 
+Timestep: 612 
+0.999171 
+Timestep: 613 
+0.999199 
+Timestep: 614 
+0.999349 
+Timestep: 615 
+0.999212 
+Timestep: 616 
+0.999322 
+Timestep: 617 
+0.999230 
+Timestep: 618 
+0.998594 
+Timestep: 619 
+0.999095 
+Timestep: 620 
+0.999126 
+Timestep: 621 
+0.999080 
+Timestep: 622 
+0.999314 
+Timestep: 623 
+0.999351 
+Timestep: 624 
+0.999379 
+Timestep: 625 
+0.999408 
+Timestep: 626 
+0.999462 
+Timestep: 627 
+0.999500 
+Timestep: 628 
+0.999644 
+Timestep: 629 
+0.999642 
+Timestep: 630 
+0.999383 
+Timestep: 631 
+0.998718 
+Timestep: 632 
+0.999108 
+Timestep: 633 
+0.998962 
+Timestep: 634 
+0.999234 
+Timestep: 635 
+0.999084 
+Timestep: 636 
+0.999469 
+Timestep: 637 
+0.999607 
+Timestep: 638 
+0.999368 
+Timestep: 639 
+0.999061 
+Timestep: 640 
+0.998836 
+Timestep: 641 
+0.998681 
+Timestep: 642 
+0.998496 
+Timestep: 643 
+0.999107 
+Timestep: 644 
+0.999358 
+Timestep: 645 
+0.999487 
+Timestep: 646 
+0.999323 
+Timestep: 647 
+0.999483 
+Timestep: 648 
+0.999605 
+Timestep: 649 
+0.999629 
+Timestep: 650 
+0.999691 
+Timestep: 651 
+0.999471 
+Timestep: 652 
+0.999498 
+Timestep: 653 
+0.999574 
+Timestep: 654 
+0.999491 
+Timestep: 655 
+0.999340 
+Timestep: 656 
+0.998999 
+Timestep: 657 
+0.999235 
+Timestep: 658 
+0.999309 
+Timestep: 659 
+0.999346 
+Timestep: 660 
+0.999127 
+Timestep: 661 
+0.999013 
+Timestep: 662 
+0.999139 
+Timestep: 663 
+0.999157 
+Timestep: 664 
+0.999398 
+Timestep: 665 
+0.999359 
+Timestep: 666 
+0.999539 
+Timestep: 667 
+0.999498 
+Timestep: 668 
+0.999548 
+Timestep: 669 
+0.999679 
+Timestep: 670 
+0.999729 
+Timestep: 671 
+0.999695 
+Timestep: 672 
+0.999699 
+Timestep: 673 
+0.999635 
+Timestep: 674 
+0.999320 
+Timestep: 675 
+0.999394 
+Timestep: 676 
+0.999324 
+Timestep: 677 
+0.999254 
+Timestep: 678 
+0.999229 
+Timestep: 679 
+0.999209 
+Timestep: 680 
+0.999504 
+Timestep: 681 
+0.999498 
+Timestep: 682 
+0.999083 
+Timestep: 683 
+0.999199 
+Timestep: 684 
+0.999212 
+Timestep: 685 
+0.999165 
+Timestep: 686 
+0.999393 
+Timestep: 687 
+0.999176 
+Timestep: 688 
+0.999418 
+Timestep: 689 
+0.999465 
+Timestep: 690 
+0.999319 
+Timestep: 691 
+0.999375 
+Timestep: 692 
+0.999160 
+Timestep: 693 
+0.998968 
+Timestep: 694 
+0.999109 
+Timestep: 695 
+0.999255 
+Timestep: 696 
+0.999579 
+Timestep: 697 
+0.999348 
+Timestep: 698 
+0.999545 
+Timestep: 699 
+0.999528 
+Timestep: 700 
+0.999659 
+Timestep: 701 
+0.999638 
+Timestep: 702 
+0.999729 
+Timestep: 703 
+0.999732 
+Timestep: 704 
+0.999651 
+Timestep: 705 
+0.999587 
+Timestep: 706 
+0.999731 
+Timestep: 707 
+0.999630 
+Timestep: 708 
+0.999635 
+Timestep: 709 
+0.999444 
+Timestep: 710 
+0.999432 
+Timestep: 711 
+0.999132 
+Timestep: 712 
+0.998527 
+Timestep: 713 
+0.999028 
+Timestep: 714 
+0.999255 
+Timestep: 715 
+0.998800 
+Timestep: 716 
+0.999166 
+Timestep: 717 
+0.999168 
+Timestep: 718 
+0.999233 
+Timestep: 719 
+0.999261 
+Timestep: 720 
+0.999264 
+Timestep: 721 
+0.999360 
+Timestep: 722 
+0.999081 
+Timestep: 723 
+0.999400 
+Timestep: 724 
+0.999542 
+Timestep: 725 
+0.999458 
+Timestep: 726 
+0.999539 
+Timestep: 727 
+0.999586 
+Timestep: 728 
+0.999558 
+Timestep: 729 
+0.999427 
+Timestep: 730 
+0.999287 
+Timestep: 731 
+0.999289 
+Timestep: 732 
+0.999091 
+Timestep: 733 
+0.999220 
+Timestep: 734 
+0.999244 
+Timestep: 735 
+0.999028 
+Timestep: 736 
+0.999413 
+Timestep: 737 
+0.999535 
+Timestep: 738 
+0.999286 
+Timestep: 739 
+0.999326 
+Timestep: 740 
+0.999475 
+Timestep: 741 
+0.999452 
+Timestep: 742 
+0.999337 
+Timestep: 743 
+0.999552 
+Timestep: 744 
+0.999365 
+Timestep: 745 
+0.999490 
+Timestep: 746 
+0.999388 
+Timestep: 747 
+0.999396 
+Timestep: 748 
+0.999693 
+Timestep: 749 
+0.999567 
+Timestep: 750 
+0.999591 
+Timestep: 751 
+0.999627 
+Timestep: 752 
+0.999716 
+Timestep: 753 
+0.999630 
+Timestep: 754 
+0.999726 
+Timestep: 755 
+0.999628 
+Timestep: 756 
+0.999488 
+Timestep: 757 
+0.999367 
+Timestep: 758 
+0.999459 
+Timestep: 759 
+0.999555 
+Timestep: 760 
+0.999545 
+Timestep: 761 
+0.999675 
+Timestep: 762 
+0.999532 
+Timestep: 763 
+0.999534 
+Timestep: 764 
+0.999640 
+Timestep: 765 
+0.999656 
+Timestep: 766 
+0.999459 
+Timestep: 767 
+0.999539 
+Timestep: 768 
+0.999264 
+Timestep: 769 
+0.999364 
+Timestep: 770 
+0.999418 
+Timestep: 771 
+0.999515 
+Timestep: 772 
+0.999379 
+Timestep: 773 
+0.999569 
+Timestep: 774 
+0.999451 
+Timestep: 775 
+0.999401 
+Timestep: 776 
+0.999544 
+Timestep: 777 
+0.999655 
+Timestep: 778 
+0.999561 
+Timestep: 779 
+0.999635 
+Timestep: 780 
+0.999606 
+Timestep: 781 
+0.999676 
+Timestep: 782 
+0.999690 
+Timestep: 783 
+0.999346 
+Timestep: 784 
+0.999401 
+Timestep: 785 
+0.999464 
+Timestep: 786 
+0.999110 
+Timestep: 787 
+0.999191 
+Timestep: 788 
+0.999540 
+Timestep: 789 
+0.999692 
+Timestep: 790 
+0.999459 
+Timestep: 791 
+0.999015 
+Timestep: 792 
+0.999290 
+Timestep: 793 
+0.998996 
+Timestep: 794 
+0.998626 
+Timestep: 795 
+0.999225 
+Timestep: 796 
+0.999091 
+Timestep: 797 
+0.999179 
+Timestep: 798 
+0.999447 
+Timestep: 799 
+0.999648 
+Timestep: 800 
+0.999571 
+Timestep: 801 
+0.999430 
+Timestep: 802 
+0.999416 
+Timestep: 803 
+0.999482 
+Timestep: 804 
+0.999529 
+Timestep: 805 
+0.999586 
+Timestep: 806 
+0.999540 
+Timestep: 807 
+0.999689 
+Timestep: 808 
+0.999264 
+Timestep: 809 
+0.998970 
+Timestep: 810 
+0.999148 
+Timestep: 811 
+0.998927 
+Timestep: 812 
+0.999220 
+Timestep: 813 
+0.999332 
+Timestep: 814 
+0.999404 
+Timestep: 815 
+0.999480 
+Timestep: 816 
+0.999583 
+Timestep: 817 
+0.999678 
+Timestep: 818 
+0.999719 
+Timestep: 819 
+0.999633 
+Timestep: 820 
+0.999685 
+Timestep: 821 
+0.999612 
+Timestep: 822 
+0.999602 
+Timestep: 823 
+0.999497 
+Timestep: 824 
+0.999465 
+Timestep: 825 
+0.999494 
+Timestep: 826 
+0.999540 
+Timestep: 827 
+0.999387 
+Timestep: 828 
+0.999384 
+Timestep: 829 
+0.999491 
+Timestep: 830 
+0.998732 
+Timestep: 831 
+0.999116 
+Timestep: 832 
+0.999071 
+Timestep: 833 
+0.998572 
+Timestep: 834 
+0.999415 
+Timestep: 835 
+0.999553 
+Timestep: 836 
+0.999470 
+Timestep: 837 
+0.999532 
+Timestep: 838 
+0.999524 
+Timestep: 839 
+0.999236 
+Timestep: 840 
+0.999359 
+Timestep: 841 
+0.999225 
+Timestep: 842 
+0.999310 
+Timestep: 843 
+0.999537 
+Timestep: 844 
+0.998999 
+Timestep: 845 
+0.999251 
+Timestep: 846 
+0.999380 
+Timestep: 847 
+0.999162 
+Timestep: 848 
+0.999132 
+Timestep: 849 
+0.999340 
+Timestep: 850 
+0.999481 
+Timestep: 851 
+0.999328 
+Timestep: 852 
+0.999152 
+Timestep: 853 
+0.999421 
+Timestep: 854 
+0.999461 
+Timestep: 855 
+0.999631 
+Timestep: 856 
+0.999596 
+Timestep: 857 
+0.999473 
+Timestep: 858 
+0.999618 
+Timestep: 859 
+0.999630 
+Timestep: 860 
+0.999601 
+Timestep: 861 
+0.999549 
+Timestep: 862 
+0.999531 
+Timestep: 863 
+0.999237 
+Timestep: 864 
+0.999598 
+Timestep: 865 
+0.999585 
+Timestep: 866 
+0.999567 
+Timestep: 867 
+0.999505 
+Timestep: 868 
+0.999563 
+Timestep: 869 
+0.999404 
+Timestep: 870 
+0.999266 
+Timestep: 871 
+0.999130 
+Timestep: 872 
+0.998994 
+Timestep: 873 
+0.999330 
+Timestep: 874 
+0.999017 
+Timestep: 875 
+0.998813 
+Timestep: 876 
+0.999193 
+Timestep: 877 
+0.999041 
+Timestep: 878 
+0.998833 
+Timestep: 879 
+0.999270 
+Timestep: 880 
+0.999350 
+Timestep: 881 
+0.999385 
+Timestep: 882 
+0.999331 
+Timestep: 883 
+0.999095 
+Timestep: 884 
+0.999383 
+Timestep: 885 
+0.999345 
+Timestep: 886 
+0.999560 
+Timestep: 887 
+0.999503 
+Timestep: 888 
+0.999212 
+Timestep: 889 
+0.999303 
+Timestep: 890 
+0.999275 
+Timestep: 891 
+0.998759 
+Timestep: 892 
+0.998998 
+Timestep: 893 
+0.999228 
+Timestep: 894 
+0.999202 
+Timestep: 895 
+0.999494 
+Timestep: 896 
+0.999575 
+Timestep: 897 
+0.999587 
+Timestep: 898 
+0.999527 
+Timestep: 899 
+0.999453 
+Timestep: 900 
+0.999562 
+Timestep: 901 
+0.999731 
+Timestep: 902 
+0.999652 
+Timestep: 903 
+0.999569 
+Timestep: 904 
+0.999549 
+Timestep: 905 
+0.999510 
+Timestep: 906 
+0.998920 
+Timestep: 907 
+0.999470 
+Timestep: 908 
+0.999285 
+Timestep: 909 
+0.999229 
+Timestep: 910 
+0.999480 
+Timestep: 911 
+0.999717 
+Timestep: 912 
+0.999554 
+Timestep: 913 
+0.999542 
+Timestep: 914 
+0.999473 
+Timestep: 915 
+0.999409 
+Timestep: 916 
+0.999435 
+Timestep: 917 
+0.999429 
+Timestep: 918 
+0.999443 
+Timestep: 919 
+0.999411 
+Timestep: 920 
+0.999336 
+Timestep: 921 
+0.999028 
+Timestep: 922 
+0.999092 
+Timestep: 923 
+0.999051 
+Timestep: 924 
+0.999369 
+Timestep: 925 
+0.999479 
+Timestep: 926 
+0.999438 
+Timestep: 927 
+0.999588 
+Timestep: 928 
+0.999635 
+Timestep: 929 
+0.999520 
+Timestep: 930 
+0.999453 
+Timestep: 931 
+0.999542 
+Timestep: 932 
+0.999480 
+Timestep: 933 
+0.999728 
+Timestep: 934 
+0.999645 
+Timestep: 935 
+0.999373 
+Timestep: 936 
+0.999415 
+Timestep: 937 
+0.999275 
+Timestep: 938 
+0.999283 
+Timestep: 939 
+0.999215 
+Timestep: 940 
+0.999298 
+Timestep: 941 
+0.999556 
+Timestep: 942 
+0.999512 
+Timestep: 943 
+0.999623 
+Timestep: 944 
+0.999724 
+Timestep: 945 
+0.999541 
+Timestep: 946 
+0.999430 
+Timestep: 947 
+0.999355 
+Timestep: 948 
+0.999575 
+Timestep: 949 
+0.999574 
+Timestep: 950 
+0.999629 
+Timestep: 951 
+0.999649 
+Timestep: 952 
+0.999760 
+Timestep: 953 
+0.999764 
+Timestep: 954 
+0.999729 
+Timestep: 955 
+0.999770 
+Timestep: 956 
+0.999693 
+Timestep: 957 
+0.998993 
+Timestep: 958 
+0.999162 
+Timestep: 959 
+0.999117 
+Timestep: 960 
+0.998879 
+Timestep: 961 
+0.999157 
+Timestep: 962 
+0.999147 
+Timestep: 963 
+0.999042 
+Timestep: 964 
+0.999224 
+Timestep: 965 
+0.999632 
+Timestep: 966 
+0.999637 
+Timestep: 967 
+0.999623 
+Timestep: 968 
+0.999673 
+Timestep: 969 
+0.999600 
+Timestep: 970 
+0.999358 
+Timestep: 971 
+0.999537 
+Timestep: 972 
+0.999751 
+Timestep: 973 
+0.999535 
+Timestep: 974 
+0.999501 
+Timestep: 975 
+0.998982 
+Timestep: 976 
+0.999043 
+Timestep: 977 
+0.999080 
+Timestep: 978 
+0.999249 
+Timestep: 979 
+0.999481 
+Timestep: 980 
+0.999505 
+Timestep: 981 
+0.999031 
+Timestep: 982 
+0.999282 
+Timestep: 983 
+0.999366 
+Timestep: 984 
+0.999410 
+Timestep: 985 
+0.999245 
+Timestep: 986 
+0.999512 
+Timestep: 987 
+0.999722 
+Timestep: 988 
+0.999684 
+Timestep: 989 
+0.999702 
+Timestep: 990 
+0.999555 
+Timestep: 991 
+0.999496 
+Timestep: 992 
+0.999244 
+Timestep: 993 
+0.999474 
+Timestep: 994 
+0.999186 
+Timestep: 995 
+0.999167 
+Timestep: 996 
+0.999372 
+Timestep: 997 
+0.999263 
+Timestep: 998 
+0.999365 
+Timestep: 999 
+0.999289 
+Timestep: 1000 
+0.999160 
+Timestep: 1001 
+0.999506 
+Timestep: 1002 
+0.999154 
+Timestep: 1003 
+0.999359 
+Timestep: 1004 
+0.999381 
+Timestep: 1005 
+0.998715 
+Timestep: 1006 
+0.999062 
+Timestep: 1007 
+0.999191 
+Timestep: 1008 
+0.999164 
+Timestep: 1009 
+0.999231 
+Timestep: 1010 
+0.999402 
+Timestep: 1011 
+0.999559 
+Timestep: 1012 
+0.999564 
+Timestep: 1013 
+0.999485 
+Timestep: 1014 
+0.999472 
+Timestep: 1015 
+0.999637 
+Timestep: 1016 
+0.999458 
+Timestep: 1017 
+0.999547 
+Timestep: 1018 
+0.999614 
+Timestep: 1019 
+0.999591 
+Timestep: 1020 
+0.999750 
+Timestep: 1021 
+0.999742 
+Timestep: 1022 
+0.999716 
+Timestep: 1023 
+0.999644 
+Timestep: 1024 
+0.999571 
+Timestep: 1025 
+0.999628 
+Timestep: 1026 
+0.999567 
+Timestep: 1027 
+0.999449 
+Timestep: 1028 
+0.999483 
+Timestep: 1029 
+0.999435 
+Timestep: 1030 
+0.999351 
+Timestep: 1031 
+0.999330 
+Timestep: 1032 
+0.999219 
+Timestep: 1033 
+0.999062 
+Timestep: 1034 
+0.999360 
+Timestep: 1035 
+0.999110 
+Timestep: 1036 
+0.998813 
+Timestep: 1037 
+0.999309 
+Timestep: 1038 
+0.999594 
+Timestep: 1039 
+0.999481 
+Timestep: 1040 
+0.999678 
+Timestep: 1041 
+0.999598 
+Timestep: 1042 
+0.999686 
+Timestep: 1043 
+0.999422 
+Timestep: 1044 
+0.999557 
+Timestep: 1045 
+0.999603 
+Timestep: 1046 
+0.999701 
+Timestep: 1047 
+0.999544 
+Timestep: 1048 
+0.999537 
+Timestep: 1049 
+0.999616 
+Timestep: 1050 
+0.999546 
+Timestep: 1051 
+0.999168 
+Timestep: 1052 
+0.999488 
+Timestep: 1053 
+0.999488 
+Timestep: 1054 
+0.999343 
+Timestep: 1055 
+0.998520 
+Timestep: 1056 
+0.999043 
+Timestep: 1057 
+0.998806 
+Timestep: 1058 
+0.999108 
+Timestep: 1059 
+0.998885 
+Timestep: 1060 
+0.999096 
+Timestep: 1061 
+0.999383 
+Timestep: 1062 
+0.999254 
+Timestep: 1063 
+0.999509 
+Timestep: 1064 
+0.999449 
+Timestep: 1065 
+0.999466 
+Timestep: 1066 
+0.999324 
+Timestep: 1067 
+0.999186 
+Timestep: 1068 
+0.999494 
+Timestep: 1069 
+0.999647 
+Timestep: 1070 
+0.999421 
+Timestep: 1071 
+0.999475 
+Timestep: 1072 
+0.999526 
+Timestep: 1073 
+0.999561 
+Timestep: 1074 
+0.999650 
+Timestep: 1075 
+0.999642 
+Timestep: 1076 
+0.999253 
+Timestep: 1077 
+0.999386 
+Timestep: 1078 
+0.999576 
+Timestep: 1079 
+0.999412 
+Timestep: 1080 
+0.999585 
+Timestep: 1081 
+0.999710 
+Timestep: 1082 
+0.999665 
+Timestep: 1083 
+0.999615 
+Timestep: 1084 
+0.999694 
+Timestep: 1085 
+0.999700 
+Timestep: 1086 
+0.999629 
+Timestep: 1087 
+0.999549 
+Timestep: 1088 
+0.999316 
+Timestep: 1089 
+0.999391 
+Timestep: 1090 
+0.998941 
+Timestep: 1091 
+0.999152 
+Timestep: 1092 
+0.999283 
+Timestep: 1093 
+0.999374 
+Timestep: 1094 
+0.999592 
+Timestep: 1095 
+0.999282 
+Timestep: 1096 
+0.999228 
+Timestep: 1097 
+0.999198 
+Timestep: 1098 
+0.999605 
+Timestep: 1099 
+0.999599 
+Timestep: 1100 
+0.999609 
+Timestep: 1101 
+0.999578 
+Timestep: 1102 
+0.999717 
+Timestep: 1103 
+0.999731 
+Timestep: 1104 
+0.999630 
+Timestep: 1105 
+0.999495 
+Timestep: 1106 
+0.999457 
+Timestep: 1107 
+0.999568 
+Timestep: 1108 
+0.999498 
+Timestep: 1109 
+0.999559 
+Timestep: 1110 
+0.999376 
+Timestep: 1111 
+0.999577 
+Timestep: 1112 
+0.999678 
+Timestep: 1113 
+0.999496 
+Timestep: 1114 
+0.999565 
+Timestep: 1115 
+0.999562 
+Timestep: 1116 
+0.999552 
+Timestep: 1117 
+0.999540 
+Timestep: 1118 
+0.999533 
+Timestep: 1119 
+0.999648 
+Timestep: 1120 
+0.999694 
+Timestep: 1121 
+0.998941 
+Timestep: 1122 
+0.998971 
+Timestep: 1123 
+0.999042 
+Timestep: 1124 
+0.998680 
+Timestep: 1125 
+0.999437 
+Timestep: 1126 
+0.999527 
+Timestep: 1127 
+0.999437 
+Timestep: 1128 
+0.999331 
+Timestep: 1129 
+0.999439 
+Timestep: 1130 
+0.999141 
+Timestep: 1131 
+0.999366 
+Timestep: 1132 
+0.999496 
+Timestep: 1133 
+0.998787 
+Timestep: 1134 
+0.999002 
+Timestep: 1135 
+0.999289 
+Timestep: 1136 
+0.999354 
+Timestep: 1137 
+0.999238 
+Timestep: 1138 
+0.999550 
+Timestep: 1139 
+0.999239 
+Timestep: 1140 
+0.999601 
+Timestep: 1141 
+0.999532 
+Timestep: 1142 
+0.999606 
+Timestep: 1143 
+0.999384 
+Timestep: 1144 
+0.999544 
+Timestep: 1145 
+0.999368 
+Timestep: 1146 
+0.999553 
+Timestep: 1147 
+0.999751 
+Timestep: 1148 
+0.999735 
+Timestep: 1149 
+0.999714 
+Timestep: 1150 
+0.999711 
+Timestep: 1151 
+0.999714 
+Timestep: 1152 
+0.999725 
+Timestep: 1153 
+0.999647 
+Timestep: 1154 
+0.999597 
+Timestep: 1155 
+0.999118 
+Timestep: 1156 
+0.999202 
+Timestep: 1157 
+0.999456 
+Timestep: 1158 
+0.999413 
+Timestep: 1159 
+0.999522 
+Timestep: 1160 
+0.999626 
+Timestep: 1161 
+0.999602 
+Timestep: 1162 
+0.999457 
+Timestep: 1163 
+0.999498 
+Timestep: 1164 
+0.999257 
+Timestep: 1165 
+0.999327 
+Timestep: 1166 
+0.999190 
+Timestep: 1167 
+0.999299 
+Timestep: 1168 
+0.999424 
+Timestep: 1169 
+0.999144 
+Timestep: 1170 
+0.999304 
+Timestep: 1171 
+0.999515 
+Timestep: 1172 
+0.999256 
+Timestep: 1173 
+0.999053 
+Timestep: 1174 
+0.999142 
+Timestep: 1175 
+0.998950 
+Timestep: 1176 
+0.999484 
+Timestep: 1177 
+0.999554 
+Timestep: 1178 
+0.999702 
+Timestep: 1179 
+0.999496 
+Timestep: 1180 
+0.999298 
+Timestep: 1181 
+0.999294 
+Timestep: 1182 
+0.999316 
+Timestep: 1183 
+0.999378 
+Timestep: 1184 
+0.999496 
+Timestep: 1185 
+0.999125 
+Timestep: 1186 
+0.999379 
+Timestep: 1187 
+0.999472 
+Timestep: 1188 
+0.999410 
+Timestep: 1189 
+0.999470 
+Timestep: 1190 
+0.999467 
+Timestep: 1191 
+0.999573 
+Timestep: 1192 
+0.999504 
+Timestep: 1193 
+0.999527 
+Timestep: 1194 
+0.999556 
+Timestep: 1195 
+0.999242 
+Timestep: 1196 
+0.999268 
+Timestep: 1197 
+0.999493 
+Timestep: 1198 
+0.999231 
+Timestep: 1199 
+0.999090 
+Timestep: 1200 
+0.999344 
+Timestep: 1201 
+0.999431 
+Timestep: 1202 
+0.999760 
+Timestep: 1203 
+0.999838 
+Timestep: 1204 
+0.999641 
+Timestep: 1205 
+0.999578 
+Timestep: 1206 
+0.999552 
+Timestep: 1207 
+0.999581 
+Timestep: 1208 
+0.998871 
+Timestep: 1209 
+0.999085 
+Timestep: 1210 
+0.999073 
+Timestep: 1211 
+0.999028 
+Timestep: 1212 
+0.999417 
+Timestep: 1213 
+0.999555 
+Timestep: 1214 
+0.999249 
+Timestep: 1215 
+0.999416 
+Timestep: 1216 
+0.999491 
+Timestep: 1217 
+0.999277 
+Timestep: 1218 
+0.999384 
+Timestep: 1219 
+0.999402 
+Timestep: 1220 
+0.999574 
+Timestep: 1221 
+0.999506 
+Timestep: 1222 
+0.999376 
+Timestep: 1223 
+0.999499 
+Timestep: 1224 
+0.999524 
+Timestep: 1225 
+0.999654 
+Timestep: 1226 
+0.999667 
+Timestep: 1227 
+0.999474 
+Timestep: 1228 
+0.999527 
+Timestep: 1229 
+0.999494 
+Timestep: 1230 
+0.999693 
+Timestep: 1231 
+0.999496 
+Timestep: 1232 
+0.999322 
+Timestep: 1233 
+0.999380 
+Timestep: 1234 
+0.999421 
+Timestep: 1235 
+0.999385 
+Timestep: 1236 
+0.999555 
+Timestep: 1237 
+0.999613 
+Timestep: 1238 
+0.998861 
+Timestep: 1239 
+0.999322 
+Timestep: 1240 
+0.999368 
+Timestep: 1241 
+0.999173 
+Timestep: 1242 
+0.999548 
+Timestep: 1243 
+0.999667 
+Timestep: 1244 
+0.999621 
+Timestep: 1245 
+0.999644 
+Timestep: 1246 
+0.999499 
+Timestep: 1247 
+0.999569 
+Timestep: 1248 
+0.999567 
+Timestep: 1249 
+0.999676 
+Timestep: 1250 
+0.999610 
+Parameter 
+Timestep: 5 
+0.999218 
+Timestep: 6 
+0.998817 
+Timestep: 7 
+0.998747 
+Timestep: 8 
+0.998397 
+Timestep: 9 
+0.998435 
+Timestep: 10 
+0.996303 
+Timestep: 11 
+0.996895 
+Timestep: 12 
+0.998132 
+Timestep: 13 
+0.998823 
+Timestep: 14 
+0.997710 
+Timestep: 15 
+0.998104 
+Timestep: 16 
+0.998856 
+Timestep: 17 
+0.999289 
+Timestep: 18 
+0.999458 
+Timestep: 19 
+0.999497 
+Timestep: 20 
+0.999541 
+Timestep: 21 
+0.999032 
+Timestep: 22 
+0.998950 
+Timestep: 23 
+0.998886 
+Timestep: 24 
+0.999243 
+Timestep: 25 
+0.999272 
+Timestep: 26 
+0.999221 
+Timestep: 27 
+0.998741 
+Timestep: 28 
+0.999229 
+Timestep: 29 
+0.999446 
+Timestep: 30 
+0.999423 
+Timestep: 31 
+0.999556 
+Timestep: 32 
+0.999268 
+Timestep: 33 
+0.999403 
+Timestep: 34 
+0.999338 
+Timestep: 35 
+0.999314 
+Timestep: 36 
+0.999050 
+Timestep: 37 
+0.999072 
+Timestep: 38 
+0.999063 
+Timestep: 39 
+0.998650 
+Timestep: 40 
+0.998583 
+Timestep: 41 
+0.998179 
+Timestep: 42 
+0.998914 
+Timestep: 43 
+0.998881 
+Timestep: 44 
+0.998861 
+Timestep: 45 
+0.999470 
+Timestep: 46 
+0.999381 
+Timestep: 47 
+0.999375 
+Timestep: 48 
+0.998801 
+Timestep: 49 
+0.999146 
+Timestep: 50 
+0.998741 
+Timestep: 51 
+0.998882 
+Timestep: 52 
+0.999137 
+Timestep: 53 
+0.999047 
+Timestep: 54 
+0.999291 
+Timestep: 55 
+0.999518 
+Timestep: 56 
+0.998925 
+Timestep: 57 
+0.998667 
+Timestep: 58 
+0.999090 
+Timestep: 59 
+0.999023 
+Timestep: 60 
+0.998650 
+Timestep: 61 
+0.998639 
+Timestep: 62 
+0.998647 
+Timestep: 63 
+0.998934 
+Timestep: 64 
+0.998934 
+Timestep: 65 
+0.999447 
+Timestep: 66 
+0.999119 
+Timestep: 67 
+0.998993 
+Timestep: 68 
+0.999369 
+Timestep: 69 
+0.999544 
+Timestep: 70 
+0.999001 
+Timestep: 71 
+0.998862 
+Timestep: 72 
+0.998634 
+Timestep: 73 
+0.998957 
+Timestep: 74 
+0.999191 
+Timestep: 75 
+0.999200 
+Timestep: 76 
+0.998514 
+Timestep: 77 
+0.999193 
+Timestep: 78 
+0.999345 
+Timestep: 79 
+0.999372 
+Timestep: 80 
+0.999508 
+Timestep: 81 
+0.999577 
+Timestep: 82 
+0.999206 
+Timestep: 83 
+0.999499 
+Timestep: 84 
+0.999408 
+Timestep: 85 
+0.999439 
+Timestep: 86 
+0.999653 
+Timestep: 87 
+0.999369 
+Timestep: 88 
+0.999395 
+Timestep: 89 
+0.999272 
+Timestep: 90 
+0.998916 
+Timestep: 91 
+0.999254 
+Timestep: 92 
+0.999096 
+Timestep: 93 
+0.999038 
+Timestep: 94 
+0.998517 
+Timestep: 95 
+0.998324 
+Timestep: 96 
+0.998775 
+Timestep: 97 
+0.999275 
+Timestep: 98 
+0.999450 
+Timestep: 99 
+0.999351 
+Timestep: 100 
+0.998680 
+Timestep: 101 
+0.999004 
+Timestep: 102 
+0.999232 
+Timestep: 103 
+0.998457 
+Timestep: 104 
+0.998886 
+Timestep: 105 
+0.998808 
+Timestep: 106 
+0.998968 
+Timestep: 107 
+0.998928 
+Timestep: 108 
+0.998566 
+Timestep: 109 
+0.997838 
+Timestep: 110 
+0.997786 
+Timestep: 111 
+0.998955 
+Timestep: 112 
+0.998851 
+Timestep: 113 
+0.998953 
+Timestep: 114 
+0.998908 
+Timestep: 115 
+0.999366 
+Timestep: 116 
+0.998885 
+Timestep: 117 
+0.998964 
+Timestep: 118 
+0.998721 
+Timestep: 119 
+0.998663 
+Timestep: 120 
+0.998967 
+Timestep: 121 
+0.998232 
+Timestep: 122 
+0.998586 
+Timestep: 123 
+0.998788 
+Timestep: 124 
+0.999114 
+Timestep: 125 
+0.999385 
+Timestep: 126 
+0.998786 
+Timestep: 127 
+0.998850 
+Timestep: 128 
+0.999166 
+Timestep: 129 
+0.999366 
+Timestep: 130 
+0.998665 
+Timestep: 131 
+0.998714 
+Timestep: 132 
+0.999134 
+Timestep: 133 
+0.999503 
+Timestep: 134 
+0.999186 
+Timestep: 135 
+0.998981 
+Timestep: 136 
+0.998798 
+Timestep: 137 
+0.999076 
+Timestep: 138 
+0.998635 
+Timestep: 139 
+0.999074 
+Timestep: 140 
+0.998792 
+Timestep: 141 
+0.998594 
+Timestep: 142 
+0.998940 
+Timestep: 143 
+0.999437 
+Timestep: 144 
+0.999550 
+Timestep: 145 
+0.998688 
+Timestep: 146 
+0.998765 
+Timestep: 147 
+0.998942 
+Timestep: 148 
+0.999057 
+Timestep: 149 
+0.998998 
+Timestep: 150 
+0.998393 
+Timestep: 151 
+0.998339 
+Timestep: 152 
+0.998207 
+Timestep: 153 
+0.998857 
+Timestep: 154 
+0.998467 
+Timestep: 155 
+0.998811 
+Timestep: 156 
+0.999076 
+Timestep: 157 
+0.999485 
+Timestep: 158 
+0.999433 
+Timestep: 159 
+0.999347 
+Timestep: 160 
+0.999152 
+Timestep: 161 
+0.999245 
+Timestep: 162 
+0.999305 
+Timestep: 163 
+0.998938 
+Timestep: 164 
+0.999090 
+Timestep: 165 
+0.999080 
+Timestep: 166 
+0.998931 
+Timestep: 167 
+0.999077 
+Timestep: 168 
+0.998972 
+Timestep: 169 
+0.998444 
+Timestep: 170 
+0.998919 
+Timestep: 171 
+0.999090 
+Timestep: 172 
+0.998857 
+Timestep: 173 
+0.998663 
+Timestep: 174 
+0.999097 
+Timestep: 175 
+0.999442 
+Timestep: 176 
+0.999406 
+Timestep: 177 
+0.999526 
+Timestep: 178 
+0.999684 
+Timestep: 179 
+0.999556 
+Timestep: 180 
+0.999099 
+Timestep: 181 
+0.999197 
+Timestep: 182 
+0.999054 
+Timestep: 183 
+0.999080 
+Timestep: 184 
+0.998972 
+Timestep: 185 
+0.998981 
+Timestep: 186 
+0.998633 
+Timestep: 187 
+0.999046 
+Timestep: 188 
+0.998920 
+Timestep: 189 
+0.999348 
+Timestep: 190 
+0.999258 
+Timestep: 191 
+0.999375 
+Timestep: 192 
+0.999339 
+Timestep: 193 
+0.999699 
+Timestep: 194 
+0.999403 
+Timestep: 195 
+0.999565 
+Timestep: 196 
+0.999343 
+Timestep: 197 
+0.998975 
+Timestep: 198 
+0.999092 
+Timestep: 199 
+0.999380 
+Timestep: 200 
+0.999412 
+Timestep: 201 
+0.998962 
+Timestep: 202 
+0.999066 
+Timestep: 203 
+0.999213 
+Timestep: 204 
+0.999675 
+Timestep: 205 
+0.999294 
+Timestep: 206 
+0.999308 
+Timestep: 207 
+0.999041 
+Timestep: 208 
+0.999091 
+Timestep: 209 
+0.999123 
+Timestep: 210 
+0.999695 
+Timestep: 211 
+0.999466 
+Timestep: 212 
+0.999045 
+Timestep: 213 
+0.998643 
+Timestep: 214 
+0.998844 
+Timestep: 215 
+0.998891 
+Timestep: 216 
+0.998754 
+Timestep: 217 
+0.998654 
+Timestep: 218 
+0.998619 
+Timestep: 219 
+0.998915 
+Timestep: 220 
+0.999079 
+Timestep: 221 
+0.999217 
+Timestep: 222 
+0.999303 
+Timestep: 223 
+0.999154 
+Timestep: 224 
+0.999541 
+Timestep: 225 
+0.999156 
+Timestep: 226 
+0.998949 
+Timestep: 227 
+0.998841 
+Timestep: 228 
+0.998612 
+Timestep: 229 
+0.999170 
+Timestep: 230 
+0.999547 
+Timestep: 231 
+0.997651 
+Timestep: 232 
+0.998712 
+Timestep: 233 
+0.998968 
+Timestep: 234 
+0.998640 
+Timestep: 235 
+0.999275 
+Timestep: 236 
+0.999397 
+Timestep: 237 
+0.999551 
+Timestep: 238 
+0.999115 
+Timestep: 239 
+0.998749 
+Timestep: 240 
+0.999103 
+Timestep: 241 
+0.998430 
+Timestep: 242 
+0.998818 
+Timestep: 243 
+0.998834 
+Timestep: 244 
+0.998817 
+Timestep: 245 
+0.999377 
+Timestep: 246 
+0.999402 
+Timestep: 247 
+0.998766 
+Timestep: 248 
+0.999028 
+Timestep: 249 
+0.999135 
+Timestep: 250 
+0.998524 
+Timestep: 251 
+0.998869 
+Timestep: 252 
+0.998659 
+Timestep: 253 
+0.998878 
+Timestep: 254 
+0.999279 
+Timestep: 255 
+0.998940 
+Timestep: 256 
+0.999144 
+Timestep: 257 
+0.999307 
+Timestep: 258 
+0.999292 
+Timestep: 259 
+0.998402 
+Timestep: 260 
+0.999200 
+Timestep: 261 
+0.999111 
+Timestep: 262 
+0.998391 
+Timestep: 263 
+0.998789 
+Timestep: 264 
+0.999190 
+Timestep: 265 
+0.999283 
+Timestep: 266 
+0.999098 
+Timestep: 267 
+0.999422 
+Timestep: 268 
+0.999276 
+Timestep: 269 
+0.999113 
+Timestep: 270 
+0.999079 
+Timestep: 271 
+0.999230 
+Timestep: 272 
+0.999510 
+Timestep: 273 
+0.998939 
+Timestep: 274 
+0.997887 
+Timestep: 275 
+0.998564 
+Timestep: 276 
+0.998679 
+Timestep: 277 
+0.998487 
+Timestep: 278 
+0.999207 
+Timestep: 279 
+0.999020 
+Timestep: 280 
+0.999410 
+Timestep: 281 
+0.999460 
+Timestep: 282 
+0.999264 
+Timestep: 283 
+0.999528 
+Timestep: 284 
+0.999439 
+Timestep: 285 
+0.999426 
+Timestep: 286 
+0.999061 
+Timestep: 287 
+0.998964 
+Timestep: 288 
+0.998857 
+Timestep: 289 
+0.999267 
+Timestep: 290 
+0.999351 
+Timestep: 291 
+0.999434 
+Timestep: 292 
+0.999405 
+Timestep: 293 
+0.999541 
+Timestep: 294 
+0.998666 
+Timestep: 295 
+0.999246 
+Timestep: 296 
+0.999121 
+Timestep: 297 
+0.999394 
+Timestep: 298 
+0.999539 
+Timestep: 299 
+0.999274 
+Timestep: 300 
+0.999312 
+Timestep: 301 
+0.999451 
+Timestep: 302 
+0.999699 
+Timestep: 303 
+0.999600 
+Timestep: 304 
+0.999630 
+Timestep: 305 
+0.999572 
+Timestep: 306 
+0.999528 
+Timestep: 307 
+0.999268 
+Timestep: 308 
+0.999352 
+Timestep: 309 
+0.999490 
+Timestep: 310 
+0.999571 
+Timestep: 311 
+0.999598 
+Timestep: 312 
+0.999676 
+Timestep: 313 
+0.999673 
+Timestep: 314 
+0.999516 
+Timestep: 315 
+0.999504 
+Timestep: 316 
+0.999335 
+Timestep: 317 
+0.999240 
+Timestep: 318 
+0.998587 
+Timestep: 319 
+0.998823 
+Timestep: 320 
+0.998810 
+Timestep: 321 
+0.999086 
+Timestep: 322 
+0.999429 
+Timestep: 323 
+0.999176 
+Timestep: 324 
+0.999444 
+Timestep: 325 
+0.999209 
+Timestep: 326 
+0.999156 
+Timestep: 327 
+0.999419 
+Timestep: 328 
+0.999246 
+Timestep: 329 
+0.999454 
+Timestep: 330 
+0.999382 
+Timestep: 331 
+0.999514 
+Timestep: 332 
+0.999793 
+Timestep: 333 
+0.999655 
+Timestep: 334 
+0.999643 
+Timestep: 335 
+0.999153 
+Timestep: 336 
+0.999233 
+Timestep: 337 
+0.999218 
+Timestep: 338 
+0.999159 
+Timestep: 339 
+0.998928 
+Timestep: 340 
+0.999140 
+Timestep: 341 
+0.999308 
+Timestep: 342 
+0.999007 
+Timestep: 343 
+0.999112 
+Timestep: 344 
+0.999033 
+Timestep: 345 
+0.999321 
+Timestep: 346 
+0.999194 
+Timestep: 347 
+0.999409 
+Timestep: 348 
+0.999239 
+Timestep: 349 
+0.999389 
+Timestep: 350 
+0.999373 
+Timestep: 351 
+0.999354 
+Timestep: 352 
+0.999233 
+Timestep: 353 
+0.997706 
+Timestep: 354 
+0.998192 
+Timestep: 355 
+0.998815 
+Timestep: 356 
+0.998274 
+Timestep: 357 
+0.998617 
+Timestep: 358 
+0.998330 
+Timestep: 359 
+0.998901 
+Timestep: 360 
+0.999044 
+Timestep: 361 
+0.999236 
+Timestep: 362 
+0.998892 
+Timestep: 363 
+0.999086 
+Timestep: 364 
+0.999061 
+Timestep: 365 
+0.999079 
+Timestep: 366 
+0.999417 
+Timestep: 367 
+0.999022 
+Timestep: 368 
+0.999330 
+Timestep: 369 
+0.999547 
+Timestep: 370 
+0.999461 
+Timestep: 371 
+0.999269 
+Timestep: 372 
+0.999205 
+Timestep: 373 
+0.999195 
+Timestep: 374 
+0.999267 
+Timestep: 375 
+0.999337 
+Timestep: 376 
+0.998895 
+Timestep: 377 
+0.998923 
+Timestep: 378 
+0.999247 
+Timestep: 379 
+0.999247 
+Timestep: 380 
+0.999358 
+Timestep: 381 
+0.999530 
+Timestep: 382 
+0.999581 
+Timestep: 383 
+0.999480 
+Timestep: 384 
+0.999600 
+Timestep: 385 
+0.999540 
+Timestep: 386 
+0.999479 
+Timestep: 387 
+0.999530 
+Timestep: 388 
+0.998925 
+Timestep: 389 
+0.999184 
+Timestep: 390 
+0.999180 
+Timestep: 391 
+0.999435 
+Timestep: 392 
+0.999250 
+Timestep: 393 
+0.998450 
+Timestep: 394 
+0.998950 
+Timestep: 395 
+0.999171 
+Timestep: 396 
+0.999034 
+Timestep: 397 
+0.999144 
+Timestep: 398 
+0.999277 
+Timestep: 399 
+0.999152 
+Timestep: 400 
+0.998866 
+Timestep: 401 
+0.999038 
+Timestep: 402 
+0.999229 
+Timestep: 403 
+0.999607 
+Timestep: 404 
+0.999339 
+Timestep: 405 
+0.999411 
+Timestep: 406 
+0.999583 
+Timestep: 407 
+0.999576 
+Timestep: 408 
+0.999623 
+Timestep: 409 
+0.999573 
+Timestep: 410 
+0.999518 
+Timestep: 411 
+0.999525 
+Timestep: 412 
+0.999434 
+Timestep: 413 
+0.999273 
+Timestep: 414 
+0.999369 
+Timestep: 415 
+0.999319 
+Timestep: 416 
+0.999436 
+Timestep: 417 
+0.999249 
+Timestep: 418 
+0.999409 
+Timestep: 419 
+0.999354 
+Timestep: 420 
+0.999393 
+Timestep: 421 
+0.999526 
+Timestep: 422 
+0.999525 
+Timestep: 423 
+0.999368 
+Timestep: 424 
+0.999321 
+Timestep: 425 
+0.997642 
+Timestep: 426 
+0.997753 
+Timestep: 427 
+0.998743 
+Timestep: 428 
+0.998461 
+Timestep: 429 
+0.998795 
+Timestep: 430 
+0.999105 
+Timestep: 431 
+0.999573 
+Timestep: 432 
+0.999587 
+Timestep: 433 
+0.999417 
+Timestep: 434 
+0.999313 
+Timestep: 435 
+0.999119 
+Timestep: 436 
+0.999135 
+Timestep: 437 
+0.999076 
+Timestep: 438 
+0.999139 
+Timestep: 439 
+0.999148 
+Timestep: 440 
+0.999292 
+Timestep: 441 
+0.999190 
+Timestep: 442 
+0.999129 
+Timestep: 443 
+0.999189 
+Timestep: 444 
+0.999225 
+Timestep: 445 
+0.998886 
+Timestep: 446 
+0.998969 
+Timestep: 447 
+0.999052 
+Timestep: 448 
+0.999225 
+Timestep: 449 
+0.999387 
+Timestep: 450 
+0.999440 
+Timestep: 451 
+0.999519 
+Timestep: 452 
+0.999556 
+Timestep: 453 
+0.999557 
+Timestep: 454 
+0.999506 
+Timestep: 455 
+0.998999 
+Timestep: 456 
+0.998906 
+Timestep: 457 
+0.998693 
+Timestep: 458 
+0.999120 
+Timestep: 459 
+0.999488 
+Timestep: 460 
+0.999397 
+Timestep: 461 
+0.999320 
+Timestep: 462 
+0.999320 
+Timestep: 463 
+0.999447 
+Timestep: 464 
+0.999431 
+Timestep: 465 
+0.999266 
+Timestep: 466 
+0.999380 
+Timestep: 467 
+0.999421 
+Timestep: 468 
+0.999435 
+Timestep: 469 
+0.999142 
+Timestep: 470 
+0.998718 
+Timestep: 471 
+0.998914 
+Timestep: 472 
+0.998973 
+Timestep: 473 
+0.998664 
+Timestep: 474 
+0.998690 
+Timestep: 475 
+0.998947 
+Timestep: 476 
+0.998981 
+Timestep: 477 
+0.999049 
+Timestep: 478 
+0.999659 
+Timestep: 479 
+0.999591 
+Timestep: 480 
+0.999562 
+Timestep: 481 
+0.999397 
+Timestep: 482 
+0.999440 
+Timestep: 483 
+0.999639 
+Timestep: 484 
+0.999383 
+Timestep: 485 
+0.998777 
+Timestep: 486 
+0.999235 
+Timestep: 487 
+0.998618 
+Timestep: 488 
+0.998871 
+Timestep: 489 
+0.999361 
+Timestep: 490 
+0.998944 
+Timestep: 491 
+0.999240 
+Timestep: 492 
+0.999375 
+Timestep: 493 
+0.999399 
+Timestep: 494 
+0.999431 
+Timestep: 495 
+0.999452 
+Timestep: 496 
+0.999424 
+Timestep: 497 
+0.999640 
+Timestep: 498 
+0.999740 
+Timestep: 499 
+0.999443 
+Timestep: 500 
+0.999631 
+Timestep: 501 
+0.999605 
+Timestep: 502 
+0.999438 
+Timestep: 503 
+0.999081 
+Timestep: 504 
+0.999389 
+Timestep: 505 
+0.999459 
+Timestep: 506 
+0.999286 
+Timestep: 507 
+0.999303 
+Timestep: 508 
+0.998896 
+Timestep: 509 
+0.999102 
+Timestep: 510 
+0.999271 
+Timestep: 511 
+0.999003 
+Timestep: 512 
+0.998778 
+Timestep: 513 
+0.999382 
+Timestep: 514 
+0.999596 
+Timestep: 515 
+0.999564 
+Timestep: 516 
+0.999563 
+Timestep: 517 
+0.999587 
+Timestep: 518 
+0.999316 
+Timestep: 519 
+0.999347 
+Timestep: 520 
+0.999578 
+Timestep: 521 
+0.999642 
+Timestep: 522 
+0.999635 
+Timestep: 523 
+0.999705 
+Timestep: 524 
+0.999270 
+Timestep: 525 
+0.999295 
+Timestep: 526 
+0.999227 
+Timestep: 527 
+0.999429 
+Timestep: 528 
+0.999583 
+Timestep: 529 
+0.999399 
+Timestep: 530 
+0.999487 
+Timestep: 531 
+0.999594 
+Timestep: 532 
+0.999058 
+Timestep: 533 
+0.998556 
+Timestep: 534 
+0.998312 
+Timestep: 535 
+0.998712 
+Timestep: 536 
+0.998919 
+Timestep: 537 
+0.999206 
+Timestep: 538 
+0.999160 
+Timestep: 539 
+0.999354 
+Timestep: 540 
+0.999516 
+Timestep: 541 
+0.999290 
+Timestep: 542 
+0.999427 
+Timestep: 543 
+0.999392 
+Timestep: 544 
+0.999197 
+Timestep: 545 
+0.999429 
+Timestep: 546 
+0.999599 
+Timestep: 547 
+0.999535 
+Timestep: 548 
+0.999580 
+Timestep: 549 
+0.999578 
+Timestep: 550 
+0.999471 
+Timestep: 551 
+0.999511 
+Timestep: 552 
+0.999477 
+Timestep: 553 
+0.999504 
+Timestep: 554 
+0.999660 
+Timestep: 555 
+0.999723 
+Timestep: 556 
+0.999634 
+Timestep: 557 
+0.999404 
+Timestep: 558 
+0.999177 
+Timestep: 559 
+0.999229 
+Timestep: 560 
+0.999111 
+Timestep: 561 
+0.998659 
+Timestep: 562 
+0.998835 
+Timestep: 563 
+0.999055 
+Timestep: 564 
+0.999283 
+Timestep: 565 
+0.999466 
+Timestep: 566 
+0.999566 
+Timestep: 567 
+0.999489 
+Timestep: 568 
+0.999026 
+Timestep: 569 
+0.999076 
+Timestep: 570 
+0.998291 
+Timestep: 571 
+0.998285 
+Timestep: 572 
+0.998974 
+Timestep: 573 
+0.999134 
+Timestep: 574 
+0.999533 
+Timestep: 575 
+0.999468 
+Timestep: 576 
+0.999083 
+Timestep: 577 
+0.998970 
+Timestep: 578 
+0.999229 
+Timestep: 579 
+0.999157 
+Timestep: 580 
+0.999448 
+Timestep: 581 
+0.999254 
+Timestep: 582 
+0.999429 
+Timestep: 583 
+0.999585 
+Timestep: 584 
+0.999539 
+Timestep: 585 
+0.999369 
+Timestep: 586 
+0.999512 
+Timestep: 587 
+0.999761 
+Timestep: 588 
+0.999657 
+Timestep: 589 
+0.999472 
+Timestep: 590 
+0.999482 
+Timestep: 591 
+0.999445 
+Timestep: 592 
+0.999463 
+Timestep: 593 
+0.999613 
+Timestep: 594 
+0.999458 
+Timestep: 595 
+0.999542 
+Timestep: 596 
+0.999513 
+Timestep: 597 
+0.999651 
+Timestep: 598 
+0.999588 
+Timestep: 599 
+0.999089 
+Timestep: 600 
+0.999332 
+Timestep: 601 
+0.999341 
+Timestep: 602 
+0.999362 
+Timestep: 603 
+0.999312 
+Timestep: 604 
+0.999251 
+Timestep: 605 
+0.999371 
+Timestep: 606 
+0.999305 
+Timestep: 607 
+0.999054 
+Timestep: 608 
+0.999323 
+Timestep: 609 
+0.999479 
+Timestep: 610 
+0.999721 
+Timestep: 611 
+0.999782 
+Timestep: 612 
+0.998870 
+Timestep: 613 
+0.999222 
+Timestep: 614 
+0.999108 
+Timestep: 615 
+0.999175 
+Timestep: 616 
+0.999397 
+Timestep: 617 
+0.999111 
+Timestep: 618 
+0.999305 
+Timestep: 619 
+0.999075 
+Timestep: 620 
+0.999087 
+Timestep: 621 
+0.999119 
+Timestep: 622 
+0.999242 
+Timestep: 623 
+0.999474 
+Timestep: 624 
+0.999477 
+Timestep: 625 
+0.999445 
+Timestep: 626 
+0.999621 
+Timestep: 627 
+0.999335 
+Timestep: 628 
+0.999342 
+Timestep: 629 
+0.998960 
+Timestep: 630 
+0.999057 
+Timestep: 631 
+0.999453 
+Timestep: 632 
+0.999545 
+Timestep: 633 
+0.999555 
+Timestep: 634 
+0.999476 
+Timestep: 635 
+0.999073 
+Timestep: 636 
+0.999044 
+Timestep: 637 
+0.998890 
+Timestep: 638 
+0.998223 
+Timestep: 639 
+0.998513 
+Timestep: 640 
+0.999091 
+Timestep: 641 
+0.999476 
+Timestep: 642 
+0.999537 
+Timestep: 643 
+0.999601 
+Timestep: 644 
+0.999238 
+Timestep: 645 
+0.998939 
+Timestep: 646 
+0.998960 
+Timestep: 647 
+0.999030 
+Timestep: 648 
+0.999116 
+Timestep: 649 
+0.999520 
+Timestep: 650 
+0.999624 
+Timestep: 651 
+0.999722 
+Timestep: 652 
+0.999785 
+Timestep: 653 
+0.999453 
+Timestep: 654 
+0.999406 
+Timestep: 655 
+0.999469 
+Timestep: 656 
+0.999405 
+Timestep: 657 
+0.999504 
+Timestep: 658 
+0.999488 
+Timestep: 659 
+0.999572 
+Timestep: 660 
+0.999662 
+Timestep: 661 
+0.999602 
+Timestep: 662 
+0.999725 
+Timestep: 663 
+0.999789 
+Timestep: 664 
+0.999727 
+Timestep: 665 
+0.999543 
+Timestep: 666 
+0.999438 
+Timestep: 667 
+0.999306 
+Timestep: 668 
+0.999514 
+Timestep: 669 
+0.999529 
+Timestep: 670 
+0.999655 
+Timestep: 671 
+0.999473 
+Timestep: 672 
+0.999653 
+Timestep: 673 
+0.999457 
+Timestep: 674 
+0.999182 
+Timestep: 675 
+0.999313 
+Timestep: 676 
+0.998913 
+Timestep: 677 
+0.999124 
+Timestep: 678 
+0.999125 
+Timestep: 679 
+0.999380 
+Timestep: 680 
+0.999300 
+Timestep: 681 
+0.999368 
+Timestep: 682 
+0.998315 
+Timestep: 683 
+0.998475 
+Timestep: 684 
+0.998790 
+Timestep: 685 
+0.997867 
+Timestep: 686 
+0.998255 
+Timestep: 687 
+0.998847 
+Timestep: 688 
+0.999262 
+Timestep: 689 
+0.999005 
+Timestep: 690 
+0.999417 
+Timestep: 691 
+0.999454 
+Timestep: 692 
+0.999259 
+Timestep: 693 
+0.999340 
+Timestep: 694 
+0.999318 
+Timestep: 695 
+0.999571 
+Timestep: 696 
+0.999548 
+Timestep: 697 
+0.999256 
+Timestep: 698 
+0.998546 
+Timestep: 699 
+0.999109 
+Timestep: 700 
+0.999193 
+Timestep: 701 
+0.998681 
+Timestep: 702 
+0.999552 
+Timestep: 703 
+0.999548 
+Timestep: 704 
+0.999539 
+Timestep: 705 
+0.999495 
+Timestep: 706 
+0.999436 
+Timestep: 707 
+0.999174 
+Timestep: 708 
+0.999307 
+Timestep: 709 
+0.999270 
+Timestep: 710 
+0.999083 
+Timestep: 711 
+0.999093 
+Timestep: 712 
+0.999285 
+Timestep: 713 
+0.999634 
+Timestep: 714 
+0.999465 
+Timestep: 715 
+0.999601 
+Timestep: 716 
+0.998912 
+Timestep: 717 
+0.999185 
+Timestep: 718 
+0.999203 
+Timestep: 719 
+0.999522 
+Timestep: 720 
+0.999626 
+Timestep: 721 
+0.999716 
+Timestep: 722 
+0.999660 
+Timestep: 723 
+0.999519 
+Timestep: 724 
+0.999470 
+Timestep: 725 
+0.999545 
+Timestep: 726 
+0.999638 
+Timestep: 727 
+0.999467 
+Timestep: 728 
+0.999583 
+Timestep: 729 
+0.999541 
+Timestep: 730 
+0.999199 
+Timestep: 731 
+0.999297 
+Timestep: 732 
+0.999189 
+Timestep: 733 
+0.999536 
+Timestep: 734 
+0.999557 
+Timestep: 735 
+0.999427 
+Timestep: 736 
+0.999570 
+Timestep: 737 
+0.999663 
+Timestep: 738 
+0.999546 
+Timestep: 739 
+0.999629 
+Timestep: 740 
+0.999635 
+Timestep: 741 
+0.999623 
+Timestep: 742 
+0.999672 
+Timestep: 743 
+0.999551 
+Timestep: 744 
+0.999502 
+Timestep: 745 
+0.999532 
+Timestep: 746 
+0.999240 
+Timestep: 747 
+0.999288 
+Timestep: 748 
+0.999438 
+Timestep: 749 
+0.999256 
+Timestep: 750 
+0.999191 
+Timestep: 751 
+0.999042 
+Timestep: 752 
+0.999016 
+Timestep: 753 
+0.999254 
+Timestep: 754 
+0.999131 
+Timestep: 755 
+0.999569 
+Timestep: 756 
+0.999583 
+Timestep: 757 
+0.999564 
+Timestep: 758 
+0.998926 
+Timestep: 759 
+0.998885 
+Timestep: 760 
+0.999438 
+Timestep: 761 
+0.999321 
+Timestep: 762 
+0.998922 
+Timestep: 763 
+0.999427 
+Timestep: 764 
+0.999543 
+Timestep: 765 
+0.999606 
+Timestep: 766 
+0.999188 
+Timestep: 767 
+0.999562 
+Timestep: 768 
+0.999563 
+Timestep: 769 
+0.999570 
+Timestep: 770 
+0.999678 
+Timestep: 771 
+0.999557 
+Timestep: 772 
+0.999563 
+Timestep: 773 
+0.999528 
+Timestep: 774 
+0.999438 
+Timestep: 775 
+0.999630 
+Timestep: 776 
+0.999615 
+Timestep: 777 
+0.999427 
+Timestep: 778 
+0.999295 
+Timestep: 779 
+0.999404 
+Timestep: 780 
+0.999526 
+Timestep: 781 
+0.999353 
+Timestep: 782 
+0.999188 
+Timestep: 783 
+0.999395 
+Timestep: 784 
+0.999442 
+Timestep: 785 
+0.999495 
+Timestep: 786 
+0.999225 
+Timestep: 787 
+0.999303 
+Timestep: 788 
+0.999337 
+Timestep: 789 
+0.999232 
+Timestep: 790 
+0.999483 
+Timestep: 791 
+0.999495 
+Timestep: 792 
+0.999523 
+Timestep: 793 
+0.999474 
+Timestep: 794 
+0.999334 
+Timestep: 795 
+0.999311 
+Timestep: 796 
+0.999013 
+Timestep: 797 
+0.999209 
+Timestep: 798 
+0.999185 
+Timestep: 799 
+0.999161 
+Timestep: 800 
+0.999545 
+Timestep: 801 
+0.999535 
+Timestep: 802 
+0.999354 
+Timestep: 803 
+0.999508 
+Timestep: 804 
+0.999501 
+Timestep: 805 
+0.999517 
+Timestep: 806 
+0.999393 
+Timestep: 807 
+0.999520 
+Timestep: 808 
+0.999382 
+Timestep: 809 
+0.999250 
+Timestep: 810 
+0.999524 
+Timestep: 811 
+0.999211 
+Timestep: 812 
+0.999422 
+Timestep: 813 
+0.999483 
+Timestep: 814 
+0.999490 
+Timestep: 815 
+0.999500 
+Timestep: 816 
+0.999488 
+Timestep: 817 
+0.999145 
+Timestep: 818 
+0.999265 
+Timestep: 819 
+0.999358 
+Timestep: 820 
+0.999400 
+Timestep: 821 
+0.999490 
+Timestep: 822 
+0.999217 
+Timestep: 823 
+0.999223 
+Timestep: 824 
+0.999350 
+Timestep: 825 
+0.999329 
+Timestep: 826 
+0.999426 
+Timestep: 827 
+0.999506 
+Timestep: 828 
+0.998569 
+Timestep: 829 
+0.999335 
+Timestep: 830 
+0.999357 
+Timestep: 831 
+0.999068 
+Timestep: 832 
+0.999283 
+Timestep: 833 
+0.999492 
+Timestep: 834 
+0.999400 
+Timestep: 835 
+0.999453 
+Timestep: 836 
+0.999338 
+Timestep: 837 
+0.999412 
+Timestep: 838 
+0.999269 
+Timestep: 839 
+0.999199 
+Timestep: 840 
+0.999341 
+Timestep: 841 
+0.999235 
+Timestep: 842 
+0.999361 
+Timestep: 843 
+0.999542 
+Timestep: 844 
+0.999535 
+Timestep: 845 
+0.999466 
+Timestep: 846 
+0.999632 
+Timestep: 847 
+0.998931 
+Timestep: 848 
+0.998955 
+Timestep: 849 
+0.999226 
+Timestep: 850 
+0.998329 
+Timestep: 851 
+0.998927 
+Timestep: 852 
+0.999253 
+Timestep: 853 
+0.999201 
+Timestep: 854 
+0.999586 
+Timestep: 855 
+0.999633 
+Timestep: 856 
+0.999638 
+Timestep: 857 
+0.999661 
+Timestep: 858 
+0.999597 
+Timestep: 859 
+0.999430 
+Timestep: 860 
+0.999553 
+Timestep: 861 
+0.998872 
+Timestep: 862 
+0.999458 
+Timestep: 863 
+0.999294 
+Timestep: 864 
+0.999012 
+Timestep: 865 
+0.999460 
+Timestep: 866 
+0.999355 
+Timestep: 867 
+0.999404 
+Timestep: 868 
+0.999514 
+Timestep: 869 
+0.999541 
+Timestep: 870 
+0.999707 
+Timestep: 871 
+0.999698 
+Timestep: 872 
+0.999671 
+Timestep: 873 
+0.999578 
+Timestep: 874 
+0.999709 
+Timestep: 875 
+0.999467 
+Timestep: 876 
+0.999461 
+Timestep: 877 
+0.999143 
+Timestep: 878 
+0.999228 
+Timestep: 879 
+0.999297 
+Timestep: 880 
+0.999333 
+Timestep: 881 
+0.999424 
+Timestep: 882 
+0.999028 
+Timestep: 883 
+0.999364 
+Timestep: 884 
+0.999167 
+Timestep: 885 
+0.999243 
+Timestep: 886 
+0.999648 
+Timestep: 887 
+0.999395 
+Timestep: 888 
+0.999385 
+Timestep: 889 
+0.999581 
+Timestep: 890 
+0.999543 
+Timestep: 891 
+0.999754 
+Timestep: 892 
+0.999767 
+Timestep: 893 
+0.999594 
+Timestep: 894 
+0.999560 
+Timestep: 895 
+0.999635 
+Timestep: 896 
+0.999584 
+Timestep: 897 
+0.999616 
+Timestep: 898 
+0.999572 
+Timestep: 899 
+0.999637 
+Timestep: 900 
+0.999270 
+Timestep: 901 
+0.999540 
+Timestep: 902 
+0.999650 
+Timestep: 903 
+0.999048 
+Timestep: 904 
+0.999297 
+Timestep: 905 
+0.999403 
+Timestep: 906 
+0.999188 
+Timestep: 907 
+0.999453 
+Timestep: 908 
+0.999593 
+Timestep: 909 
+0.999285 
+Timestep: 910 
+0.999406 
+Timestep: 911 
+0.999507 
+Timestep: 912 
+0.999284 
+Timestep: 913 
+0.998998 
+Timestep: 914 
+0.999317 
+Timestep: 915 
+0.999468 
+Timestep: 916 
+0.999283 
+Timestep: 917 
+0.999290 
+Timestep: 918 
+0.999366 
+Timestep: 919 
+0.999451 
+Timestep: 920 
+0.999528 
+Timestep: 921 
+0.999588 
+Timestep: 922 
+0.999626 
+Timestep: 923 
+0.999315 
+Timestep: 924 
+0.998889 
+Timestep: 925 
+0.998828 
+Timestep: 926 
+0.999425 
+Timestep: 927 
+0.999454 
+Timestep: 928 
+0.999127 
+Timestep: 929 
+0.999159 
+Timestep: 930 
+0.999523 
+Timestep: 931 
+0.999294 
+Timestep: 932 
+0.999380 
+Timestep: 933 
+0.999180 
+Timestep: 934 
+0.999488 
+Timestep: 935 
+0.999529 
+Timestep: 936 
+0.999241 
+Timestep: 937 
+0.999555 
+Timestep: 938 
+0.999351 
+Timestep: 939 
+0.999453 
+Timestep: 940 
+0.999502 
+Timestep: 941 
+0.999202 
+Timestep: 942 
+0.999455 
+Timestep: 943 
+0.999540 
+Timestep: 944 
+0.999288 
+Timestep: 945 
+0.999275 
+Timestep: 946 
+0.999311 
+Timestep: 947 
+0.998190 
+Timestep: 948 
+0.998441 
+Timestep: 949 
+0.998099 
+Timestep: 950 
+0.998802 
+Timestep: 951 
+0.999310 
+Timestep: 952 
+0.999171 
+Timestep: 953 
+0.999332 
+Timestep: 954 
+0.999402 
+Timestep: 955 
+0.999576 
+Timestep: 956 
+0.999639 
+Timestep: 957 
+0.999636 
+Timestep: 958 
+0.999591 
+Timestep: 959 
+0.999519 
+Timestep: 960 
+0.999473 
+Timestep: 961 
+0.999461 
+Timestep: 962 
+0.999555 
+Timestep: 963 
+0.999495 
+Timestep: 964 
+0.999291 
+Timestep: 965 
+0.999325 
+Timestep: 966 
+0.999556 
+Timestep: 967 
+0.999736 
+Timestep: 968 
+0.999604 
+Timestep: 969 
+0.999747 
+Timestep: 970 
+0.999365 
+Timestep: 971 
+0.999245 
+Timestep: 972 
+0.999349 
+Timestep: 973 
+0.999103 
+Timestep: 974 
+0.999502 
+Timestep: 975 
+0.999477 
+Timestep: 976 
+0.999652 
+Timestep: 977 
+0.999658 
+Timestep: 978 
+0.999635 
+Timestep: 979 
+0.999603 
+Timestep: 980 
+0.999695 
+Timestep: 981 
+0.999493 
+Timestep: 982 
+0.999163 
+Timestep: 983 
+0.999293 
+Timestep: 984 
+0.999539 
+Timestep: 985 
+0.999038 
+Timestep: 986 
+0.999367 
+Timestep: 987 
+0.999482 
+Timestep: 988 
+0.999263 
+Timestep: 989 
+0.999004 
+Timestep: 990 
+0.999311 
+Timestep: 991 
+0.999537 
+Timestep: 992 
+0.999383 
+Timestep: 993 
+0.999371 
+Timestep: 994 
+0.999404 
+Timestep: 995 
+0.999500 
+Timestep: 996 
+0.999089 
+Timestep: 997 
+0.999043 
+Timestep: 998 
+0.999208 
+Timestep: 999 
+0.999138 
+Timestep: 1000 
+0.999574 
+Timestep: 1001 
+0.999653 
+Timestep: 1002 
+0.999439 
+Timestep: 1003 
+0.999403 
+Timestep: 1004 
+0.999077 
+Timestep: 1005 
+0.999394 
+Timestep: 1006 
+0.999122 
+Timestep: 1007 
+0.999534 
+Timestep: 1008 
+0.999332 
+Timestep: 1009 
+0.999181 
+Timestep: 1010 
+0.998421 
+Timestep: 1011 
+0.998978 
+Timestep: 1012 
+0.998743 
+Timestep: 1013 
+0.998362 
+Timestep: 1014 
+0.998774 
+Timestep: 1015 
+0.999205 
+Timestep: 1016 
+0.999283 
+Timestep: 1017 
+0.999256 
+Timestep: 1018 
+0.999312 
+Timestep: 1019 
+0.999518 
+Timestep: 1020 
+0.999487 
+Timestep: 1021 
+0.999522 
+Timestep: 1022 
+0.999005 
+Timestep: 1023 
+0.999419 
+Timestep: 1024 
+0.999421 
+Timestep: 1025 
+0.999236 
+Timestep: 1026 
+0.999385 
+Timestep: 1027 
+0.999423 
+Timestep: 1028 
+0.999494 
+Timestep: 1029 
+0.998923 
+Timestep: 1030 
+0.999345 
+Timestep: 1031 
+0.998981 
+Timestep: 1032 
+0.999372 
+Timestep: 1033 
+0.999377 
+Timestep: 1034 
+0.999587 
+Timestep: 1035 
+0.999577 
+Timestep: 1036 
+0.999491 
+Timestep: 1037 
+0.999372 
+Timestep: 1038 
+0.999235 
+Timestep: 1039 
+0.999459 
+Timestep: 1040 
+0.999108 
+Timestep: 1041 
+0.999248 
+Timestep: 1042 
+0.999114 
+Timestep: 1043 
+0.999283 
+Timestep: 1044 
+0.999216 
+Timestep: 1045 
+0.999184 
+Timestep: 1046 
+0.999349 
+Timestep: 1047 
+0.999391 
+Timestep: 1048 
+0.999317 
+Timestep: 1049 
+0.999513 
+Timestep: 1050 
+0.999703 
+Timestep: 1051 
+0.999667 
+Timestep: 1052 
+0.999647 
+Timestep: 1053 
+0.999683 
+Timestep: 1054 
+0.999394 
+Timestep: 1055 
+0.999549 
+Timestep: 1056 
+0.999564 
+Timestep: 1057 
+0.999359 
+Timestep: 1058 
+0.999382 
+Timestep: 1059 
+0.999447 
+Timestep: 1060 
+0.999327 
+Timestep: 1061 
+0.999005 
+Timestep: 1062 
+0.999124 
+Timestep: 1063 
+0.999285 
+Timestep: 1064 
+0.999170 
+Timestep: 1065 
+0.999075 
+Timestep: 1066 
+0.999344 
+Timestep: 1067 
+0.999530 
+Timestep: 1068 
+0.999416 
+Timestep: 1069 
+0.999633 
+Timestep: 1070 
+0.999598 
+Timestep: 1071 
+0.999537 
+Timestep: 1072 
+0.999608 
+Timestep: 1073 
+0.999735 
+Timestep: 1074 
+0.999557 
+Timestep: 1075 
+0.999353 
+Timestep: 1076 
+0.999576 
+Timestep: 1077 
+0.999541 
+Timestep: 1078 
+0.999590 
+Timestep: 1079 
+0.999447 
+Timestep: 1080 
+0.999466 
+Timestep: 1081 
+0.999420 
+Timestep: 1082 
+0.999586 
+Timestep: 1083 
+0.999274 
+Timestep: 1084 
+0.999079 
+Timestep: 1085 
+0.999433 
+Timestep: 1086 
+0.999527 
+Timestep: 1087 
+0.999524 
+Timestep: 1088 
+0.999218 
+Timestep: 1089 
+0.999488 
+Timestep: 1090 
+0.999552 
+Timestep: 1091 
+0.999249 
+Timestep: 1092 
+0.999427 
+Timestep: 1093 
+0.999464 
+Timestep: 1094 
+0.999637 
+Timestep: 1095 
+0.999480 
+Timestep: 1096 
+0.999693 
+Timestep: 1097 
+0.999493 
+Timestep: 1098 
+0.999371 
+Timestep: 1099 
+0.999420 
+Timestep: 1100 
+0.999185 
+Timestep: 1101 
+0.999273 
+Timestep: 1102 
+0.999504 
+Timestep: 1103 
+0.999508 
+Timestep: 1104 
+0.999556 
+Timestep: 1105 
+0.999540 
+Timestep: 1106 
+0.999743 
+Timestep: 1107 
+0.999533 
+Timestep: 1108 
+0.999569 
+Timestep: 1109 
+0.999516 
+Timestep: 1110 
+0.999610 
+Timestep: 1111 
+0.999541 
+Timestep: 1112 
+0.999275 
+Timestep: 1113 
+0.999431 
+Timestep: 1114 
+0.999492 
+Timestep: 1115 
+0.999636 
+Timestep: 1116 
+0.999585 
+Timestep: 1117 
+0.999237 
+Timestep: 1118 
+0.999567 
+Timestep: 1119 
+0.999635 
+Timestep: 1120 
+0.999457 
+Timestep: 1121 
+0.999525 
+Timestep: 1122 
+0.999496 
+Timestep: 1123 
+0.999450 
+Timestep: 1124 
+0.999612 
+Timestep: 1125 
+0.999673 
+Timestep: 1126 
+0.999659 
+Timestep: 1127 
+0.999664 
+Timestep: 1128 
+0.999378 
+Timestep: 1129 
+0.999571 
+Timestep: 1130 
+0.999559 
+Timestep: 1131 
+0.999450 
+Timestep: 1132 
+0.999446 
+Timestep: 1133 
+0.999551 
+Timestep: 1134 
+0.999599 
+Timestep: 1135 
+0.999583 
+Timestep: 1136 
+0.999616 
+Timestep: 1137 
+0.999710 
+Timestep: 1138 
+0.999679 
+Timestep: 1139 
+0.999452 
+Timestep: 1140 
+0.999063 
+Timestep: 1141 
+0.999526 
+Timestep: 1142 
+0.999481 
+Timestep: 1143 
+0.999546 
+Timestep: 1144 
+0.999639 
+Timestep: 1145 
+0.999450 
+Timestep: 1146 
+0.999517 
+Timestep: 1147 
+0.999647 
+Timestep: 1148 
+0.999494 
+Timestep: 1149 
+0.999679 
+Timestep: 1150 
+0.999638 
+Timestep: 1151 
+0.999399 
+Timestep: 1152 
+0.999554 
+Timestep: 1153 
+0.999706 
+Timestep: 1154 
+0.999525 
+Timestep: 1155 
+0.999719 
+Timestep: 1156 
+0.999635 
+Timestep: 1157 
+0.999684 
+Timestep: 1158 
+0.999733 
+Timestep: 1159 
+0.999698 
+Timestep: 1160 
+0.999497 
+Timestep: 1161 
+0.999520 
+Timestep: 1162 
+0.999344 
+Timestep: 1163 
+0.999318 
+Timestep: 1164 
+0.999087 
+Timestep: 1165 
+0.999329 
+Timestep: 1166 
+0.999372 
+Timestep: 1167 
+0.998337 
+Timestep: 1168 
+0.998717 
+Timestep: 1169 
+0.999181 
+Timestep: 1170 
+0.999104 
+Timestep: 1171 
+0.999519 
+Timestep: 1172 
+0.999585 
+Timestep: 1173 
+0.999539 
+Timestep: 1174 
+0.998268 
+Timestep: 1175 
+0.998943 
+Timestep: 1176 
+0.998822 
+Timestep: 1177 
+0.998403 
+Timestep: 1178 
+0.998934 
+Timestep: 1179 
+0.999245 
+Timestep: 1180 
+0.999362 
+Timestep: 1181 
+0.999421 
+Timestep: 1182 
+0.999329 
+Timestep: 1183 
+0.999158 
+Timestep: 1184 
+0.999527 
+Timestep: 1185 
+0.999590 
+Timestep: 1186 
+0.999382 
+Timestep: 1187 
+0.999470 
+Timestep: 1188 
+0.999545 
+Timestep: 1189 
+0.999322 
+Timestep: 1190 
+0.999342 
+Timestep: 1191 
+0.999086 
+Timestep: 1192 
+0.999615 
+Timestep: 1193 
+0.999439 
+Timestep: 1194 
+0.999037 
+Timestep: 1195 
+0.998753 
+Timestep: 1196 
+0.999132 
+Timestep: 1197 
+0.999080 
+Timestep: 1198 
+0.999011 
+Timestep: 1199 
+0.999321 
+Timestep: 1200 
+0.999437 
+Timestep: 1201 
+0.999076 
+Timestep: 1202 
+0.999497 
+Timestep: 1203 
+0.999385 
+Timestep: 1204 
+0.999541 
+Timestep: 1205 
+0.999586 
+Timestep: 1206 
+0.999393 
+Timestep: 1207 
+0.999386 
+Timestep: 1208 
+0.998920 
+Timestep: 1209 
+0.998453 
+Timestep: 1210 
+0.998866 
+Timestep: 1211 
+0.998860 
+Timestep: 1212 
+0.999150 
+Timestep: 1213 
+0.999379 
+Timestep: 1214 
+0.999074 
+Timestep: 1215 
+0.999532 
+Timestep: 1216 
+0.999638 
+Timestep: 1217 
+0.999539 
+Timestep: 1218 
+0.999321 
+Timestep: 1219 
+0.999288 
+Timestep: 1220 
+0.999368 
+Timestep: 1221 
+0.999425 
+Timestep: 1222 
+0.999421 
+Timestep: 1223 
+0.999542 
+Timestep: 1224 
+0.999461 
+Timestep: 1225 
+0.999569 
+Timestep: 1226 
+0.999665 
+Timestep: 1227 
+0.999098 
+Timestep: 1228 
+0.999444 
+Timestep: 1229 
+0.999586 
+Timestep: 1230 
+0.998571 
+Timestep: 1231 
+0.999006 
+Timestep: 1232 
+0.998820 
+Timestep: 1233 
+0.999260 
+Timestep: 1234 
+0.999367 
+Timestep: 1235 
+0.999236 
+Timestep: 1236 
+0.998467 
+Timestep: 1237 
+0.999199 
+Timestep: 1238 
+0.999044 
+Timestep: 1239 
+0.999501 
+Timestep: 1240 
+0.999662 
+Timestep: 1241 
+0.999623 
+Timestep: 1242 
+0.999432 
+Timestep: 1243 
+0.999451 
+Timestep: 1244 
+0.998615 
+Timestep: 1245 
+0.999296 
+Timestep: 1246 
+0.999294 
+Timestep: 1247 
+0.999072 
+Timestep: 1248 
+0.999434 
+Timestep: 1249 
+0.998907 
+Timestep: 1250 
+0.999211 
+Parameter 
+Timestep: 5 
+0.999061 
+Timestep: 6 
+0.998947 
+Timestep: 7 
+0.995987 
+Timestep: 8 
+0.996293 
+Timestep: 9 
+0.996304 
+Timestep: 10 
+0.998576 
+Timestep: 11 
+0.998600 
+Timestep: 12 
+0.998682 
+Timestep: 13 
+0.999037 
+Timestep: 14 
+0.998072 
+Timestep: 15 
+0.998810 
+Timestep: 16 
+0.997898 
+Timestep: 17 
+0.998685 
+Timestep: 18 
+0.998567 
+Timestep: 19 
+0.999006 
+Timestep: 20 
+0.998525 
+Timestep: 21 
+0.998475 
+Timestep: 22 
+0.998930 
+Timestep: 23 
+0.998940 
+Timestep: 24 
+0.999025 
+Timestep: 25 
+0.998871 
+Timestep: 26 
+0.998871 
+Timestep: 27 
+0.998637 
+Timestep: 28 
+0.998610 
+Timestep: 29 
+0.998910 
+Timestep: 30 
+0.999392 
+Timestep: 31 
+0.999460 
+Timestep: 32 
+0.999230 
+Timestep: 33 
+0.999229 
+Timestep: 34 
+0.999423 
+Timestep: 35 
+0.999158 
+Timestep: 36 
+0.999329 
+Timestep: 37 
+0.998910 
+Timestep: 38 
+0.999451 
+Timestep: 39 
+0.999412 
+Timestep: 40 
+0.998848 
+Timestep: 41 
+0.998481 
+Timestep: 42 
+0.998940 
+Timestep: 43 
+0.999248 
+Timestep: 44 
+0.998534 
+Timestep: 45 
+0.998986 
+Timestep: 46 
+0.998714 
+Timestep: 47 
+0.998179 
+Timestep: 48 
+0.998351 
+Timestep: 49 
+0.999341 
+Timestep: 50 
+0.999248 
+Timestep: 51 
+0.999013 
+Timestep: 52 
+0.998254 
+Timestep: 53 
+0.998881 
+Timestep: 54 
+0.998714 
+Timestep: 55 
+0.996653 
+Timestep: 56 
+0.997634 
+Timestep: 57 
+0.997972 
+Timestep: 58 
+0.999164 
+Timestep: 59 
+0.999128 
+Timestep: 60 
+0.998902 
+Timestep: 61 
+0.998417 
+Timestep: 62 
+0.998735 
+Timestep: 63 
+0.999031 
+Timestep: 64 
+0.999338 
+Timestep: 65 
+0.999244 
+Timestep: 66 
+0.998181 
+Timestep: 67 
+0.998796 
+Timestep: 68 
+0.999081 
+Timestep: 69 
+0.999042 
+Timestep: 70 
+0.998958 
+Timestep: 71 
+0.998862 
+Timestep: 72 
+0.999073 
+Timestep: 73 
+0.999279 
+Timestep: 74 
+0.999328 
+Timestep: 75 
+0.999247 
+Timestep: 76 
+0.999147 
+Timestep: 77 
+0.999393 
+Timestep: 78 
+0.999259 
+Timestep: 79 
+0.998986 
+Timestep: 80 
+0.998824 
+Timestep: 81 
+0.999328 
+Timestep: 82 
+0.999055 
+Timestep: 83 
+0.999383 
+Timestep: 84 
+0.999351 
+Timestep: 85 
+0.999450 
+Timestep: 86 
+0.999305 
+Timestep: 87 
+0.998585 
+Timestep: 88 
+0.998825 
+Timestep: 89 
+0.998646 
+Timestep: 90 
+0.998847 
+Timestep: 91 
+0.998589 
+Timestep: 92 
+0.998653 
+Timestep: 93 
+0.998805 
+Timestep: 94 
+0.998788 
+Timestep: 95 
+0.999318 
+Timestep: 96 
+0.999118 
+Timestep: 97 
+0.999154 
+Timestep: 98 
+0.999015 
+Timestep: 99 
+0.998717 
+Timestep: 100 
+0.999062 
+Timestep: 101 
+0.999168 
+Timestep: 102 
+0.999051 
+Timestep: 103 
+0.998861 
+Timestep: 104 
+0.998784 
+Timestep: 105 
+0.999024 
+Timestep: 106 
+0.999109 
+Timestep: 107 
+0.999157 
+Timestep: 108 
+0.999116 
+Timestep: 109 
+0.999422 
+Timestep: 110 
+0.999323 
+Timestep: 111 
+0.999043 
+Timestep: 112 
+0.999222 
+Timestep: 113 
+0.999143 
+Timestep: 114 
+0.999220 
+Timestep: 115 
+0.999231 
+Timestep: 116 
+0.999063 
+Timestep: 117 
+0.998853 
+Timestep: 118 
+0.999094 
+Timestep: 119 
+0.999195 
+Timestep: 120 
+0.999156 
+Timestep: 121 
+0.999217 
+Timestep: 122 
+0.999531 
+Timestep: 123 
+0.998955 
+Timestep: 124 
+0.999101 
+Timestep: 125 
+0.999139 
+Timestep: 126 
+0.999297 
+Timestep: 127 
+0.999244 
+Timestep: 128 
+0.999281 
+Timestep: 129 
+0.999115 
+Timestep: 130 
+0.999165 
+Timestep: 131 
+0.999090 
+Timestep: 132 
+0.999159 
+Timestep: 133 
+0.999165 
+Timestep: 134 
+0.999107 
+Timestep: 135 
+0.999429 
+Timestep: 136 
+0.999355 
+Timestep: 137 
+0.999539 
+Timestep: 138 
+0.999583 
+Timestep: 139 
+0.998875 
+Timestep: 140 
+0.999050 
+Timestep: 141 
+0.999077 
+Timestep: 142 
+0.999432 
+Timestep: 143 
+0.999381 
+Timestep: 144 
+0.998317 
+Timestep: 145 
+0.998555 
+Timestep: 146 
+0.998741 
+Timestep: 147 
+0.998292 
+Timestep: 148 
+0.998737 
+Timestep: 149 
+0.998185 
+Timestep: 150 
+0.997750 
+Timestep: 151 
+0.998058 
+Timestep: 152 
+0.998697 
+Timestep: 153 
+0.998910 
+Timestep: 154 
+0.999099 
+Timestep: 155 
+0.999479 
+Timestep: 156 
+0.999339 
+Timestep: 157 
+0.999363 
+Timestep: 158 
+0.999085 
+Timestep: 159 
+0.999543 
+Timestep: 160 
+0.999689 
+Timestep: 161 
+0.999538 
+Timestep: 162 
+0.998960 
+Timestep: 163 
+0.998273 
+Timestep: 164 
+0.998699 
+Timestep: 165 
+0.998790 
+Timestep: 166 
+0.998779 
+Timestep: 167 
+0.998715 
+Timestep: 168 
+0.998928 
+Timestep: 169 
+0.998974 
+Timestep: 170 
+0.998976 
+Timestep: 171 
+0.999176 
+Timestep: 172 
+0.998629 
+Timestep: 173 
+0.999230 
+Timestep: 174 
+0.999458 
+Timestep: 175 
+0.999047 
+Timestep: 176 
+0.998912 
+Timestep: 177 
+0.999056 
+Timestep: 178 
+0.999053 
+Timestep: 179 
+0.999261 
+Timestep: 180 
+0.998322 
+Timestep: 181 
+0.996853 
+Timestep: 182 
+0.997202 
+Timestep: 183 
+0.996720 
+Timestep: 184 
+0.996188 
+Timestep: 185 
+0.997587 
+Timestep: 186 
+0.999060 
+Timestep: 187 
+0.998914 
+Timestep: 188 
+0.998863 
+Timestep: 189 
+0.998293 
+Timestep: 190 
+0.997676 
+Timestep: 191 
+0.998230 
+Timestep: 192 
+0.998800 
+Timestep: 193 
+0.998828 
+Timestep: 194 
+0.999474 
+Timestep: 195 
+0.999420 
+Timestep: 196 
+0.999120 
+Timestep: 197 
+0.998053 
+Timestep: 198 
+0.998544 
+Timestep: 199 
+0.998452 
+Timestep: 200 
+0.998458 
+Timestep: 201 
+0.998796 
+Timestep: 202 
+0.998092 
+Timestep: 203 
+0.998955 
+Timestep: 204 
+0.998389 
+Timestep: 205 
+0.997501 
+Timestep: 206 
+0.998222 
+Timestep: 207 
+0.998387 
+Timestep: 208 
+0.998460 
+Timestep: 209 
+0.998338 
+Timestep: 210 
+0.998726 
+Timestep: 211 
+0.998820 
+Timestep: 212 
+0.998412 
+Timestep: 213 
+0.998356 
+Timestep: 214 
+0.998237 
+Timestep: 215 
+0.998706 
+Timestep: 216 
+0.998715 
+Timestep: 217 
+0.999074 
+Timestep: 218 
+0.999369 
+Timestep: 219 
+0.999297 
+Timestep: 220 
+0.999205 
+Timestep: 221 
+0.999318 
+Timestep: 222 
+0.999621 
+Timestep: 223 
+0.999480 
+Timestep: 224 
+0.999559 
+Timestep: 225 
+0.999480 
+Timestep: 226 
+0.999193 
+Timestep: 227 
+0.999281 
+Timestep: 228 
+0.999272 
+Timestep: 229 
+0.998754 
+Timestep: 230 
+0.998796 
+Timestep: 231 
+0.999112 
+Timestep: 232 
+0.999076 
+Timestep: 233 
+0.999162 
+Timestep: 234 
+0.999162 
+Timestep: 235 
+0.999097 
+Timestep: 236 
+0.999348 
+Timestep: 237 
+0.999143 
+Timestep: 238 
+0.999165 
+Timestep: 239 
+0.999237 
+Timestep: 240 
+0.999334 
+Timestep: 241 
+0.999074 
+Timestep: 242 
+0.999361 
+Timestep: 243 
+0.999290 
+Timestep: 244 
+0.999209 
+Timestep: 245 
+0.999189 
+Timestep: 246 
+0.999407 
+Timestep: 247 
+0.999246 
+Timestep: 248 
+0.999477 
+Timestep: 249 
+0.999549 
+Timestep: 250 
+0.999664 
+Timestep: 251 
+0.999386 
+Timestep: 252 
+0.999397 
+Timestep: 253 
+0.999276 
+Timestep: 254 
+0.998620 
+Timestep: 255 
+0.998369 
+Timestep: 256 
+0.998235 
+Timestep: 257 
+0.999048 
+Timestep: 258 
+0.999363 
+Timestep: 259 
+0.999345 
+Timestep: 260 
+0.999056 
+Timestep: 261 
+0.999222 
+Timestep: 262 
+0.998868 
+Timestep: 263 
+0.999068 
+Timestep: 264 
+0.998799 
+Timestep: 265 
+0.999078 
+Timestep: 266 
+0.999297 
+Timestep: 267 
+0.999655 
+Timestep: 268 
+0.999665 
+Timestep: 269 
+0.999557 
+Timestep: 270 
+0.999598 
+Timestep: 271 
+0.999518 
+Timestep: 272 
+0.999630 
+Timestep: 273 
+0.999473 
+Timestep: 274 
+0.999577 
+Timestep: 275 
+0.999439 
+Timestep: 276 
+0.999052 
+Timestep: 277 
+0.998919 
+Timestep: 278 
+0.999391 
+Timestep: 279 
+0.999006 
+Timestep: 280 
+0.999381 
+Timestep: 281 
+0.999192 
+Timestep: 282 
+0.998985 
+Timestep: 283 
+0.997766 
+Timestep: 284 
+0.998250 
+Timestep: 285 
+0.998913 
+Timestep: 286 
+0.998296 
+Timestep: 287 
+0.998826 
+Timestep: 288 
+0.998819 
+Timestep: 289 
+0.998594 
+Timestep: 290 
+0.998949 
+Timestep: 291 
+0.999126 
+Timestep: 292 
+0.999190 
+Timestep: 293 
+0.999199 
+Timestep: 294 
+0.999359 
+Timestep: 295 
+0.999096 
+Timestep: 296 
+0.997447 
+Timestep: 297 
+0.997505 
+Timestep: 298 
+0.998021 
+Timestep: 299 
+0.998045 
+Timestep: 300 
+0.998326 
+Timestep: 301 
+0.998273 
+Timestep: 302 
+0.998879 
+Timestep: 303 
+0.999124 
+Timestep: 304 
+0.999056 
+Timestep: 305 
+0.999321 
+Timestep: 306 
+0.999147 
+Timestep: 307 
+0.998860 
+Timestep: 308 
+0.998881 
+Timestep: 309 
+0.999265 
+Timestep: 310 
+0.999169 
+Timestep: 311 
+0.999059 
+Timestep: 312 
+0.998910 
+Timestep: 313 
+0.998772 
+Timestep: 314 
+0.998795 
+Timestep: 315 
+0.998365 
+Timestep: 316 
+0.998748 
+Timestep: 317 
+0.998927 
+Timestep: 318 
+0.998835 
+Timestep: 319 
+0.998621 
+Timestep: 320 
+0.998526 
+Timestep: 321 
+0.999061 
+Timestep: 322 
+0.999196 
+Timestep: 323 
+0.999527 
+Timestep: 324 
+0.999380 
+Timestep: 325 
+0.999291 
+Timestep: 326 
+0.999288 
+Timestep: 327 
+0.999379 
+Timestep: 328 
+0.999346 
+Timestep: 329 
+0.999292 
+Timestep: 330 
+0.999270 
+Timestep: 331 
+0.999371 
+Timestep: 332 
+0.999372 
+Timestep: 333 
+0.999409 
+Timestep: 334 
+0.999281 
+Timestep: 335 
+0.999268 
+Timestep: 336 
+0.999052 
+Timestep: 337 
+0.998613 
+Timestep: 338 
+0.998430 
+Timestep: 339 
+0.998567 
+Timestep: 340 
+0.998488 
+Timestep: 341 
+0.998496 
+Timestep: 342 
+0.998220 
+Timestep: 343 
+0.999209 
+Timestep: 344 
+0.998743 
+Timestep: 345 
+0.999154 
+Timestep: 346 
+0.999148 
+Timestep: 347 
+0.999125 
+Timestep: 348 
+0.998870 
+Timestep: 349 
+0.999146 
+Timestep: 350 
+0.998845 
+Timestep: 351 
+0.999349 
+Timestep: 352 
+0.998828 
+Timestep: 353 
+0.999231 
+Timestep: 354 
+0.998565 
+Timestep: 355 
+0.998141 
+Timestep: 356 
+0.998775 
+Timestep: 357 
+0.998390 
+Timestep: 358 
+0.999059 
+Timestep: 359 
+0.998990 
+Timestep: 360 
+0.999227 
+Timestep: 361 
+0.999329 
+Timestep: 362 
+0.999433 
+Timestep: 363 
+0.999381 
+Timestep: 364 
+0.999113 
+Timestep: 365 
+0.999515 
+Timestep: 366 
+0.999604 
+Timestep: 367 
+0.999608 
+Timestep: 368 
+0.999469 
+Timestep: 369 
+0.998920 
+Timestep: 370 
+0.998838 
+Timestep: 371 
+0.998727 
+Timestep: 372 
+0.997630 
+Timestep: 373 
+0.997509 
+Timestep: 374 
+0.998208 
+Timestep: 375 
+0.998265 
+Timestep: 376 
+0.998647 
+Timestep: 377 
+0.999187 
+Timestep: 378 
+0.999475 
+Timestep: 379 
+0.999385 
+Timestep: 380 
+0.999439 
+Timestep: 381 
+0.999272 
+Timestep: 382 
+0.999301 
+Timestep: 383 
+0.999115 
+Timestep: 384 
+0.999380 
+Timestep: 385 
+0.999514 
+Timestep: 386 
+0.999562 
+Timestep: 387 
+0.999290 
+Timestep: 388 
+0.999317 
+Timestep: 389 
+0.999085 
+Timestep: 390 
+0.998652 
+Timestep: 391 
+0.998948 
+Timestep: 392 
+0.998905 
+Timestep: 393 
+0.999101 
+Timestep: 394 
+0.999491 
+Timestep: 395 
+0.999423 
+Timestep: 396 
+0.999300 
+Timestep: 397 
+0.999251 
+Timestep: 398 
+0.999432 
+Timestep: 399 
+0.999683 
+Timestep: 400 
+0.999440 
+Timestep: 401 
+0.999491 
+Timestep: 402 
+0.999408 
+Timestep: 403 
+0.999329 
+Timestep: 404 
+0.999412 
+Timestep: 405 
+0.999227 
+Timestep: 406 
+0.999006 
+Timestep: 407 
+0.999107 
+Timestep: 408 
+0.999101 
+Timestep: 409 
+0.998002 
+Timestep: 410 
+0.998975 
+Timestep: 411 
+0.999167 
+Timestep: 412 
+0.999210 
+Timestep: 413 
+0.999373 
+Timestep: 414 
+0.999463 
+Timestep: 415 
+0.999441 
+Timestep: 416 
+0.998933 
+Timestep: 417 
+0.999051 
+Timestep: 418 
+0.998679 
+Timestep: 419 
+0.998661 
+Timestep: 420 
+0.999261 
+Timestep: 421 
+0.999128 
+Timestep: 422 
+0.998970 
+Timestep: 423 
+0.998723 
+Timestep: 424 
+0.999032 
+Timestep: 425 
+0.999158 
+Timestep: 426 
+0.999165 
+Timestep: 427 
+0.999369 
+Timestep: 428 
+0.999264 
+Timestep: 429 
+0.999238 
+Timestep: 430 
+0.999370 
+Timestep: 431 
+0.999343 
+Timestep: 432 
+0.999481 
+Timestep: 433 
+0.999408 
+Timestep: 434 
+0.999306 
+Timestep: 435 
+0.999524 
+Timestep: 436 
+0.999608 
+Timestep: 437 
+0.999415 
+Timestep: 438 
+0.999328 
+Timestep: 439 
+0.998807 
+Timestep: 440 
+0.999008 
+Timestep: 441 
+0.998545 
+Timestep: 442 
+0.998863 
+Timestep: 443 
+0.999139 
+Timestep: 444 
+0.998799 
+Timestep: 445 
+0.999256 
+Timestep: 446 
+0.999658 
+Timestep: 447 
+0.999511 
+Timestep: 448 
+0.999615 
+Timestep: 449 
+0.999517 
+Timestep: 450 
+0.999370 
+Timestep: 451 
+0.999428 
+Timestep: 452 
+0.999519 
+Timestep: 453 
+0.999417 
+Timestep: 454 
+0.998996 
+Timestep: 455 
+0.999258 
+Timestep: 456 
+0.998888 
+Timestep: 457 
+0.999100 
+Timestep: 458 
+0.999284 
+Timestep: 459 
+0.999070 
+Timestep: 460 
+0.999294 
+Timestep: 461 
+0.999332 
+Timestep: 462 
+0.999351 
+Timestep: 463 
+0.999446 
+Timestep: 464 
+0.999381 
+Timestep: 465 
+0.999545 
+Timestep: 466 
+0.999678 
+Timestep: 467 
+0.999711 
+Timestep: 468 
+0.999435 
+Timestep: 469 
+0.999578 
+Timestep: 470 
+0.999503 
+Timestep: 471 
+0.999298 
+Timestep: 472 
+0.999015 
+Timestep: 473 
+0.999055 
+Timestep: 474 
+0.999142 
+Timestep: 475 
+0.998766 
+Timestep: 476 
+0.999185 
+Timestep: 477 
+0.999164 
+Timestep: 478 
+0.998846 
+Timestep: 479 
+0.998723 
+Timestep: 480 
+0.998973 
+Timestep: 481 
+0.998739 
+Timestep: 482 
+0.998509 
+Timestep: 483 
+0.998822 
+Timestep: 484 
+0.999223 
+Timestep: 485 
+0.998937 
+Timestep: 486 
+0.999217 
+Timestep: 487 
+0.999346 
+Timestep: 488 
+0.999352 
+Timestep: 489 
+0.999097 
+Timestep: 490 
+0.999465 
+Timestep: 491 
+0.999492 
+Timestep: 492 
+0.999206 
+Timestep: 493 
+0.999203 
+Timestep: 494 
+0.999172 
+Timestep: 495 
+0.999380 
+Timestep: 496 
+0.999410 
+Timestep: 497 
+0.999301 
+Timestep: 498 
+0.999337 
+Timestep: 499 
+0.999459 
+Timestep: 500 
+0.999569 
+Timestep: 501 
+0.999560 
+Timestep: 502 
+0.999527 
+Timestep: 503 
+0.999432 
+Timestep: 504 
+0.998927 
+Timestep: 505 
+0.998959 
+Timestep: 506 
+0.999322 
+Timestep: 507 
+0.999446 
+Timestep: 508 
+0.999611 
+Timestep: 509 
+0.999548 
+Timestep: 510 
+0.999328 
+Timestep: 511 
+0.999254 
+Timestep: 512 
+0.999408 
+Timestep: 513 
+0.999468 
+Timestep: 514 
+0.999448 
+Timestep: 515 
+0.999499 
+Timestep: 516 
+0.999416 
+Timestep: 517 
+0.999345 
+Timestep: 518 
+0.999318 
+Timestep: 519 
+0.999425 
+Timestep: 520 
+0.999073 
+Timestep: 521 
+0.999119 
+Timestep: 522 
+0.998877 
+Timestep: 523 
+0.998844 
+Timestep: 524 
+0.999048 
+Timestep: 525 
+0.999566 
+Timestep: 526 
+0.999417 
+Timestep: 527 
+0.999199 
+Timestep: 528 
+0.999161 
+Timestep: 529 
+0.999220 
+Timestep: 530 
+0.998965 
+Timestep: 531 
+0.999330 
+Timestep: 532 
+0.999330 
+Timestep: 533 
+0.999508 
+Timestep: 534 
+0.999537 
+Timestep: 535 
+0.999108 
+Timestep: 536 
+0.999218 
+Timestep: 537 
+0.998872 
+Timestep: 538 
+0.998911 
+Timestep: 539 
+0.999402 
+Timestep: 540 
+0.999112 
+Timestep: 541 
+0.999482 
+Timestep: 542 
+0.999452 
+Timestep: 543 
+0.999459 
+Timestep: 544 
+0.999168 
+Timestep: 545 
+0.999312 
+Timestep: 546 
+0.999241 
+Timestep: 547 
+0.999164 
+Timestep: 548 
+0.999318 
+Timestep: 549 
+0.998695 
+Timestep: 550 
+0.998910 
+Timestep: 551 
+0.998952 
+Timestep: 552 
+0.999429 
+Timestep: 553 
+0.999315 
+Timestep: 554 
+0.999234 
+Timestep: 555 
+0.999490 
+Timestep: 556 
+0.999354 
+Timestep: 557 
+0.999471 
+Timestep: 558 
+0.999268 
+Timestep: 559 
+0.999437 
+Timestep: 560 
+0.999586 
+Timestep: 561 
+0.999466 
+Timestep: 562 
+0.999530 
+Timestep: 563 
+0.999180 
+Timestep: 564 
+0.999361 
+Timestep: 565 
+0.999254 
+Timestep: 566 
+0.999110 
+Timestep: 567 
+0.999375 
+Timestep: 568 
+0.999041 
+Timestep: 569 
+0.998955 
+Timestep: 570 
+0.998961 
+Timestep: 571 
+0.999041 
+Timestep: 572 
+0.999039 
+Timestep: 573 
+0.999105 
+Timestep: 574 
+0.999376 
+Timestep: 575 
+0.999706 
+Timestep: 576 
+0.999498 
+Timestep: 577 
+0.999339 
+Timestep: 578 
+0.999321 
+Timestep: 579 
+0.999464 
+Timestep: 580 
+0.999443 
+Timestep: 581 
+0.999475 
+Timestep: 582 
+0.999400 
+Timestep: 583 
+0.999504 
+Timestep: 584 
+0.999564 
+Timestep: 585 
+0.999086 
+Timestep: 586 
+0.999217 
+Timestep: 587 
+0.999360 
+Timestep: 588 
+0.999457 
+Timestep: 589 
+0.999433 
+Timestep: 590 
+0.999513 
+Timestep: 591 
+0.999419 
+Timestep: 592 
+0.999296 
+Timestep: 593 
+0.999416 
+Timestep: 594 
+0.999499 
+Timestep: 595 
+0.999444 
+Timestep: 596 
+0.999218 
+Timestep: 597 
+0.999343 
+Timestep: 598 
+0.998953 
+Timestep: 599 
+0.999022 
+Timestep: 600 
+0.999319 
+Timestep: 601 
+0.998860 
+Timestep: 602 
+0.998878 
+Timestep: 603 
+0.998639 
+Timestep: 604 
+0.998821 
+Timestep: 605 
+0.998786 
+Timestep: 606 
+0.998076 
+Timestep: 607 
+0.998653 
+Timestep: 608 
+0.999001 
+Timestep: 609 
+0.998904 
+Timestep: 610 
+0.999103 
+Timestep: 611 
+0.998967 
+Timestep: 612 
+0.999204 
+Timestep: 613 
+0.999248 
+Timestep: 614 
+0.999514 
+Timestep: 615 
+0.999660 
+Timestep: 616 
+0.999529 
+Timestep: 617 
+0.999404 
+Timestep: 618 
+0.999361 
+Timestep: 619 
+0.999265 
+Timestep: 620 
+0.999423 
+Timestep: 621 
+0.999583 
+Timestep: 622 
+0.999559 
+Timestep: 623 
+0.999533 
+Timestep: 624 
+0.999586 
+Timestep: 625 
+0.999598 
+Timestep: 626 
+0.999176 
+Timestep: 627 
+0.999166 
+Timestep: 628 
+0.999361 
+Timestep: 629 
+0.999397 
+Timestep: 630 
+0.999177 
+Timestep: 631 
+0.999285 
+Timestep: 632 
+0.999679 
+Timestep: 633 
+0.999586 
+Timestep: 634 
+0.999549 
+Timestep: 635 
+0.999657 
+Timestep: 636 
+0.999567 
+Timestep: 637 
+0.999622 
+Timestep: 638 
+0.999397 
+Timestep: 639 
+0.999491 
+Timestep: 640 
+0.999542 
+Timestep: 641 
+0.999460 
+Timestep: 642 
+0.999503 
+Timestep: 643 
+0.999581 
+Timestep: 644 
+0.999639 
+Timestep: 645 
+0.999652 
+Timestep: 646 
+0.999493 
+Timestep: 647 
+0.999532 
+Timestep: 648 
+0.999380 
+Timestep: 649 
+0.999433 
+Timestep: 650 
+0.999504 
+Timestep: 651 
+0.999247 
+Timestep: 652 
+0.999284 
+Timestep: 653 
+0.999519 
+Timestep: 654 
+0.999379 
+Timestep: 655 
+0.999328 
+Timestep: 656 
+0.999502 
+Timestep: 657 
+0.999480 
+Timestep: 658 
+0.999570 
+Timestep: 659 
+0.999682 
+Timestep: 660 
+0.999498 
+Timestep: 661 
+0.999503 
+Timestep: 662 
+0.999541 
+Timestep: 663 
+0.999511 
+Timestep: 664 
+0.999507 
+Timestep: 665 
+0.999562 
+Timestep: 666 
+0.999408 
+Timestep: 667 
+0.999239 
+Timestep: 668 
+0.999163 
+Timestep: 669 
+0.999301 
+Timestep: 670 
+0.999340 
+Timestep: 671 
+0.999477 
+Timestep: 672 
+0.999556 
+Timestep: 673 
+0.999199 
+Timestep: 674 
+0.999123 
+Timestep: 675 
+0.999402 
+Timestep: 676 
+0.999495 
+Timestep: 677 
+0.999629 
+Timestep: 678 
+0.999663 
+Timestep: 679 
+0.999577 
+Timestep: 680 
+0.999506 
+Timestep: 681 
+0.999590 
+Timestep: 682 
+0.999474 
+Timestep: 683 
+0.999488 
+Timestep: 684 
+0.999570 
+Timestep: 685 
+0.999609 
+Timestep: 686 
+0.999662 
+Timestep: 687 
+0.999671 
+Timestep: 688 
+0.999688 
+Timestep: 689 
+0.998885 
+Timestep: 690 
+0.999397 
+Timestep: 691 
+0.999374 
+Timestep: 692 
+0.999164 
+Timestep: 693 
+0.999549 
+Timestep: 694 
+0.999584 
+Timestep: 695 
+0.999504 
+Timestep: 696 
+0.999368 
+Timestep: 697 
+0.999606 
+Timestep: 698 
+0.999545 
+Timestep: 699 
+0.999590 
+Timestep: 700 
+0.999528 
+Timestep: 701 
+0.999510 
+Timestep: 702 
+0.999471 
+Timestep: 703 
+0.999460 
+Timestep: 704 
+0.999482 
+Timestep: 705 
+0.999635 
+Timestep: 706 
+0.999427 
+Timestep: 707 
+0.999495 
+Timestep: 708 
+0.999281 
+Timestep: 709 
+0.997602 
+Timestep: 710 
+0.998510 
+Timestep: 711 
+0.998947 
+Timestep: 712 
+0.998978 
+Timestep: 713 
+0.998869 
+Timestep: 714 
+0.999081 
+Timestep: 715 
+0.999133 
+Timestep: 716 
+0.999415 
+Timestep: 717 
+0.999564 
+Timestep: 718 
+0.999703 
+Timestep: 719 
+0.999570 
+Timestep: 720 
+0.999424 
+Timestep: 721 
+0.999385 
+Timestep: 722 
+0.999342 
+Timestep: 723 
+0.999088 
+Timestep: 724 
+0.999464 
+Timestep: 725 
+0.999473 
+Timestep: 726 
+0.999251 
+Timestep: 727 
+0.999585 
+Timestep: 728 
+0.999425 
+Timestep: 729 
+0.999537 
+Timestep: 730 
+0.999521 
+Timestep: 731 
+0.999495 
+Timestep: 732 
+0.999202 
+Timestep: 733 
+0.999492 
+Timestep: 734 
+0.999412 
+Timestep: 735 
+0.999244 
+Timestep: 736 
+0.999327 
+Timestep: 737 
+0.999239 
+Timestep: 738 
+0.999330 
+Timestep: 739 
+0.999170 
+Timestep: 740 
+0.999555 
+Timestep: 741 
+0.999384 
+Timestep: 742 
+0.999479 
+Timestep: 743 
+0.999506 
+Timestep: 744 
+0.999380 
+Timestep: 745 
+0.999505 
+Timestep: 746 
+0.998919 
+Timestep: 747 
+0.999223 
+Timestep: 748 
+0.999198 
+Timestep: 749 
+0.999407 
+Timestep: 750 
+0.999398 
+Timestep: 751 
+0.999459 
+Timestep: 752 
+0.999302 
+Timestep: 753 
+0.999190 
+Timestep: 754 
+0.999201 
+Timestep: 755 
+0.999473 
+Timestep: 756 
+0.999288 
+Timestep: 757 
+0.999317 
+Timestep: 758 
+0.999269 
+Timestep: 759 
+0.999216 
+Timestep: 760 
+0.999350 
+Timestep: 761 
+0.999537 
+Timestep: 762 
+0.999677 
+Timestep: 763 
+0.999686 
+Timestep: 764 
+0.999705 
+Timestep: 765 
+0.999687 
+Timestep: 766 
+0.999604 
+Timestep: 767 
+0.999527 
+Timestep: 768 
+0.999349 
+Timestep: 769 
+0.999350 
+Timestep: 770 
+0.999495 
+Timestep: 771 
+0.999596 
+Timestep: 772 
+0.999339 
+Timestep: 773 
+0.999269 
+Timestep: 774 
+0.999297 
+Timestep: 775 
+0.999348 
+Timestep: 776 
+0.999328 
+Timestep: 777 
+0.999367 
+Timestep: 778 
+0.999620 
+Timestep: 779 
+0.999530 
+Timestep: 780 
+0.999404 
+Timestep: 781 
+0.999441 
+Timestep: 782 
+0.999476 
+Timestep: 783 
+0.999012 
+Timestep: 784 
+0.999203 
+Timestep: 785 
+0.999159 
+Timestep: 786 
+0.999214 
+Timestep: 787 
+0.999051 
+Timestep: 788 
+0.998996 
+Timestep: 789 
+0.999306 
+Timestep: 790 
+0.999454 
+Timestep: 791 
+0.999653 
+Timestep: 792 
+0.999499 
+Timestep: 793 
+0.999459 
+Timestep: 794 
+0.999600 
+Timestep: 795 
+0.999617 
+Timestep: 796 
+0.999599 
+Timestep: 797 
+0.999407 
+Timestep: 798 
+0.999361 
+Timestep: 799 
+0.999512 
+Timestep: 800 
+0.999561 
+Timestep: 801 
+0.999437 
+Timestep: 802 
+0.999625 
+Timestep: 803 
+0.999700 
+Timestep: 804 
+0.999630 
+Timestep: 805 
+0.999592 
+Timestep: 806 
+0.999482 
+Timestep: 807 
+0.999225 
+Timestep: 808 
+0.999177 
+Timestep: 809 
+0.999309 
+Timestep: 810 
+0.999480 
+Timestep: 811 
+0.999488 
+Timestep: 812 
+0.999469 
+Timestep: 813 
+0.999523 
+Timestep: 814 
+0.999599 
+Timestep: 815 
+0.999465 
+Timestep: 816 
+0.999175 
+Timestep: 817 
+0.999443 
+Timestep: 818 
+0.999427 
+Timestep: 819 
+0.999422 
+Timestep: 820 
+0.999357 
+Timestep: 821 
+0.999113 
+Timestep: 822 
+0.999435 
+Timestep: 823 
+0.999522 
+Timestep: 824 
+0.999504 
+Timestep: 825 
+0.999417 
+Timestep: 826 
+0.999414 
+Timestep: 827 
+0.999573 
+Timestep: 828 
+0.999540 
+Timestep: 829 
+0.999600 
+Timestep: 830 
+0.999209 
+Timestep: 831 
+0.999479 
+Timestep: 832 
+0.999609 
+Timestep: 833 
+0.999400 
+Timestep: 834 
+0.999434 
+Timestep: 835 
+0.999525 
+Timestep: 836 
+0.999316 
+Timestep: 837 
+0.999437 
+Timestep: 838 
+0.999380 
+Timestep: 839 
+0.999492 
+Timestep: 840 
+0.999529 
+Timestep: 841 
+0.999449 
+Timestep: 842 
+0.999475 
+Timestep: 843 
+0.999604 
+Timestep: 844 
+0.999612 
+Timestep: 845 
+0.999671 
+Timestep: 846 
+0.999658 
+Timestep: 847 
+0.999680 
+Timestep: 848 
+0.999655 
+Timestep: 849 
+0.999361 
+Timestep: 850 
+0.999358 
+Timestep: 851 
+0.999396 
+Timestep: 852 
+0.999480 
+Timestep: 853 
+0.999505 
+Timestep: 854 
+0.999357 
+Timestep: 855 
+0.999464 
+Timestep: 856 
+0.999474 
+Timestep: 857 
+0.999388 
+Timestep: 858 
+0.999515 
+Timestep: 859 
+0.999447 
+Timestep: 860 
+0.999670 
+Timestep: 861 
+0.999709 
+Timestep: 862 
+0.999441 
+Timestep: 863 
+0.999422 
+Timestep: 864 
+0.999435 
+Timestep: 865 
+0.999564 
+Timestep: 866 
+0.999672 
+Timestep: 867 
+0.999687 
+Timestep: 868 
+0.999720 
+Timestep: 869 
+0.999741 
+Timestep: 870 
+0.999757 
+Timestep: 871 
+0.999705 
+Timestep: 872 
+0.999384 
+Timestep: 873 
+0.999334 
+Timestep: 874 
+0.999437 
+Timestep: 875 
+0.999368 
+Timestep: 876 
+0.999751 
+Timestep: 877 
+0.999470 
+Timestep: 878 
+0.999586 
+Timestep: 879 
+0.999557 
+Timestep: 880 
+0.999323 
+Timestep: 881 
+0.999536 
+Timestep: 882 
+0.999282 
+Timestep: 883 
+0.999276 
+Timestep: 884 
+0.999517 
+Timestep: 885 
+0.999465 
+Timestep: 886 
+0.999298 
+Timestep: 887 
+0.999381 
+Timestep: 888 
+0.999295 
+Timestep: 889 
+0.999592 
+Timestep: 890 
+0.999475 
+Timestep: 891 
+0.999551 
+Timestep: 892 
+0.999545 
+Timestep: 893 
+0.999367 
+Timestep: 894 
+0.999501 
+Timestep: 895 
+0.999393 
+Timestep: 896 
+0.999420 
+Timestep: 897 
+0.999466 
+Timestep: 898 
+0.999638 
+Timestep: 899 
+0.999692 
+Timestep: 900 
+0.999592 
+Timestep: 901 
+0.999424 
+Timestep: 902 
+0.999545 
+Timestep: 903 
+0.999512 
+Timestep: 904 
+0.999656 
+Timestep: 905 
+0.999775 
+Timestep: 906 
+0.999853 
+Timestep: 907 
+0.999619 
+Timestep: 908 
+0.999713 
+Timestep: 909 
+0.999677 
+Timestep: 910 
+0.999546 
+Timestep: 911 
+0.999519 
+Timestep: 912 
+0.999426 
+Timestep: 913 
+0.999363 
+Timestep: 914 
+0.999340 
+Timestep: 915 
+0.999395 
+Timestep: 916 
+0.999478 
+Timestep: 917 
+0.999519 
+Timestep: 918 
+0.999611 
+Timestep: 919 
+0.999689 
+Timestep: 920 
+0.999504 
+Timestep: 921 
+0.999013 
+Timestep: 922 
+0.999301 
+Timestep: 923 
+0.999547 
+Timestep: 924 
+0.999643 
+Timestep: 925 
+0.999618 
+Timestep: 926 
+0.999110 
+Timestep: 927 
+0.999289 
+Timestep: 928 
+0.999438 
+Timestep: 929 
+0.999446 
+Timestep: 930 
+0.999108 
+Timestep: 931 
+0.999039 
+Timestep: 932 
+0.999160 
+Timestep: 933 
+0.999436 
+Timestep: 934 
+0.999349 
+Timestep: 935 
+0.999421 
+Timestep: 936 
+0.999366 
+Timestep: 937 
+0.999393 
+Timestep: 938 
+0.999375 
+Timestep: 939 
+0.999348 
+Timestep: 940 
+0.999541 
+Timestep: 941 
+0.999583 
+Timestep: 942 
+0.999592 
+Timestep: 943 
+0.999429 
+Timestep: 944 
+0.999399 
+Timestep: 945 
+0.999423 
+Timestep: 946 
+0.999074 
+Timestep: 947 
+0.998933 
+Timestep: 948 
+0.999344 
+Timestep: 949 
+0.999389 
+Timestep: 950 
+0.999387 
+Timestep: 951 
+0.999626 
+Timestep: 952 
+0.999372 
+Timestep: 953 
+0.999507 
+Timestep: 954 
+0.999624 
+Timestep: 955 
+0.999683 
+Timestep: 956 
+0.999594 
+Timestep: 957 
+0.999533 
+Timestep: 958 
+0.999599 
+Timestep: 959 
+0.999624 
+Timestep: 960 
+0.999567 
+Timestep: 961 
+0.999607 
+Timestep: 962 
+0.999577 
+Timestep: 963 
+0.999551 
+Timestep: 964 
+0.999506 
+Timestep: 965 
+0.999561 
+Timestep: 966 
+0.999518 
+Timestep: 967 
+0.999303 
+Timestep: 968 
+0.999424 
+Timestep: 969 
+0.999439 
+Timestep: 970 
+0.999450 
+Timestep: 971 
+0.999529 
+Timestep: 972 
+0.999624 
+Timestep: 973 
+0.999600 
+Timestep: 974 
+0.999465 
+Timestep: 975 
+0.999504 
+Timestep: 976 
+0.999316 
+Timestep: 977 
+0.999556 
+Timestep: 978 
+0.999605 
+Timestep: 979 
+0.999554 
+Timestep: 980 
+0.999613 
+Timestep: 981 
+0.999627 
+Timestep: 982 
+0.999557 
+Timestep: 983 
+0.999525 
+Timestep: 984 
+0.999547 
+Timestep: 985 
+0.999715 
+Timestep: 986 
+0.999673 
+Timestep: 987 
+0.999689 
+Timestep: 988 
+0.999611 
+Timestep: 989 
+0.999649 
+Timestep: 990 
+0.999666 
+Timestep: 991 
+0.999716 
+Timestep: 992 
+0.999619 
+Timestep: 993 
+0.999542 
+Timestep: 994 
+0.999691 
+Timestep: 995 
+0.999716 
+Timestep: 996 
+0.999694 
+Timestep: 997 
+0.999671 
+Timestep: 998 
+0.999678 
+Timestep: 999 
+0.999684 
+Timestep: 1000 
+0.999311 
+Timestep: 1001 
+0.999363 
+Timestep: 1002 
+0.999531 
+Timestep: 1003 
+0.999311 
+Timestep: 1004 
+0.999400 
+Timestep: 1005 
+0.999225 
+Timestep: 1006 
+0.999553 
+Timestep: 1007 
+0.999529 
+Timestep: 1008 
+0.999557 
+Timestep: 1009 
+0.999625 
+Timestep: 1010 
+0.999344 
+Timestep: 1011 
+0.999427 
+Timestep: 1012 
+0.999522 
+Timestep: 1013 
+0.999214 
+Timestep: 1014 
+0.999518 
+Timestep: 1015 
+0.999628 
+Timestep: 1016 
+0.999367 
+Timestep: 1017 
+0.999324 
+Timestep: 1018 
+0.999521 
+Timestep: 1019 
+0.999316 
+Timestep: 1020 
+0.999419 
+Timestep: 1021 
+0.999546 
+Timestep: 1022 
+0.999712 
+Timestep: 1023 
+0.999638 
+Timestep: 1024 
+0.999609 
+Timestep: 1025 
+0.999532 
+Timestep: 1026 
+0.999538 
+Timestep: 1027 
+0.999541 
+Timestep: 1028 
+0.999341 
+Timestep: 1029 
+0.999439 
+Timestep: 1030 
+0.999430 
+Timestep: 1031 
+0.999487 
+Timestep: 1032 
+0.999501 
+Timestep: 1033 
+0.999542 
+Timestep: 1034 
+0.999511 
+Timestep: 1035 
+0.999423 
+Timestep: 1036 
+0.999540 
+Timestep: 1037 
+0.999349 
+Timestep: 1038 
+0.999510 
+Timestep: 1039 
+0.999536 
+Timestep: 1040 
+0.999444 
+Timestep: 1041 
+0.999509 
+Timestep: 1042 
+0.999674 
+Timestep: 1043 
+0.999581 
+Timestep: 1044 
+0.999686 
+Timestep: 1045 
+0.999614 
+Timestep: 1046 
+0.999512 
+Timestep: 1047 
+0.999513 
+Timestep: 1048 
+0.999441 
+Timestep: 1049 
+0.998931 
+Timestep: 1050 
+0.999079 
+Timestep: 1051 
+0.999382 
+Timestep: 1052 
+0.999391 
+Timestep: 1053 
+0.999565 
+Timestep: 1054 
+0.999601 
+Timestep: 1055 
+0.998997 
+Timestep: 1056 
+0.999283 
+Timestep: 1057 
+0.999323 
+Timestep: 1058 
+0.998867 
+Timestep: 1059 
+0.999202 
+Timestep: 1060 
+0.999400 
+Timestep: 1061 
+0.999559 
+Timestep: 1062 
+0.999067 
+Timestep: 1063 
+0.999164 
+Timestep: 1064 
+0.999245 
+Timestep: 1065 
+0.999246 
+Timestep: 1066 
+0.999230 
+Timestep: 1067 
+0.999385 
+Timestep: 1068 
+0.999423 
+Timestep: 1069 
+0.999390 
+Timestep: 1070 
+0.999518 
+Timestep: 1071 
+0.999507 
+Timestep: 1072 
+0.999546 
+Timestep: 1073 
+0.999580 
+Timestep: 1074 
+0.999663 
+Timestep: 1075 
+0.999612 
+Timestep: 1076 
+0.999748 
+Timestep: 1077 
+0.999671 
+Timestep: 1078 
+0.999673 
+Timestep: 1079 
+0.999567 
+Timestep: 1080 
+0.999448 
+Timestep: 1081 
+0.999402 
+Timestep: 1082 
+0.999348 
+Timestep: 1083 
+0.999400 
+Timestep: 1084 
+0.999529 
+Timestep: 1085 
+0.999630 
+Timestep: 1086 
+0.999685 
+Timestep: 1087 
+0.999731 
+Timestep: 1088 
+0.999436 
+Timestep: 1089 
+0.999156 
+Timestep: 1090 
+0.999249 
+Timestep: 1091 
+0.999285 
+Timestep: 1092 
+0.999277 
+Timestep: 1093 
+0.999472 
+Timestep: 1094 
+0.999590 
+Timestep: 1095 
+0.999640 
+Timestep: 1096 
+0.998992 
+Timestep: 1097 
+0.999199 
+Timestep: 1098 
+0.999308 
+Timestep: 1099 
+0.999234 
+Timestep: 1100 
+0.999423 
+Timestep: 1101 
+0.999486 
+Timestep: 1102 
+0.999470 
+Timestep: 1103 
+0.999615 
+Timestep: 1104 
+0.999553 
+Timestep: 1105 
+0.999514 
+Timestep: 1106 
+0.999484 
+Timestep: 1107 
+0.999453 
+Timestep: 1108 
+0.999488 
+Timestep: 1109 
+0.999591 
+Timestep: 1110 
+0.999711 
+Timestep: 1111 
+0.999773 
+Timestep: 1112 
+0.999771 
+Timestep: 1113 
+0.999672 
+Timestep: 1114 
+0.999577 
+Timestep: 1115 
+0.999333 
+Timestep: 1116 
+0.998838 
+Timestep: 1117 
+0.998339 
+Timestep: 1118 
+0.998519 
+Timestep: 1119 
+0.998872 
+Timestep: 1120 
+0.998898 
+Timestep: 1121 
+0.999089 
+Timestep: 1122 
+0.999237 
+Timestep: 1123 
+0.999368 
+Timestep: 1124 
+0.999360 
+Timestep: 1125 
+0.999496 
+Timestep: 1126 
+0.999547 
+Timestep: 1127 
+0.999533 
+Timestep: 1128 
+0.999286 
+Timestep: 1129 
+0.999008 
+Timestep: 1130 
+0.999236 
+Timestep: 1131 
+0.999311 
+Timestep: 1132 
+0.999168 
+Timestep: 1133 
+0.999123 
+Timestep: 1134 
+0.999406 
+Timestep: 1135 
+0.999570 
+Timestep: 1136 
+0.999317 
+Timestep: 1137 
+0.999493 
+Timestep: 1138 
+0.999534 
+Timestep: 1139 
+0.999331 
+Timestep: 1140 
+0.999580 
+Timestep: 1141 
+0.999636 
+Timestep: 1142 
+0.999553 
+Timestep: 1143 
+0.999598 
+Timestep: 1144 
+0.999571 
+Timestep: 1145 
+0.999442 
+Timestep: 1146 
+0.999561 
+Timestep: 1147 
+0.999567 
+Timestep: 1148 
+0.999546 
+Timestep: 1149 
+0.999580 
+Timestep: 1150 
+0.999461 
+Timestep: 1151 
+0.999479 
+Timestep: 1152 
+0.999613 
+Timestep: 1153 
+0.999557 
+Timestep: 1154 
+0.999268 
+Timestep: 1155 
+0.999281 
+Timestep: 1156 
+0.999401 
+Timestep: 1157 
+0.999385 
+Timestep: 1158 
+0.999418 
+Timestep: 1159 
+0.999388 
+Timestep: 1160 
+0.999541 
+Timestep: 1161 
+0.999623 
+Timestep: 1162 
+0.999121 
+Timestep: 1163 
+0.999483 
+Timestep: 1164 
+0.999165 
+Timestep: 1165 
+0.999108 
+Timestep: 1166 
+0.999209 
+Timestep: 1167 
+0.999564 
+Timestep: 1168 
+0.999663 
+Timestep: 1169 
+0.999321 
+Timestep: 1170 
+0.999471 
+Timestep: 1171 
+0.999156 
+Timestep: 1172 
+0.999490 
+Timestep: 1173 
+0.999178 
+Timestep: 1174 
+0.998901 
+Timestep: 1175 
+0.999148 
+Timestep: 1176 
+0.999344 
+Timestep: 1177 
+0.999124 
+Timestep: 1178 
+0.999347 
+Timestep: 1179 
+0.999228 
+Timestep: 1180 
+0.999358 
+Timestep: 1181 
+0.999434 
+Timestep: 1182 
+0.999305 
+Timestep: 1183 
+0.999204 
+Timestep: 1184 
+0.999476 
+Timestep: 1185 
+0.999531 
+Timestep: 1186 
+0.999659 
+Timestep: 1187 
+0.999717 
+Timestep: 1188 
+0.999713 
+Timestep: 1189 
+0.999662 
+Timestep: 1190 
+0.999442 
+Timestep: 1191 
+0.999517 
+Timestep: 1192 
+0.999609 
+Timestep: 1193 
+0.998427 
+Timestep: 1194 
+0.999047 
+Timestep: 1195 
+0.999270 
+Timestep: 1196 
+0.999290 
+Timestep: 1197 
+0.999301 
+Timestep: 1198 
+0.999373 
+Timestep: 1199 
+0.999019 
+Timestep: 1200 
+0.999456 
+Timestep: 1201 
+0.999056 
+Timestep: 1202 
+0.999077 
+Timestep: 1203 
+0.999061 
+Timestep: 1204 
+0.999445 
+Timestep: 1205 
+0.999651 
+Timestep: 1206 
+0.999593 
+Timestep: 1207 
+0.999477 
+Timestep: 1208 
+0.999625 
+Timestep: 1209 
+0.999694 
+Timestep: 1210 
+0.999676 
+Timestep: 1211 
+0.999519 
+Timestep: 1212 
+0.999576 
+Timestep: 1213 
+0.999415 
+Timestep: 1214 
+0.999539 
+Timestep: 1215 
+0.999335 
+Timestep: 1216 
+0.999414 
+Timestep: 1217 
+0.999509 
+Timestep: 1218 
+0.999586 
+Timestep: 1219 
+0.999383 
+Timestep: 1220 
+0.999704 
+Timestep: 1221 
+0.999160 
+Timestep: 1222 
+0.999584 
+Timestep: 1223 
+0.999394 
+Timestep: 1224 
+0.999423 
+Timestep: 1225 
+0.999332 
+Timestep: 1226 
+0.999431 
+Timestep: 1227 
+0.999587 
+Timestep: 1228 
+0.999647 
+Timestep: 1229 
+0.999662 
+Timestep: 1230 
+0.999719 
+Timestep: 1231 
+0.999713 
+Timestep: 1232 
+0.999756 
+Timestep: 1233 
+0.999442 
+Timestep: 1234 
+0.999511 
+Timestep: 1235 
+0.999397 
+Timestep: 1236 
+0.999280 
+Timestep: 1237 
+0.999518 
+Timestep: 1238 
+0.999415 
+Timestep: 1239 
+0.999555 
+Timestep: 1240 
+0.999728 
+Timestep: 1241 
+0.999576 
+Timestep: 1242 
+0.999163 
+Timestep: 1243 
+0.999366 
+Timestep: 1244 
+0.999522 
+Timestep: 1245 
+0.999511 
+Timestep: 1246 
+0.999412 
+Timestep: 1247 
+0.999612 
+Timestep: 1248 
+0.999402 
+Timestep: 1249 
+0.999615 
+Timestep: 1250 
+0.999623 
+Parameter 
+Timestep: 5 
+0.999239 
+Timestep: 6 
+0.998525 
+Timestep: 7 
+0.998632 
+Timestep: 8 
+0.997804 
+Timestep: 9 
+0.998076 
+Timestep: 10 
+0.997319 
+Timestep: 11 
+0.998102 
+Timestep: 12 
+0.998352 
+Timestep: 13 
+0.999106 
+Timestep: 14 
+0.999190 
+Timestep: 15 
+0.999302 
+Timestep: 16 
+0.999197 
+Timestep: 17 
+0.999320 
+Timestep: 18 
+0.998860 
+Timestep: 19 
+0.998720 
+Timestep: 20 
+0.999063 
+Timestep: 21 
+0.998867 
+Timestep: 22 
+0.999469 
+Timestep: 23 
+0.999433 
+Timestep: 24 
+0.999537 
+Timestep: 25 
+0.999537 
+Timestep: 26 
+0.999551 
+Timestep: 27 
+0.999547 
+Timestep: 28 
+0.999247 
+Timestep: 29 
+0.999213 
+Timestep: 30 
+0.999501 
+Timestep: 31 
+0.999611 
+Timestep: 32 
+0.999290 
+Timestep: 33 
+0.998668 
+Timestep: 34 
+0.998078 
+Timestep: 35 
+0.998542 
+Timestep: 36 
+0.998626 
+Timestep: 37 
+0.999147 
+Timestep: 38 
+0.999318 
+Timestep: 39 
+0.999287 
+Timestep: 40 
+0.999313 
+Timestep: 41 
+0.999156 
+Timestep: 42 
+0.998990 
+Timestep: 43 
+0.999259 
+Timestep: 44 
+0.999350 
+Timestep: 45 
+0.998851 
+Timestep: 46 
+0.998972 
+Timestep: 47 
+0.999200 
+Timestep: 48 
+0.999386 
+Timestep: 49 
+0.999225 
+Timestep: 50 
+0.999524 
+Timestep: 51 
+0.999443 
+Timestep: 52 
+0.999563 
+Timestep: 53 
+0.999496 
+Timestep: 54 
+0.999482 
+Timestep: 55 
+0.999171 
+Timestep: 56 
+0.998833 
+Timestep: 57 
+0.998883 
+Timestep: 58 
+0.998851 
+Timestep: 59 
+0.999172 
+Timestep: 60 
+0.999570 
+Timestep: 61 
+0.999315 
+Timestep: 62 
+0.999304 
+Timestep: 63 
+0.998991 
+Timestep: 64 
+0.999129 
+Timestep: 65 
+0.999296 
+Timestep: 66 
+0.999231 
+Timestep: 67 
+0.998703 
+Timestep: 68 
+0.998325 
+Timestep: 69 
+0.998842 
+Timestep: 70 
+0.998794 
+Timestep: 71 
+0.998837 
+Timestep: 72 
+0.999250 
+Timestep: 73 
+0.999063 
+Timestep: 74 
+0.998820 
+Timestep: 75 
+0.998838 
+Timestep: 76 
+0.998919 
+Timestep: 77 
+0.999186 
+Timestep: 78 
+0.998916 
+Timestep: 79 
+0.999286 
+Timestep: 80 
+0.999419 
+Timestep: 81 
+0.999492 
+Timestep: 82 
+0.999470 
+Timestep: 83 
+0.999221 
+Timestep: 84 
+0.999318 
+Timestep: 85 
+0.999360 
+Timestep: 86 
+0.999604 
+Timestep: 87 
+0.999398 
+Timestep: 88 
+0.999551 
+Timestep: 89 
+0.999507 
+Timestep: 90 
+0.999202 
+Timestep: 91 
+0.999340 
+Timestep: 92 
+0.999444 
+Timestep: 93 
+0.999481 
+Timestep: 94 
+0.999487 
+Timestep: 95 
+0.998647 
+Timestep: 96 
+0.998873 
+Timestep: 97 
+0.998663 
+Timestep: 98 
+0.999083 
+Timestep: 99 
+0.998931 
+Timestep: 100 
+0.999244 
+Timestep: 101 
+0.999079 
+Timestep: 102 
+0.999206 
+Timestep: 103 
+0.999040 
+Timestep: 104 
+0.999263 
+Timestep: 105 
+0.998996 
+Timestep: 106 
+0.999189 
+Timestep: 107 
+0.999342 
+Timestep: 108 
+0.998675 
+Timestep: 109 
+0.998954 
+Timestep: 110 
+0.999202 
+Timestep: 111 
+0.999507 
+Timestep: 112 
+0.999473 
+Timestep: 113 
+0.999485 
+Timestep: 114 
+0.999510 
+Timestep: 115 
+0.999329 
+Timestep: 116 
+0.999280 
+Timestep: 117 
+0.998950 
+Timestep: 118 
+0.999215 
+Timestep: 119 
+0.998803 
+Timestep: 120 
+0.998892 
+Timestep: 121 
+0.999116 
+Timestep: 122 
+0.998941 
+Timestep: 123 
+0.999056 
+Timestep: 124 
+0.999064 
+Timestep: 125 
+0.999372 
+Timestep: 126 
+0.999481 
+Timestep: 127 
+0.999220 
+Timestep: 128 
+0.999636 
+Timestep: 129 
+0.999763 
+Timestep: 130 
+0.999663 
+Timestep: 131 
+0.998958 
+Timestep: 132 
+0.998656 
+Timestep: 133 
+0.998752 
+Timestep: 134 
+0.998913 
+Timestep: 135 
+0.999417 
+Timestep: 136 
+0.999460 
+Timestep: 137 
+0.999574 
+Timestep: 138 
+0.999265 
+Timestep: 139 
+0.999466 
+Timestep: 140 
+0.999404 
+Timestep: 141 
+0.999111 
+Timestep: 142 
+0.999067 
+Timestep: 143 
+0.998944 
+Timestep: 144 
+0.998858 
+Timestep: 145 
+0.998691 
+Timestep: 146 
+0.998419 
+Timestep: 147 
+0.998773 
+Timestep: 148 
+0.998311 
+Timestep: 149 
+0.999221 
+Timestep: 150 
+0.999354 
+Timestep: 151 
+0.999411 
+Timestep: 152 
+0.999379 
+Timestep: 153 
+0.999519 
+Timestep: 154 
+0.999385 
+Timestep: 155 
+0.999554 
+Timestep: 156 
+0.999320 
+Timestep: 157 
+0.999240 
+Timestep: 158 
+0.997917 
+Timestep: 159 
+0.998454 
+Timestep: 160 
+0.998713 
+Timestep: 161 
+0.998665 
+Timestep: 162 
+0.999089 
+Timestep: 163 
+0.999148 
+Timestep: 164 
+0.999387 
+Timestep: 165 
+0.998758 
+Timestep: 166 
+0.998738 
+Timestep: 167 
+0.998989 
+Timestep: 168 
+0.998739 
+Timestep: 169 
+0.999444 
+Timestep: 170 
+0.999209 
+Timestep: 171 
+0.999462 
+Timestep: 172 
+0.999542 
+Timestep: 173 
+0.999369 
+Timestep: 174 
+0.999498 
+Timestep: 175 
+0.999513 
+Timestep: 176 
+0.999626 
+Timestep: 177 
+0.999195 
+Timestep: 178 
+0.999404 
+Timestep: 179 
+0.998862 
+Timestep: 180 
+0.999050 
+Timestep: 181 
+0.998414 
+Timestep: 182 
+0.998695 
+Timestep: 183 
+0.998789 
+Timestep: 184 
+0.998829 
+Timestep: 185 
+0.998816 
+Timestep: 186 
+0.999355 
+Timestep: 187 
+0.999348 
+Timestep: 188 
+0.999447 
+Timestep: 189 
+0.999588 
+Timestep: 190 
+0.999398 
+Timestep: 191 
+0.999125 
+Timestep: 192 
+0.999301 
+Timestep: 193 
+0.999488 
+Timestep: 194 
+0.999467 
+Timestep: 195 
+0.999563 
+Timestep: 196 
+0.999436 
+Timestep: 197 
+0.999232 
+Timestep: 198 
+0.999475 
+Timestep: 199 
+0.999175 
+Timestep: 200 
+0.998959 
+Timestep: 201 
+0.999427 
+Timestep: 202 
+0.999062 
+Timestep: 203 
+0.998987 
+Timestep: 204 
+0.999022 
+Timestep: 205 
+0.999170 
+Timestep: 206 
+0.998857 
+Timestep: 207 
+0.998810 
+Timestep: 208 
+0.999267 
+Timestep: 209 
+0.999550 
+Timestep: 210 
+0.999542 
+Timestep: 211 
+0.999214 
+Timestep: 212 
+0.999331 
+Timestep: 213 
+0.999197 
+Timestep: 214 
+0.999506 
+Timestep: 215 
+0.999486 
+Timestep: 216 
+0.999611 
+Timestep: 217 
+0.999696 
+Timestep: 218 
+0.999664 
+Timestep: 219 
+0.998787 
+Timestep: 220 
+0.999172 
+Timestep: 221 
+0.998943 
+Timestep: 222 
+0.998613 
+Timestep: 223 
+0.998476 
+Timestep: 224 
+0.998941 
+Timestep: 225 
+0.999598 
+Timestep: 226 
+0.999460 
+Timestep: 227 
+0.999558 
+Timestep: 228 
+0.999612 
+Timestep: 229 
+0.999039 
+Timestep: 230 
+0.999367 
+Timestep: 231 
+0.999548 
+Timestep: 232 
+0.999611 
+Timestep: 233 
+0.999208 
+Timestep: 234 
+0.999139 
+Timestep: 235 
+0.999225 
+Timestep: 236 
+0.998906 
+Timestep: 237 
+0.998819 
+Timestep: 238 
+0.999375 
+Timestep: 239 
+0.999617 
+Timestep: 240 
+0.999450 
+Timestep: 241 
+0.999321 
+Timestep: 242 
+0.999202 
+Timestep: 243 
+0.999268 
+Timestep: 244 
+0.999286 
+Timestep: 245 
+0.999252 
+Timestep: 246 
+0.999472 
+Timestep: 247 
+0.999599 
+Timestep: 248 
+0.999743 
+Timestep: 249 
+0.999779 
+Timestep: 250 
+0.999470 
+Timestep: 251 
+0.999098 
+Timestep: 252 
+0.999334 
+Timestep: 253 
+0.998376 
+Timestep: 254 
+0.998845 
+Timestep: 255 
+0.998662 
+Timestep: 256 
+0.998219 
+Timestep: 257 
+0.998867 
+Timestep: 258 
+0.999175 
+Timestep: 259 
+0.999290 
+Timestep: 260 
+0.999385 
+Timestep: 261 
+0.999507 
+Timestep: 262 
+0.999254 
+Timestep: 263 
+0.999437 
+Timestep: 264 
+0.999531 
+Timestep: 265 
+0.999376 
+Timestep: 266 
+0.999084 
+Timestep: 267 
+0.999329 
+Timestep: 268 
+0.999346 
+Timestep: 269 
+0.998953 
+Timestep: 270 
+0.999115 
+Timestep: 271 
+0.999321 
+Timestep: 272 
+0.998990 
+Timestep: 273 
+0.998557 
+Timestep: 274 
+0.999246 
+Timestep: 275 
+0.998444 
+Timestep: 276 
+0.998844 
+Timestep: 277 
+0.998610 
+Timestep: 278 
+0.998474 
+Timestep: 279 
+0.999370 
+Timestep: 280 
+0.999389 
+Timestep: 281 
+0.999038 
+Timestep: 282 
+0.999308 
+Timestep: 283 
+0.999377 
+Timestep: 284 
+0.999410 
+Timestep: 285 
+0.999595 
+Timestep: 286 
+0.999279 
+Timestep: 287 
+0.999390 
+Timestep: 288 
+0.999019 
+Timestep: 289 
+0.999093 
+Timestep: 290 
+0.999325 
+Timestep: 291 
+0.999326 
+Timestep: 292 
+0.999400 
+Timestep: 293 
+0.999179 
+Timestep: 294 
+0.999128 
+Timestep: 295 
+0.999264 
+Timestep: 296 
+0.998844 
+Timestep: 297 
+0.997914 
+Timestep: 298 
+0.998049 
+Timestep: 299 
+0.998909 
+Timestep: 300 
+0.998805 
+Timestep: 301 
+0.998997 
+Timestep: 302 
+0.999396 
+Timestep: 303 
+0.999644 
+Timestep: 304 
+0.999533 
+Timestep: 305 
+0.999387 
+Timestep: 306 
+0.998987 
+Timestep: 307 
+0.999263 
+Timestep: 308 
+0.998960 
+Timestep: 309 
+0.999414 
+Timestep: 310 
+0.999605 
+Timestep: 311 
+0.999495 
+Timestep: 312 
+0.999642 
+Timestep: 313 
+0.999695 
+Timestep: 314 
+0.999656 
+Timestep: 315 
+0.999716 
+Timestep: 316 
+0.999250 
+Timestep: 317 
+0.999466 
+Timestep: 318 
+0.999405 
+Timestep: 319 
+0.999520 
+Timestep: 320 
+0.999730 
+Timestep: 321 
+0.999439 
+Timestep: 322 
+0.999519 
+Timestep: 323 
+0.999297 
+Timestep: 324 
+0.999325 
+Timestep: 325 
+0.999594 
+Timestep: 326 
+0.999422 
+Timestep: 327 
+0.999715 
+Timestep: 328 
+0.999572 
+Timestep: 329 
+0.999151 
+Timestep: 330 
+0.999428 
+Timestep: 331 
+0.999428 
+Timestep: 332 
+0.999624 
+Timestep: 333 
+0.999708 
+Timestep: 334 
+0.999747 
+Timestep: 335 
+0.999671 
+Timestep: 336 
+0.999540 
+Timestep: 337 
+0.999429 
+Timestep: 338 
+0.999518 
+Timestep: 339 
+0.999608 
+Timestep: 340 
+0.999717 
+Timestep: 341 
+0.999028 
+Timestep: 342 
+0.998901 
+Timestep: 343 
+0.998719 
+Timestep: 344 
+0.998881 
+Timestep: 345 
+0.999191 
+Timestep: 346 
+0.999316 
+Timestep: 347 
+0.999311 
+Timestep: 348 
+0.999221 
+Timestep: 349 
+0.999287 
+Timestep: 350 
+0.998348 
+Timestep: 351 
+0.998758 
+Timestep: 352 
+0.999162 
+Timestep: 353 
+0.999064 
+Timestep: 354 
+0.999321 
+Timestep: 355 
+0.999518 
+Timestep: 356 
+0.999441 
+Timestep: 357 
+0.999603 
+Timestep: 358 
+0.999652 
+Timestep: 359 
+0.999333 
+Timestep: 360 
+0.999418 
+Timestep: 361 
+0.999623 
+Timestep: 362 
+0.999740 
+Timestep: 363 
+0.999608 
+Timestep: 364 
+0.999676 
+Timestep: 365 
+0.999544 
+Timestep: 366 
+0.999645 
+Timestep: 367 
+0.999742 
+Timestep: 368 
+0.999723 
+Timestep: 369 
+0.999806 
+Timestep: 370 
+0.999765 
+Timestep: 371 
+0.998536 
+Timestep: 372 
+0.998730 
+Timestep: 373 
+0.999110 
+Timestep: 374 
+0.998969 
+Timestep: 375 
+0.999117 
+Timestep: 376 
+0.999411 
+Timestep: 377 
+0.999412 
+Timestep: 378 
+0.999105 
+Timestep: 379 
+0.999197 
+Timestep: 380 
+0.999448 
+Timestep: 381 
+0.999465 
+Timestep: 382 
+0.999318 
+Timestep: 383 
+0.999519 
+Timestep: 384 
+0.999300 
+Timestep: 385 
+0.999218 
+Timestep: 386 
+0.999103 
+Timestep: 387 
+0.999018 
+Timestep: 388 
+0.999246 
+Timestep: 389 
+0.999353 
+Timestep: 390 
+0.999503 
+Timestep: 391 
+0.999626 
+Timestep: 392 
+0.999609 
+Timestep: 393 
+0.999363 
+Timestep: 394 
+0.999450 
+Timestep: 395 
+0.999345 
+Timestep: 396 
+0.999342 
+Timestep: 397 
+0.999587 
+Timestep: 398 
+0.999393 
+Timestep: 399 
+0.999350 
+Timestep: 400 
+0.999382 
+Timestep: 401 
+0.999389 
+Timestep: 402 
+0.998957 
+Timestep: 403 
+0.999053 
+Timestep: 404 
+0.999140 
+Timestep: 405 
+0.999427 
+Timestep: 406 
+0.999519 
+Timestep: 407 
+0.999318 
+Timestep: 408 
+0.999561 
+Timestep: 409 
+0.999547 
+Timestep: 410 
+0.999152 
+Timestep: 411 
+0.999165 
+Timestep: 412 
+0.999315 
+Timestep: 413 
+0.999110 
+Timestep: 414 
+0.999128 
+Timestep: 415 
+0.999136 
+Timestep: 416 
+0.999122 
+Timestep: 417 
+0.999393 
+Timestep: 418 
+0.999563 
+Timestep: 419 
+0.999422 
+Timestep: 420 
+0.999532 
+Timestep: 421 
+0.999554 
+Timestep: 422 
+0.999579 
+Timestep: 423 
+0.998876 
+Timestep: 424 
+0.999125 
+Timestep: 425 
+0.998973 
+Timestep: 426 
+0.998802 
+Timestep: 427 
+0.999349 
+Timestep: 428 
+0.999495 
+Timestep: 429 
+0.999562 
+Timestep: 430 
+0.999721 
+Timestep: 431 
+0.999739 
+Timestep: 432 
+0.999631 
+Timestep: 433 
+0.999710 
+Timestep: 434 
+0.999308 
+Timestep: 435 
+0.998995 
+Timestep: 436 
+0.999021 
+Timestep: 437 
+0.999078 
+Timestep: 438 
+0.999656 
+Timestep: 439 
+0.999742 
+Timestep: 440 
+0.999792 
+Timestep: 441 
+0.999667 
+Timestep: 442 
+0.999393 
+Timestep: 443 
+0.999268 
+Timestep: 444 
+0.999315 
+Timestep: 445 
+0.999088 
+Timestep: 446 
+0.999203 
+Timestep: 447 
+0.999438 
+Timestep: 448 
+0.999280 
+Timestep: 449 
+0.998201 
+Timestep: 450 
+0.998537 
+Timestep: 451 
+0.999102 
+Timestep: 452 
+0.999456 
+Timestep: 453 
+0.999726 
+Timestep: 454 
+0.999750 
+Timestep: 455 
+0.999329 
+Timestep: 456 
+0.998820 
+Timestep: 457 
+0.998895 
+Timestep: 458 
+0.999273 
+Timestep: 459 
+0.999470 
+Timestep: 460 
+0.999450 
+Timestep: 461 
+0.999469 
+Timestep: 462 
+0.999633 
+Timestep: 463 
+0.999698 
+Timestep: 464 
+0.999703 
+Timestep: 465 
+0.999695 
+Timestep: 466 
+0.999647 
+Timestep: 467 
+0.999291 
+Timestep: 468 
+0.998737 
+Timestep: 469 
+0.999080 
+Timestep: 470 
+0.999075 
+Timestep: 471 
+0.998636 
+Timestep: 472 
+0.999217 
+Timestep: 473 
+0.999517 
+Timestep: 474 
+0.999647 
+Timestep: 475 
+0.999412 
+Timestep: 476 
+0.999713 
+Timestep: 477 
+0.999638 
+Timestep: 478 
+0.999339 
+Timestep: 479 
+0.999522 
+Timestep: 480 
+0.999478 
+Timestep: 481 
+0.999358 
+Timestep: 482 
+0.999280 
+Timestep: 483 
+0.999189 
+Timestep: 484 
+0.999378 
+Timestep: 485 
+0.999585 
+Timestep: 486 
+0.999603 
+Timestep: 487 
+0.999684 
+Timestep: 488 
+0.999608 
+Timestep: 489 
+0.999316 
+Timestep: 490 
+0.999312 
+Timestep: 491 
+0.999551 
+Timestep: 492 
+0.999503 
+Timestep: 493 
+0.999514 
+Timestep: 494 
+0.999667 
+Timestep: 495 
+0.999353 
+Timestep: 496 
+0.999452 
+Timestep: 497 
+0.999425 
+Timestep: 498 
+0.999549 
+Timestep: 499 
+0.999261 
+Timestep: 500 
+0.998833 
+Timestep: 501 
+0.999077 
+Timestep: 502 
+0.999146 
+Timestep: 503 
+0.998968 
+Timestep: 504 
+0.997879 
+Timestep: 505 
+0.998442 
+Timestep: 506 
+0.998410 
+Timestep: 507 
+0.998631 
+Timestep: 508 
+0.999084 
+Timestep: 509 
+0.999080 
+Timestep: 510 
+0.999178 
+Timestep: 511 
+0.999298 
+Timestep: 512 
+0.999588 
+Timestep: 513 
+0.999158 
+Timestep: 514 
+0.999370 
+Timestep: 515 
+0.999371 
+Timestep: 516 
+0.998535 
+Timestep: 517 
+0.999021 
+Timestep: 518 
+0.999224 
+Timestep: 519 
+0.999118 
+Timestep: 520 
+0.999251 
+Timestep: 521 
+0.999368 
+Timestep: 522 
+0.999555 
+Timestep: 523 
+0.999684 
+Timestep: 524 
+0.999707 
+Timestep: 525 
+0.999701 
+Timestep: 526 
+0.999677 
+Timestep: 527 
+0.999623 
+Timestep: 528 
+0.999455 
+Timestep: 529 
+0.999038 
+Timestep: 530 
+0.999282 
+Timestep: 531 
+0.999515 
+Timestep: 532 
+0.999321 
+Timestep: 533 
+0.999419 
+Timestep: 534 
+0.999127 
+Timestep: 535 
+0.999525 
+Timestep: 536 
+0.999557 
+Timestep: 537 
+0.999520 
+Timestep: 538 
+0.999770 
+Timestep: 539 
+0.999725 
+Timestep: 540 
+0.999819 
+Timestep: 541 
+0.999597 
+Timestep: 542 
+0.999520 
+Timestep: 543 
+0.999556 
+Timestep: 544 
+0.999386 
+Timestep: 545 
+0.999449 
+Timestep: 546 
+0.999522 
+Timestep: 547 
+0.999426 
+Timestep: 548 
+0.999510 
+Timestep: 549 
+0.999312 
+Timestep: 550 
+0.999085 
+Timestep: 551 
+0.999305 
+Timestep: 552 
+0.999410 
+Timestep: 553 
+0.999696 
+Timestep: 554 
+0.999806 
+Timestep: 555 
+0.999883 
+Timestep: 556 
+0.999785 
+Timestep: 557 
+0.999690 
+Timestep: 558 
+0.999532 
+Timestep: 559 
+0.999567 
+Timestep: 560 
+0.999647 
+Timestep: 561 
+0.999668 
+Timestep: 562 
+0.999556 
+Timestep: 563 
+0.999673 
+Timestep: 564 
+0.999789 
+Timestep: 565 
+0.999393 
+Timestep: 566 
+0.999533 
+Timestep: 567 
+0.999247 
+Timestep: 568 
+0.999499 
+Timestep: 569 
+0.999384 
+Timestep: 570 
+0.999145 
+Timestep: 571 
+0.999614 
+Timestep: 572 
+0.999481 
+Timestep: 573 
+0.999505 
+Timestep: 574 
+0.999435 
+Timestep: 575 
+0.999577 
+Timestep: 576 
+0.999576 
+Timestep: 577 
+0.999404 
+Timestep: 578 
+0.999211 
+Timestep: 579 
+0.999394 
+Timestep: 580 
+0.999394 
+Timestep: 581 
+0.999601 
+Timestep: 582 
+0.999698 
+Timestep: 583 
+0.999534 
+Timestep: 584 
+0.999480 
+Timestep: 585 
+0.999407 
+Timestep: 586 
+0.999575 
+Timestep: 587 
+0.999629 
+Timestep: 588 
+0.999656 
+Timestep: 589 
+0.999668 
+Timestep: 590 
+0.999662 
+Timestep: 591 
+0.999636 
+Timestep: 592 
+0.999579 
+Timestep: 593 
+0.999082 
+Timestep: 594 
+0.999105 
+Timestep: 595 
+0.999311 
+Timestep: 596 
+0.999557 
+Timestep: 597 
+0.999573 
+Timestep: 598 
+0.999628 
+Timestep: 599 
+0.999448 
+Timestep: 600 
+0.999566 
+Timestep: 601 
+0.999550 
+Timestep: 602 
+0.999221 
+Timestep: 603 
+0.999455 
+Timestep: 604 
+0.999410 
+Timestep: 605 
+0.999229 
+Timestep: 606 
+0.999399 
+Timestep: 607 
+0.999668 
+Timestep: 608 
+0.999680 
+Timestep: 609 
+0.999680 
+Timestep: 610 
+0.999454 
+Timestep: 611 
+0.999468 
+Timestep: 612 
+0.999613 
+Timestep: 613 
+0.999691 
+Timestep: 614 
+0.999548 
+Timestep: 615 
+0.999480 
+Timestep: 616 
+0.999526 
+Timestep: 617 
+0.999541 
+Timestep: 618 
+0.999288 
+Timestep: 619 
+0.999432 
+Timestep: 620 
+0.999436 
+Timestep: 621 
+0.999597 
+Timestep: 622 
+0.999538 
+Timestep: 623 
+0.999643 
+Timestep: 624 
+0.999667 
+Timestep: 625 
+0.999741 
+Timestep: 626 
+0.999635 
+Timestep: 627 
+0.999590 
+Timestep: 628 
+0.999594 
+Timestep: 629 
+0.999409 
+Timestep: 630 
+0.999540 
+Timestep: 631 
+0.999497 
+Timestep: 632 
+0.999554 
+Timestep: 633 
+0.999388 
+Timestep: 634 
+0.999336 
+Timestep: 635 
+0.999340 
+Timestep: 636 
+0.999600 
+Timestep: 637 
+0.999551 
+Timestep: 638 
+0.999703 
+Timestep: 639 
+0.999550 
+Timestep: 640 
+0.999484 
+Timestep: 641 
+0.999536 
+Timestep: 642 
+0.999627 
+Timestep: 643 
+0.999256 
+Timestep: 644 
+0.999460 
+Timestep: 645 
+0.999684 
+Timestep: 646 
+0.999204 
+Timestep: 647 
+0.999305 
+Timestep: 648 
+0.999594 
+Timestep: 649 
+0.999442 
+Timestep: 650 
+0.999231 
+Timestep: 651 
+0.999363 
+Timestep: 652 
+0.999418 
+Timestep: 653 
+0.999473 
+Timestep: 654 
+0.999119 
+Timestep: 655 
+0.999378 
+Timestep: 656 
+0.999258 
+Timestep: 657 
+0.999174 
+Timestep: 658 
+0.999532 
+Timestep: 659 
+0.999613 
+Timestep: 660 
+0.999819 
+Timestep: 661 
+0.999665 
+Timestep: 662 
+0.999590 
+Timestep: 663 
+0.999318 
+Timestep: 664 
+0.999438 
+Timestep: 665 
+0.999484 
+Timestep: 666 
+0.999480 
+Timestep: 667 
+0.999537 
+Timestep: 668 
+0.999561 
+Timestep: 669 
+0.999449 
+Timestep: 670 
+0.999613 
+Timestep: 671 
+0.999381 
+Timestep: 672 
+0.999387 
+Timestep: 673 
+0.999403 
+Timestep: 674 
+0.999377 
+Timestep: 675 
+0.998703 
+Timestep: 676 
+0.999275 
+Timestep: 677 
+0.999327 
+Timestep: 678 
+0.999153 
+Timestep: 679 
+0.999243 
+Timestep: 680 
+0.999165 
+Timestep: 681 
+0.999096 
+Timestep: 682 
+0.998432 
+Timestep: 683 
+0.999115 
+Timestep: 684 
+0.999476 
+Timestep: 685 
+0.999605 
+Timestep: 686 
+0.999728 
+Timestep: 687 
+0.999832 
+Timestep: 688 
+0.999567 
+Timestep: 689 
+0.999518 
+Timestep: 690 
+0.999518 
+Timestep: 691 
+0.999509 
+Timestep: 692 
+0.999452 
+Timestep: 693 
+0.999612 
+Timestep: 694 
+0.999772 
+Timestep: 695 
+0.999850 
+Timestep: 696 
+0.999805 
+Timestep: 697 
+0.999741 
+Timestep: 698 
+0.999442 
+Timestep: 699 
+0.999465 
+Timestep: 700 
+0.999589 
+Timestep: 701 
+0.999188 
+Timestep: 702 
+0.999337 
+Timestep: 703 
+0.999496 
+Timestep: 704 
+0.999304 
+Timestep: 705 
+0.999448 
+Timestep: 706 
+0.999561 
+Timestep: 707 
+0.999681 
+Timestep: 708 
+0.999601 
+Timestep: 709 
+0.999453 
+Timestep: 710 
+0.999533 
+Timestep: 711 
+0.999321 
+Timestep: 712 
+0.999384 
+Timestep: 713 
+0.999540 
+Timestep: 714 
+0.999598 
+Timestep: 715 
+0.999560 
+Timestep: 716 
+0.999715 
+Timestep: 717 
+0.999685 
+Timestep: 718 
+0.999769 
+Timestep: 719 
+0.999806 
+Timestep: 720 
+0.999532 
+Timestep: 721 
+0.999650 
+Timestep: 722 
+0.999628 
+Timestep: 723 
+0.999606 
+Timestep: 724 
+0.999406 
+Timestep: 725 
+0.999434 
+Timestep: 726 
+0.999473 
+Timestep: 727 
+0.999715 
+Timestep: 728 
+0.999838 
+Timestep: 729 
+0.999393 
+Timestep: 730 
+0.999464 
+Timestep: 731 
+0.999123 
+Timestep: 732 
+0.998803 
+Timestep: 733 
+0.998991 
+Timestep: 734 
+0.999079 
+Timestep: 735 
+0.999305 
+Timestep: 736 
+0.999473 
+Timestep: 737 
+0.999275 
+Timestep: 738 
+0.999379 
+Timestep: 739 
+0.999419 
+Timestep: 740 
+0.999246 
+Timestep: 741 
+0.999478 
+Timestep: 742 
+0.999480 
+Timestep: 743 
+0.999451 
+Timestep: 744 
+0.999532 
+Timestep: 745 
+0.999360 
+Timestep: 746 
+0.999116 
+Timestep: 747 
+0.999325 
+Timestep: 748 
+0.999561 
+Timestep: 749 
+0.999682 
+Timestep: 750 
+0.999678 
+Timestep: 751 
+0.999201 
+Timestep: 752 
+0.999309 
+Timestep: 753 
+0.999331 
+Timestep: 754 
+0.999702 
+Timestep: 755 
+0.999669 
+Timestep: 756 
+0.999521 
+Timestep: 757 
+0.999527 
+Timestep: 758 
+0.999522 
+Timestep: 759 
+0.999480 
+Timestep: 760 
+0.999581 
+Timestep: 761 
+0.999501 
+Timestep: 762 
+0.999566 
+Timestep: 763 
+0.999639 
+Timestep: 764 
+0.999314 
+Timestep: 765 
+0.999530 
+Timestep: 766 
+0.999627 
+Timestep: 767 
+0.999283 
+Timestep: 768 
+0.999119 
+Timestep: 769 
+0.999234 
+Timestep: 770 
+0.999333 
+Timestep: 771 
+0.999547 
+Timestep: 772 
+0.999608 
+Timestep: 773 
+0.999469 
+Timestep: 774 
+0.999555 
+Timestep: 775 
+0.999389 
+Timestep: 776 
+0.999408 
+Timestep: 777 
+0.999516 
+Timestep: 778 
+0.999802 
+Timestep: 779 
+0.999512 
+Timestep: 780 
+0.999551 
+Timestep: 781 
+0.999475 
+Timestep: 782 
+0.999530 
+Timestep: 783 
+0.999317 
+Timestep: 784 
+0.999363 
+Timestep: 785 
+0.999473 
+Timestep: 786 
+0.999595 
+Timestep: 787 
+0.999672 
+Timestep: 788 
+0.999703 
+Timestep: 789 
+0.999713 
+Timestep: 790 
+0.999700 
+Timestep: 791 
+0.999668 
+Timestep: 792 
+0.999711 
+Timestep: 793 
+0.999447 
+Timestep: 794 
+0.999646 
+Timestep: 795 
+0.999182 
+Timestep: 796 
+0.998856 
+Timestep: 797 
+0.999352 
+Timestep: 798 
+0.999640 
+Timestep: 799 
+0.999737 
+Timestep: 800 
+0.999780 
+Timestep: 801 
+0.999822 
+Timestep: 802 
+0.999653 
+Timestep: 803 
+0.999669 
+Timestep: 804 
+0.999504 
+Timestep: 805 
+0.999393 
+Timestep: 806 
+0.999475 
+Timestep: 807 
+0.999497 
+Timestep: 808 
+0.999483 
+Timestep: 809 
+0.999465 
+Timestep: 810 
+0.999561 
+Timestep: 811 
+0.999435 
+Timestep: 812 
+0.999512 
+Timestep: 813 
+0.999584 
+Timestep: 814 
+0.999637 
+Timestep: 815 
+0.999402 
+Timestep: 816 
+0.999616 
+Timestep: 817 
+0.999428 
+Timestep: 818 
+0.999599 
+Timestep: 819 
+0.999615 
+Timestep: 820 
+0.999657 
+Timestep: 821 
+0.999650 
+Timestep: 822 
+0.999631 
+Timestep: 823 
+0.999772 
+Timestep: 824 
+0.999825 
+Timestep: 825 
+0.999610 
+Timestep: 826 
+0.999604 
+Timestep: 827 
+0.999569 
+Timestep: 828 
+0.999662 
+Timestep: 829 
+0.999700 
+Timestep: 830 
+0.999602 
+Timestep: 831 
+0.999354 
+Timestep: 832 
+0.999314 
+Timestep: 833 
+0.999413 
+Timestep: 834 
+0.999400 
+Timestep: 835 
+0.999375 
+Timestep: 836 
+0.999532 
+Timestep: 837 
+0.999493 
+Timestep: 838 
+0.999009 
+Timestep: 839 
+0.999202 
+Timestep: 840 
+0.999508 
+Timestep: 841 
+0.999624 
+Timestep: 842 
+0.999696 
+Timestep: 843 
+0.999661 
+Timestep: 844 
+0.999814 
+Timestep: 845 
+0.999848 
+Timestep: 846 
+0.999591 
+Timestep: 847 
+0.999127 
+Timestep: 848 
+0.999353 
+Timestep: 849 
+0.999495 
+Timestep: 850 
+0.999527 
+Timestep: 851 
+0.999503 
+Timestep: 852 
+0.999522 
+Timestep: 853 
+0.999597 
+Timestep: 854 
+0.999441 
+Timestep: 855 
+0.999204 
+Timestep: 856 
+0.999270 
+Timestep: 857 
+0.999391 
+Timestep: 858 
+0.999517 
+Timestep: 859 
+0.999735 
+Timestep: 860 
+0.999702 
+Timestep: 861 
+0.999787 
+Timestep: 862 
+0.999807 
+Timestep: 863 
+0.999649 
+Timestep: 864 
+0.999554 
+Timestep: 865 
+0.999673 
+Timestep: 866 
+0.999733 
+Timestep: 867 
+0.999118 
+Timestep: 868 
+0.999393 
+Timestep: 869 
+0.999105 
+Timestep: 870 
+0.999202 
+Timestep: 871 
+0.999433 
+Timestep: 872 
+0.999511 
+Timestep: 873 
+0.999633 
+Timestep: 874 
+0.999522 
+Timestep: 875 
+0.999393 
+Timestep: 876 
+0.999227 
+Timestep: 877 
+0.999267 
+Timestep: 878 
+0.999414 
+Timestep: 879 
+0.999254 
+Timestep: 880 
+0.999448 
+Timestep: 881 
+0.999416 
+Timestep: 882 
+0.999489 
+Timestep: 883 
+0.999512 
+Timestep: 884 
+0.999610 
+Timestep: 885 
+0.999555 
+Timestep: 886 
+0.999430 
+Timestep: 887 
+0.999511 
+Timestep: 888 
+0.999665 
+Timestep: 889 
+0.999536 
+Timestep: 890 
+0.999713 
+Timestep: 891 
+0.999525 
+Timestep: 892 
+0.998258 
+Timestep: 893 
+0.998908 
+Timestep: 894 
+0.999209 
+Timestep: 895 
+0.999278 
+Timestep: 896 
+0.999468 
+Timestep: 897 
+0.999461 
+Timestep: 898 
+0.999496 
+Timestep: 899 
+0.999614 
+Timestep: 900 
+0.999616 
+Timestep: 901 
+0.999651 
+Timestep: 902 
+0.999621 
+Timestep: 903 
+0.999706 
+Timestep: 904 
+0.999754 
+Timestep: 905 
+0.999677 
+Timestep: 906 
+0.999640 
+Timestep: 907 
+0.999403 
+Timestep: 908 
+0.999572 
+Timestep: 909 
+0.999598 
+Timestep: 910 
+0.999493 
+Timestep: 911 
+0.999140 
+Timestep: 912 
+0.999378 
+Timestep: 913 
+0.999415 
+Timestep: 914 
+0.999347 
+Timestep: 915 
+0.999411 
+Timestep: 916 
+0.999700 
+Timestep: 917 
+0.999705 
+Timestep: 918 
+0.999232 
+Timestep: 919 
+0.999304 
+Timestep: 920 
+0.999449 
+Timestep: 921 
+0.999530 
+Timestep: 922 
+0.999648 
+Timestep: 923 
+0.999546 
+Timestep: 924 
+0.999430 
+Timestep: 925 
+0.999557 
+Timestep: 926 
+0.999127 
+Timestep: 927 
+0.999500 
+Timestep: 928 
+0.999624 
+Timestep: 929 
+0.999709 
+Timestep: 930 
+0.999720 
+Timestep: 931 
+0.999772 
+Timestep: 932 
+0.999651 
+Timestep: 933 
+0.999700 
+Timestep: 934 
+0.999669 
+Timestep: 935 
+0.999705 
+Timestep: 936 
+0.999585 
+Timestep: 937 
+0.999636 
+Timestep: 938 
+0.999487 
+Timestep: 939 
+0.999333 
+Timestep: 940 
+0.999275 
+Timestep: 941 
+0.999113 
+Timestep: 942 
+0.999313 
+Timestep: 943 
+0.999340 
+Timestep: 944 
+0.999545 
+Timestep: 945 
+0.999618 
+Timestep: 946 
+0.999156 
+Timestep: 947 
+0.999420 
+Timestep: 948 
+0.999365 
+Timestep: 949 
+0.998985 
+Timestep: 950 
+0.999368 
+Timestep: 951 
+0.999471 
+Timestep: 952 
+0.999516 
+Timestep: 953 
+0.999611 
+Timestep: 954 
+0.999637 
+Timestep: 955 
+0.999667 
+Timestep: 956 
+0.999715 
+Timestep: 957 
+0.999767 
+Timestep: 958 
+0.999784 
+Timestep: 959 
+0.999756 
+Timestep: 960 
+0.999788 
+Timestep: 961 
+0.999361 
+Timestep: 962 
+0.999492 
+Timestep: 963 
+0.999412 
+Timestep: 964 
+0.999461 
+Timestep: 965 
+0.999560 
+Timestep: 966 
+0.999708 
+Timestep: 967 
+0.999678 
+Timestep: 968 
+0.999696 
+Timestep: 969 
+0.999617 
+Timestep: 970 
+0.999686 
+Timestep: 971 
+0.999738 
+Timestep: 972 
+0.999632 
+Timestep: 973 
+0.999734 
+Timestep: 974 
+0.999706 
+Timestep: 975 
+0.999701 
+Timestep: 976 
+0.999196 
+Timestep: 977 
+0.999306 
+Timestep: 978 
+0.999262 
+Timestep: 979 
+0.999285 
+Timestep: 980 
+0.999415 
+Timestep: 981 
+0.999679 
+Timestep: 982 
+0.999659 
+Timestep: 983 
+0.999665 
+Timestep: 984 
+0.999755 
+Timestep: 985 
+0.999719 
+Timestep: 986 
+0.999725 
+Timestep: 987 
+0.999614 
+Timestep: 988 
+0.999669 
+Timestep: 989 
+0.999740 
+Timestep: 990 
+0.999822 
+Timestep: 991 
+0.999791 
+Timestep: 992 
+0.999533 
+Timestep: 993 
+0.999414 
+Timestep: 994 
+0.999577 
+Timestep: 995 
+0.999658 
+Timestep: 996 
+0.999670 
+Timestep: 997 
+0.999677 
+Timestep: 998 
+0.999538 
+Timestep: 999 
+0.999692 
+Timestep: 1000 
+0.999758 
+Timestep: 1001 
+0.999536 
+Timestep: 1002 
+0.999619 
+Timestep: 1003 
+0.999393 
+Timestep: 1004 
+0.999415 
+Timestep: 1005 
+0.999271 
+Timestep: 1006 
+0.999568 
+Timestep: 1007 
+0.999676 
+Timestep: 1008 
+0.999683 
+Timestep: 1009 
+0.999825 
+Timestep: 1010 
+0.999801 
+Timestep: 1011 
+0.999844 
+Timestep: 1012 
+0.999698 
+Timestep: 1013 
+0.999678 
+Timestep: 1014 
+0.999507 
+Timestep: 1015 
+0.999604 
+Timestep: 1016 
+0.999281 
+Timestep: 1017 
+0.999380 
+Timestep: 1018 
+0.999074 
+Timestep: 1019 
+0.998920 
+Timestep: 1020 
+0.998924 
+Timestep: 1021 
+0.998665 
+Timestep: 1022 
+0.999052 
+Timestep: 1023 
+0.999357 
+Timestep: 1024 
+0.999425 
+Timestep: 1025 
+0.999631 
+Timestep: 1026 
+0.999812 
+Timestep: 1027 
+0.999449 
+Timestep: 1028 
+0.999489 
+Timestep: 1029 
+0.999249 
+Timestep: 1030 
+0.999375 
+Timestep: 1031 
+0.998874 
+Timestep: 1032 
+0.999349 
+Timestep: 1033 
+0.999293 
+Timestep: 1034 
+0.999191 
+Timestep: 1035 
+0.999622 
+Timestep: 1036 
+0.999656 
+Timestep: 1037 
+0.999732 
+Timestep: 1038 
+0.999669 
+Timestep: 1039 
+0.999719 
+Timestep: 1040 
+0.999800 
+Timestep: 1041 
+0.999729 
+Timestep: 1042 
+0.999729 
+Timestep: 1043 
+0.999814 
+Timestep: 1044 
+0.999602 
+Timestep: 1045 
+0.999645 
+Timestep: 1046 
+0.999581 

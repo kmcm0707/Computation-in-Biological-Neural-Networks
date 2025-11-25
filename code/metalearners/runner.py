@@ -630,7 +630,7 @@ def run(
 
     # -- load data
     numWorkers = 4
-    epochs = 10
+    epochs = 20
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
@@ -665,20 +665,20 @@ def run(
         # 350,
         # 375,
     ]"""
-    trainingDataPerClass = [
-        250,
-    ]
     """trainingDataPerClass = [
-        #10,
+        250,
+    ]"""
+    trainingDataPerClass = [
+        10,
         # 20,
         # 30,
         # 40,
-        #50,
-        #100,
-        #150,
-        #200,
-        #250,
-        #300,
+        50,
+        100,
+        150,
+        200,
+        250,
+        300,
         350,
         400,
         500,
@@ -694,13 +694,13 @@ def run(
         # 1200,
         # 1250,
         # 1300,
-    ]"""
+    ]
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "EMNIST"
+    dataset_name = "FASHION-MNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -711,7 +711,7 @@ def run(
             dimensionOfImage=28,
         )
         dimOut = 47
-        epochs = 10
+        epochs = 20
     elif dataset_name == "FASHION-MNIST":
         numberOfClasses = 10
         dataset = FashionMnistDataset(
@@ -920,14 +920,14 @@ def run(
         dimOut=dimOut,
         data_repetitions=1,
         wta=False,
-        chemical_analysis=True,
+        chemical_analysis=False,
     )
 
     #   -- number of chemicals
     numberOfChemicals = numberOfChemicals
     # -- meta-traing
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    # device = "cpu"
+    device = "cuda:1" if torch.cuda.is_available() else "cpu"
+    #device = "cpu"
     runner = Runner(
         device=device,
         numberOfChemicals=numberOfChemicals,
@@ -984,7 +984,7 @@ def runner_main():
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_10",
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_20",
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_50",
-        # os.getcwd() + "/results_2/20251103-183210",
+        os.getcwd() + "/results_2/20251103-183210",
         # os.getcwd()
         # + "/results_2/mode_9_rand/0/20251105-152312"
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_500",
@@ -992,12 +992,12 @@ def runner_main():
         # + "/results_2/mode_6_CB/1/20251111-151155" 20251111-203959
         # os.getcwd()
         # + "/results_2/mode_6_CB/1/20251111-203959"
-        # os.getcwd() + "/results_2/20251103-214650",
+        #os.getcwd() + "/results_2/20251103-214650",
         # os.getcwd() + "/results_2/mode_9_scalar/1/20251120-002556",
         # os.getcwd() + "/results_2/mode_9_5_scalar_all_ones/0/20251120-191135"
         #os.getcwd()
         #+ "/results_2/mode_9_scalar_10/1/20251124-002143"
-        os.getcwd() + "/results_2/mode_9_CB/5/20251112-001951"
+        #os.getcwd() + "/results_2/mode_9_CB/5/20251112-001951"
         # os.getcwd()
         # + "/results_2/mode_9_CB/5/20251112-225711"
         # os.getcwd()
@@ -1008,7 +1008,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_CB_CA_EMNIST",
+                result_subdirectory="runner_mode_9_FASHION_2",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
