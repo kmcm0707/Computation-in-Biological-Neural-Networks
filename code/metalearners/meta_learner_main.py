@@ -1119,10 +1119,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=continue_training,
+        continueTraining=None,
         typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
-        hrm_discount=150,
+        hrm_discount=-1,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1163,4 +1163,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_9_longer", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_9_longer", index=i)
