@@ -984,7 +984,7 @@ def runner_main():
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_10",
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_20",
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_50",
-        os.getcwd() + "/results_2/20251103-183210",
+        os.getcwd() + "/results_2/mode_9_longer/1/20251124-235942",
         # os.getcwd()
         # + "/results_2/mode_9_rand/0/20251105-152312"
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_500",
@@ -1008,7 +1008,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_FASHION_2",
+                result_subdirectory="runner_mode_9_FASHION_3",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
