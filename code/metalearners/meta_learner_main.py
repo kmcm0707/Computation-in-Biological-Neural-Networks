@@ -432,14 +432,14 @@ class MetaLearner:
                     self.options.continueTraining + "/UpdateWeights.pth", weights_only=True, map_location=self.device
                 )
             )
-            self.UpdateWeights.z_vector = torch.nn.Parameter(current_z_vector)
-            # self.UpdateMetaParameters.load_state_dict(
-            #    torch.load(
-            #        self.options.continueTraining + "/UpdateMetaParameters.pth",
-            #        weights_only=True,
-            #        map_location=self.device,
-            #    )
-            # )
+            #self.UpdateWeights.z_vector = torch.nn.Parameter(current_z_vector)
+            self.UpdateMetaParameters.load_state_dict(
+               torch.load(
+                   self.options.continueTraining + "/UpdateMetaParameters.pth",
+                   weights_only=True,
+                   map_location=self.device,
+               )
+            )
             if self.options.trainSeparateFeedback:
                 self.UpdateFeedbackWeights.load_state_dict(
                     torch.load(
@@ -911,7 +911,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 300
+    epochs = 900
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 30
