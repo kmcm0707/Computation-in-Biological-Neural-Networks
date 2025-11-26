@@ -926,7 +926,7 @@ def run(
     #   -- number of chemicals
     numberOfChemicals = numberOfChemicals
     # -- meta-traing
-    device = "cuda:1" if torch.cuda.is_available() else "cpu"
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
     #device = "cpu"
     runner = Runner(
         device=device,
@@ -984,7 +984,7 @@ def runner_main():
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_10",
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_20",
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_50",
-        os.getcwd() + "/results_2/mode_9_longer_post_train_fashion/1/20251125-175152",
+        os.getcwd() + "/results_2/mode_9_longer_post_train_fashion/1/20251126-031612",
         #os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312"
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_500",
         # os.getcwd()
@@ -1007,7 +1007,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_FASHION_12",
+                result_subdirectory="runner_mode_9_FASHION_900",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
