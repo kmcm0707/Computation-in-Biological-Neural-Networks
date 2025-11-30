@@ -2,7 +2,7 @@ from typing import Literal
 
 import torch
 import torch.nn as nn
-from options.complex_rnn_options import activationNonLinearEnum
+from options.rnn_meta_learner_options import activationNonLinearEnum
 
 
 class ChemicalRnn(nn.Module):
@@ -73,10 +73,10 @@ class ChemicalRnn(nn.Module):
             self.activation = nn.Softplus(beta=self.beta)
 
         if self.outer_non_linear == activationNonLinearEnum.softplus:
-            self.outer_activation = nn.Softplus(beta=10)
+            self.outer_non_linear = nn.Softplus(beta=10)
 
         if self.recurrent_non_linear == activationNonLinearEnum.softplus:
-            self.recurrent_activation = nn.Softplus(beta=10)
+            self.recurrent_non_linear = nn.Softplus(beta=10)
 
         # Hidden states
         self.hx1 = torch.zeros(1, self.hidden_size).to(self.device)
@@ -170,7 +170,7 @@ class ChemicalRnn(nn.Module):
 
             # Hidden 1
             past_hx1 = self.hx1
-            intermediate_hx1 = self.recurrent_activation(past_hx1)
+            intermediate_hx1 = self.recurrent_non_linear(past_hx1)
             RNN_forward1_hh_hx1 = self.RNN_forward1_hh(intermediate_hx1)  # torch.tanh(intermediate_hx1)
 
             # Input
@@ -178,7 +178,7 @@ class ChemicalRnn(nn.Module):
 
             # Update RNN state
             intermediate_combined = activated_RNN_forward1_ih_x + RNN_forward1_hh_hx1
-            intermediate_post_activation = self.outer_activation(intermediate_combined)
+            intermediate_post_activation = self.outer_non_linear(intermediate_combined)
             self.hx1 = (self.y_vector) * self.hx1 + self.z_vector * intermediate_post_activation
             # self.z_vector * self.activation(RNN_forward1_hh_hx1 + self.hx1)
             # Mode 1: self.hx1 = ( self.y_vector * self.hx1 + self.z_vector * (self.activation(RNN_forward1_ih_x)) + RNN_forward1_hh_hx1)
@@ -215,7 +215,8 @@ class ChemicalRnn(nn.Module):
                         inputs=intermediate_combined,
                         grad_outputs=torch.ones_like(intermediate_post_activation),
                         retain_graph=True,
-                    )[0] * self.z_vector, 
+                    )[0]
+                    * self.z_vector,
                 ),
                 "forward1.weight": (
                     torch.autograd.grad(
@@ -224,7 +225,7 @@ class ChemicalRnn(nn.Module):
                         grad_outputs=torch.ones_like(intermediate_post_activation),
                         retain_graph=True,
                     )[0]
-                    * self.z_vector, 
+                    * self.z_vector,
                     torch.ones_like(output),
                 ),
             }

@@ -2,10 +2,22 @@ import datetime
 from enum import Enum
 from typing import Literal
 
+import torch.nn.functional as functional
 from options.meta_learner_options import chemicalEnum, optimizerEnum
 from synapses.complex_rnn import ComplexRnn
 from synapses.fast_rnn import FastRnn
 from synapses.kernel_rnn import KernelRnn
+
+
+def pass_through(input):
+    return input
+
+
+class activationNonLinearEnum(Enum):
+    relu = functional.relu
+    softplus = "softplus"
+    tanh = functional.tanh
+    pass_through = pass_through
 
 
 class rnnModelEnum(Enum):
@@ -78,6 +90,8 @@ class RnnMetaLearnerOptions:
         gradient: bool = False,
         easy_gradient: bool = False,
         hrm_discount: int = 200,
+        outer_non_linear=activationNonLinearEnum.tanh,
+        recurrent_non_linear=activationNonLinearEnum.pass_through,
     ):
 
         self.model = model
@@ -115,6 +129,8 @@ class RnnMetaLearnerOptions:
         self.gradient = gradient
         self.easy_gradient = easy_gradient
         self.hrm_discount = hrm_discount
+        self.outer_non_linear = outer_non_linear
+        self.recurrent_non_linear = recurrent_non_linear
 
     def __str__(self):
         string = ""

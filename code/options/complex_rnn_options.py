@@ -1,23 +1,9 @@
-from enum import Enum
-
-import torch.nn.functional as functional
 from options.complex_options import (
     nonLinearEnum,
     operatorEnum,
     yVectorEnum,
     zVectorEnum,
 )
-
-
-def pass_through(input):
-    return input
-
-
-class activationNonLinearEnum(Enum):
-    relu = functional.relu
-    softplus = "softplus"
-    tanh = functional.tanh
-    pass_through = pass_through
 
 
 class complexRnnOptions:

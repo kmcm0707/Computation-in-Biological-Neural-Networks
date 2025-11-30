@@ -19,8 +19,8 @@ from options.fast_rnn_options import fastRnnOptions
 from options.kernel_rnn_options import kernelRnnOptions
 from options.meta_learner_options import chemicalEnum, optimizerEnum
 from options.rnn_meta_learner_options import (
-    RnnMetaLearnerOptions,
     activationNonLinearEnum,
+    RnnMetaLearnerOptions,
     errorEnum,
     recurrentInitEnum,
     rnnModelEnum,
