@@ -2,6 +2,7 @@ from typing import Literal
 
 import torch
 import torch.nn as nn
+from options.complex_rnn_options import activationNonLinearEnum
 
 
 class ChemicalRnn(nn.Module):
@@ -23,6 +24,8 @@ class ChemicalRnn(nn.Module):
         hidden_size: int = 128,
         diff_hidden_error: bool = False,
         gradient: bool = False,
+        outer_non_linear: activationNonLinearEnum = activationNonLinearEnum.pass_through,
+        recurrent_non_linear: activationNonLinearEnum = activationNonLinearEnum.tanh,
     ):
         # Initialize the parent class
         super(ChemicalRnn, self).__init__()
@@ -44,6 +47,8 @@ class ChemicalRnn(nn.Module):
         self.hidden_size = hidden_size
         self.diff_hidden_error = diff_hidden_error
         self.gradient = gradient
+        self.outer_non_linear = outer_non_linear
+        self.recurrent_non_linear = recurrent_non_linear
 
         # Model
         if not biological:
@@ -66,6 +71,12 @@ class ChemicalRnn(nn.Module):
             self.forward1 = nn.Linear(self.hidden_size, self.dim_out, bias=False)
             self.beta = 10
             self.activation = nn.Softplus(beta=self.beta)
+
+        if self.outer_non_linear == activationNonLinearEnum.softplus:
+            self.outer_activation = nn.Softplus(beta=10)
+
+        if self.recurrent_non_linear == activationNonLinearEnum.softplus:
+            self.recurrent_activation = nn.Softplus(beta=10)
 
         # Hidden states
         self.hx1 = torch.zeros(1, self.hidden_size).to(self.device)
@@ -156,13 +167,19 @@ class ChemicalRnn(nn.Module):
             # Mode 2: RNN_forward1_hh_hx1 = self.RNN_forward1_hh(self.activation(self.hx1))
             # Mode 3: RNN_forward1_hh_hx1 = self.RNN_forward1_hh(torch.tanh(self.hx1))
             # Mode 5: RNN_forward1_hh_hx1 = torch.tanh(self.RNN_forward1_hh(self.hx1))
+
+            # Hidden 1
             past_hx1 = self.hx1
-            intermediate_hx1 = self.activation(past_hx1)
+            intermediate_hx1 = self.recurrent_activation(past_hx1)
             RNN_forward1_hh_hx1 = self.RNN_forward1_hh(intermediate_hx1)  # torch.tanh(intermediate_hx1)
 
+            # Input
             activated_RNN_forward1_ih_x = self.activation(RNN_forward1_ih_x)
 
-            self.hx1 = (self.y_vector) * self.hx1 + self.z_vector * (activated_RNN_forward1_ih_x + RNN_forward1_hh_hx1)
+            # Update RNN state
+            intermediate_combined = activated_RNN_forward1_ih_x + RNN_forward1_hh_hx1
+            intermediate_post_activation = self.outer_activation(intermediate_combined)
+            self.hx1 = (self.y_vector) * self.hx1 + self.z_vector * intermediate_post_activation
             # self.z_vector * self.activation(RNN_forward1_hh_hx1 + self.hx1)
             # Mode 1: self.hx1 = ( self.y_vector * self.hx1 + self.z_vector * (self.activation(RNN_forward1_ih_x)) + RNN_forward1_hh_hx1)
             output = self.forward1(self.hx1)
@@ -193,17 +210,21 @@ class ChemicalRnn(nn.Module):
                         grad_outputs=torch.ones_like(intermediate_hx1),
                         retain_graph=True,
                     )[0],
-                    torch.ones_like(RNN_forward1_hh_hx1),
+                    torch.autograd.grad(
+                        outputs=intermediate_post_activation,
+                        inputs=intermediate_combined,
+                        grad_outputs=torch.ones_like(intermediate_post_activation),
+                        retain_graph=True,
+                    )[0] * self.z_vector, 
                 ),
                 "forward1.weight": (
                     torch.autograd.grad(
-                        outputs=activated_RNN_forward1_ih_x,
-                        inputs=RNN_forward1_ih_x,
-                        grad_outputs=torch.ones_like(activated_RNN_forward1_ih_x),
+                        outputs=intermediate_post_activation,
+                        inputs=intermediate_combined,
+                        grad_outputs=torch.ones_like(intermediate_post_activation),
                         retain_graph=True,
                     )[0]
-                    * self.z_vector
-                    + torch.ones_like(self.hx1),  # (was + self.y_vector)
+                    * self.z_vector, 
                     torch.ones_like(output),
                 ),
             }

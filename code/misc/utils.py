@@ -668,14 +668,16 @@ class ChemicalAnalysis:
             kh = Kh[key]
             pf = Pf[key]
             second_derivative_norm = []
-            sample_numbers = torch.linspace(0, kh.shape[0] - 1, number_of_parameters, dtype=torch.int)
-            for i in kh.shape[0]:
+            for i in range(kh.shape[0]):
                 kh_i = kh[i]
                 pf_i = pf[i]
                 summed_kh_pf = kh_i + pf_i
                 second_derivative = -2 * torch.tanh(summed_kh_pf) * (1 - torch.tanh(summed_kh_pf) ** 2)
                 second_derivative_norm.append(torch.norm(second_derivative).cpu().numpy())
                 flattened_second_derivative = second_derivative.flatten()
+                sample_numbers = torch.linspace(
+                    0, flattened_second_derivative.shape[0] - 1, number_of_parameters, dtype=torch.int
+                )
                 if self.time_step == 1:
                     with open(
                         self.res_dir + "/Kh_Pf_second_derivative_layer_{}_chemical_{}.txt".format(str(layer), str(i)),

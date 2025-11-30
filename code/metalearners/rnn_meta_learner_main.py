@@ -20,6 +20,7 @@ from options.kernel_rnn_options import kernelRnnOptions
 from options.meta_learner_options import chemicalEnum, optimizerEnum
 from options.rnn_meta_learner_options import (
     RnnMetaLearnerOptions,
+    activationNonLinearEnum,
     errorEnum,
     recurrentInitEnum,
     rnnModelEnum,
@@ -167,6 +168,8 @@ class RnnMetaLearner:
             hidden_size=self.options.hidden_size,
             diff_hidden_error=self.options.diff_hidden_error,
             gradient=self.options.gradient,
+            outer_non_linear=self.options.outer_non_linear,
+            recurrent_non_linear=self.options.recurrent_non_linear,
         )
 
         # -- learning flags
@@ -774,6 +777,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         gradient=True,  # True to use gradient-based learning
         easy_gradient=False,  # True to use easy gradient computation
         hrm_discount=150,  # Truncated BPTT length
+        outer_non_linear=activationNonLinearEnum.tanh,
+        recurrent_non_linear=activationNonLinearEnum.pass_through,
     )
 
     #   -- number of chemicals
@@ -811,4 +816,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="rnn_mode_2_gradient_changed_with_output", index=i)
+        run(seed=0, display=True, result_subdirectory="post_cosyne_rnn_check", index=i)
