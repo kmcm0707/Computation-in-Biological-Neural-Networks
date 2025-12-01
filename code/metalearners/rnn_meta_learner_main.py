@@ -719,9 +719,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             nonLinear=nonLinearEnum.tanh,
             update_rules=[0, 1, 2, 4, 5, 9, 12],
             minSlowTau=2,
-            maxSlowTau=100,
+            maxSlowTau=50,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.all_ones,
+            z_vector=zVectorEnum.default,
             slow_operator=operatorEnum.mode_6,
             time_lag_covariance=None,  ## None to disable
             full_covariance=False,  # True for full covariance, False for diagonal covariance
@@ -737,7 +737,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             operator=operatorEnum.mode_6,
         )
 
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cpu"
     # current_dir = os.getcwd()
     # -- meta-learner options
@@ -778,7 +778,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         easy_gradient=False,  # True to use easy gradient computation
         hrm_discount=150,  # Truncated BPTT length
         outer_non_linear=activationNonLinearEnum.tanh,
-        recurrent_non_linear=activationNonLinearEnum.pass_through,
+        recurrent_non_linear=activationNonLinearEnum.softplus,
     )
 
     #   -- number of chemicals
