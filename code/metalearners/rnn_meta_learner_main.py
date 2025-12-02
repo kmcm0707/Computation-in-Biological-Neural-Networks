@@ -731,13 +731,13 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             nonLinear=nonLinearEnum.tanh,
             update_rules=[0, 1, 2, 4, 9, 12],  # 4
             minSlowTau=2,
-            maxSlowTau=500,
+            maxSlowTau=50,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.all_ones,
+            z_vector=zVectorEnum.default,
             operator=operatorEnum.mode_6,
         )
 
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cpu"
     # current_dir = os.getcwd()
     # -- meta-learner options
