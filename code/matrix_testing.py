@@ -164,16 +164,14 @@ if __name__ == "__main__":
     result_vector = y_vector * test_vector + z_vector * (test_vector @ test_matrix)
     print(torch.norm(result_vector) / torch.norm(test_vector))"""
 
-    """linear = nn.Linear(4, 3, bias=False)
+    linear = nn.Linear(4, 3, bias=False)
     x_vector = torch.randn((1, 4), requires_grad=True)
-    output = linear(x_vector)
-    activated_output = torch.nn.functional.softplus(output, beta=1)
-
-    print(x_vector)
-    grad = torch.autograd.grad(outputs=output, inputs=output, grad_outputs=torch.ones_like(activated_output))
+    z_vector = torch.randn((1, 4), requires_grad=True)
+    multiplied = x_vector * z_vector
+    # activated_output = torch.nn.functional.softplus(output, beta=1)
+    grad = torch.autograd.grad(outputs=multiplied, inputs=x_vector, grad_outputs=torch.ones_like(multiplied))
     print(grad[0])
-    print(torch.sigmoid(output))
-    print(torch.equal(grad[0], (torch.exp(10 * output) / (1 + torch.exp(10 * output)))))"""
+    print(z_vector)
 
     """matrix_1 = torch.randn((3, 4))
     matrix_2 = torch.randn((3, 4))
