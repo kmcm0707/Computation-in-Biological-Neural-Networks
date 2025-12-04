@@ -163,6 +163,7 @@ class FastRnn(nn.Module):
                     or self.operator == operatorEnum.mode_5
                     or self.operator == operatorEnum.mode_6
                     or self.operator == operatorEnum.mode_7
+                    or self.operator == operatorEnum.mode_9
                 ):
                     new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.einsum(
                         "i,ijk->ijk",
@@ -188,6 +189,7 @@ class FastRnn(nn.Module):
                     or self.operator == operatorEnum.mode_5
                     or self.operator == operatorEnum.mode_6
                     or self.operator == operatorEnum.mode_7
+                    or self.operator == operatorEnum.mode_9
                 ):
                     v_vector_softmax = torch.nn.functional.softmax(self.v_vector, dim=1)
                     new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)
@@ -198,6 +200,12 @@ class FastRnn(nn.Module):
                         new_value = new_value * multiplier
                     elif self.operator == operatorEnum.mode_7:
                         new_value = torch.nn.functional.normalize(new_value, p=2, dim=0)
+                    elif self.operator == operatorEnum.mode_9:
+                        normalizer = torch.norm(new_value, p=2, dim=0)
+                        new_value = new_value / (normalizer + 1e-12)
+                        chemical = h_parameters[h_name]
+                        new_chemical = chemical / (normalizer[None, :] + 1e-12)
+                        h_parameters[h_name] = new_chemical
                 else:
                     new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
 
@@ -228,6 +236,7 @@ class FastRnn(nn.Module):
                     self.operator == operatorEnum.mode_5
                     or self.operator == operatorEnum.mode_6
                     or self.operator == operatorEnum.mode_7
+                    or self.operator == operatorEnum.mode_9
                 ):
                     parameter_norm = self.saved_norm[h_name]
                     current_norm = torch.norm(new_value, p=2)
