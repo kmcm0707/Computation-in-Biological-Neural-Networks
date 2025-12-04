@@ -722,7 +722,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxSlowTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            slow_operator=operatorEnum.mode_6,
+            slow_operator=operatorEnum.mode_9,
             time_lag_covariance=None,  ## None to disable
             full_covariance=False,  # True for full covariance, False for diagonal covariance
         )
@@ -737,7 +737,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             operator=operatorEnum.mode_6,
         )
 
-    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cpu"
     # current_dir = os.getcwd()
     # -- meta-learner options
@@ -749,10 +749,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0001,
+        lr=0.001,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
@@ -776,7 +776,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         diff_hidden_error=False,  # True to use different error for hidden state
         gradient=True,  # True to use gradient-based learning
         easy_gradient=False,  # True to use easy gradient computation
-        hrm_discount=150,  # Truncated BPTT length
+        hrm_discount=-1,  # Truncated BPTT length
         outer_non_linear=activationNonLinearEnum.tanh,
         recurrent_non_linear=activationNonLinearEnum.softplus,
     )
@@ -816,4 +816,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="post_cosyne_rnn_check", index=i)
+        run(seed=0, display=True, result_subdirectory="post_cosyne_rnn_check_mode_9", index=i)
