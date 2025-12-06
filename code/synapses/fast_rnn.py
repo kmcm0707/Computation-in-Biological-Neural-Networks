@@ -206,6 +206,8 @@ class FastRnn(nn.Module):
                         chemical = h_parameters[h_name]
                         new_chemical = chemical / (normalizer[None, :] + 1e-12)
                         h_parameters[h_name] = new_chemical
+                        v_vector_softmax = torch.nn.functional.softmax(self.v_vector, dim=1)
+                        new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)
                 else:
                     new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
 
