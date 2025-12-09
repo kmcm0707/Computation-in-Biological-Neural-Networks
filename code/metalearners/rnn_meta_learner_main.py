@@ -293,7 +293,7 @@ class RnnMetaLearner:
                 torch.load(self.options.continueTraining + "/UpdateMetaParameters.pth", weights_only=True)
             )
             z = np.loadtxt(self.options.continueTraining + "/acc_meta.txt")
-            last_trained_epoch = z.shape[0]
+            #last_trained_epoch = z.shape[0]
 
         # -- set model to training mode
         self.model.train()
@@ -683,7 +683,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
     maxTrainingDataPerClass = 70
-    queryDataPerClass = 10
+    queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -737,9 +737,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             operator=operatorEnum.mode_9,
         )
 
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cpu"
-    # current_dir = os.getcwd()
+    current_dir = os.getcwd()
+    continue_training = current_dir + "/results/post_cosyne_rnn_check_mode_9/0/20251206-005104"
     # -- meta-learner options
     metaLearnerOptions = RnnMetaLearnerOptions(
         optimizer=optimizerEnum.adam,
@@ -749,7 +750,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0008,
+        lr=0.0007,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -758,7 +759,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         rnn_input_size=112,
         datasetDevice=device,  # cuda:1,  # if running out of memory, change to "cpu"
-        continueTraining=None,
+        continueTraining=None, #continue_training,
         reset_fast_weights=False,  # False for fast RNN, True for kernel RNN
         requireFastChemical=False,
         slowIsFast=True,  # True for fast RNN
@@ -774,10 +775,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         recurrent_init=recurrentInitEnum.xavierUniform,  # identity or xavierUniform
         test_time_training=False,  # True to use test-time training
         diff_hidden_error=False,  # True to use different error for hidden state
-        gradient=True,  # True to use gradient-based learning
+        gradient=False,  # True to use gradient-based learning
         easy_gradient=False,  # True to use easy gradient computation
         hrm_discount=-1,  # Truncated BPTT length
-        outer_non_linear=activationNonLinearEnum.tanh,
+        outer_non_linear=activationNonLinearEnum.pass_through,
         recurrent_non_linear=activationNonLinearEnum.softplus,
     )
 
@@ -816,4 +817,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="post_cosyne_rnn_check_mode_9", index=i)
+        run(seed=1, display=True, result_subdirectory="post_cosyne_rnn_check_mode_9_no_tanh", index=i)

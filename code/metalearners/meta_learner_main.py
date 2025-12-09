@@ -911,10 +911,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 100
+    epochs = 1200
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 70
+    minTrainingDataPerClass = 5
     maxTrainingDataPerClass = 80
     queryDataPerClass = 20
     dataset_1 = None
@@ -1108,7 +1108,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.0005,
+        lr=0.0001,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.different,
@@ -1119,10 +1119,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=continue_training,
+        continueTraining=None, #continue_training,
         typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
-        hrm_discount=200,
+        hrm_discount=-1,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1132,7 +1132,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 3
+    numberOfChemicals = 9
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1163,4 +1163,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="mode_9_scalar_clip", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_9_scalar_9_chems", index=i)
