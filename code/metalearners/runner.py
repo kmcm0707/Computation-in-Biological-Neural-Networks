@@ -985,7 +985,8 @@ def runner_main():
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_20",
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_50",
         #os.getcwd() + "/results_2/mode_9_scalar_clip/1/20251204-195612",
-        os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312"
+        #os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312"
+        os.getcwd() + "/results_2/mode_9_scalar_9_chems/1/20251210-200343"
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_500",
         # os.getcwd()
         # + "/results_2/mode_6_CB/1/20251111-151155" 20251111-203959
@@ -993,7 +994,7 @@ def runner_main():
         # + "/results_2/mode_6_CB/1/20251111-203959"
         #os.getcwd() + "/results_2/20251103-183210",
         # os.getcwd() + "/results_2/mode_9_scalar/1/20251120-002556",
-        # os.getcwd() + "/results_2/mode_9_5_scalar_all_ones/0/20251120-191135"
+        # os.getcwd() + "/results_2/mode_9_5_scalar_all_ones/0/2251120-191135"
         # os.getcwd()
         # + "/results_2/mode_9_scalar_10/1/20251124-002143"
         # os.getcwd() + "/results_2/mode_9_CB/5/20251112-001951"
@@ -1007,10 +1008,10 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_FA_rand",
+                result_subdirectory="runner_mode_9_scalar_9_chems_3",
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.FA,
+                typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=5,
-                max_tau=[50][i],
+                numberOfChemicals=9,
+                max_tau=[100][i],
             )
