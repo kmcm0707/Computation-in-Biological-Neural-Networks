@@ -1001,7 +1001,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_6,
+            operator=operatorEnum.mode_9,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1117,7 +1117,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.0001,
+        lr=0.0007,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.different,
@@ -1131,7 +1131,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         continueTraining=None,  # continue_training,
         typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
-        hrm_discount=200,
+        hrm_discount=-1,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1173,4 +1173,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_6_scalar_variance_test", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_scalar_variance_test", index=i)
