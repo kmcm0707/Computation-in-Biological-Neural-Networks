@@ -432,13 +432,13 @@ class MetaLearner:
                     self.options.continueTraining + "/UpdateWeights.pth", weights_only=True, map_location=self.device
                 )
             )
-            #self.UpdateWeights.z_vector = torch.nn.Parameter(current_z_vector)
+            # self.UpdateWeights.z_vector = torch.nn.Parameter(current_z_vector)
             self.UpdateMetaParameters.load_state_dict(
-               torch.load(
-                   self.options.continueTraining + "/UpdateMetaParameters.pth",
-                   weights_only=True,
-                   map_location=self.device,
-               )
+                torch.load(
+                    self.options.continueTraining + "/UpdateMetaParameters.pth",
+                    weights_only=True,
+                    map_location=self.device,
+                )
             )
             if self.options.trainSeparateFeedback:
                 self.UpdateFeedbackWeights.load_state_dict(
@@ -605,14 +605,14 @@ class MetaLearner:
                         # error_scalar = -error[0][0][label]
                         # error_scalar = torch.tanh(error_scalar)  # tanh to avoid exploding gradients
                         if output[0][label] > 0.5:
-                            error_scalar = torch.tensor(0, device=self.device) 
+                            error_scalar = torch.tensor(0, device=self.device)
                         else:
                             error_scalar = torch.tensor(1.0, device=self.device)
                         if self.options.scalar_variance_reduction > 0:
                             scalar_running_mean = (
                                 1 - 1 / self.options.scalar_variance_reduction
                             ) * scalar_running_mean + (1 / self.options.scalar_variance_reduction) * error_scalar
-                            error_scalar = error_scalar - scalar_running_mean #TODO: Check if this works
+                            error_scalar = error_scalar - scalar_running_mean  # TODO: Check if this works
                         for y, i in zip(reversed(activations), reversed(list(feedback))):
                             error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar_rate:
@@ -1001,7 +1001,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_9,
+            operator=operatorEnum.mode_6,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1105,7 +1105,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
-        metaLossRegularization=1.5,  # L1 regularization on P and K matrices (check 1.5)
+        metaLossRegularization=0,  # L1 regularization on P and K matrices (check 1.5)
         biasLossRegularization=0,
         optimizer=optimizerEnum.adam,
         model=model,
@@ -1128,17 +1128,17 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=None,#continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+        continueTraining=None,  # continue_training,
+        typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
-        hrm_discount=-1,
+        hrm_discount=200,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
         train_RCN=True,
         wta=False,
         shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" else 0,
-        scalar_variance_reduction=-1, # -1 means no scalar variance reduction
+        scalar_variance_reduction=20,  # -1 means no scalar variance reduction
     )
 
     # -- number of chemicals
@@ -1173,4 +1173,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_9_regularized", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_6_scalar_variance_test", index=i)
