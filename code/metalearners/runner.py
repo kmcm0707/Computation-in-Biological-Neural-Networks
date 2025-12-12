@@ -634,7 +634,7 @@ def run(
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    trainingDataPerClass = [
+    """trainingDataPerClass = [
         0,
         5,
         10,
@@ -664,11 +664,11 @@ def run(
         # 325,
         # 350,
         # 375,
-    ]
+    ]"""
     """ trainingDataPerClass = [
         250,
     ]"""
-    """trainingDataPerClass = [
+    trainingDataPerClass = [
         10,
         # 20,
         # 30,
@@ -694,13 +694,13 @@ def run(
         # 1200,
         # 1250,
         # 1300,
-    ]"""
+    ]
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "EMNIST"
+    dataset_name = "FASHION-MNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -896,7 +896,7 @@ def run(
         modelPath=modelPath,
         results_subdir=result_subdirectory,
         seed=seed,
-        size=sizeEnum.normal,
+        size=sizeEnum.ten_layer,
         save_results=True,
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
@@ -979,14 +979,13 @@ def runner_main():
         # + "/results/scalar_3_5/2/20251012-171341"
         # os.getcwd()
         # + "/results/DFA_20_chem/0/20251020-002002"
-        # os.getcwd()
-        # + "/results/error_zero_3_chem/0/20251020-033619"
+        os.getcwd() + "/results_2/mode_9_longer_post_train_fashion/1/20251212-005927"
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_10",
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_20",
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_50",
         #os.getcwd() + "/results_2/mode_9_scalar_clip/1/20251204-195612",
         #os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312"
-        os.getcwd() + "/results_2/mode_9_scalar_9_chems/1/20251210-200343"
+        #os.getcwd() + "/results_2/mode_9_scalar_9_chems/1/20251210-183207"
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_500",
         # os.getcwd()
         # + "/results_2/mode_6_CB/1/20251111-151155" 20251111-203959
@@ -1008,10 +1007,10 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_scalar_9_chems_3",
+                result_subdirectory="runner_mode_9_10_layer_fashion_10_more_2",
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.scalar,
+                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=9,
-                max_tau=[100][i],
+                numberOfChemicals=5,
+                max_tau=[50][i],
             )

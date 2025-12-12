@@ -433,13 +433,13 @@ class MetaLearner:
                 )
             )
             #self.UpdateWeights.z_vector = torch.nn.Parameter(current_z_vector)
-            #self.UpdateMetaParameters.load_state_dict(
-            #   torch.load(
-            #       self.options.continueTraining + "/UpdateMetaParameters.pth",
-            #       weights_only=True,
-            #       map_location=self.device,
-            #   )
-            #)
+            self.UpdateMetaParameters.load_state_dict(
+               torch.load(
+                   self.options.continueTraining + "/UpdateMetaParameters.pth",
+                   weights_only=True,
+                   map_location=self.device,
+               )
+            )
             if self.options.trainSeparateFeedback:
                 self.UpdateFeedbackWeights.load_state_dict(
                     torch.load(
@@ -911,7 +911,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 300
+    epochs = 50
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 70
@@ -989,7 +989,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=100,
+            maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
             operator=operatorEnum.mode_9,
@@ -1088,7 +1088,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/mode_9_scalar_9_chems/2/20251210-025731"
+    continue_training = current_dir + "/results_2/20251103-183210"
     # continue_training = (
     #    current_dir + "/results_2/mode_9_rand/0/20251105-152312"
     # )  # "/results_2/mode_9/0/20251107-172732"
@@ -1108,10 +1108,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.0001,
+        lr=0.005,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         trainSeparateFeedback=False,
         feedbackSeparateModel=feedbackModel,
         trainSameFeedback=False,
@@ -1120,9 +1120,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.scalar,
+        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
-        hrm_discount=150,
+        hrm_discount=-1,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1132,7 +1132,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 9
+    numberOfChemicals = 5
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1163,4 +1163,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_9_scalar_9_chems_same", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_9_longer_post_train_fashion", index=i)
