@@ -548,6 +548,10 @@ class MetaLearner:
                 torch.zeros(size=(1, self.options.dimOut), device=self.device),
             ]
 
+            scalar_running_mean = torch.tensor(0.0, device=self.device)
+            if self.options.scalar_variance_reduction > 0:
+                scalar_running_mean = torch.tensor(0.2, device=self.device)
+
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
                 with (
@@ -601,9 +605,14 @@ class MetaLearner:
                         # error_scalar = -error[0][0][label]
                         # error_scalar = torch.tanh(error_scalar)  # tanh to avoid exploding gradients
                         if output[0][label] > 0.5:
-                            error_scalar = torch.tensor(0, device=self.device)
+                            error_scalar = torch.tensor(0, device=self.device) 
                         else:
                             error_scalar = torch.tensor(1.0, device=self.device)
+                        if self.options.scalar_variance_reduction > 0:
+                            scalar_running_mean = (
+                                1 - 1 / self.options.scalar_variance_reduction
+                            ) * scalar_running_mean + (1 / self.options.scalar_variance_reduction) * error_scalar
+                            error_scalar = error_scalar - scalar_running_mean #TODO: Check if this works
                         for y, i in zip(reversed(activations), reversed(list(feedback))):
                             error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar_rate:
@@ -1129,6 +1138,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         train_RCN=True,
         wta=False,
         shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" else 0,
+        scalar_variance_reduction=-1, # -1 means no scalar variance reduction
     )
 
     # -- number of chemicals

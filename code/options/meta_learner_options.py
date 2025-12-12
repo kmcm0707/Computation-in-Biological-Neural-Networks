@@ -105,6 +105,7 @@ class MetaLearnerOptions:
         train_RCN: bool = False,
         wta: bool = False,
         shift_labels_2: int = 0,
+        scalar_variance_reduction: int = -1,
     ):
         # print(trainSameFeedback)
         # assert (
@@ -146,6 +147,7 @@ class MetaLearnerOptions:
         self.train_RCN = train_RCN
         self.wta = wta
         self.shift_labels_2 = shift_labels_2
+        self.scalar_variance_reduction = scalar_variance_reduction
 
     def __str__(self):
         string = ""
