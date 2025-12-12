@@ -911,11 +911,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 50
+    epochs = 250
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 70
-    maxTrainingDataPerClass = 80
+    minTrainingDataPerClass = 30
+    maxTrainingDataPerClass = 90
     queryDataPerClass = 20
     dataset_1 = None
     dataset_2 = None
@@ -1122,7 +1122,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
-        hrm_discount=-1,
+        hrm_discount=150,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1163,4 +1163,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="mode_9_longer_post_train_fashion", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_9_fashion_post_train_2", index=i)
