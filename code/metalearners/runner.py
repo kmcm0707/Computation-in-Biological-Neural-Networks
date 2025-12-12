@@ -896,7 +896,7 @@ def run(
         modelPath=modelPath,
         results_subdir=result_subdirectory,
         seed=seed,
-        size=sizeEnum.ten_layer,
+        size=sizeEnum.normal,
         save_results=True,
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
@@ -979,7 +979,7 @@ def runner_main():
         # + "/results/scalar_3_5/2/20251012-171341"
         # os.getcwd()
         # + "/results/DFA_20_chem/0/20251020-002002"
-        os.getcwd() + "/results_2/mode_9_fashion_post_train_2/1/20251212-022226"
+        os.getcwd() + "/results_2/mode_9_longer_post_train_fashion_2/1/20251212-015802"
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_10",
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_20",
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_50",
@@ -1007,7 +1007,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_10_layer_fashion_11_more_4",
+                result_subdirectory="runner_mode_9_10_layer_fashion_11_more_3_normal_size",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
