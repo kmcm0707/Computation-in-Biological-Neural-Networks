@@ -605,7 +605,7 @@ class MetaLearner:
                         # error_scalar = -error[0][0][label]
                         # error_scalar = torch.tanh(error_scalar)  # tanh to avoid exploding gradients
                         if output[0][label] > 0.5:
-                            error_scalar = torch.tensor(0, device=self.device)
+                            error_scalar = torch.tensor(-1.0, device=self.device)
                         else:
                             error_scalar = torch.tensor(1.0, device=self.device)
                         if self.options.scalar_variance_reduction > 0:
@@ -1173,4 +1173,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_9_scalar_variance_test", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_scalar_variance_test_minus_1", index=i)
