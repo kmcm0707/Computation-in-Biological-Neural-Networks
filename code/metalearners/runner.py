@@ -368,6 +368,10 @@ class Runner:
             if self.options.chemical_analysis:
                 self.chemical_analysis.reset()
 
+            scalar_running_mean = torch.tensor(0.0, device=self.device)
+            if self.options.scalar_variance_reduction > 0:
+                scalar_running_mean = torch.tensor(0.2, device=self.device)
+
             """ adaptation """
             for itr_rep in range(self.options.data_repetitions):
                 for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
@@ -423,13 +427,15 @@ class Runner:
                                 0, torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-self.model.beta * y))
                             )
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar:
-                        # error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)[0]
-                        # error_scalar = -error[0][0][label]
-                        # error_scalar = torch.tanh(error_scalar)  # tanh to avoid exploding gradients
                         if output[0][label] > 0.5:
-                            error_scalar = torch.tensor(0, device=self.device)
+                            error_scalar = torch.tensor(self.options.scalar_min, device=self.device)
                         else:
                             error_scalar = torch.tensor(1.0, device=self.device)
+                        if self.options.scalar_variance_reduction > 0:
+                            scalar_running_mean = (
+                                1 - 1 / self.options.scalar_variance_reduction
+                            ) * scalar_running_mean + (1 / self.options.scalar_variance_reduction) * error_scalar
+                            error_scalar = error_scalar - scalar_running_mean  # TODO: Check if this works
                         for y, i in zip(reversed(activations), reversed(list(feedback))):
                             error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar_rich:
@@ -921,6 +927,8 @@ def run(
         data_repetitions=1,
         wta=False,
         chemical_analysis=False,
+        scalar_min=0.0,
+        scalar_variance_reduction=20,
     )
 
     #   -- number of chemicals
@@ -979,19 +987,20 @@ def runner_main():
         # + "/results/scalar_3_5/2/20251012-171341"
         # os.getcwd()
         # + "/results/DFA_20_chem/0/20251020-002002"
-        os.getcwd() + "/results_2/mode_9_longer_post_train_fashion_2/1/20251212-015802"
+        # os.getcwd()
+        # + "/results_2/mode_9_longer_post_train_fashion_2/1/20251212-015802"
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_10",
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_20",
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_50",
-        #os.getcwd() + "/results_2/mode_9_scalar_clip/1/20251204-195612",
-        #os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312"
-        #os.getcwd() + "/results_2/mode_9_scalar_9_chems/1/20251210-183207"
+        # os.getcwd() + "/results_2/mode_9_scalar_clip/1/20251204-195612",
+        # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312"
+        # os.getcwd() + "/results_2/mode_9_scalar_9_chems/1/20251210-183207"
         # os.getcwd() + "/results/no_z_all_ones/0/max_tau_500",
         # os.getcwd()
         # + "/results_2/mode_6_CB/1/20251111-151155" 20251111-203959
         # os.getcwd()
         # + "/results_2/mode_6_CB/1/20251111-203959"
-        #os.getcwd() + "/results_2/20251103-183210",
+        # os.getcwd() + "/results_2/20251103-183210",
         # os.getcwd() + "/results_2/mode_9_scalar/1/20251120-002556",
         # os.getcwd() + "/results_2/mode_9_5_scalar_all_ones/0/2251120-191135"
         # os.getcwd()
@@ -1001,15 +1010,17 @@ def runner_main():
         # + "/results_2/mode_9_CB/5/20251112-225711"
         # os.getcwd()
         # + "/results_2/mode_9_scalar/0/20251119-191938"
+        os.getcwd()
+        + "/results_2/mode_9_scalar_variance_test/0/20251212-143206"
     ]
     for i in range(len(modelPath_s)):
         for index in range(0, 28):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_10_layer_fashion_11_more_3_normal_size",
+                result_subdirectory="runner_mode_9_scalar_variance",
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+                typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=5,
                 max_tau=[50][i],

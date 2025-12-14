@@ -18,6 +18,7 @@ from options.kernel_rnn_options import kernelRnnOptions
 from options.meta_learner_options import chemicalEnum, optimizerEnum
 from options.rnn_meta_learner_options import (
     RnnMetaLearnerOptions,
+    activationNonLinearEnum,
     errorEnum,
     rnnModelEnum,
 )
@@ -79,9 +80,9 @@ class RnnMetaLearner:
         # -- log params
         self.save_results = self.options.save_results
         self.display = self.options.display
-        self.result_directory = os.getcwd() + "/results"
+        self.result_directory = os.getcwd() + "/results_2"
         if self.save_results:
-            self.result_directory = os.getcwd() + "/results"
+            self.result_directory = os.getcwd() + "/results_2"
             os.makedirs(self.result_directory, exist_ok=True)
             self.result_directory += (
                 "/"
@@ -146,6 +147,8 @@ class RnnMetaLearner:
             hidden_size=self.options.hidden_size,
             diff_hidden_error=self.options.diff_hidden_error,
             gradient=self.options.gradient,
+            outer_non_linear=self.options.outer_non_linear,
+            recurrent_non_linear=self.options.recurrent_non_linear,
         )
 
         # -- learning flags
@@ -336,11 +339,11 @@ class RnnMetaLearner:
                 for index_rnn, input in enumerate(x_reshaped):
                     # -- predict
                     if self.options.requireFastChemical:
-                        y_dict, output, _  = torch.func.functional_call(
+                        y_dict, output, gradients = torch.func.functional_call(
                             self.model, (parameters, slow_h_parameters, fast_h_parameters), input.unsqueeze(0)
                         )
                     else:
-                        y_dict, output, _ = torch.func.functional_call(
+                        y_dict, output, gradients = torch.func.functional_call(
                             self.model, (parameters, slow_h_parameters), input.unsqueeze(0)
                         )
 
@@ -364,7 +367,13 @@ class RnnMetaLearner:
                                 error_below = current_error_dict[self.model.error_dict[parameter_name]]
                             else:
                                 error_below = error[0]
-                            error_dict[parameter_name] = (value, error_below)
+                            if self.options.gradient:
+                                error_dict[parameter_name] = (
+                                    value * gradients[parameter_name][0],
+                                    error_below * gradients[parameter_name][1],
+                                )
+                            else:
+                                error_dict[parameter_name] = (value, error_below)
                     else:
                         error = [torch.zeros_like(functional.softmax(output, dim=1))]
                         error_temp_dict = {}
@@ -646,10 +655,10 @@ def run(
             nonLinear=nonLinearEnum.tanh,
             update_rules=[0, 1, 2, 4, 9, 12],
             minSlowTau=2,
-            maxSlowTau=200,
+            maxSlowTau=50,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_6,
+            z_vector=zVectorEnum.default,
+            operator=operatorEnum.mode_9,
         )
 
     device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
@@ -669,7 +678,7 @@ def run(
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        rnn_input_size=56,
+        rnn_input_size=112,
         datasetDevice=device,  # cuda:1,  # if running out of memory, change to "cpu"
         continueTraining=continue_training_path,
         reset_fast_weights=False,  # False for fast RNN, True for kernel RNN
@@ -677,19 +686,21 @@ def run(
         slowIsFast=True,  # True for fast RNN
         dimOut=dimOut,
         biological=True,
-        biological_min_tau=1,
-        biological_max_tau=14,
+        biological_min_tau=2,
+        biological_max_tau=7,
         error=errorEnum.all,
         leaky_error=0.0,  # 0.0 for no leaky error
         hidden_reset=True,  # True to reset hidden state between samples
         hidden_size=128,
         test_time_training=False,  # True to perform test time training
         diff_hidden_error=False,
-        gradient=False,
+        gradient=True,
+        outer_non_linear=activationNonLinearEnum.tanh,
+        recurrent_non_linear=activationNonLinearEnum.softplus,
     )
 
     #   -- number of chemicals
-    numberOfSlowChemicals = 3  # fast uses this
+    numberOfSlowChemicals = 5  # fast uses this
     numberOfFastChemicals = 3
     # -- meta-train
 
@@ -721,14 +732,15 @@ def main_runner_rnn():
     """
     # -- run
     num_images = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
-    continue_training_path = os.getcwd() + "/results/rnn_mode_4_longer_2/0/20251001-215144"
+    # continue_training_path = os.getcwd() + "/results/rnn_mode_4_longer_2/0/20251001-215144"
+    continue_training_path = os.getcwd() + "/results/post_cosyne_rnn_check_mode_9/1/20251207-003322"
     # "/results/rnn_fast_mode_4/0/20250924-183639" #"/results/rnn_fast_mode_4/0/20250924-231925"
 
     for i in range(len(num_images)):
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_rnn_fast_mode_4_128_even_longer_56_6",
+            result_subdirectory="runner_rnn_mode_9",
             num_images=num_images[i],
             continue_training_path=continue_training_path,
         )

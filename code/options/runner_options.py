@@ -43,6 +43,8 @@ class RunnerOptions:
         data_repetitions: int = 1,
         wta: bool = False,
         chemical_analysis: bool = False,
+        scalar_min: float = 0.0,
+        scalar_variance_reduction: int = -1,
     ):
 
         self.model = model
@@ -72,6 +74,8 @@ class RunnerOptions:
         self.data_repetitions = data_repetitions
         self.wta = wta
         self.chemical_analysis = chemical_analysis
+        self.scalar_min = scalar_min
+        self.scalar_variance_reduction = scalar_variance_reduction
 
     def __str__(self):
         string = ""
