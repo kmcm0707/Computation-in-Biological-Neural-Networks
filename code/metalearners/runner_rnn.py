@@ -733,7 +733,7 @@ def main_runner_rnn():
     # -- run
     num_images = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
     # continue_training_path = os.getcwd() + "/results/rnn_mode_4_longer_2/0/20251001-215144"
-    continue_training_path = os.getcwd() + "/results/post_cosyne_rnn_check_mode_9/1/20251207-003322"
+    continue_training_path = os.getcwd() + "/results_2/post_cosyne_rnn_check_mode_9/1/20251207-003322"
     # "/results/rnn_fast_mode_4/0/20250924-183639" #"/results/rnn_fast_mode_4/0/20250924-231925"
 
     for i in range(len(num_images)):

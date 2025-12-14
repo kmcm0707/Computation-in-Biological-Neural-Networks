@@ -913,7 +913,7 @@ def run(
         ),  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" else None,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
@@ -1018,7 +1018,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_scalar_variance_2",
+                result_subdirectory="runner_mode_9_scalar_variance_2_same",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
