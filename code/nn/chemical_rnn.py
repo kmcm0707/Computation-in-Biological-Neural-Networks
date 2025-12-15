@@ -153,7 +153,7 @@ class ChemicalRnn(nn.Module):
         assert x.shape[0] == self.hx1.shape[0], "Batch size is not correct."
 
         # Forward pass
-        # hx1_prev = self.hx1.clone()
+        hx1_prev = self.hx1.clone()
         # hx2_prev = self.hx2
         RNN_forward1_ih_x = self.RNN_forward1_ih(x)
         if not self.biological:
@@ -167,8 +167,7 @@ class ChemicalRnn(nn.Module):
             # Mode 5: RNN_forward1_hh_hx1 = torch.tanh(self.RNN_forward1_hh(self.hx1))
 
             # Hidden 1
-            past_hx1 = self.hx1
-            intermediate_hx1 = self.recurrent_non_linear(past_hx1)
+            intermediate_hx1 = self.recurrent_non_linear(hx1_prev)
             RNN_forward1_hh_hx1 = self.RNN_forward1_hh(intermediate_hx1)  # torch.tanh(intermediate_hx1)
 
             # Input
@@ -204,7 +203,7 @@ class ChemicalRnn(nn.Module):
                 "RNN_forward1_hh.weight": (
                     torch.autograd.grad(
                         outputs=intermediate_hx1,
-                        inputs=past_hx1,
+                        inputs=hx1_prev,
                         grad_outputs=torch.ones_like(intermediate_hx1),
                         retain_graph=True,
                     )[0],
