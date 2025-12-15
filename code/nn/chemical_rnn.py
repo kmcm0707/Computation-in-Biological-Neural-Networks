@@ -147,7 +147,6 @@ class ChemicalRnn(nn.Module):
                 "forward1.weight": "last",
             }
 
-    @torch.enable_grad()
     def forward(self, x):
         assert x.shape[1] == self.dim_in, "Input shape is not correct."
         assert x.shape[0] == self.hx1.shape[0], "Batch size is not correct."
@@ -190,37 +189,28 @@ class ChemicalRnn(nn.Module):
             "forward1.weight": (self.hx1, output),
         }
         if self.gradient:
+            if self.recurrent_non_linear == activationNonLinearEnum.softplus:
+                RNN_pre_grad = 1 - torch.exp(-self.beta * intermediate_hx1)
+            else:
+                RNN_pre_grad = torch.ones_like(intermediate_hx1)
+
+            if self.outer_non_linear == activationNonLinearEnum.softplus:
+                output_post_grad = (1 - torch.exp(-self.beta * intermediate_post_activation)) * self.z_vector
+            elif self.outer_non_linear == activationNonLinearEnum.tanh:
+                output_post_grad = (1 - torch.tanh(intermediate_combined) ** 2) * self.z_vector
+            else:
+                output_post_grad = torch.ones_like(intermediate_combined)
             gradients = {
                 "RNN_forward1_ih.weight": (
                     (1 - torch.exp(-self.beta * x)),
-                    torch.autograd.grad(
-                        outputs=activated_RNN_forward1_ih_x,
-                        inputs=RNN_forward1_ih_x,
-                        grad_outputs=torch.ones_like(activated_RNN_forward1_ih_x),
-                        retain_graph=True,
-                    )[0],
+                    (1 - torch.exp(-self.beta * activated_RNN_forward1_ih_x)),
                 ),
                 "RNN_forward1_hh.weight": (
-                    torch.autograd.grad(
-                        outputs=intermediate_hx1,
-                        inputs=hx1_prev,
-                        grad_outputs=torch.ones_like(intermediate_hx1),
-                        retain_graph=True,
-                    )[0],
-                    torch.autograd.grad(
-                        outputs=intermediate_post_activation,
-                        inputs=intermediate_combined,
-                        grad_outputs=torch.ones_like(intermediate_post_activation),
-                        retain_graph=True,
-                    )[0],
+                    RNN_pre_grad,
+                    output_post_grad,
                 ),
                 "forward1.weight": (
-                    torch.autograd.grad(
-                        outputs=intermediate_post_activation,
-                        inputs=intermediate_combined,
-                        grad_outputs=torch.ones_like(intermediate_post_activation),
-                        retain_graph=True,
-                    )[0],
+                    output_post_grad,
                     torch.ones_like(output),
                 ),
             }

@@ -163,15 +163,22 @@ if __name__ == "__main__":
     print(torch.norm(result_vector) / torch.norm(test_vector))"""
 
     linear = nn.Linear(4, 3, bias=False)
-    x_vector = torch.randn((1, 4), requires_grad=True)
-    z_vector = torch.randn((1, 4), requires_grad=True)
+    x_vector = torch.randn((2, 4), requires_grad=True)
+    z_vector = torch.randn((2, 4), requires_grad=True)
     y_vector = x_vector
     multiplied = x_vector * z_vector
+    y_vector = multiplied
+    x_vector = y_vector * z_vector
+    y_vector = x_vector
     # activated_output = torch.nn.functional.softplus(output, beta=1)
     grad = torch.autograd.grad(
-        outputs=y_vector, inputs=x_vector, grad_outputs=torch.ones_like(y_vector), retain_graph=True, create_graph=True
+        outputs=y_vector,
+        inputs=x_vector,
+        grad_outputs=torch.ones_like(y_vector),
+        retain_graph=True,
+        create_graph=True,
     )
-    grad = grad[0].requires_grad_(True)
+    # grad = grad[0].requires_grad_(True)
     print(grad)
     # print(z_vector)
 

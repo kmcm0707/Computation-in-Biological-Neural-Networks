@@ -348,7 +348,6 @@ class RnnMetaLearner:
                     )
                     else torch.enable_grad()
                 ):
-
                     # -- reset time index
                     self.UpdateWeights.reset_time_index()
 
