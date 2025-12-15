@@ -19,8 +19,8 @@ from options.fast_rnn_options import fastRnnOptions
 from options.kernel_rnn_options import kernelRnnOptions
 from options.meta_learner_options import chemicalEnum, optimizerEnum
 from options.rnn_meta_learner_options import (
-    activationNonLinearEnum,
     RnnMetaLearnerOptions,
+    activationNonLinearEnum,
     errorEnum,
     recurrentInitEnum,
     rnnModelEnum,
@@ -293,7 +293,7 @@ class RnnMetaLearner:
                 torch.load(self.options.continueTraining + "/UpdateMetaParameters.pth", weights_only=True)
             )
             z = np.loadtxt(self.options.continueTraining + "/acc_meta.txt")
-            #last_trained_epoch = z.shape[0]
+            # last_trained_epoch = z.shape[0]
 
         # -- set model to training mode
         self.model.train()
@@ -759,7 +759,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         rnn_input_size=112,
         datasetDevice=device,  # cuda:1,  # if running out of memory, change to "cpu"
-        continueTraining=None, #continue_training,
+        continueTraining=None,  # continue_training,
         reset_fast_weights=False,  # False for fast RNN, True for kernel RNN
         requireFastChemical=False,
         slowIsFast=True,  # True for fast RNN
@@ -778,12 +778,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         gradient=True,  # True to use gradient-based learning
         easy_gradient=False,  # True to use easy gradient computation
         hrm_discount=-1,  # Truncated BPTT length
-        outer_non_linear=activationNonLinearEnum.pass_through,
-        recurrent_non_linear=activationNonLinearEnum.pass_through,
+        outer_non_linear=activationNonLinearEnum.tanh,
+        recurrent_non_linear=activationNonLinearEnum.softplus,
     )
 
     #   -- number of chemicals
-    numberOfSlowChemicals = 3 # fast uses this
+    numberOfSlowChemicals = 5  # fast uses this
     numberOfFastChemicals = 3
     # -- meta-train
 
@@ -817,4 +817,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="post_cosyne_rnn_check_mode_6_linear", index=i)
+        run(seed=0, display=True, result_subdirectory="post_cosyne_rnn_check_mode_6_grad_check", index=i)

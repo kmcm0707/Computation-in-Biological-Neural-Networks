@@ -152,8 +152,6 @@ class ChemicalRnn(nn.Module):
         assert x.shape[1] == self.dim_in, "Input shape is not correct."
         assert x.shape[0] == self.hx1.shape[0], "Batch size is not correct."
 
-        x.requires_grad = True
-
         # Forward pass
         # hx1_prev = self.hx1.clone()
         # hx2_prev = self.hx2
@@ -177,7 +175,7 @@ class ChemicalRnn(nn.Module):
             activated_RNN_forward1_ih_x = self.activation(RNN_forward1_ih_x)
 
             # Update RNN state
-            intermediate_combined = ( activated_RNN_forward1_ih_x + RNN_forward1_hh_hx1)
+            intermediate_combined = activated_RNN_forward1_ih_x + RNN_forward1_hh_hx1
             intermediate_post_activation = self.outer_non_linear(intermediate_combined)
             self.hx1 = (self.y_vector) * self.hx1 + self.z_vector * intermediate_post_activation
             # self.z_vector * self.activation(RNN_forward1_hh_hx1 + self.hx1)
@@ -201,7 +199,7 @@ class ChemicalRnn(nn.Module):
                         inputs=RNN_forward1_ih_x,
                         grad_outputs=torch.ones_like(activated_RNN_forward1_ih_x),
                         retain_graph=True,
-                    )[0],
+                    )[0].requires_grad_(True),
                 ),
                 "RNN_forward1_hh.weight": (
                     torch.autograd.grad(
@@ -209,13 +207,13 @@ class ChemicalRnn(nn.Module):
                         inputs=past_hx1,
                         grad_outputs=torch.ones_like(intermediate_hx1),
                         retain_graph=True,
-                    )[0],
+                    )[0].requires_grad_(True),
                     torch.autograd.grad(
                         outputs=intermediate_post_activation,
                         inputs=intermediate_combined,
                         grad_outputs=torch.ones_like(intermediate_post_activation),
                         retain_graph=True,
-                    )[0],
+                    )[0].requires_grad_(True),
                 ),
                 "forward1.weight": (
                     torch.autograd.grad(
@@ -223,7 +221,7 @@ class ChemicalRnn(nn.Module):
                         inputs=intermediate_combined,
                         grad_outputs=torch.ones_like(intermediate_post_activation),
                         retain_graph=True,
-                    )[0],
+                    )[0].requires_grad_(True),
                     torch.ones_like(output),
                 ),
             }

@@ -1,7 +1,5 @@
 import torch
 import torch.nn as nn
-from misc.dataset import DataProcess, SplitFashionMnistDataset
-from torch.utils.data import DataLoader, RandomSampler
 
 if __name__ == "__main__":
     # -- test matrix
@@ -167,11 +165,15 @@ if __name__ == "__main__":
     linear = nn.Linear(4, 3, bias=False)
     x_vector = torch.randn((1, 4), requires_grad=True)
     z_vector = torch.randn((1, 4), requires_grad=True)
+    y_vector = x_vector
     multiplied = x_vector * z_vector
     # activated_output = torch.nn.functional.softplus(output, beta=1)
-    grad = torch.autograd.grad(outputs=multiplied, inputs=x_vector, grad_outputs=torch.ones_like(multiplied))
-    print(grad[0])
-    print(z_vector)
+    grad = torch.autograd.grad(
+        outputs=y_vector, inputs=x_vector, grad_outputs=torch.ones_like(y_vector), retain_graph=True, create_graph=True
+    )
+    grad = grad[0].requires_grad_(True)
+    print(grad)
+    # print(z_vector)
 
     """matrix_1 = torch.randn((3, 4))
     matrix_2 = torch.randn((3, 4))
@@ -303,7 +305,7 @@ if __name__ == "__main__":
         print(three_d_matrix_1[i])
         exit()"""
 
-    matrix = torch.nn.init.xavier_uniform_(torch.empty(size=(780, 200), device="cpu"))
+    """matrix = torch.nn.init.xavier_uniform_(torch.empty(size=(780, 200), device="cpu"))
     matrix = torch.nn.functional.normalize(matrix, p=2, dim=0) * torch.sqrt(
         torch.tensor(matrix.shape[0], dtype=torch.float32)
     )
@@ -333,4 +335,4 @@ if __name__ == "__main__":
 
         x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = data_process(data, 2)
         print(y_trn)
-        print(y_qry)
+        print(y_qry)"""
