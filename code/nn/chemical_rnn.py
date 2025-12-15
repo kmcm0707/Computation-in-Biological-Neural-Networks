@@ -198,30 +198,30 @@ class ChemicalRnn(nn.Module):
                         outputs=activated_RNN_forward1_ih_x,
                         inputs=RNN_forward1_ih_x,
                         grad_outputs=torch.ones_like(activated_RNN_forward1_ih_x),
-                        retain_graph=True,
-                    )[0].requires_grad_(True),
+                        create_graph=True,
+                    )[0],
                 ),
                 "RNN_forward1_hh.weight": (
                     torch.autograd.grad(
                         outputs=intermediate_hx1,
                         inputs=past_hx1,
                         grad_outputs=torch.ones_like(intermediate_hx1),
-                        retain_graph=True,
-                    )[0].requires_grad_(True),
+                        create_graph=True,
+                    )[0],
                     torch.autograd.grad(
                         outputs=intermediate_post_activation,
                         inputs=intermediate_combined,
                         grad_outputs=torch.ones_like(intermediate_post_activation),
-                        retain_graph=True,
-                    )[0].requires_grad_(True),
+                        create_graph=True,
+                    )[0],
                 ),
                 "forward1.weight": (
                     torch.autograd.grad(
                         outputs=intermediate_post_activation,
                         inputs=intermediate_combined,
                         grad_outputs=torch.ones_like(intermediate_post_activation),
-                        retain_graph=True,
-                    )[0].requires_grad_(True),
+                        create_graph=True,
+                    )[0],
                     torch.ones_like(output),
                 ),
             }
