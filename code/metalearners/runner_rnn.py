@@ -695,8 +695,8 @@ def run(
         test_time_training=False,  # True to perform test time training
         diff_hidden_error=False,
         gradient=True,
-        outer_non_linear=activationNonLinearEnum.tanh,
-        recurrent_non_linear=activationNonLinearEnum.softplus,
+        outer_non_linear=activationNonLinearEnum.pass_through,
+        recurrent_non_linear=activationNonLinearEnum.pass_through,
     )
 
     #   -- number of chemicals
@@ -740,7 +740,7 @@ def main_runner_rnn():
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_rnn_mode_9",
+            result_subdirectory="runner_rnn_mode_9_lin",
             num_images=num_images[i],
             continue_training_path=continue_training_path,
         )

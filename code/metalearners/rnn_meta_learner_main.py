@@ -101,9 +101,9 @@ class RnnMetaLearner:
         # -- log params
         self.save_results = self.options.save_results
         self.display = self.options.display
-        self.result_directory = os.getcwd() + "/results"
+        self.result_directory = os.getcwd() + "/results_2"
         if self.save_results:
-            self.result_directory = os.getcwd() + "/results"
+            self.result_directory = os.getcwd() + "/results_2"
             os.makedirs(self.result_directory, exist_ok=True)
             self.result_directory += (
                 "/"
@@ -681,9 +681,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     epochs = 1200
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 5
+    minTrainingDataPerClass = 20
     maxTrainingDataPerClass = 70
-    queryDataPerClass = 20
+    queryDataPerClass = 10
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -731,16 +731,16 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             nonLinear=nonLinearEnum.tanh,
             update_rules=[0, 1, 2, 4, 9, 12],  # 4
             minSlowTau=2,
-            maxSlowTau=50,
+            maxSlowTau=200,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_9,
+            z_vector=zVectorEnum.all_ones,
+            operator=operatorEnum.mode_6,
         )
 
-    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results/post_cosyne_rnn_check_mode_9/0/20251206-005104"
+    continue_training = current_dir + "/results_2/post_cosyne_rnn_check_mode_9/0/20251206-005104"
     # -- meta-learner options
     metaLearnerOptions = RnnMetaLearnerOptions(
         optimizer=optimizerEnum.adam,
@@ -750,7 +750,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0007,
+        lr=0.0001,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -765,7 +765,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         slowIsFast=True,  # True for fast RNN
         dimOut=dimOut,
         biological=True,
-        biological_min_tau=2,
+        biological_min_tau=1,
         biological_max_tau=7,
         error=errorEnum.all,
         leaky_error=0.0,  # 0.0 for no leaky error
@@ -775,15 +775,15 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         recurrent_init=recurrentInitEnum.xavierUniform,  # identity or xavierUniform
         test_time_training=False,  # True to use test-time training
         diff_hidden_error=False,  # True to use different error for hidden state
-        gradient=False,  # True to use gradient-based learning
+        gradient=True,  # True to use gradient-based learning
         easy_gradient=False,  # True to use easy gradient computation
         hrm_discount=-1,  # Truncated BPTT length
         outer_non_linear=activationNonLinearEnum.pass_through,
-        recurrent_non_linear=activationNonLinearEnum.softplus,
+        recurrent_non_linear=activationNonLinearEnum.pass_through,
     )
 
     #   -- number of chemicals
-    numberOfSlowChemicals = 5  # fast uses this
+    numberOfSlowChemicals = 3 # fast uses this
     numberOfFastChemicals = 3
     # -- meta-train
 
@@ -817,4 +817,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="post_cosyne_rnn_check_mode_9_no_tanh", index=i)
+        run(seed=0, display=True, result_subdirectory="post_cosyne_rnn_check_mode_6_linear", index=i)

@@ -177,7 +177,7 @@ class ChemicalRnn(nn.Module):
             activated_RNN_forward1_ih_x = self.activation(RNN_forward1_ih_x)
 
             # Update RNN state
-            intermediate_combined = activated_RNN_forward1_ih_x + RNN_forward1_hh_hx1
+            intermediate_combined = ( activated_RNN_forward1_ih_x + RNN_forward1_hh_hx1)
             intermediate_post_activation = self.outer_non_linear(intermediate_combined)
             self.hx1 = (self.y_vector) * self.hx1 + self.z_vector * intermediate_post_activation
             # self.z_vector * self.activation(RNN_forward1_hh_hx1 + self.hx1)
