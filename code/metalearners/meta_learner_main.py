@@ -657,7 +657,7 @@ class MetaLearner:
                             if i != 0:
                                 error[i] = (error[i] + DFA_error[i]) / np.sqrt(2)"""
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.target_propagation:
-                        target = functional.one_hot(label, num_classes=self.options.dimOut)
+                        target = functional.one_hot(label, num_classes=self.options.dimOut).float()
                         for y, i in zip(reversed(activations), reversed(list(feedback))):
                             error.insert(0, torch.matmul(target, feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
                     else:

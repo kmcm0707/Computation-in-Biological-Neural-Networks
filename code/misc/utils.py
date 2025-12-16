@@ -340,6 +340,10 @@ def meta_stats(
                 e.insert(0, torch.matmul(e[0], feedback[i]) * (1 - torch.exp(Beta * y_)))
             for i in range(len(DFA_error)):
                 e[i] = (DFA_error[i] + e[i]) / 2
+        elif typeOfFeedback == typeOfFeedbackEnum.target_propagation:
+            target = functional.one_hot(label, num_classes=dimOut).float()
+            for y_, i in zip(reversed(y), reversed(list(B))):
+                e.insert(0, torch.matmul(target, B[i]) * (1 - torch.exp(-Beta * y_)))
 
         # -- orthonormality errors
 
