@@ -89,6 +89,11 @@ class ChemicalNN(nn.Module):
             self.forward8 = nn.Linear(100, 90, bias=False)
             self.forward9 = nn.Linear(90, 70, bias=False)
             self.forward10 = nn.Linear(70, dim_out, bias=False)
+        elif self.size == sizeEnum.convolutional:
+            self.conv1 = nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1, bias=False)
+            self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1, bias=False)
+            self.fc1 = nn.Linear(7 * 7 * 64, 128, bias=False)
+            self.fc2 = nn.Linear(128, self.dim_out, bias=False)
         else:
             self.forward1 = nn.Linear(784, 170, bias=False)
             self.forward2 = nn.Linear(170, 130, bias=False)

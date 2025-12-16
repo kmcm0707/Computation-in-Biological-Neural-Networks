@@ -73,6 +73,11 @@ class RosenbaumNN(nn.Module):
             self.forward8 = nn.Linear(100, 90, bias=False)
             self.forward9 = nn.Linear(90, 70, bias=False)
             self.forward10 = nn.Linear(70, dim_out, bias=False)
+        elif self.size == sizeEnum.convolutional:
+            self.conv1 = nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1, bias=False)
+            self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1, bias=False)
+            self.fc1 = nn.Linear(7 * 7 * 64, 128, bias=False)
+            self.fc2 = nn.Linear(128, self.dim_out, bias=False)
         else:
             self.forward1 = nn.Linear(784, 170, bias=False)
             self.forward2 = nn.Linear(170, 130, bias=False)
@@ -156,6 +161,19 @@ class RosenbaumNN(nn.Module):
             y9 = self.activation(y9)
             y10 = self.forward10(y9)
             return (y0, y1, y2, y3, y4, y5, y6, y7, y8, y9), y10
+        elif self.size == sizeEnum.convolutional:
+            y0 = x
+            y1 = self.conv1(y0)
+            y1 = self.activation(y1)
+            y2 = nn.functional.max_pool2d(y1, 2)
+            y3 = self.conv2(y2)
+            y3 = self.activation(y3)
+            y4 = nn.functional.max_pool2d(y3, 2)
+            y4 = y4.view(y4.size(0), -1)
+            y5 = self.fc1(y4)
+            y5 = self.activation(y5)
+            y6 = self.fc2(y5)
+            return (y0, y1, y2, y3, y4, y5), y6
         else:
             y0 = x.squeeze(1)
             y1 = self.forward1(y0)
@@ -493,12 +511,12 @@ def run(
 
     # -- load data
     numWorkers = 3
-    epochs = 10
+    epochs = 20
     numberOfClasses = 5
-    trainingDataPerClass_1 = 40
-    trainingDataPerClass_2 = trainingDataPerClass
+    trainingDataPerClass_1 = trainingDataPerClass
+    trainingDataPerClass_2 = None
     dimOut = 47
-    dataset_name = "COMBINED"
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -570,8 +588,8 @@ def run(
         trainingDataPerClass_2=trainingDataPerClass_2 if dataset_name == "COMBINED" else None,
         dimOut=dimOut,
         numberOfDataRepetitions=1,
-        size=sizeEnum.normal,
-        elastic_weight_consolidation=True,
+        size=sizeEnum.convolutional,
+        elastic_weight_consolidation=True if dataset_name == "COMBINED" else False,
     )
     metalearning_model.train()
 
@@ -608,20 +626,20 @@ def backprop_main():
         40,
         50,
         60,
-        # 70,
-        # 80,
-        # 90,
-        # 100,
-        # 110,
-        # 120,
-        # 130,
-        # 140,
-        # 150,
-        # 160,
-        # 170,
-        # 180,
-        # 190,
-        # 200,
+        70,
+        80,
+        90,
+        100,
+        110,
+        120,
+        130,
+        140,
+        150,
+        160,
+        170,
+        180,
+        190,
+        200,
         # 225,
         # 250,
         # 275,
@@ -663,6 +681,6 @@ def backprop_main():
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_backprop_CL_EWC_10000",
+            result_subdirectory="runner_backprop_conv",
             trainingDataPerClass=trainingData,
         )

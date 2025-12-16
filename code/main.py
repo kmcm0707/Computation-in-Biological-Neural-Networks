@@ -16,10 +16,10 @@ os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
 if __name__ == "__main__":
     # torch.autograd.set_detect_anomaly(True)
-    main()
+    #main()
     # runner_main()
     # load_model()
-    # backprop_main()
+    backprop_main()
     # rnn_backprop_main()
     # main_rnn()
     # main_runner_rnn()

@@ -62,6 +62,7 @@ class sizeEnum(Enum):
     six_layer = "six_layer"
     three_layer = "three_layer"
     three_layer_wide = "three_layer_wide"
+    convolutional = "convolutional"
 
 
 class MetaLearnerOptions:
