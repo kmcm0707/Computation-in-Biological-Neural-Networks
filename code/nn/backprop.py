@@ -162,6 +162,8 @@ class RosenbaumNN(nn.Module):
             y10 = self.forward10(y9)
             return (y0, y1, y2, y3, y4, y5, y6, y7, y8, y9), y10
         elif self.size == sizeEnum.convolutional:
+            x = x.squeeze(1)
+            x = x.view(x.shape[0], 1, 28, 28)
             y0 = x
             y1 = self.conv1(y0)
             y1 = self.activation(y1)
