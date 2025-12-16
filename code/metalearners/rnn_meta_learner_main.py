@@ -730,13 +730,13 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             nonLinear=nonLinearEnum.tanh,
             update_rules=[0, 1, 2, 4, 9, 12],  # 4
             minSlowTau=2,
-            maxSlowTau=200,
+            maxSlowTau=50,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.all_ones,
-            operator=operatorEnum.mode_6,
+            z_vector=zVectorEnum.default,
+            operator=operatorEnum.mode_9,
         )
 
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"  # cuda:1
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
     continue_training = current_dir + "/results_2/post_cosyne_rnn_check_mode_9/0/20251206-005104"
@@ -749,7 +749,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0001,
+        lr=0.0007,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -816,4 +816,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="post_cosyne_rnn_check_mode_6_grad_check", index=i)
+        run(seed=0, display=True, result_subdirectory="post_cosyne_rnn_check_mode_9_grad_check", index=i)
