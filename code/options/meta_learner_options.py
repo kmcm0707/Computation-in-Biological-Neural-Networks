@@ -50,6 +50,7 @@ class typeOfFeedbackEnum(Enum):
     scalar_rate = "scalar_rate"
     scalar_rich = "scalar_rich"
     zero = "zero"
+    target_propagation = "target_propagation"
 
 
 class sizeEnum(Enum):

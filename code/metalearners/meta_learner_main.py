@@ -656,6 +656,10 @@ class MetaLearner:
                             # error[i] = (error[i] + DFA_error[i]) / 2
                             if i != 0:
                                 error[i] = (error[i] + DFA_error[i]) / np.sqrt(2)"""
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.target_propagation:
+                        target = functional.one_hot(label, num_classes=self.options.dimOut)
+                        for y, i in zip(reversed(activations), reversed(list(feedback))):
+                            error.insert(0, torch.matmul(target, feedback[i]) * (1 - torch.exp(-self.model.beta * y)))
                     else:
                         raise ValueError("Invalid type of feedback")
 
@@ -998,10 +1002,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=50,
+            maxTau=500,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_9,
+            z_vector=zVectorEnum.all_ones,
+            operator=operatorEnum.mode_6,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1117,7 +1121,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.0007,
+        lr=0.0001,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.different,
@@ -1129,9 +1133,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=None,  # continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.scalar,
+        typeOfFeedback=typeOfFeedbackEnum.target_propagation,
         dimOut=dimOut,
-        hrm_discount=-1,
+        hrm_discount=150,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1173,4 +1177,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_9_scalar_variance_test_minus_1", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_6_target_propagation", index=i)

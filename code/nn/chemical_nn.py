@@ -147,7 +147,7 @@ class ChemicalNN(nn.Module):
                 self.feedback4 = nn.Linear(100, 70, bias=False)
                 self.feedback5 = nn.Linear(70, self.dim_out, bias=False)
         # Direct feedback alignment
-        elif self.typeOfFeedback == typeOfFeedbackEnum.DFA or self.typeOfFeedback == typeOfFeedbackEnum.DFA_grad:
+        elif self.typeOfFeedback == typeOfFeedbackEnum.DFA or self.typeOfFeedback == typeOfFeedbackEnum.DFA_grad or self.typeOfFeedback == typeOfFeedbackEnum.target_propagation:
             if self.size == sizeEnum.small:
                 self.feedback1 = nn.Linear(784, self.dim_out, bias=False)
                 self.feedback2 = nn.Linear(15, self.dim_out, bias=False)
