@@ -92,6 +92,7 @@ class RnnMetaLearnerOptions:
         hrm_discount: int = 200,
         outer_non_linear=activationNonLinearEnum.tanh,
         recurrent_non_linear=activationNonLinearEnum.pass_through,
+        post_recurrent_non_linear=activationNonLinearEnum.tanh,
     ):
 
         self.model = model
@@ -131,6 +132,7 @@ class RnnMetaLearnerOptions:
         self.hrm_discount = hrm_discount
         self.outer_non_linear = outer_non_linear
         self.recurrent_non_linear = recurrent_non_linear
+        self.post_recurrent_non_linear = post_recurrent_non_linear
 
     def __str__(self):
         string = ""

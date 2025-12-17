@@ -482,12 +482,15 @@ class ChemicalNN(nn.Module):
             # hebbian_update = torch.matmul(mean_activated_hebbian_input.T, mean_activated_hebbian_output)
             x = x.squeeze(1)
             x = x.view(x.shape[0], 1, 28, 28)
+            print(x.shape)
             y0 = x
             y1 = self.conv_forward1(y0)
             y1 = self.activation(y1)
             y2 = nn.functional.max_pool2d(y1, 2)
+            print(y2.shape)
             y3 = self.conv_forward2(y2)
             y3 = self.activation(y3)
+
             y4 = nn.functional.max_pool2d(y3, 2)
             y4 = y4.view(y4.size(0), -1)
             y5 = self.forward3(y4)
@@ -495,6 +498,7 @@ class ChemicalNN(nn.Module):
             y6 = self.forward4(y5)
 
             all_input_patches_y0 = nn.functional.unfold(y0, kernel_size=3, padding=1).clone()
+            print(all_input_patches_y0.shape)
             conv1_weights = self.conv_forward1.weight.view(self.conv_forward1.out_channels, -1)
             hebbian_output_y1 = torch.matmul(conv1_weights, all_input_patches_y0)
             activated_hebbian_output_y1 = self.activation(hebbian_output_y1)
@@ -502,9 +506,11 @@ class ChemicalNN(nn.Module):
             mean_activated_hebbian_input_y0 = torch.mean(all_input_patches_y0, dim=2)
 
             all_input_patches_y2 = nn.functional.unfold(y2, kernel_size=3, padding=1).clone()
+            print(all_input_patches_y2.shape)
             conv2_weights = self.conv_forward2.weight.view(self.conv_forward2.out_channels, -1)
             hebbian_output_y2 = torch.matmul(conv2_weights, all_input_patches_y2)
             activated_hebbian_output_y2 = self.activation(hebbian_output_y2)
+            print(activated_hebbian_output_y2.shape)
             mean_activated_hebbian_output_y2 = torch.mean(activated_hebbian_output_y2, dim=2)
             mean_activated_hebbian_input_y2 = torch.mean(all_input_patches_y2, dim=2)
 

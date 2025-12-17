@@ -170,6 +170,7 @@ class RnnMetaLearner:
             gradient=self.options.gradient,
             outer_non_linear=self.options.outer_non_linear,
             recurrent_non_linear=self.options.recurrent_non_linear,
+            post_recurrent_non_linear=self.options.post_recurrent_non_linear,
         )
 
         # -- learning flags
@@ -777,8 +778,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         gradient=True,  # True to use gradient-based learning
         easy_gradient=False,  # True to use easy gradient computation
         hrm_discount=-1,  # Truncated BPTT length
-        outer_non_linear=activationNonLinearEnum.tanh,
-        recurrent_non_linear=activationNonLinearEnum.softplus,
+        outer_non_linear=activationNonLinearEnum.pass_through,
+        recurrent_non_linear=activationNonLinearEnum.pass_through,
+        post_recurrent_non_linear=activationNonLinearEnum.tanh,
     )
 
     #   -- number of chemicals
@@ -816,4 +818,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="post_cosyne_rnn_check_mode_9_grad_check", index=i)
+        run(seed=0, display=True, result_subdirectory="post_cosyne_rnn_check_mode_9_post_recurrent_activation", index=i)
