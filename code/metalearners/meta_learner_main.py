@@ -321,7 +321,7 @@ class MetaLearner:
 
         # -- learning flags
         for key, val in model.named_parameters():
-            if "forward" in key:
+            if "forward" in key or "fc" in key or "conv" in key:
                 val.adapt = "forward"
             elif "feedback" in key:
                 val.adapt, val.requires_grad = (
@@ -335,6 +335,14 @@ class MetaLearner:
     def weights_init(modules):
         classname = modules.__class__.__name__
         if classname.find("Linear") != -1:
+
+            # -- weights
+            nn.init.xavier_uniform_(modules.weight)
+
+            # -- bias
+            if modules.bias is not None:
+                nn.init.xavier_uniform_(modules.bias)
+        elif classname.find("Conv") != -1:
 
             # -- weights
             nn.init.xavier_uniform_(modules.weight)
@@ -486,6 +494,7 @@ class MetaLearner:
             # Maintains the computational graph for the model as .detach() is not used
             self.model.train()
             parameters, h_parameters, feedback_params = self.reinitialize()
+
             if (
                 self.options.chemicalInitialization != chemicalEnum.zero
                 and self.modelOptions.operator != operatorEnum.mode_3
@@ -539,14 +548,14 @@ class MetaLearner:
                 )
 
             # -- leaky error control
-            current_errors = [
+            """current_errors = [
                 torch.zeros(size=(1, 784), device=self.device),
                 torch.zeros(size=(1, 170), device=self.device),
                 torch.zeros(size=(1, 130), device=self.device),
                 torch.zeros(size=(1, 100), device=self.device),
                 torch.zeros(size=(1, 70), device=self.device),
                 torch.zeros(size=(1, self.options.dimOut), device=self.device),
-            ]
+            ]"""
 
             scalar_running_mean = torch.tensor(0.0, device=self.device)
             if self.options.scalar_variance_reduction > 0:
@@ -663,8 +672,8 @@ class MetaLearner:
                     else:
                         raise ValueError("Invalid type of feedback")
 
-                    for i in range(len(current_errors)):
-                        current_errors[i] = self.options.leaky_error_alpha * current_errors[i] + error[i]
+                    # for i in range(len(current_errors)):
+                    #    current_errors[i] = self.options.leaky_error_alpha * current_errors[i] + error[i]
 
                     activations_and_output = [*activations, functional.softmax(output, dim=1)]
 
@@ -672,7 +681,7 @@ class MetaLearner:
                     self.UpdateWeights(
                         params=parameters,
                         h_parameters=h_parameters,
-                        error=current_errors,
+                        error=error,
                         activations_and_output=activations_and_output,
                     )
 
@@ -681,7 +690,7 @@ class MetaLearner:
                         self.UpdateWeights(
                             params=parameters,
                             h_parameters=feedback_params,
-                            error=current_errors,
+                            error=error,
                             activations_and_output=activations_and_output,
                             override_adaption_pathway="feedback",
                         )
@@ -694,7 +703,7 @@ class MetaLearner:
                         self.UpdateFeedbackWeights(
                             params=parameters,
                             h_parameters=feedback_params,
-                            error=current_errors,
+                            error=error,
                             activations_and_output=activations_and_output,
                         )
 
@@ -702,7 +711,8 @@ class MetaLearner:
                         self.UpdateFeedbackWeights.update_time_index()
 
                     if self.options.error_control:
-                        self.model.set_errors(current_errors)
+                        # self.model.set_errors(current_errors)
+                        raise NotImplementedError("Leaky error control not implemented yet.")
 
             """ meta update """
             self.model.eval()
@@ -749,6 +759,8 @@ class MetaLearner:
                 self.save_results,
                 self.options.typeOfFeedback,
                 self.options.dimOut,
+                save_index="",
+                calculate_only_acc=True,
             )
             if self.metatrain_dataset_2 is not None:
                 acc_2 = meta_stats(
@@ -762,6 +774,7 @@ class MetaLearner:
                     self.options.typeOfFeedback,
                     self.options.dimOut,
                     save_index="_2",
+                    calculate_only_acc=True,
                 )
 
             acc = acc_1
@@ -1115,7 +1128,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         model=model,
         results_subdir=result_subdirectory,
         seed=seed,
-        size=sizeEnum.normal,
+        size=sizeEnum.convolutional,
         raytune=False,
         save_results=True,
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
@@ -1133,7 +1146,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=None,  # continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.target_propagation,
+        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
         hrm_discount=150,
         error_control=False,
@@ -1177,4 +1190,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_6_target_propagation", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_6_convolutional", index=i)

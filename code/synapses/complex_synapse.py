@@ -549,179 +549,226 @@ class ComplexSynapse(nn.Module):
         if override_adaption_pathway is not None:
             currentAdaptionPathway = override_adaption_pathway
         for name, parameter in params.items():
-            if currentAdaptionPathway in name:
+            if parameter.adapt == currentAdaptionPathway and "weight" in name:
 
                 h_name = name.replace(currentAdaptionPathway, "chemical").split(".")[0]
                 if currentAdaptionPathway == "feedback":
                     h_name = "feedback_" + h_name
 
                 chemical = h_parameters[h_name]
-                if parameter.adapt == currentAdaptionPathway and "weight" in name:
-                    # Equation 1: h(s+1) = yh(s) + (1/\eta) * zf(Kh(s) + \eta * P * F(Parameter) + b)
-                    # Equation 2: w(s) = v * h(s)
-                    update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i, h_name)
-                    # update_vector = update_vector / (torch.amax(update_vector, dim=(1, 2)) + 1e-5)[:, None, None]
-                    # update_vector = update_vector / (torch.norm(update_vector, dim=(1, 2), p=2) + 1e-5)[:, None, None]
 
-                    new_chemical = None
-                    if (
-                        self.operator == operatorEnum.mode_1
-                        or self.operator == operatorEnum.mode_3
-                        or self.operator == operatorEnum.attention
-                        or self.operator == operatorEnum.extended_attention
-                        or self.operator == operatorEnum.attention_2
-                        or self.operator == operatorEnum.full_attention
-                        or self.operator == operatorEnum.mode_4
-                        or self.operator == operatorEnum.mode_5
-                        or self.operator == operatorEnum.mode_6
-                        or self.operator == operatorEnum.mode_7
-                        or self.operator == operatorEnum.mode_7_no_h_norm
-                        or self.operator == operatorEnum.mode_8
-                        or self.operator == operatorEnum.mode_9
-                        or self.operator == operatorEnum.compressed_full_attention
-                        or self.operator == operatorEnum.v_linear
-                        or self.operator == operatorEnum.compressed_v_linear
-                    ):  # mode 1 - was also called add in results
-                        new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.einsum(
-                            "i,ijk->ijk",
-                            self.z_vector,
-                            self.non_linearity(
-                                torch.einsum("ic,ijk->cjk", self.K_matrix, chemical)  # self.K_mask * self.K_matrix
-                                + torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
-                                # + self.bias_dictionary[h_name]  # [:, None, None]
-                            ),
-                        )
+                # Equation 1: h(s+1) = yh(s) + (1/\eta) * zf(Kh(s) + \eta * P * F(Parameter) + b)
+                # Equation 2: w(s) = v * h(s)
+                parameter_shape = parameter.shape
+                if "conv" in name:
+                    parameter = parameter.view(parameter.shape[0], -1)
+                update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i, h_name)
+                # update_vector = update_vector / (torch.amax(update_vector, dim=(1, 2)) + 1e-5)[:, None, None]
+                # update_vector = update_vector / (torch.norm(update_vector, dim=(1, 2), p=2) + 1e-5)[:, None, None]
 
-                        if analysis_mode:
-                            self.Kh[h_name] = torch.einsum("ic,ijk->cjk", self.K_matrix, chemical)
-                            self.Pf[h_name] = torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
+                new_chemical = None
+                if (
+                    self.operator == operatorEnum.mode_1
+                    or self.operator == operatorEnum.mode_3
+                    or self.operator == operatorEnum.attention
+                    or self.operator == operatorEnum.extended_attention
+                    or self.operator == operatorEnum.attention_2
+                    or self.operator == operatorEnum.full_attention
+                    or self.operator == operatorEnum.mode_4
+                    or self.operator == operatorEnum.mode_5
+                    or self.operator == operatorEnum.mode_6
+                    or self.operator == operatorEnum.mode_7
+                    or self.operator == operatorEnum.mode_7_no_h_norm
+                    or self.operator == operatorEnum.mode_8
+                    or self.operator == operatorEnum.mode_9
+                    or self.operator == operatorEnum.compressed_full_attention
+                    or self.operator == operatorEnum.v_linear
+                    or self.operator == operatorEnum.compressed_v_linear
+                ):  # mode 1 - was also called add in results
+                    new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.einsum(
+                        "i,ijk->ijk",
+                        self.z_vector,
+                        self.non_linearity(
+                            torch.einsum("ic,ijk->cjk", self.K_matrix, chemical)  # self.K_mask * self.K_matrix
+                            + torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
+                            # + self.bias_dictionary[h_name]  # [:, None, None]
+                        ),
+                    )
 
-                        if self.operator == operatorEnum.mode_5 or self.operator == operatorEnum.mode_6:
-                            parameter_norm = self.saved_norm[h_name]
-                            chemical_norms = torch.norm(new_chemical, dim=(1, 2))
-                            multiplier = parameter_norm / (chemical_norms)
+                    if analysis_mode:
+                        self.Kh[h_name] = torch.einsum("ic,ijk->cjk", self.K_matrix, chemical)
+                        self.Pf[h_name] = torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
 
-                            new_chemical = (
-                                new_chemical * multiplier[:, None, None]
-                            )  # chemical_norms[:, None, None] (mode 5 v2 is commented out)
-                            if self.options.scale_chemical_weights:
-                                scale_factor = torch.sqrt(
-                                    torch.tensor(new_chemical.shape[1], device=self.device, dtype=torch.float32)
-                                )
-                                new_chemical = new_chemical * scale_factor
-                        elif self.operator == operatorEnum.mode_7:
-                            new_chemical = torch.nn.functional.normalize(new_chemical, p=2, dim=1)
-                            if self.options.scale_chemical_weights:
-                                scale_factor = torch.sqrt(
-                                    torch.tensor(new_chemical.shape[1], device=self.device, dtype=torch.float32)
-                                )
-                                new_chemical = new_chemical * scale_factor
-                        elif self.operator == operatorEnum.mode_8:
-                            new_chemical = torch.nn.functional.normalize(new_chemical, p=2, dim=1) / torch.sqrt(
+                    if self.operator == operatorEnum.mode_5 or self.operator == operatorEnum.mode_6:
+                        parameter_norm = self.saved_norm[h_name]
+                        chemical_norms = torch.norm(new_chemical, dim=(1, 2))
+                        multiplier = parameter_norm / (chemical_norms)
+
+                        new_chemical = (
+                            new_chemical * multiplier[:, None, None]
+                        )  # chemical_norms[:, None, None] (mode 5 v2 is commented out)
+                        if self.options.scale_chemical_weights:
+                            scale_factor = torch.sqrt(
                                 torch.tensor(new_chemical.shape[1], device=self.device, dtype=torch.float32)
                             )
-                    elif self.operator == operatorEnum.sub or self.operator == operatorEnum.sub_4:
-                        # Equation 1 - operator = sub: h(s+1) = yh(s) + sign(h(s)) * z( f( sign(h(s)) * (Kh(s) + \theta * F(Parameter) + b) ))
-                        new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.sign(
-                            chemical
-                        ) * torch.einsum(
-                            "i,ijk->ijk",
-                            self.z_vector,
-                            self.non_linearity(
-                                torch.sign(chemical)
-                                * (
-                                    torch.einsum("ic,ijk->cjk", self.K_matrix, chemical)
-                                    + torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
-                                    + self.bias_dictionary[h_name]
-                                )
-                            ),
+                            new_chemical = new_chemical * scale_factor
+                    elif self.operator == operatorEnum.mode_7:
+                        new_chemical = torch.nn.functional.normalize(new_chemical, p=2, dim=1)
+                        if self.options.scale_chemical_weights:
+                            scale_factor = torch.sqrt(
+                                torch.tensor(new_chemical.shape[1], device=self.device, dtype=torch.float32)
+                            )
+                            new_chemical = new_chemical * scale_factor
+                    elif self.operator == operatorEnum.mode_8:
+                        new_chemical = torch.nn.functional.normalize(new_chemical, p=2, dim=1) / torch.sqrt(
+                            torch.tensor(new_chemical.shape[1], device=self.device, dtype=torch.float32)
                         )
-                    elif self.operator == operatorEnum.mode_2:
-                        # Equation 1: h(s+1) = yh(s) + zf(K(zh(s)) + P * F(Parameter) + b)
-                        new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.einsum(
-                            "i,ijk->ijk",
-                            self.z_vector,
-                            self.non_linearity(
-                                self.options.eta
-                                * (
-                                    torch.einsum(
-                                        "ci,ijk->cjk",
-                                        self.K_matrix,
-                                        torch.einsum("i,ijk->ijk", self.z_vector, chemical),
-                                    )
-                                    + torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
-                                )
+                elif self.operator == operatorEnum.sub or self.operator == operatorEnum.sub_4:
+                    # Equation 1 - operator = sub: h(s+1) = yh(s) + sign(h(s)) * z( f( sign(h(s)) * (Kh(s) + \theta * F(Parameter) + b) ))
+                    new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.sign(
+                        chemical
+                    ) * torch.einsum(
+                        "i,ijk->ijk",
+                        self.z_vector,
+                        self.non_linearity(
+                            torch.sign(chemical)
+                            * (
+                                torch.einsum("ic,ijk->cjk", self.K_matrix, chemical)
+                                + torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
                                 + self.bias_dictionary[h_name]
-                            ),
-                        )
-                    else:
-                        raise ValueError("Invalid operator")
+                            )
+                        ),
+                    )
+                elif self.operator == operatorEnum.mode_2:
+                    # Equation 1: h(s+1) = yh(s) + zf(K(zh(s)) + P * F(Parameter) + b)
+                    new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.einsum(
+                        "i,ijk->ijk",
+                        self.z_vector,
+                        self.non_linearity(
+                            self.options.eta
+                            * (
+                                torch.einsum(
+                                    "ci,ijk->cjk",
+                                    self.K_matrix,
+                                    torch.einsum("i,ijk->ijk", self.z_vector, chemical),
+                                )
+                                + torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
+                            )
+                            + self.bias_dictionary[h_name]
+                        ),
+                    )
+                else:
+                    raise ValueError("Invalid operator")
 
-                    h_parameters[h_name] = new_chemical
-                    if self.operator == operatorEnum.mode_3:
-                        # Equation 2: w(s) = w(s) + f(v * h(s))
-                        y_schedular = 1
-                        z_schedular = 1
-                        if self.options.scheduler_t0 is not None:
-                            z_schedular = self.options.scheduler_t0 / (self.options.scheduler_t0 + self.time_index)
-                            y_schedular = 1 - z_schedular
+                h_parameters[h_name] = new_chemical
+                if self.operator == operatorEnum.mode_3:
+                    # Equation 2: w(s) = w(s) + f(v * h(s))
+                    y_schedular = 1
+                    z_schedular = 1
+                    if self.options.scheduler_t0 is not None:
+                        z_schedular = self.options.scheduler_t0 / (self.options.scheduler_t0 + self.time_index)
+                        y_schedular = 1 - z_schedular
 
-                        new_value = y_schedular * parameter + z_schedular * torch.nn.functional.tanh(
-                            torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
+                    new_value = y_schedular * parameter + z_schedular * torch.nn.functional.tanh(
+                        torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
+                    )
+                elif self.operator == operatorEnum.attention:
+                    # Equation 2: attention mechanism
+                    # v(s) = Attention(h(s), w(s-1), v(s-1), Input)
+                    # For now v(s) = attention(h(s))
+                    # v(s) = (A * h(s) + A_bias) * (B * h(s) + B_bias)
+                    # v(s) = softmax(v(s))
+                    # w(s) = v(s) * h(s)
+                    v_A = torch.einsum("ic,ijk->cjk", self.A, h_parameters[h_name]) + self.A_bias[:, None, None]
+                    v_B = torch.einsum("ic,ijk->cjk", self.B, h_parameters[h_name]) + self.B_bias[:, None, None]
+                    new_v = torch.nn.functional.softmax(torch.einsum("ijk,ijk->ijk", v_A, v_B), dim=0)
+                    new_value = torch.einsum("ijk,ijk->jk", new_v, h_parameters[h_name])
+                elif self.operator == operatorEnum.extended_attention:
+                    # Equation 2: attention mechanism
+                    # v(s) = (A * h(s) + A_bias) * (B * update + B_bias)
+                    # v(s) = softmax(v(s))
+                    # w(s) = v(s) * h(s)
+                    v_A = torch.einsum("ic,ijk->cjk", self.A, h_parameters[h_name]) + self.A_bias[:, None, None]
+                    v_B = torch.einsum("ic,ijk->cjk", self.B, update_vector) + self.B_bias[:, None, None]
+                    new_v = torch.nn.functional.softmax(torch.einsum("ijk,ijk->ijk", v_A, v_B), dim=0)
+                    new_value = torch.einsum("ijk,ijk->jk", new_v, h_parameters[h_name])
+                elif self.operator == operatorEnum.attention_2:
+                    # Equation 2: attention mechanism
+                    # v(s) = (A * (h(s), update) + A_bias) * (B * (h(s), update) + B_bias)
+                    # v(s) = softmax(v(s))
+                    # w(s) = v(s) * h(s)
+                    attention_vector = torch.cat((h_parameters[h_name], update_vector), dim=0)
+                    attention_vector = (
+                        attention_vector / (torch.norm(attention_vector, p=2, dim=(1, 2)) + 1e-5)[:, None, None]
+                    )
+                    v_A = torch.einsum("ic,ijk->cjk", self.A, attention_vector) + self.A_bias[:, None, None]
+                    v_B = torch.einsum("ic,ijk->cjk", self.B, attention_vector) + self.B_bias[:, None, None]
+                    new_v = torch.nn.functional.softmax(torch.einsum("ijk,ijk->ijk", v_A, v_B), dim=0)
+                    new_value = torch.einsum("ijk,ijk->jk", new_v, h_parameters[h_name])
+                elif self.operator == operatorEnum.full_attention:
+                    attention_vector = torch.cat((h_parameters[h_name], update_vector), dim=0)
+                    attention_vector = torch.reshape(
+                        attention_vector,
+                        (1, attention_vector.shape[1] * attention_vector.shape[2], 10 + self.number_chemicals),
+                    )
+                    linear_attention = self.linear_attention(attention_vector)
+                    K = linear_attention[:, :, : 10 + self.number_chemicals]
+                    Q = linear_attention[:, :, 10 + self.number_chemicals : 2 * (10 + self.number_chemicals)]
+                    V = linear_attention[:, :, 2 * (10 + self.number_chemicals) :]
+                    intermeditate_v, _ = self.attention(Q, K, V)
+                    new_v = self.compress_attention(intermeditate_v)
+                    new_v = new_v.squeeze(0)
+                    v_softmax = torch.nn.functional.softmax(new_v, dim=1)
+                    v_softmax = torch.reshape(
+                        v_softmax,
+                        (self.number_chemicals, h_parameters[h_name].shape[1], h_parameters[h_name].shape[2]),
+                    )
+                    new_value = torch.einsum("ijk,ijk->jk", v_softmax, h_parameters[h_name])
+                elif self.operator == operatorEnum.compressed_full_attention:
+                    time_index = (
+                        torch.ones(size=(1, update_vector.shape[1], update_vector.shape[2]), device=self.device)
+                        * self.time_index
+                    )
+                    attention_vector = torch.cat((time_index, update_vector), dim=0)
+                    attention_vector = torch.reshape(
+                        attention_vector,
+                        (1, update_vector.shape[1] * update_vector.shape[2], 11),
+                    )
+                    linear_attention = self.linear_attention(attention_vector)
+                    K = linear_attention[:, :, : self.number_chemicals]
+                    Q = linear_attention[:, :, self.number_chemicals : 2 * self.number_chemicals]
+                    V = linear_attention[:, :, 2 * self.number_chemicals :]
+                    v, _ = self.attention(Q, K, V)
+                    v = v.squeeze(0)
+                    v_softmax = torch.nn.functional.softmax(v, dim=1)
+                    v_softmax = torch.reshape(
+                        v_softmax,
+                        (self.number_chemicals, h_parameters[h_name].shape[1], h_parameters[h_name].shape[2]),
+                    )
+                    new_value = torch.einsum("ijk,ijk->jk", v_softmax, h_parameters[h_name])
+                elif self.operator == operatorEnum.v_linear:
+                    attention_vector = None
+                    with torch.no_grad():
+                        time_index = (
+                            torch.ones(size=(1, update_vector.shape[1], update_vector.shape[2]), device=self.device)
+                            * self.time_index
                         )
-                    elif self.operator == operatorEnum.attention:
-                        # Equation 2: attention mechanism
-                        # v(s) = Attention(h(s), w(s-1), v(s-1), Input)
-                        # For now v(s) = attention(h(s))
-                        # v(s) = (A * h(s) + A_bias) * (B * h(s) + B_bias)
-                        # v(s) = softmax(v(s))
-                        # w(s) = v(s) * h(s)
-                        v_A = torch.einsum("ic,ijk->cjk", self.A, h_parameters[h_name]) + self.A_bias[:, None, None]
-                        v_B = torch.einsum("ic,ijk->cjk", self.B, h_parameters[h_name]) + self.B_bias[:, None, None]
-                        new_v = torch.nn.functional.softmax(torch.einsum("ijk,ijk->ijk", v_A, v_B), dim=0)
-                        new_value = torch.einsum("ijk,ijk->jk", new_v, h_parameters[h_name])
-                    elif self.operator == operatorEnum.extended_attention:
-                        # Equation 2: attention mechanism
-                        # v(s) = (A * h(s) + A_bias) * (B * update + B_bias)
-                        # v(s) = softmax(v(s))
-                        # w(s) = v(s) * h(s)
-                        v_A = torch.einsum("ic,ijk->cjk", self.A, h_parameters[h_name]) + self.A_bias[:, None, None]
-                        v_B = torch.einsum("ic,ijk->cjk", self.B, update_vector) + self.B_bias[:, None, None]
-                        new_v = torch.nn.functional.softmax(torch.einsum("ijk,ijk->ijk", v_A, v_B), dim=0)
-                        new_value = torch.einsum("ijk,ijk->jk", new_v, h_parameters[h_name])
-                    elif self.operator == operatorEnum.attention_2:
-                        # Equation 2: attention mechanism
-                        # v(s) = (A * (h(s), update) + A_bias) * (B * (h(s), update) + B_bias)
-                        # v(s) = softmax(v(s))
-                        # w(s) = v(s) * h(s)
-                        attention_vector = torch.cat((h_parameters[h_name], update_vector), dim=0)
-                        attention_vector = (
-                            attention_vector / (torch.norm(attention_vector, p=2, dim=(1, 2)) + 1e-5)[:, None, None]
-                        )
-                        v_A = torch.einsum("ic,ijk->cjk", self.A, attention_vector) + self.A_bias[:, None, None]
-                        v_B = torch.einsum("ic,ijk->cjk", self.B, attention_vector) + self.B_bias[:, None, None]
-                        new_v = torch.nn.functional.softmax(torch.einsum("ijk,ijk->ijk", v_A, v_B), dim=0)
-                        new_value = torch.einsum("ijk,ijk->jk", new_v, h_parameters[h_name])
-                    elif self.operator == operatorEnum.full_attention:
-                        attention_vector = torch.cat((h_parameters[h_name], update_vector), dim=0)
+                        h_diff = h_parameters[h_name] - parameter[None, :, :]
+                        attention_vector = torch.cat((time_index, update_vector, self.v_dict[h_name], h_diff), dim=0)
                         attention_vector = torch.reshape(
                             attention_vector,
-                            (1, attention_vector.shape[1] * attention_vector.shape[2], 10 + self.number_chemicals),
+                            (update_vector.shape[1] * update_vector.shape[2], 10 + 2 * self.number_chemicals + 1),
                         )
-                        linear_attention = self.linear_attention(attention_vector)
-                        K = linear_attention[:, :, : 10 + self.number_chemicals]
-                        Q = linear_attention[:, :, 10 + self.number_chemicals : 2 * (10 + self.number_chemicals)]
-                        V = linear_attention[:, :, 2 * (10 + self.number_chemicals) :]
-                        intermeditate_v, _ = self.attention(Q, K, V)
-                        new_v = self.compress_attention(intermeditate_v)
-                        new_v = new_v.squeeze(0)
-                        v_softmax = torch.nn.functional.softmax(new_v, dim=1)
-                        v_softmax = torch.reshape(
-                            v_softmax,
-                            (self.number_chemicals, h_parameters[h_name].shape[1], h_parameters[h_name].shape[2]),
-                        )
-                        new_value = torch.einsum("ijk,ijk->jk", v_softmax, h_parameters[h_name])
-                    elif self.operator == operatorEnum.compressed_full_attention:
+                    new_v = self.linear_v(attention_vector)
+                    v_softmax = torch.nn.functional.softmax(new_v, dim=1)
+                    v_softmax = torch.reshape(
+                        v_softmax,
+                        (self.number_chemicals, update_vector.shape[1], update_vector.shape[2]),
+                    )
+                    new_value = torch.einsum("ijk,ijk->jk", v_softmax, h_parameters[h_name])
+                elif self.operator == operatorEnum.compressed_v_linear:
+                    attention_vector = None
+                    with torch.no_grad():
                         time_index = (
                             torch.ones(size=(1, update_vector.shape[1], update_vector.shape[2]), device=self.device)
                             * self.time_index
@@ -729,110 +776,59 @@ class ComplexSynapse(nn.Module):
                         attention_vector = torch.cat((time_index, update_vector), dim=0)
                         attention_vector = torch.reshape(
                             attention_vector,
-                            (1, update_vector.shape[1] * update_vector.shape[2], 11),
+                            (update_vector.shape[1] * update_vector.shape[2], 11),
                         )
-                        linear_attention = self.linear_attention(attention_vector)
-                        K = linear_attention[:, :, : self.number_chemicals]
-                        Q = linear_attention[:, :, self.number_chemicals : 2 * self.number_chemicals]
-                        V = linear_attention[:, :, 2 * self.number_chemicals :]
-                        v, _ = self.attention(Q, K, V)
-                        v = v.squeeze(0)
-                        v_softmax = torch.nn.functional.softmax(v, dim=1)
-                        v_softmax = torch.reshape(
-                            v_softmax,
-                            (self.number_chemicals, h_parameters[h_name].shape[1], h_parameters[h_name].shape[2]),
-                        )
-                        new_value = torch.einsum("ijk,ijk->jk", v_softmax, h_parameters[h_name])
-                    elif self.operator == operatorEnum.v_linear:
-                        attention_vector = None
-                        with torch.no_grad():
-                            time_index = (
-                                torch.ones(size=(1, update_vector.shape[1], update_vector.shape[2]), device=self.device)
-                                * self.time_index
-                            )
-                            h_diff = h_parameters[h_name] - parameter[None, :, :]
-                            attention_vector = torch.cat(
-                                (time_index, update_vector, self.v_dict[h_name], h_diff), dim=0
-                            )
-                            attention_vector = torch.reshape(
-                                attention_vector,
-                                (update_vector.shape[1] * update_vector.shape[2], 10 + 2 * self.number_chemicals + 1),
-                            )
-                        new_v = self.linear_v(attention_vector)
-                        v_softmax = torch.nn.functional.softmax(new_v, dim=1)
-                        v_softmax = torch.reshape(
-                            v_softmax,
-                            (self.number_chemicals, update_vector.shape[1], update_vector.shape[2]),
-                        )
-                        new_value = torch.einsum("ijk,ijk->jk", v_softmax, h_parameters[h_name])
-                    elif self.operator == operatorEnum.compressed_v_linear:
-                        attention_vector = None
-                        with torch.no_grad():
-                            time_index = (
-                                torch.ones(size=(1, update_vector.shape[1], update_vector.shape[2]), device=self.device)
-                                * self.time_index
-                            )
-                            attention_vector = torch.cat((time_index, update_vector), dim=0)
-                            attention_vector = torch.reshape(
-                                attention_vector,
-                                (update_vector.shape[1] * update_vector.shape[2], 11),
-                            )
-                        new_v = self.linear_v(attention_vector)
-                        v_softmax = torch.nn.functional.softmax(new_v, dim=1)
-                        v_softmax = torch.reshape(
-                            v_softmax,
-                            (self.number_chemicals, update_vector.shape[1], update_vector.shape[2]),
-                        )
-                        new_value = torch.einsum("ijk,ijk->jk", v_softmax, h_parameters[h_name])
-                    elif (
-                        self.operator == operatorEnum.mode_4
-                        or self.operator == operatorEnum.sub_4
-                        or self.operator == operatorEnum.mode_5
-                        or self.operator == operatorEnum.mode_6
-                        or self.operator == operatorEnum.mode_7
-                        or self.operator == operatorEnum.mode_7_no_h_norm
-                        or self.operator == operatorEnum.mode_8
-                        or self.operator == operatorEnum.mode_9
-                    ):
-                        v_vector_softmax = torch.nn.functional.softmax(self.v_vector, dim=1)
-                        new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)
-                        if self.options.scale_chemical_weights:
-                            scale_factor = torch.sqrt(torch.tensor(new_value.shape[0], dtype=torch.float32))
-                            new_value = new_value / scale_factor
+                    new_v = self.linear_v(attention_vector)
+                    v_softmax = torch.nn.functional.softmax(new_v, dim=1)
+                    v_softmax = torch.reshape(
+                        v_softmax,
+                        (self.number_chemicals, update_vector.shape[1], update_vector.shape[2]),
+                    )
+                    new_value = torch.einsum("ijk,ijk->jk", v_softmax, h_parameters[h_name])
+                elif (
+                    self.operator == operatorEnum.mode_4
+                    or self.operator == operatorEnum.sub_4
+                    or self.operator == operatorEnum.mode_5
+                    or self.operator == operatorEnum.mode_6
+                    or self.operator == operatorEnum.mode_7
+                    or self.operator == operatorEnum.mode_7_no_h_norm
+                    or self.operator == operatorEnum.mode_8
+                    or self.operator == operatorEnum.mode_9
+                ):
+                    v_vector_softmax = torch.nn.functional.softmax(self.v_vector, dim=1)
+                    new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)
+                    if self.options.scale_chemical_weights:
+                        scale_factor = torch.sqrt(torch.tensor(new_value.shape[0], dtype=torch.float32))
+                        new_value = new_value / scale_factor
 
-                        if self.operator == operatorEnum.mode_6:
-                            parameter_norm = self.saved_norm[h_name]
-                            current_norm = torch.norm(new_value, p=2)
-                            multiplier = parameter_norm / current_norm
-                            new_value = new_value * multiplier
-                        elif self.operator == operatorEnum.mode_7 or self.operator == operatorEnum.mode_7_no_h_norm:
-                            new_value = torch.nn.functional.normalize(new_value, p=2, dim=0)
-                        elif self.operator == operatorEnum.mode_8:
-                            new_value = torch.nn.functional.normalize(new_value, p=2, dim=0) / torch.sqrt(
-                                torch.tensor(new_value.shape[0], device=self.device, dtype=torch.float32)
-                            )  # Remember shape[1] is input dimension, shape[0] is output dimension
-                        elif self.operator == operatorEnum.mode_9:
-                            normalizer = torch.norm(new_value, p=2, dim=0)
-                            new_value = new_value / (normalizer + 1e-12)
-                            chemical = h_parameters[h_name]
-                            new_chemical = chemical / (normalizer[None, :] + 1e-12)
-                            """print(f"Updating parameter: {name}")
-                            print("Norm of parameter after update:")
-                            print(torch.norm(new_value, p=2))
-                            print("Norms of chemicals before update:")
-                            for iii in chemical:
-                                print(torch.norm(iii, p=2))
-                            print("Norms of chemicals after update:")
-                            for iii in new_chemical:
-                                print(torch.norm(iii, p=2))"""
-                            h_parameters[h_name] = new_chemical
-                    else:
-                        new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
+                    if self.operator == operatorEnum.mode_6:
+                        parameter_norm = self.saved_norm[h_name]
+                        current_norm = torch.norm(new_value, p=2)
+                        multiplier = parameter_norm / current_norm
+                        new_value = new_value * multiplier
+                    elif self.operator == operatorEnum.mode_7 or self.operator == operatorEnum.mode_7_no_h_norm:
+                        new_value = torch.nn.functional.normalize(new_value, p=2, dim=0)
+                    elif self.operator == operatorEnum.mode_8:
+                        new_value = torch.nn.functional.normalize(new_value, p=2, dim=0) / torch.sqrt(
+                            torch.tensor(new_value.shape[0], device=self.device, dtype=torch.float32)
+                        )  # Remember shape[1] is input dimension, shape[0] is output dimension
+                    elif self.operator == operatorEnum.mode_9:
+                        normalizer = torch.norm(new_value, p=2, dim=0)
+                        new_value = new_value / (normalizer + 1e-12)
+                        chemical = h_parameters[h_name]
+                        new_chemical = chemical / (normalizer[None, :] + 1e-12)
+                        h_parameters[h_name] = new_chemical
+                else:
+                    new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
 
-                    params[name] = new_value
+                if "conv" in name:
+                    new_value = new_value.view(parameter_shape)
+                params[name] = new_value
 
-                    params[name].adapt = currentAdaptionPathway
-                i += 1
+                params[name].adapt = currentAdaptionPathway
+            i += 1
+            if "conv" in name:
+                i += 1  # because maxpool layers do not have weights
 
     @torch.no_grad()
     def initial_update(
@@ -850,39 +846,45 @@ class ComplexSynapse(nn.Module):
             currentAdaptionPathway = override_adaption_pathway
 
         for name, parameter in params.items():
-            if currentAdaptionPathway in name:
+
+            if parameter.adapt == currentAdaptionPathway and "weight" in name:
                 h_name = name.replace(currentAdaptionPathway, "chemical").split(".")[0]
                 if currentAdaptionPathway == "feedback":
                     h_name = "feedback_" + h_name
-                if parameter.adapt == currentAdaptionPathway and "weight" in name:
-                    # Equation 2: w(s) = v * h(s)
-                    # if self.operator == operatorEnum.mode_7:
-                    self.saved_norm[h_name] = torch.norm(parameter, p=2)
-                    new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
-                    if (
-                        self.operator == operatorEnum.mode_5
-                        or self.operator == operatorEnum.mode_6
-                        or self.operator == operatorEnum.mode_7
-                        or self.operator == operatorEnum.mode_7_no_h_norm
-                        or self.operator == operatorEnum.mode_9
-                    ):
-                        parameter_norm = self.saved_norm[h_name]
-                        current_norm = torch.norm(new_value, p=2)
-                        multiplier = parameter_norm / current_norm
-                        new_value = new_value * multiplier
-                    elif self.operator == operatorEnum.mode_8:
-                        new_value = torch.nn.functional.normalize(new_value, p=2, dim=0) / torch.sqrt(
-                            torch.tensor(new_value.shape[1], device=self.device, dtype=torch.float32)
-                        )
 
-                    if self.options.scale_chemical_weights:
-                        scale_factor = torch.sqrt(torch.tensor(new_value.shape[0], dtype=torch.float32))
-                        current_chemical = h_parameters[h_name]
-                        scaled_chemical = current_chemical * scale_factor
-                        h_parameters[h_name] = scaled_chemical
+                if "conv" in name:
+                    parameter_shape = parameter.shape
+                    parameter = parameter.view(parameter.shape[0], -1)
+                # Equation 2: w(s) = v * h(s)
+                # if self.operator == operatorEnum.mode_7:
+                self.saved_norm[h_name] = torch.norm(parameter, p=2)
+                new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
+                if (
+                    self.operator == operatorEnum.mode_5
+                    or self.operator == operatorEnum.mode_6
+                    or self.operator == operatorEnum.mode_7
+                    or self.operator == operatorEnum.mode_7_no_h_norm
+                    or self.operator == operatorEnum.mode_9
+                ):
+                    parameter_norm = self.saved_norm[h_name]
+                    current_norm = torch.norm(new_value, p=2)
+                    multiplier = parameter_norm / current_norm
+                    new_value = new_value * multiplier
+                elif self.operator == operatorEnum.mode_8:
+                    new_value = torch.nn.functional.normalize(new_value, p=2, dim=0) / torch.sqrt(
+                        torch.tensor(new_value.shape[1], device=self.device, dtype=torch.float32)
+                    )
 
-                    params[name] = new_value
-                    params[name].adapt = currentAdaptionPathway
+                if self.options.scale_chemical_weights:
+                    scale_factor = torch.sqrt(torch.tensor(new_value.shape[0], dtype=torch.float32))
+                    current_chemical = h_parameters[h_name]
+                    scaled_chemical = current_chemical * scale_factor
+                    h_parameters[h_name] = scaled_chemical
+
+                if "conv" in name:
+                    new_value = new_value.view(parameter_shape)
+                params[name] = new_value
+                params[name].adapt = currentAdaptionPathway
 
     def calculate_update_vector(self, error, activations_and_output, parameter, i, h_name) -> torch.Tensor:
         """

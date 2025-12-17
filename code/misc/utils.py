@@ -267,7 +267,7 @@ def accuracy(logits, label):
 
 
 def meta_stats(
-    logits, params, label, y, Beta, res_dir, save=True, typeOfFeedback=typeOfFeedbackEnum.FA, dimOut=47, save_index=""
+    logits, params, label, y, Beta, res_dir, save=True, typeOfFeedback=typeOfFeedbackEnum.FA, dimOut=47, save_index="", calculate_only_acc=False
 ):
     """
         Compute meta statistics.
@@ -284,7 +284,12 @@ def meta_stats(
     :param res_dir: (str) output directory path for the log files.
     :return: float: computed accuracy value.
     """
-
+    if calculate_only_acc:
+        acc = accuracy(logits, label)
+        if save:
+            log([acc], res_dir + "/acc_meta{}.txt".format(save_index))
+        return acc
+    
     with torch.no_grad():
         # -- modulatory signal
         B = dict({k: v for k, v in params.items() if "feedback" in k})

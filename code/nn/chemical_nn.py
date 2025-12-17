@@ -90,10 +90,10 @@ class ChemicalNN(nn.Module):
             self.forward9 = nn.Linear(90, 70, bias=False)
             self.forward10 = nn.Linear(70, dim_out, bias=False)
         elif self.size == sizeEnum.convolutional:
-            self.conv1 = nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1, bias=False)
-            self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1, bias=False)
-            self.fc1 = nn.Linear(7 * 7 * 64, 128, bias=False)
-            self.fc2 = nn.Linear(128, self.dim_out, bias=False)
+            self.conv_forward1 = nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1, bias=False)
+            self.conv_forward2 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1, bias=False)
+            self.forward3 = nn.Linear(7 * 7 * 64, 128, bias=False)
+            self.forward4 = nn.Linear(128, self.dim_out, bias=False)
         else:
             self.forward1 = nn.Linear(784, 170, bias=False)
             self.forward2 = nn.Linear(170, 130, bias=False)
@@ -152,7 +152,11 @@ class ChemicalNN(nn.Module):
                 self.feedback4 = nn.Linear(100, 70, bias=False)
                 self.feedback5 = nn.Linear(70, self.dim_out, bias=False)
         # Direct feedback alignment
-        elif self.typeOfFeedback == typeOfFeedbackEnum.DFA or self.typeOfFeedback == typeOfFeedbackEnum.DFA_grad or self.typeOfFeedback == typeOfFeedbackEnum.target_propagation:
+        elif (
+            self.typeOfFeedback == typeOfFeedbackEnum.DFA
+            or self.typeOfFeedback == typeOfFeedbackEnum.DFA_grad
+            or self.typeOfFeedback == typeOfFeedbackEnum.target_propagation
+        ):
             if self.size == sizeEnum.small:
                 self.feedback1 = nn.Linear(784, self.dim_out, bias=False)
                 self.feedback2 = nn.Linear(15, self.dim_out, bias=False)
@@ -194,6 +198,13 @@ class ChemicalNN(nn.Module):
                 self.feedback1 = nn.Linear(784, self.dim_out, bias=False)
                 self.feedback2 = nn.Linear(1500, self.dim_out, bias=False)
                 self.feedback3 = nn.Linear(1500, self.dim_out, bias=False)
+            elif self.size == sizeEnum.convolutional:
+                self.feedback1 = nn.Linear(9, self.dim_out, bias=False)
+                self.feedback2 = nn.Linear(32, self.dim_out, bias=False)
+                self.feedback3 = nn.Linear(32 * 9, self.dim_out, bias=False)
+                self.feedback4 = nn.Linear(64, self.dim_out, bias=False)
+                self.feedback5 = nn.Linear(7 * 7 * 64, self.dim_out, bias=False)
+                self.feedback6 = nn.Linear(128, self.dim_out, bias=False)
             else:
                 self.feedback1 = nn.Linear(784, self.dim_out, bias=False)
                 self.feedback2 = nn.Linear(170, self.dim_out, bias=False)
@@ -337,6 +348,14 @@ class ChemicalNN(nn.Module):
                     self.chemical6,
                 ]
             )
+        elif self.size == sizeEnum.convolutional:
+            self.conv_chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 32, 9), device=self.device))
+            self.conv_chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 64, 32 * 9), device=self.device))
+            self.chemical3 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 128, 7 * 7 * 64), device=self.device))
+            self.chemical4 = nn.Parameter(torch.zeros(size=(numberOfChemicals, dim_out, 128), device=self.device))
+            self.chemicals = nn.ParameterList(
+                [self.conv_chemical1, self.conv_chemical2, self.chemical3, self.chemical4]
+            )
         else:
             self.chemical1 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 170, 784), device=self.device))
             self.chemical2 = nn.Parameter(torch.zeros(size=(numberOfChemicals, 130, 170), device=self.device))
@@ -451,6 +470,52 @@ class ChemicalNN(nn.Module):
             y9 = self.activation(y9)
             y10 = self.forward10(y9)
             return (y0, y1, y2, y3, y4, y5, y6, y7, y8, y9), y10
+        elif self.size == sizeEnum.convolutional:
+
+            # Testing hebbian implementation
+            # all_input_patches = nn.functional.unfold(y0, kernel_size=3, padding=1, stride=1)
+            # conv1_weights = self.conv1.weight.view(self.conv1.out_channels, -1)
+            # hebbian_output = torch.matmul(conv1_weights, all_input_patches)
+            # activated_hebbian_output = self.activation(hebbian_output)
+            # mean_activated_hebbian_output = torch.mean(activated_hebbian_output, dim=2)
+            # mean_activated_hebbian_input = torch.mean(all_input_patches, dim=2)
+            # hebbian_update = torch.matmul(mean_activated_hebbian_input.T, mean_activated_hebbian_output)
+            x = x.squeeze(1)
+            x = x.view(x.shape[0], 1, 28, 28)
+            y0 = x
+            y1 = self.conv_forward1(y0)
+            y1 = self.activation(y1)
+            y2 = nn.functional.max_pool2d(y1, 2)
+            y3 = self.conv_forward2(y2)
+            y3 = self.activation(y3)
+            y4 = nn.functional.max_pool2d(y3, 2)
+            y4 = y4.view(y4.size(0), -1)
+            y5 = self.forward3(y4)
+            y5 = self.activation(y5)
+            y6 = self.forward4(y5)
+
+            all_input_patches_y0 = nn.functional.unfold(y0, kernel_size=3, padding=1).clone()
+            conv1_weights = self.conv_forward1.weight.view(self.conv_forward1.out_channels, -1)
+            hebbian_output_y1 = torch.matmul(conv1_weights, all_input_patches_y0)
+            activated_hebbian_output_y1 = self.activation(hebbian_output_y1)
+            mean_activated_hebbian_output_y1 = torch.mean(activated_hebbian_output_y1, dim=2)
+            mean_activated_hebbian_input_y0 = torch.mean(all_input_patches_y0, dim=2)
+
+            all_input_patches_y2 = nn.functional.unfold(y2, kernel_size=3, padding=1).clone()
+            conv2_weights = self.conv_forward2.weight.view(self.conv_forward2.out_channels, -1)
+            hebbian_output_y2 = torch.matmul(conv2_weights, all_input_patches_y2)
+            activated_hebbian_output_y2 = self.activation(hebbian_output_y2)
+            mean_activated_hebbian_output_y2 = torch.mean(activated_hebbian_output_y2, dim=2)
+            mean_activated_hebbian_input_y2 = torch.mean(all_input_patches_y2, dim=2)
+
+            return (
+                mean_activated_hebbian_input_y0,
+                mean_activated_hebbian_output_y1,
+                mean_activated_hebbian_input_y2,
+                mean_activated_hebbian_output_y2,
+                y4,
+                y5,
+            ), y6
         else:
             if self.error_control:
                 y0 = x.squeeze(1) + self.errors[0]
