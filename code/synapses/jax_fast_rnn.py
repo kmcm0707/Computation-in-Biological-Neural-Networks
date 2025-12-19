@@ -6,15 +6,15 @@ from options.complex_options import operatorEnum, yVectorEnum, zVectorEnum
 
 
 class JAXFastRnn(eqx.Module):
-    numberOfChemicals: int = eqx.static_field()
-    numberUpdateRules: int = eqx.static_field()
-    update_rules: tuple[bool] = eqx.static_field()
+    numberOfChemicals: int = eqx.field(static=True)
+    numberUpdateRules: int = eqx.field(static=True)
+    update_rules: tuple[bool] = eqx.field(static=True)
     Q_matrix: jnp.ndarray
     K_matrix: jnp.ndarray
     z_vector: jnp.ndarray
     y_vector: jnp.ndarray
     v_vector: jnp.ndarray
-    fastRnnOptions: object = eqx.static_field()
+    fastRnnOptions: object = eqx.field(static=True)
 
     def __init__(self, numberOfChemicals: int, fastRnnOptionsVal: object):
         super().__init__()

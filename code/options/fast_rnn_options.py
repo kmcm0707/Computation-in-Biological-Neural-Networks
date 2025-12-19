@@ -15,13 +15,13 @@ class fastRnnOptions(eqx.Module):
     Options for the complex synapse and individual complex synapse
     """
 
-    nonLinear: Union[nonLinearEnum, JaxActivationNonLinearEnum] = eqx.static_field()
-    update_rules: tuple[bool] = eqx.static_field()
-    minSlowTau: int = eqx.static_field()
-    maxSlowTau: int = eqx.static_field()
-    y_vector: yVectorEnum = eqx.static_field()
-    z_vector: zVectorEnum = eqx.static_field()
-    operator: operatorEnum = eqx.static_field()
+    nonLinear: Union[nonLinearEnum, JaxActivationNonLinearEnum] = eqx.field(static=True)
+    update_rules: tuple[bool] = eqx.field(static=True)
+    minSlowTau: int = eqx.field(static=True)
+    maxSlowTau: int = eqx.field(static=True)
+    y_vector: yVectorEnum = eqx.field(static=True)
+    z_vector: zVectorEnum = eqx.field(static=True)
+    operator: operatorEnum = eqx.field(static=True)
 
     def __init__(
         self,

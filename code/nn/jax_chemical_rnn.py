@@ -19,12 +19,12 @@ class JAXChemicalRNN(eqx.Module):
     recurrent_feedback: eqx.nn.Linear
     layers: tuple[eqx.nn.Linear]
     feedback_layers: tuple[eqx.nn.Linear]
-    gradient: bool = eqx.static_field()
-    outer_activation: Optional[Callable[[jnp.ndarray], jnp.ndarray]] = eqx.static_field()
-    recurrent_activation: Optional[Callable[[jnp.ndarray], jnp.ndarray]] = eqx.static_field()
+    gradient: bool = eqx.field(static=True)
+    outer_activation: Optional[Callable[[jnp.ndarray], jnp.ndarray]] = eqx.field(static=True)
+    recurrent_activation: Optional[Callable[[jnp.ndarray], jnp.ndarray]] = eqx.field(static=True)
     beta: float
     tau: jnp.ndarray
-    softplus: Callable[[jnp.ndarray, float], jnp.ndarray] = eqx.static_field()
+    softplus: Callable[[jnp.ndarray, float], jnp.ndarray] = eqx.field(static=True)
 
     def __init__(
         self,

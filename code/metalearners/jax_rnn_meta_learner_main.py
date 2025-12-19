@@ -5,6 +5,7 @@ from typing import Optional
 import equinox as eqx
 import jax
 import jax.numpy as jnp
+import numpy as np
 import optax
 from misc.dataset import DataProcess, EmnistDataset
 from misc.utils import Plot, accuracy, log
@@ -185,6 +186,7 @@ class JaxMetaLearnerRNN:
         rnn = self.rnn
 
         # -- inner loop --
+        checkpointed_inner_loop = jax.checkpoint(self.full_inner_loop)
         carry_init = (
             synaptic_weights_tuple,
             parameters_tuple,
@@ -193,7 +195,7 @@ class JaxMetaLearnerRNN:
         )
 
         (new_synaptic_weights, new_parameters, new_rnn, _), _ = jax.lax.scan(
-            self.full_inner_loop,
+            checkpointed_inner_loop,
             carry_init,
             (x_trn, y_trn),
         )
@@ -253,24 +255,18 @@ class JaxMetaLearnerRNN:
                 with open(self.result_directory + "/params.txt", "a") as f:
                     f.writelines(line + "\n")
 
-                """UpdateWeights_state_dict = eqx.asdict(self.metaOptimizer)
+                self.metaOptimizer.Q_matrix.block_until_ready()
                 if eps % 10 == 0:
-                    for key, val in UpdateWeights_state_dict.items():
-                        if (
-                            "K" in key
-                            or "P" in key
-                            or "Q" in key
-                            or "v_vector" in key
-                            or "z_vector" in key
-                            or "y_vector" in key
-                            or "A" in key
-                            or "B" in key
-                            or "v_dict" in key
-                            or "linear" in key
-                        ):
-                            with open(self.result_directory + "/{}.txt".format(key), "a") as f:
-                                f.writelines("Episode: {}: {} \n".format(eps + 1, val.numpy()))"""
-
+                    with open(self.result_directory + "/{}.txt".format("Q_matrix"), "a") as f:
+                        f.writelines("Episode: {}: {} \n".format(eps + 1, np.array(self.metaOptimizer.Q_matrix)))
+                    with open(self.result_directory + "/{}.txt".format("K_matrix"), "a") as f:
+                        f.writelines("Episode: {}: {} \n".format(eps + 1, np.array(self.metaOptimizer.K_matrix)))
+                    with open(self.result_directory + "/{}.txt".format("z_vector"), "a") as f:
+                        f.writelines("Episode: {}: {} \n".format(eps + 1, np.array(self.metaOptimizer.z_vector)))
+                    with open(self.result_directory + "/{}.txt".format("y_vector"), "a") as f:
+                        f.writelines("Episode: {}: {} \n".format(eps + 1, np.array(self.metaOptimizer.y_vector)))
+                    with open(self.result_directory + "/{}.txt".format("v_vector"), "a") as f:
+                        f.writelines("Episode: {}: {} \n".format(eps + 1, np.array(self.metaOptimizer.v_vector)))
             if loss.item() != loss.item():
                 raise ValueError("Loss is NaN")
 
@@ -286,6 +282,7 @@ class JaxMetaLearnerRNN:
 
 def main_jax_rnn_meta_learner():
     key = jax.random.PRNGKey(42)
+    jax.config.update("jax_enable_x64", False)
 
     # -- load data
     numWorkers = 2
@@ -347,8 +344,8 @@ def main_jax_rnn_meta_learner():
         biological_min_tau=5,
         biological_max_tau=25,
         gradient=False,
-        outer_activation=JaxActivationNonLinearEnum.softplus,
-        recurrent_activation=JaxActivationNonLinearEnum.tanh,
+        outer_activation=JaxActivationNonLinearEnum.tanh,
+        recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=7,
     )
 
