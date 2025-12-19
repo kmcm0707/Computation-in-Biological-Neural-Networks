@@ -1,6 +1,8 @@
 import os
 import re
 
+import jax
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -249,7 +251,7 @@ def inner_product(v1, v2):
     return torch.einsum("i, i -> ", n1, n2).cpu().numpy()
 
 
-def accuracy(logits, label):
+def accuracy(logits, label, use_jax=False):
     """
         Compute accuracy.
 
@@ -261,13 +263,26 @@ def accuracy(logits, label):
     :return: accuracy of the predicted logits.
     """
     # -- obtain predicted class labels
-    pred = functional.softmax(logits, dim=1).argmax(dim=1)
-
-    return torch.eq(pred, label).sum().item() / len(label)
+    if use_jax:
+        pred = jnp.argmax(jax.nn.softmax(logits, axis=1), axis=1)
+        return jnp.sum(pred == label) / len(label)
+    else:
+        pred = functional.softmax(logits, dim=1).argmax(dim=1)
+        return torch.eq(pred, label).sum().item() / len(label)
 
 
 def meta_stats(
-    logits, params, label, y, Beta, res_dir, save=True, typeOfFeedback=typeOfFeedbackEnum.FA, dimOut=47, save_index="", calculate_only_acc=False
+    logits,
+    params,
+    label,
+    y,
+    Beta,
+    res_dir,
+    save=True,
+    typeOfFeedback=typeOfFeedbackEnum.FA,
+    dimOut=47,
+    save_index="",
+    calculate_only_acc=False,
 ):
     """
         Compute meta statistics.
@@ -289,7 +304,7 @@ def meta_stats(
         if save:
             log([acc], res_dir + "/acc_meta{}.txt".format(save_index))
         return acc
-    
+
     with torch.no_grad():
         # -- modulatory signal
         B = dict({k: v for k, v in params.items() if "feedback" in k})

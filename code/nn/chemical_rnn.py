@@ -80,9 +80,6 @@ class ChemicalRnn(nn.Module):
         if self.recurrent_non_linear == activationNonLinearEnum.softplus:
             self.recurrent_non_linear = nn.Softplus(beta=10)
 
-        if self.post_recurrent_non_linear == activationNonLinearEnum.softplus:
-            self.post_recurrent_non_linear = nn.Softplus(beta=10)
-
         # Hidden states
         self.hx1 = torch.zeros(1, self.hidden_size).to(self.device)
         # self.hx2 = torch.zeros(1, 128).to(self.device)
@@ -158,7 +155,7 @@ class ChemicalRnn(nn.Module):
 
         # Forward pass
         hx1_prev = self.hx1.clone()
-        x = x.requires_grad_(True)
+        x = x.require_grad_(True)
         # hx2_prev = self.hx2
         RNN_forward1_ih_x = self.RNN_forward1_ih(x)
         if not self.biological:
@@ -191,7 +188,7 @@ class ChemicalRnn(nn.Module):
             "RNN_forward1_ih.weight": (x, activated_RNN_forward1_ih_x),  # broken is (x, RNN_forward1_ih_x)
             "RNN_forward1_hh.weight": (
                 intermediate_hx1,
-                post_recurrent_hx1,
+                RNN_forward1_hh_hx1,
             ),  # mode 3: (torch.tanh(hx1_prev), RNN_forward1_hh_hx1)
             "forward1.weight": (self.hx1, output),
         }
@@ -239,9 +236,9 @@ class ChemicalRnn(nn.Module):
                         retain_graph=True,
                     )[0].requires_grad_(True),
                     torch.autograd.grad(
-                        outputs=post_recurrent_hx1,
-                        inputs=RNN_forward1_hh_hx1,
-                        grad_outputs=torch.ones_like(post_recurrent_hx1),
+                        outputs=intermediate_post_activation,
+                        inputs=intermediate_combined,
+                        grad_outputs=torch.ones_like(intermediate_post_activation),
                         retain_graph=True,
                     )[0].requires_grad_(True),
                 ),

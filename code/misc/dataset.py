@@ -26,7 +26,12 @@ class EmnistDataset(Dataset):
     """
 
     def __init__(
-        self, minTrainingDataPerClass: int, maxTrainingDataPerClass: int, queryDataPerClass: int, dimensionOfImage: int
+        self,
+        minTrainingDataPerClass: int,
+        maxTrainingDataPerClass: int,
+        queryDataPerClass: int,
+        dimensionOfImage: int,
+        use_jax: bool = False,
     ):
         """
             Initialize the EmnistDataset class.
@@ -78,6 +83,7 @@ class EmnistDataset(Dataset):
         self.minTrainingDataPerClass = minTrainingDataPerClass
         self.maxTrainingDataPerClass = maxTrainingDataPerClass
         self.queryDataPerClass = queryDataPerClass
+        self.use_jax = use_jax
 
         self.char_path = [folder for folder, folders, _ in os.walk(self.emnist_dir) if not folders]
         self.transform = transforms.Compose(
@@ -175,8 +181,12 @@ class EmnistDataset(Dataset):
             ims = self.transform(Image.open(self.char_path[index] + "/" + img_, mode="r").convert("L"))
             img.append(ims)
 
-        img = torch.cat(img)
-        idx_vec = index * torch.ones(self.maxTrainingDataPerClass + self.queryDataPerClass, dtype=int)
+        if not self.use_jax:
+            img = torch.cat(img)
+            idx_vec = index * torch.ones(self.maxTrainingDataPerClass + self.queryDataPerClass, dtype=int)
+        else:
+            img = np.stack([np.array(im) for im in img], axis=0)
+            idx_vec = np.array(index * np.ones(self.maxTrainingDataPerClass + self.queryDataPerClass, dtype=int))
 
         return (
             img[: self.maxTrainingDataPerClass],
@@ -539,6 +549,7 @@ class DataProcess:
         dimensionOfImage: int,
         device: Literal["cpu", "cuda"] = "cpu",
         iid: bool = True,
+        use_jax: bool = False,
     ):
         """
             Initialize the DataProcess object.
@@ -554,6 +565,7 @@ class DataProcess:
         self.device = device
         self.iid = iid
         self.dimensionOfImage = dimensionOfImage
+        self.use_jax = use_jax
 
     def __call__(self, data, classes: int):
         """
@@ -580,12 +592,18 @@ class DataProcess:
         y_trn = y_trn[:, :current_training_data_per_class]
 
         # -- reshape
-        x_trn = torch.reshape(x_trn, (classes * current_training_data_per_class, self.dimensionOfImage**2)).to(
-            self.device
-        )
-        y_trn = torch.reshape(y_trn, (classes * current_training_data_per_class, 1)).to(self.device)
-        x_qry = torch.reshape(x_qry, (classes * self.queryDataPerClass, self.dimensionOfImage**2)).to(self.device)
-        y_qry = torch.reshape(y_qry, (classes * self.queryDataPerClass, 1)).to(self.device)
+        if not self.use_jax:
+            x_trn = torch.reshape(x_trn, (classes * current_training_data_per_class, self.dimensionOfImage**2)).to(
+                self.device
+            )
+            y_trn = torch.reshape(y_trn, (classes * current_training_data_per_class, 1)).to(self.device)
+            x_qry = torch.reshape(x_qry, (classes * self.queryDataPerClass, self.dimensionOfImage**2)).to(self.device)
+            y_qry = torch.reshape(y_qry, (classes * self.queryDataPerClass, 1)).to(self.device)
+        else:
+            x_trn = np.reshape(x_trn, (classes * current_training_data_per_class, self.dimensionOfImage**2))
+            y_trn = np.reshape(y_trn, (classes * current_training_data_per_class, 1))
+            x_qry = np.reshape(x_qry, (classes * self.queryDataPerClass, self.dimensionOfImage**2))
+            y_qry = np.reshape(y_qry, (classes * self.queryDataPerClass, 1))
 
         # -- shuffle
         if self.iid:
