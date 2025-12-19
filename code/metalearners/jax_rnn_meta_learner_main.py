@@ -248,6 +248,29 @@ class JaxMetaLearnerRNN:
             if self.jaxMetaLearnerOptions.display:
                 print(line)
 
+            if self.save_results:
+
+                with open(self.result_directory + "/params.txt", "a") as f:
+                    f.writelines(line + "\n")
+
+                UpdateWeights_state_dict = eqx.asdict(self.metaOptimizer)
+                if eps % 10 == 0:
+                    for key, val in UpdateWeights_state_dict.items():
+                        if (
+                            "K" in key
+                            or "P" in key
+                            or "Q" in key
+                            or "v_vector" in key
+                            or "z_vector" in key
+                            or "y_vector" in key
+                            or "A" in key
+                            or "B" in key
+                            or "v_dict" in key
+                            or "linear" in key
+                        ):
+                            with open(self.result_directory + "/{}.txt".format(key), "a") as f:
+                                f.writelines("Episode: {}: {} \n".format(eps + 1, val.numpy()))
+
             if loss.item() != loss.item():
                 raise ValueError("Loss is NaN")
 
