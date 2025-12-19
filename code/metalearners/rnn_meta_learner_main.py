@@ -818,4 +818,4 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="post_cosyne_rnn_check_mode_9_post_recurrent_activation", index=i)
+        run(seed=0, display=True, result_subdirectory="post_cosyne_rnn_check_mode_9_post_recurrent_activation_wierd", index=i)

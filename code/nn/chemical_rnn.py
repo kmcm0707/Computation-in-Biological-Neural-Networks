@@ -191,7 +191,7 @@ class ChemicalRnn(nn.Module):
             "RNN_forward1_ih.weight": (x, activated_RNN_forward1_ih_x),  # broken is (x, RNN_forward1_ih_x)
             "RNN_forward1_hh.weight": (
                 intermediate_hx1,
-                post_recurrent_hx1,
+                self.hx1,
             ),  # mode 3: (torch.tanh(hx1_prev), RNN_forward1_hh_hx1)
             "forward1.weight": (self.hx1, output),
         }
@@ -239,9 +239,9 @@ class ChemicalRnn(nn.Module):
                         retain_graph=True,
                     )[0].requires_grad_(True),
                     torch.autograd.grad(
-                        outputs=post_recurrent_hx1,
+                        outputs=self.hx1,
                         inputs=RNN_forward1_hh_hx1,
-                        grad_outputs=torch.ones_like(post_recurrent_hx1),
+                        grad_outputs=torch.ones_like(self.hx1),
                         retain_graph=True,
                     )[0].requires_grad_(True),
                 ),

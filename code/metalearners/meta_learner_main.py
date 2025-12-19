@@ -1190,4 +1190,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_7_convolutional", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_7_convolutional_swapped", index=i)
