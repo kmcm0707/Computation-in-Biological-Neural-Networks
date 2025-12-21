@@ -176,7 +176,7 @@ class JaxMetaLearnerRNN:
         )(hidden_state, rnn, x)
         return y
 
-    @eqx.filter_jit
+    #@eqx.filter_jit
     def compute_meta_loss(self, trainable_metaOptimizer, fixed_metaOptimizer, x_trn, y_trn, x_qry, y_qry):
 
         metaOptimizer = eqx.combine(trainable_metaOptimizer, fixed_metaOptimizer)
