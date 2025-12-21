@@ -122,10 +122,12 @@ class JAXFastRnn(eqx.Module):
     def initialize_parameters(
         self, synaptic_weight: jnp.ndarray, parameter: jnp.ndarray
     ) -> tuple[jnp.ndarray, jnp.ndarray]:
-        new_synaptic_weight = jnp.linalg.normalize(synaptic_weight, axis=(2), ord=2)
+        synaptic_norm = jnp.linalg.norm(synaptic_weight, axis=1, ord=2)
+        new_synaptic_weight = synaptic_weight / synaptic_norm[:, None, :]
         v_vector_softmax = jax.nn.softmax(self.v_vector)
         new_parameter_weight = jnp.einsum("c,cjk->jk", v_vector_softmax, synaptic_weight)
-        new_parameter_weight = jnp.linalg.normalize(new_parameter_weight, axis=(1), ord=2)
+        parameter_norm = jnp.linalg.norm(new_parameter_weight, axis=0, ord=2)
+        new_parameter_weight = new_parameter_weight / parameter_norm
         new_layer = eqx.tree_at(lambda p: p.weight, parameter, new_parameter_weight.T)
         return new_synaptic_weight, new_layer
 

@@ -241,8 +241,8 @@ class JaxMetaLearnerRNN:
                 (self.new_parameters, self.new_parameters[0], self.new_parameters[1], self.new_parameters[2]),
             )
 
-            # -- fixed feedback initialization --
-            self.rnn = self.rnn.reset_feedback_weights(self.key2)
+            # -- weight initialization --
+            self.rnn = self.rnn.reset_weights(self.key2)
 
             # -- meta-optimization --
             dynamic_model, static_model = eqx.partition(self.metaOptimizer, eqx.is_array)
