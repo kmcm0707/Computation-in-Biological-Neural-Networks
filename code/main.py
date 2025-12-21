@@ -1,10 +1,10 @@
-import multiprocessing
+"""import multiprocessing
 
 try:
     multiprocessing.set_start_method("spawn", force=True)
     print("Multiprocessing start method set to 'spawn'")
 except RuntimeError:
-    pass  # Method already set
+    pass  # Method already set"""
 
 from metalearners.jax_rnn_meta_learner_main import (  # noqa: F401
     main_jax_rnn_meta_learner,
