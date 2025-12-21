@@ -61,8 +61,9 @@ class JaxMetaLearnerRNN:
         self.metaOptimizer = JAXFastRnn(numberOfChemicals, modelOptions)
 
         # -- optimizer --
+        trainable_mask = self.get_trainable_mask(self.metaOptimizer)
         self.optimizer = optax.adam(learning_rate=self.jaxMetaLearnerOptions.metaLearningRate)
-        dynamic, static = eqx.partition(self.metaOptimizer, eqx.is_array)
+        dynamic, static = eqx.partition(self.metaOptimizer, trainable_mask)
         self.opt_state = self.optimizer.init(dynamic)
         self.metaOptimizer = eqx.combine(dynamic, static)
 
@@ -104,7 +105,6 @@ class JaxMetaLearnerRNN:
             self.synaptic_weights.append(holder)
         self.synaptic_weights = tuple(self.synaptic_weights)
 
-    @eqx.filter_jit
     def inner_loop_per_image(self, carry, input):
         synaptic_weights, parameters, rnn, hidden_state, metaOptimizer = carry
         x, labels = input
@@ -132,7 +132,6 @@ class JaxMetaLearnerRNN:
         )
         return (new_synaptic_weights_tuple, new_parameters_tuple, new_rnn, hidden_state, metaOptimizer), y
 
-    @eqx.filter_jit
     def full_inner_loop(self, carry, input) -> jnp.ndarray:
         synaptic_weights, parameters, rnn, metaOptimizer = carry
         hidden_state = rnn.initialise_hidden_state(batch_size=1)
@@ -152,14 +151,12 @@ class JaxMetaLearnerRNN:
         )
         return (new_synaptic_weights, new_parameters, new_rnn, metaOptimizer), y
 
-    @eqx.filter_jit
     def inner_loop_per_image_no_update(self, carry, input):
         hidden_state, rnn = carry
         x = input
         y, hidden_state, _, _ = rnn(x, hidden_state, None)
         return (hidden_state, rnn), y
 
-    @eqx.filter_jit
     def full_inner_loop_no_update(self, input) -> jnp.ndarray:
         x, number_of_timesteps, rnn = input
         hidden_state = rnn.initialise_hidden_state(batch_size=x.shape[0])
@@ -179,8 +176,10 @@ class JaxMetaLearnerRNN:
         )(hidden_state, rnn, x)
         return y
 
-    def compute_meta_loss(self, metaOptimizer, x_trn, y_trn, x_qry, y_qry):
+    @eqx.filter_jit
+    def compute_meta_loss(self, trainable_metaOptimizer, fixed_metaOptimizer, x_trn, y_trn, x_qry, y_qry):
 
+        metaOptimizer = eqx.combine(trainable_metaOptimizer, fixed_metaOptimizer)
         synaptic_weights_tuple = self.synaptic_weights
         parameters_tuple = self.rnn.layers
         rnn = self.rnn
@@ -210,6 +209,16 @@ class JaxMetaLearnerRNN:
         acc = accuracy(qry_predictions, y_qry.ravel(), use_jax=True)
         return avg_loss, acc
 
+    def get_trainable_mask(self, model):
+
+        mask = jax.tree_util.tree_map(lambda _: False, model)
+
+        mask = eqx.tree_at(lambda m: m.Q_matrix, mask, True)
+        mask = eqx.tree_at(lambda m: m.K_matrix, mask, True)
+        mask = eqx.tree_at(lambda m: m.v_vector, mask, True)
+
+        return mask
+
     def train(self):
         current_training_data_per_class = None
         for eps, data in enumerate(self.metaTrainingDataset):
@@ -224,7 +233,7 @@ class JaxMetaLearnerRNN:
 
             # -- initialize chemicals --
             self.chemicals_init()
-            """new_parameters = list(self.rnn.layers)
+            new_parameters = list(self.rnn.layers)
             new_synaptic_weights = list(self.synaptic_weights)
             for idx, parameter in enumerate(self.rnn.layers):
                 synaptic_weight = self.synaptic_weights[idx]
@@ -239,15 +248,16 @@ class JaxMetaLearnerRNN:
                 lambda r: (r.layers, r.forward1, r.forward2, r.forward3),
                 self.rnn,
                 (self.new_parameters, self.new_parameters[0], self.new_parameters[1], self.new_parameters[2]),
-            )"""
+            )
 
             # -- weight initialization --
             self.rnn = self.rnn.reset_weights(self.key2)
 
             # -- meta-optimization --
-            dynamic_model, static_model = eqx.partition(self.metaOptimizer, eqx.is_array)
+            trainable_mask = self.get_trainable_mask(self.metaOptimizer)
+            dynamic_model, static_model = eqx.partition(self.metaOptimizer, trainable_mask)
             (loss, acc), grads = jax.value_and_grad(self.compute_meta_loss, has_aux=True)(
-                self.metaOptimizer, x_trn, y_trn, x_qry, y_qry
+                dynamic_model, static_model, x_trn, y_trn, x_qry, y_qry
             )
 
             grads_filtered = eqx.filter(grads, eqx.is_array)
@@ -349,7 +359,7 @@ def main_jax_rnn_meta_learner():
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_meta_learner_check_mode_9_no_nonlinear",
+        results_subdir="jax_rnn_meta_learner_fixed_mode_9_no_nonlinear",
         metatrain_dataset="emnist",
         display=True,
         metaLearningRate=0.0007,
