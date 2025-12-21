@@ -1,6 +1,11 @@
-import os
+import multiprocessing
 
-import torch
+try:
+    multiprocessing.set_start_method("spawn", force=True)
+    print("Multiprocessing start method set to 'spawn'")
+except RuntimeError:
+    pass  # Method already set
+
 from metalearners.jax_rnn_meta_learner_main import (  # noqa: F401
     main_jax_rnn_meta_learner,
 )
@@ -14,8 +19,8 @@ from nn.rflo import rflo_main  # noqa: F401
 from nn.rflo_2 import rflo_main_2  # noqa: F401
 from nn.rnn_backprop import rnn_backprop_main  # noqa: F401
 
-torch.cuda.empty_cache()
-os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+# torch.cuda.empty_cache()
+# os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
 if __name__ == "__main__":
     # torch.autograd.set_detect_anomaly(True)

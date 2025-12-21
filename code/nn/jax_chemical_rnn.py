@@ -6,7 +6,7 @@ import jax.numpy as jnp
 from options.jax_rnn_meat_learner_options import JaxActivationNonLinearEnum
 
 
-def beta_softplus(x: jnp.ndarray, beta: float = 1.0) -> jnp.ndarray:
+def beta_softplus(x: jnp.ndarray, beta: float = 10) -> jnp.ndarray:
     return (1.0 / beta) * jnp.log1p(jnp.exp(beta * x))
 
 
@@ -66,7 +66,7 @@ class JAXChemicalRNN(eqx.Module):
         # tau = jnp.linspace(biological_min_tau, biological_max_tau, hidden_size)
         self.tau = tau
 
-    def reset_feedback_weights(self, key: jax.random.PRNGKey) -> "JAXChemicalRNN":
+    def reset_weights(self, key: jax.random.PRNGKey) -> "JAXChemicalRNN":
         new_pre_feedback1 = eqx.nn.Linear(
             self.pre_feedback1.in_features, self.pre_feedback1.out_features, key=key, use_bias=False
         )
@@ -82,8 +82,16 @@ class JAXChemicalRNN(eqx.Module):
         new_recurrent_feedback = eqx.nn.Linear(
             self.recurrent_feedback.in_features, self.recurrent_feedback.out_features, key=key, use_bias=False
         )
+        new_self = eqx.tree_at(lambda r: r.recurrent_feedback, new_self, new_recurrent_feedback)
         # new_recurrent_feedback = jax.lax.stop_gradient(new_recurrent_feedback.weight)
-        new_self = eqx.tree_at(lambda r: r.recurrent_feedback, self, new_recurrent_feedback)
+
+        new_linear1 = eqx.nn.Linear(self.forward1.in_features, self.forward1.out_features, key=key, use_bias=False)
+        new_self = eqx.tree_at(lambda r: r.forward1, new_self, new_linear1)
+        new_linear2 = eqx.nn.Linear(self.forward2.in_features, self.forward2.out_features, key=key, use_bias=False)
+        new_self = eqx.tree_at(lambda r: r.forward2, new_self, new_linear2)
+        new_linear3 = eqx.nn.Linear(self.forward3.in_features, self.forward3.out_features, key=key, use_bias=False)
+        new_self = eqx.tree_at(lambda r: r.forward3, new_self, new_linear3)
+
         return new_self
 
     def initialise_hidden_state(self, batch_size: int) -> jnp.ndarray:
@@ -128,21 +136,30 @@ class JAXChemicalRNN(eqx.Module):
 
         activations = {
             "forward1": (x, h1_activated),
-            "forward2": (h, recurrent_input_activated),
+            "forward2": (recurrent_input_activated, recurrent_input),
             "forward3": (h_new, y),
         }
         if self.gradient:
             gradients = {
-                "forward1": (1 - jnp.exp(-self.beta * x), jax.jacfwd(self.softplus)(h1)),
+                "forward1": (1 - jnp.exp(-self.beta * x), jax.vmap(jax.grad(self.softplus))(h1)),
                 "forward2": (
-                    jax.jacfwd(self.recurrent_activation)(h),
-                    jax.jacfwd(self.outer_activation)(h_new_pre_tau) * 1.0 / self.tau,
+                    jax.vmap(jax.grad(self.recurrent_activation))(h) if self.recurrent_activation else jnp.ones_like(h),
+                    (
+                        jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau) * 1.0 / self.tau
+                        if self.outer_activation
+                        else jnp.ones_like(h_new_pre_tau) * 1.0 / self.tau
+                    ),
                 ),
                 "forward3": (
-                    jax.jacfwd(self.outer_activation)(h_new_pre_tau) * 1.0 / self.tau,
+                    (
+                        jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau) * 1.0 / self.tau
+                        if self.outer_activation
+                        else jnp.ones_like(h_new_pre_tau) * 1.0 / self.tau
+                    ),
                     jnp.ones_like(y),
                 ),
             }
+
             errors = {
                 "forward1": (
                     errors["forward1"][0] * gradients["forward1"][0],
