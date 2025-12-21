@@ -290,7 +290,7 @@ def main_jax_rnn_meta_learner():
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 20
-    maxTrainingDataPerClass = 70
+    maxTrainingDataPerClass = 60
     queryDataPerClass = 10
 
     if dataset_name == "EMNIST":
@@ -331,7 +331,7 @@ def main_jax_rnn_meta_learner():
         results_subdir="jax_rnn_meta_learner_check_mode_9",
         metatrain_dataset="emnist",
         display=True,
-        metaLearningRate=0.001,
+        metaLearningRate=0.0007,
         numberOfClasses=numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -341,11 +341,11 @@ def main_jax_rnn_meta_learner():
         input_size=int(28 * 28 / 7),
         hidden_size=128,
         output_size=dimOut,
-        biological_min_tau=5,
-        biological_max_tau=25,
-        gradient=False,
-        outer_activation=JaxActivationNonLinearEnum.tanh,
-        recurrent_activation=JaxActivationNonLinearEnum.softplus,
+        biological_min_tau=1,
+        biological_max_tau=7,
+        gradient=True,
+        outer_activation=None, #JaxActivationNonLinearEnum.softplus,
+        recurrent_activation=JaxActivationNonLinearEnum.tanh,
         number_of_time_steps=7,
     )
 
