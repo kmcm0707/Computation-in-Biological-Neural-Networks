@@ -224,7 +224,7 @@ class JaxMetaLearnerRNN:
 
             # -- initialize chemicals --
             self.chemicals_init()
-            new_parameters = list(self.rnn.layers)
+            """new_parameters = list(self.rnn.layers)
             new_synaptic_weights = list(self.synaptic_weights)
             for idx, parameter in enumerate(self.rnn.layers):
                 synaptic_weight = self.synaptic_weights[idx]
@@ -239,7 +239,7 @@ class JaxMetaLearnerRNN:
                 lambda r: (r.layers, r.forward1, r.forward2, r.forward3),
                 self.rnn,
                 (self.new_parameters, self.new_parameters[0], self.new_parameters[1], self.new_parameters[2]),
-            )
+            )"""
 
             # -- weight initialization --
             self.rnn = self.rnn.reset_weights(self.key2)
