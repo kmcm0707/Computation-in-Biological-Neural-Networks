@@ -104,7 +104,7 @@ class JaxMetaLearnerRNN:
             self.synaptic_weights.append(holder)
         self.synaptic_weights = tuple(self.synaptic_weights)
 
-    @eqx.filter_jit
+    #@eqx.filter_jit
     def inner_loop_per_image(self, carry, input):
         synaptic_weights, parameters, rnn, hidden_state, metaOptimizer = carry
         x, labels = input
@@ -132,7 +132,7 @@ class JaxMetaLearnerRNN:
         )
         return (new_synaptic_weights_tuple, new_parameters_tuple, new_rnn, hidden_state, metaOptimizer), y
 
-    @eqx.filter_jit
+    #@eqx.filter_jit
     def full_inner_loop(self, carry, input) -> jnp.ndarray:
         synaptic_weights, parameters, rnn, metaOptimizer = carry
         hidden_state = rnn.initialise_hidden_state(batch_size=1)
@@ -152,14 +152,14 @@ class JaxMetaLearnerRNN:
         )
         return (new_synaptic_weights, new_parameters, new_rnn, metaOptimizer), y
 
-    @eqx.filter_jit
+    #@eqx.filter_jit
     def inner_loop_per_image_no_update(self, carry, input):
         hidden_state, rnn = carry
         x = input
         y, hidden_state, _, _ = rnn(x, hidden_state, None)
         return (hidden_state, rnn), y
 
-    @eqx.filter_jit
+    #@eqx.filter_jit
     def full_inner_loop_no_update(self, input) -> jnp.ndarray:
         x, number_of_timesteps, rnn = input
         hidden_state = rnn.initialise_hidden_state(batch_size=x.shape[0])
@@ -224,7 +224,7 @@ class JaxMetaLearnerRNN:
 
             # -- initialize chemicals --
             self.chemicals_init()
-            """new_parameters = list(self.rnn.layers)
+            new_parameters = list(self.rnn.layers)
             new_synaptic_weights = list(self.synaptic_weights)
             for idx, parameter in enumerate(self.rnn.layers):
                 synaptic_weight = self.synaptic_weights[idx]
@@ -239,7 +239,7 @@ class JaxMetaLearnerRNN:
                 lambda r: (r.layers, r.forward1, r.forward2, r.forward3),
                 self.rnn,
                 (self.new_parameters, self.new_parameters[0], self.new_parameters[1], self.new_parameters[2]),
-            )"""
+            )
 
             # -- weight initialization --
             self.rnn = self.rnn.reset_weights(self.key2)
@@ -366,7 +366,7 @@ def main_jax_rnn_meta_learner():
         biological_max_tau=7,
         gradient=True,
         outer_activation=None,  # JaxActivationNonLinearEnum.softplus,
-        recurrent_activation=None,  # JaxActivationNonLinearEnum.softplus,
+        recurrent_activation=JaxActivationNonLinearEnum.tanh,
         number_of_time_steps=7,
     )
 
