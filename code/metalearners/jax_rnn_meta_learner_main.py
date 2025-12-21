@@ -349,7 +349,7 @@ def main_jax_rnn_meta_learner():
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_meta_learner_check_mode_9",
+        results_subdir="jax_rnn_meta_learner_check_mode_9_no_nonlinear",
         metatrain_dataset="emnist",
         display=True,
         metaLearningRate=0.0007,
@@ -365,8 +365,8 @@ def main_jax_rnn_meta_learner():
         biological_min_tau=1,
         biological_max_tau=7,
         gradient=True,
-        outer_activation=None, #JaxActivationNonLinearEnum.softplus,
-        recurrent_activation=JaxActivationNonLinearEnum.tanh,
+        outer_activation=None,  # JaxActivationNonLinearEnum.softplus,
+        recurrent_activation=None,  # JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=7,
     )
 

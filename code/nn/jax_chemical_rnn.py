@@ -103,10 +103,12 @@ class JAXChemicalRNN(eqx.Module):
         h1 = self.forward1(x)
         h1_activated = self.softplus(h1, beta=self.beta)
 
-        recurrent_input_activated = self.recurrent_activation(h) if self.recurrent_activation else h
-        recurrent_input = self.forward2(recurrent_input_activated)
+        recurrent_input = self.forward2(h)
+        recurrent_input_activated = (
+            self.recurrent_activation(recurrent_input) if self.recurrent_activation else recurrent_input
+        )
 
-        h_new_pre_tau = h1_activated + recurrent_input
+        h_new_pre_tau = h1_activated + recurrent_input_activated
         h_new_pre_tau_activated = self.outer_activation(h_new_pre_tau) if self.outer_activation else h_new_pre_tau
         h_new = h + (1.0 / self.tau) * (-h + h_new_pre_tau_activated)
 
@@ -136,25 +138,27 @@ class JAXChemicalRNN(eqx.Module):
 
         activations = {
             "forward1": (x, h1_activated),
-            "forward2": (recurrent_input_activated, recurrent_input),
+            "forward2": (h, recurrent_input),  # (recurrent_input_activated, recurrent_input),
             "forward3": (h_new, y),
         }
         if self.gradient:
             gradients = {
                 "forward1": (1 - jnp.exp(-self.beta * x), jax.vmap(jax.grad(self.softplus))(h1)),
                 "forward2": (
-                    jax.vmap(jax.grad(self.recurrent_activation))(h) if self.recurrent_activation else jnp.ones_like(h),
+                    (1 - jnp.exp(-self.beta * h)),
                     (
-                        jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau)  # * 1.0 / self.tau
-                        if self.outer_activation
-                        else jnp.ones_like(h_new_pre_tau)  # * 1.0 / self.tau
+                        jax.vmap(jax.grad(self.recurrent_activation))(recurrent_input)  # * 1.0 / self.tau
+                        if self.recurrent_activation
+                        else jnp.ones_like(recurrent_input)  # * 1.0 / self.tau
                     ),
                 ),
                 "forward3": (
                     (
                         jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau)  # * 1.0 / self.tau
                         if self.outer_activation
-                        else jnp.ones_like(h_new_pre_tau)  # * 1.0 / self.tau
+                        else (
+                            1 - jnp.exp(-self.beta * h_new_pre_tau)
+                        )  # jnp.ones_like(h_new_pre_tau)  # * 1.0 / self.tau
                     ),
                     jnp.ones_like(y),
                 ),
