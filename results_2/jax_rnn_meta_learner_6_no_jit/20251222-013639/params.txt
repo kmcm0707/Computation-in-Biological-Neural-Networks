@@ -1,0 +1,12 @@
+Train Episode: 1	Loss: 3.830959	Accuracy: 0.020	Current Training Data Per Class: 12
+Train Episode: 2	Loss: 4.045710	Accuracy: 0.000	Current Training Data Per Class: 31
+Train Episode: 3	Loss: 3.731417	Accuracy: 0.020	Current Training Data Per Class: 55
+Train Episode: 4	Loss: 3.884216	Accuracy: 0.000	Current Training Data Per Class: 11
+Train Episode: 5	Loss: 3.950845	Accuracy: 0.140	Current Training Data Per Class: 20
+Train Episode: 6	Loss: 3.936231	Accuracy: 0.000	Current Training Data Per Class: 24
+Train Episode: 7	Loss: 3.802984	Accuracy: 0.200	Current Training Data Per Class: 32
+Train Episode: 8	Loss: 3.898617	Accuracy: 0.100	Current Training Data Per Class: 52
+Train Episode: 9	Loss: 3.869217	Accuracy: 0.000	Current Training Data Per Class: 15
+Train Episode: 10	Loss: 3.836887	Accuracy: 0.000	Current Training Data Per Class: 10
+Train Episode: 11	Loss: 3.793412	Accuracy: 0.020	Current Training Data Per Class: 21
+Train Episode: 12	Loss: 3.698978	Accuracy: 0.220	Current Training Data Per Class: 52

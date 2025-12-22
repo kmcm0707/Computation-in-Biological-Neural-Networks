@@ -144,19 +144,19 @@ class JAXFastRnn(eqx.Module):
         i = 0
 
         if self.update_rules[0]:
-            update_vector = update_vector.at[i].set(jnp.outer(post_synaptic_error, pre_synaptic_activation).T)
+            update_vector = update_vector.at[i].set(-jnp.outer(post_synaptic_error, pre_synaptic_activation).T)
             i += 1
         if self.update_rules[1]:
-            update_vector = update_vector.at[i].set(jnp.outer(post_synaptic_error, pre_synaptic_activation).T)
+            update_vector = update_vector.at[i].set(-jnp.outer(post_synaptic_error, pre_synaptic_activation).T)
             i += 1
         if self.update_rules[2]:
-            update_vector = update_vector.at[i].set(jnp.outer(post_synaptic_error, pre_synaptic_error).T)
+            update_vector = update_vector.at[i].set(-jnp.outer(post_synaptic_error, pre_synaptic_error).T)
             i += 1
         if self.update_rules[3]:
             update_vector = update_vector.at[i].set(-parameter.weight)
             i += 1
         if self.update_rules[4]:
-            update_vector = update_vector.at[i].set(jnp.outer(jnp.ones(parameter.out_features), pre_synaptic_error).T)
+            update_vector = update_vector.at[i].set(-jnp.outer(jnp.ones(parameter.out_features), pre_synaptic_error).T)
             i += 1
         if self.update_rules[5]:
             pass
@@ -179,16 +179,16 @@ class JAXFastRnn(eqx.Module):
             )
             i += 1
         if self.update_rules[10]:
-            update_vector = update_vector.at[i].set(jnp.outer(post_synaptic_error, jnp.ones(parameter.in_features)).T)
+            update_vector = update_vector.at[i].set(-jnp.outer(post_synaptic_error, jnp.ones(parameter.in_features)).T)
             i += 1
         if self.update_rules[11]:
             update_vector = update_vector.at[i].set(
-                jnp.outer(post_synaptic_activation, jnp.ones(parameter.in_features)).T
+                -jnp.outer(post_synaptic_activation, jnp.ones(parameter.in_features)).T
             )
             i += 1
         if self.update_rules[12]:
             update_vector = update_vector.at[i].set(
-                jnp.outer(jnp.ones(parameter.out_features), pre_synaptic_activation).T
+                -jnp.outer(jnp.ones(parameter.out_features), pre_synaptic_activation).T
             )
             i += 1
         if self.update_rules[13]:

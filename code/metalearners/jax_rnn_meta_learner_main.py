@@ -176,7 +176,7 @@ class JaxMetaLearnerRNN:
         )(hidden_state, rnn, x)
         return y
 
-    # @eqx.filter_jit
+    @eqx.filter_jit
     def compute_meta_loss(
         self, trainable_metaOptimizer, fixed_metaOptimizer, synaptic_weights, rnn_layers, x_trn, y_trn, x_qry, y_qry
     ):
@@ -221,7 +221,7 @@ class JaxMetaLearnerRNN:
 
         return mask
 
-    @eqx.filter_jit
+    #@eqx.filter_jit
     def make_step(
         self, dynamic_model, static_model, synaptic_weights_tuple, rnn_layers, x_trn, y_trn, x_qry, y_qry, opt_state
     ):
@@ -330,11 +330,11 @@ class JaxMetaLearnerRNN:
 
 def main_jax_rnn_meta_learner():
     key = jax.random.PRNGKey(42)
-    jax.config.update("jax_enable_x64", False)
+    #jax.config.update("jax_enable_x64", False)
 
     # -- load data
     numWorkers = 2
-    epochs = 1200
+    epochs = 2400
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
@@ -366,7 +366,7 @@ def main_jax_rnn_meta_learner():
     modelOptions = None
     modelOptions = fastRnnOptions(
         nonLinear=JaxActivationNonLinearEnum.tanh,
-        update_rules=[0, 1, 2, 4, 9, 12],  # 4
+        update_rules=[0, 1, 2, 4, 9, 11],  # 4
         minSlowTau=2,
         maxSlowTau=50,
         y_vector=yVectorEnum.none,
@@ -381,7 +381,7 @@ def main_jax_rnn_meta_learner():
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_meta_learner_fixed_2_mode_9",
+        results_subdir="jax_rnn_tanh",
         metatrain_dataset="emnist",
         display=True,
         metaLearningRate=0.0007,
@@ -397,8 +397,8 @@ def main_jax_rnn_meta_learner():
         biological_min_tau=1,
         biological_max_tau=7,
         gradient=True,
-        outer_activation=None,  # JaxActivationNonLinearEnum.softplus,
-        recurrent_activation=None, #JaxActivationNonLinearEnum.tanh,
+        outer_activation=JaxActivationNonLinearEnum.tanh,
+        recurrent_activation=None,#JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=7,
     )
 

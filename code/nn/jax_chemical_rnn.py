@@ -138,7 +138,7 @@ class JAXChemicalRNN(eqx.Module):
 
         activations = {
             "forward1": (x, h1_activated),
-            "forward2": (h, recurrent_input),  # (recurrent_input_activated, recurrent_input),
+            "forward2": (h, recurrent_input_activated),  # (recurrent_input_activated, recurrent_input),
             "forward3": (h_new, y),
         }
         if self.gradient:
