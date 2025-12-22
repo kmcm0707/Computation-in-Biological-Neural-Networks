@@ -178,13 +178,22 @@ class JaxMetaLearnerRNN:
 
     # @eqx.filter_jit
     def compute_meta_loss(
-        self, trainable_metaOptimizer, fixed_metaOptimizer, synaptic_weights, rnn_layers, x_trn, y_trn, x_qry, y_qry
+        self,
+        trainable_metaOptimizer,
+        fixed_metaOptimizer,
+        synaptic_weights,
+        rnn_layers,
+        rnn,
+        x_trn,
+        y_trn,
+        x_qry,
+        y_qry,
     ):
 
         metaOptimizer = eqx.combine(trainable_metaOptimizer, fixed_metaOptimizer)
         synaptic_weights_tuple = synaptic_weights
         parameters_tuple = rnn_layers
-        rnn = self.rnn
+        rnn = rnn
 
         # -- inner loop --
         checkpointed_inner_loop = jax.checkpoint(self.full_inner_loop)
@@ -223,11 +232,21 @@ class JaxMetaLearnerRNN:
 
     @eqx.filter_jit
     def make_step(
-        self, dynamic_model, static_model, synaptic_weights_tuple, rnn_layers, x_trn, y_trn, x_qry, y_qry, opt_state
+        self,
+        dynamic_model,
+        static_model,
+        synaptic_weights_tuple,
+        rnn_layers,
+        rnn,
+        x_trn,
+        y_trn,
+        x_qry,
+        y_qry,
+        opt_state,
     ):
 
         (loss, acc), grads = jax.value_and_grad(self.compute_meta_loss, has_aux=True)(
-            dynamic_model, static_model, synaptic_weights_tuple, rnn_layers, x_trn, y_trn, x_qry, y_qry
+            dynamic_model, static_model, synaptic_weights_tuple, rnn_layers, rnn, x_trn, y_trn, x_qry, y_qry
         )
 
         grads_filtered = eqx.filter(grads, eqx.is_array)
@@ -249,6 +268,9 @@ class JaxMetaLearnerRNN:
             x_qry = jnp.array(x_qry)
             y_qry = jnp.array(y_qry)
 
+            # -- weight initialization --
+            self.rnn = self.rnn.reset_weights(self.key2)
+
             # -- initialize chemicals --
             self.chemicals_init()
             new_parameters = list(self.rnn.layers)
@@ -268,9 +290,6 @@ class JaxMetaLearnerRNN:
                 (self.new_parameters, self.new_parameters[0], self.new_parameters[1], self.new_parameters[2]),
             )
 
-            # -- weight initialization --
-            self.rnn = self.rnn.reset_weights(self.key2)
-
             # -- meta-optimization --
             trainable_mask = self.get_trainable_mask(self.metaOptimizer)
             dynamic_model, static_model = eqx.partition(self.metaOptimizer, trainable_mask)
@@ -279,6 +298,7 @@ class JaxMetaLearnerRNN:
                 static_model,
                 self.synaptic_weights,
                 self.rnn.layers,
+                self.rnn,
                 x_trn,
                 y_trn,
                 x_qry,
@@ -398,7 +418,7 @@ def main_jax_rnn_meta_learner():
         biological_max_tau=7,
         gradient=True,
         outer_activation=None,  # JaxActivationNonLinearEnum.softplus,
-        recurrent_activation=None, #JaxActivationNonLinearEnum.tanh,
+        recurrent_activation=None,  # JaxActivationNonLinearEnum.tanh,
         number_of_time_steps=7,
     )
 
