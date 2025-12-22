@@ -731,10 +731,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             nonLinear=nonLinearEnum.tanh,
             update_rules=[0, 1, 2, 4, 9, 12],  # 4
             minSlowTau=2,
-            maxSlowTau=50,
+            maxSlowTau=200,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_9,
+            z_vector=zVectorEnum.all_ones,
+            operator=operatorEnum.mode_6,
         )
 
     device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"  # cuda:1
@@ -750,7 +750,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset=metatrain_dataset,
         display=display,
-        lr=0.0007,
+        lr=0.0001,
         numberOfClasses=numberOfClasses,  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -775,16 +775,16 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         recurrent_init=recurrentInitEnum.xavierUniform,  # identity or xavierUniform
         test_time_training=False,  # True to use test-time training
         diff_hidden_error=False,  # True to use different error for hidden state
-        gradient=True,  # True to use gradient-based learning
+        gradient=False,  # True to use gradient-based learning
         easy_gradient=False,  # True to use easy gradient computation
         hrm_discount=-1,  # Truncated BPTT length
         outer_non_linear=activationNonLinearEnum.pass_through,
         recurrent_non_linear=activationNonLinearEnum.pass_through,
-        post_recurrent_non_linear=activationNonLinearEnum.tanh,
+        post_recurrent_non_linear=activationNonLinearEnum.pass_through,
     )
 
     #   -- number of chemicals
-    numberOfSlowChemicals = 5  # fast uses this
+    numberOfSlowChemicals = 3  # fast uses this
     numberOfFastChemicals = 3
     # -- meta-train
 
@@ -818,4 +818,9 @@ def main_rnn():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="post_cosyne_rnn_check_mode_9_post_recurrent_activation_wierd", index=i)
+        run(
+            seed=0,
+            display=True,
+            result_subdirectory="rnn_mode_4_recreate",
+            index=i,
+        )

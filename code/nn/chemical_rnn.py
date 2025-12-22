@@ -188,7 +188,7 @@ class ChemicalRnn(nn.Module):
             "RNN_forward1_ih.weight": (x, activated_RNN_forward1_ih_x),  # broken is (x, RNN_forward1_ih_x)
             "RNN_forward1_hh.weight": (
                 intermediate_hx1,
-                RNN_forward1_hh_hx1,
+                post_recurrent_hx1,
             ),  # mode 3: (torch.tanh(hx1_prev), RNN_forward1_hh_hx1)
             "forward1.weight": (self.hx1, output),
         }
