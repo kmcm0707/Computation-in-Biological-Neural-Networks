@@ -176,12 +176,14 @@ class JaxMetaLearnerRNN:
         )(hidden_state, rnn, x)
         return y
 
-    #@eqx.filter_jit
-    def compute_meta_loss(self, trainable_metaOptimizer, fixed_metaOptimizer, x_trn, y_trn, x_qry, y_qry):
+    # @eqx.filter_jit
+    def compute_meta_loss(
+        self, trainable_metaOptimizer, fixed_metaOptimizer, synaptic_weights, rnn_layers, x_trn, y_trn, x_qry, y_qry
+    ):
 
         metaOptimizer = eqx.combine(trainable_metaOptimizer, fixed_metaOptimizer)
-        synaptic_weights_tuple = self.synaptic_weights
-        parameters_tuple = self.rnn.layers
+        synaptic_weights_tuple = synaptic_weights
+        parameters_tuple = rnn_layers
         rnn = self.rnn
 
         # -- inner loop --
@@ -218,6 +220,22 @@ class JaxMetaLearnerRNN:
         mask = eqx.tree_at(lambda m: m.v_vector, mask, True)
 
         return mask
+
+    @eqx.filter_jit
+    def make_step(
+        self, dynamic_model, static_model, synaptic_weights_tuple, rnn_layers, x_trn, y_trn, x_qry, y_qry, opt_state
+    ):
+
+        (loss, acc), grads = jax.value_and_grad(self.compute_meta_loss, has_aux=True)(
+            dynamic_model, static_model, synaptic_weights_tuple, rnn_layers, x_trn, y_trn, x_qry, y_qry
+        )
+
+        grads_filtered = eqx.filter(grads, eqx.is_array)
+
+        updates, new_opt_state = self.optimizer.update(grads_filtered, opt_state, dynamic_model)
+        new_dynamic_model = optax.apply_updates(dynamic_model, updates)
+
+        return new_dynamic_model, new_opt_state, loss, acc
 
     def train(self):
         current_training_data_per_class = None
@@ -256,14 +274,18 @@ class JaxMetaLearnerRNN:
             # -- meta-optimization --
             trainable_mask = self.get_trainable_mask(self.metaOptimizer)
             dynamic_model, static_model = eqx.partition(self.metaOptimizer, trainable_mask)
-            (loss, acc), grads = jax.value_and_grad(self.compute_meta_loss, has_aux=True)(
-                dynamic_model, static_model, x_trn, y_trn, x_qry, y_qry
+            new_dynamic_model, self.opt_state, loss, acc = self.make_step(
+                dynamic_model,
+                static_model,
+                self.synaptic_weights,
+                self.rnn.layers,
+                x_trn,
+                y_trn,
+                x_qry,
+                y_qry,
+                self.opt_state,
             )
 
-            grads_filtered = eqx.filter(grads, eqx.is_array)
-
-            updates, self.opt_state = self.optimizer.update(grads_filtered, self.opt_state, dynamic_model)
-            new_dynamic_model = optax.apply_updates(dynamic_model, updates)
             self.metaOptimizer = eqx.combine(new_dynamic_model, static_model)
 
             if self.save_results:
@@ -315,8 +337,8 @@ def main_jax_rnn_meta_learner():
     epochs = 1200
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 20
-    maxTrainingDataPerClass = 60
+    minTrainingDataPerClass = 5
+    maxTrainingDataPerClass = 70
     queryDataPerClass = 10
 
     if dataset_name == "EMNIST":
@@ -359,7 +381,7 @@ def main_jax_rnn_meta_learner():
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_meta_learner_fixed_mode_9_no_nonlinear",
+        results_subdir="jax_rnn_meta_learner_fixed_2_mode_9",
         metatrain_dataset="emnist",
         display=True,
         metaLearningRate=0.0007,
