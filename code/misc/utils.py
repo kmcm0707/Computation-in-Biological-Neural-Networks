@@ -265,7 +265,7 @@ def accuracy(logits, label, use_jax=False):
     # -- obtain predicted class labels
     if use_jax:
         pred = jnp.argmax(jax.nn.softmax(logits, axis=1), axis=1)
-        return jnp.sum(pred == label) / len(label)
+        return jnp.sum(pred == label) / label.shape[0]
     else:
         pred = functional.softmax(logits, dim=1).argmax(dim=1)
         return torch.eq(pred, label).sum().item() / len(label)

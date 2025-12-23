@@ -145,7 +145,7 @@ class JAXChemicalRNN(eqx.Module):
             gradients = {
                 "forward1": (1 - jnp.exp(-self.beta * x), jax.vmap(jax.grad(self.softplus))(h1)),
                 "forward2": (
-                    (1 - jnp.exp(-self.beta * h)),
+                    jnp.ones_like(h),
                     (
                         jax.vmap(jax.grad(self.recurrent_activation))(recurrent_input)  # * 1.0 / self.tau
                         if self.recurrent_activation
@@ -154,11 +154,7 @@ class JAXChemicalRNN(eqx.Module):
                 ),
                 "forward3": (
                     (
-                        jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau)  # * 1.0 / self.tau
-                        if self.outer_activation
-                        else (
-                            1 - jnp.exp(-self.beta * h_new_pre_tau)
-                        )  # jnp.ones_like(h_new_pre_tau)  # * 1.0 / self.tau
+                        jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau) 
                     ),
                     jnp.ones_like(y),
                 ),
