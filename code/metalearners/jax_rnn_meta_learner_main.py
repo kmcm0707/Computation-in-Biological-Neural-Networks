@@ -62,7 +62,10 @@ class JaxMetaLearnerRNN:
 
         # -- optimizer --
         trainable_mask = self.get_trainable_mask(self.metaOptimizer)
-        self.optimizer = optax.adam(learning_rate=self.jaxMetaLearnerOptions.metaLearningRate)
+        self.optimizer = optax.chain(
+            optax.clip_by_global_norm(1.0), # Max norm of 1.0
+            optax.adam(learning_rate=self.jaxMetaLearnerOptions.metaLearningRate)
+        )
         dynamic, static = eqx.partition(self.metaOptimizer, trainable_mask)
         self.opt_state = self.optimizer.init(dynamic)
         self.metaOptimizer = eqx.combine(dynamic, static)
@@ -176,7 +179,7 @@ class JaxMetaLearnerRNN:
         )(hidden_state, rnn, x)
         return y
 
-    @eqx.filter_jit
+    # @eqx.filter_jit
     def compute_meta_loss(
         self,
         trainable_metaOptimizer,
@@ -230,7 +233,7 @@ class JaxMetaLearnerRNN:
 
         return mask
 
-    # @eqx.filter_jit
+    @eqx.filter_jit
     def make_step(
         self,
         dynamic_model,
@@ -250,11 +253,12 @@ class JaxMetaLearnerRNN:
         )
 
         grads_filtered = eqx.filter(grads, eqx.is_array)
+        grad_norm = optax.global_norm(grads_filtered)
 
         updates, new_opt_state = self.optimizer.update(grads_filtered, opt_state, dynamic_model)
         new_dynamic_model = optax.apply_updates(dynamic_model, updates)
 
-        return new_dynamic_model, new_opt_state, loss, acc
+        return new_dynamic_model, new_opt_state, loss, acc, grad_norm
 
     def train(self):
         current_training_data_per_class = None
@@ -293,7 +297,7 @@ class JaxMetaLearnerRNN:
             # -- meta-optimization --
             trainable_mask = self.get_trainable_mask(self.metaOptimizer)
             dynamic_model, static_model = eqx.partition(self.metaOptimizer, trainable_mask)
-            new_dynamic_model, self.opt_state, loss, acc = self.make_step(
+            new_dynamic_model, self.opt_state, loss, acc, grad_norm = self.make_step(
                 dynamic_model,
                 static_model,
                 self.synaptic_weights,
@@ -312,8 +316,8 @@ class JaxMetaLearnerRNN:
                 log([loss.item()], self.result_directory + "/loss_meta.txt")
                 log([acc], self.result_directory + "/acc_meta.txt")
 
-            line = "Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}\tCurrent Training Data Per Class: {}".format(
-                eps + 1, loss.item(), acc, current_training_data_per_class
+            line = "Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}\tGrad Norm: {:.6f}\tTraining/Class: {}".format(
+                eps + 1, loss.item(), acc, grad_norm, current_training_data_per_class
             )
             if self.jaxMetaLearnerOptions.display:
                 print(line)
