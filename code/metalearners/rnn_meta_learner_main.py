@@ -772,7 +772,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         hidden_reset=True,  # True to reset hidden state between samples
         loss_meta_logits_all=False,  # True to use all logits for meta loss
         hidden_size=128,
-        recurrent_init=recurrentInitEnum.xavierUniform,  # identity or xavierUniform
+        recurrent_init=recurrentInitEnum.identity,  # identity or xavierUniform
         test_time_training=False,  # True to use test-time training
         diff_hidden_error=False,  # True to use different error for hidden state
         gradient=False,  # True to use gradient-based learning
@@ -821,6 +821,6 @@ def main_rnn():
         run(
             seed=0,
             display=True,
-            result_subdirectory="rnn_mode_4_recreate_mode_9",
+            result_subdirectory="rnn_mode_4_recreate_identity_mode_9",
             index=i,
         )
