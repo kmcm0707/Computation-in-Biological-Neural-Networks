@@ -155,7 +155,7 @@ class ChemicalRnn(nn.Module):
 
         # Forward pass
         hx1_prev = self.hx1.clone()
-        x = x.require_grad_(True)
+        #x = x.requires_grad_(True)
         # hx2_prev = self.hx2
         RNN_forward1_ih_x = self.RNN_forward1_ih(x)
         if not self.biological:

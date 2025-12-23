@@ -417,8 +417,8 @@ def main_jax_rnn_meta_learner():
         biological_min_tau=1,
         biological_max_tau=7,
         gradient=False,
-        outer_activation=None,  # JaxActivationNonLinearEnum.tanh,
-        recurrent_activation=None,  # JaxActivationNonLinearEnum.softplus,
+        outer_activation=JaxActivationNonLinearEnum.tanh,
+        recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=7,
     )
 
