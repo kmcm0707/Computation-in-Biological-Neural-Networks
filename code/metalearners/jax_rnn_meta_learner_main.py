@@ -109,9 +109,11 @@ class JaxMetaLearnerRNN:
         self.synaptic_weights = tuple(self.synaptic_weights)
 
     def inner_loop_per_image(self, carry, input):
-        synaptic_weights, parameters, rnn, hidden_state, metaOptimizer = carry
+        synaptic_weights, parameters, rnn, hidden_state, metaOptimizer, past_h_new_pre_tau = carry
         x, labels = input
-        y, hidden_state, activations_arr, errors_arr = rnn(x, hidden_state, labels)
+        y, hidden_state, past_h_new_pre_tau, activations_arr, errors_arr = rnn(
+            x, hidden_state, labels, past_h_new_pre_tau
+        )
 
         new_parameters = list(parameters)
         new_synaptic_weights = list(synaptic_weights)
@@ -133,11 +135,19 @@ class JaxMetaLearnerRNN:
             rnn,
             (new_parameters_tuple, new_parameters_tuple[0], new_parameters_tuple[1], new_parameters_tuple[2]),
         )
-        return (new_synaptic_weights_tuple, new_parameters_tuple, new_rnn, hidden_state, metaOptimizer), y
+        return (
+            new_synaptic_weights_tuple,
+            new_parameters_tuple,
+            new_rnn,
+            hidden_state,
+            metaOptimizer,
+            past_h_new_pre_tau,
+        ), y
 
     def full_inner_loop(self, carry, input) -> jnp.ndarray:
         synaptic_weights, parameters, rnn, metaOptimizer = carry
         hidden_state = rnn.initialise_hidden_state(batch_size=1)
+        past_h_new_pre_tau = rnn.initialise_hidden_state(batch_size=1)
         x, label = input
         x = jnp.reshape(
             x, (self.jaxMetaLearnerOptions.number_of_time_steps, -1)
@@ -147,17 +157,19 @@ class JaxMetaLearnerRNN:
             label, repeats=self.jaxMetaLearnerOptions.number_of_time_steps, axis=0
         )  # (time_steps, batch_size)
 
-        (new_synaptic_weights, new_parameters, new_rnn, hidden_state, metaOptimizer), y = jax.lax.scan(
-            self.inner_loop_per_image,
-            (synaptic_weights, parameters, rnn, hidden_state, metaOptimizer),
-            (x, label),
+        (new_synaptic_weights, new_parameters, new_rnn, hidden_state, metaOptimizer, past_h_new_pre_tau), y = (
+            jax.lax.scan(
+                self.inner_loop_per_image,
+                (synaptic_weights, parameters, rnn, hidden_state, metaOptimizer, past_h_new_pre_tau),
+                (x, label),
+            )
         )
         return (new_synaptic_weights, new_parameters, new_rnn, metaOptimizer), y
 
     def inner_loop_per_image_no_update(self, carry, input):
         hidden_state, rnn = carry
         x = input
-        y, hidden_state, _, _ = rnn(x, hidden_state, None)
+        y, hidden_state, _, _, _ = rnn(x, hidden_state, None, None)
         return (hidden_state, rnn), y
 
     def full_inner_loop_no_update(self, input) -> jnp.ndarray:
@@ -405,10 +417,10 @@ def main_jax_rnn_meta_learner():
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_6_grad",
+        results_subdir="jax_rnn_6_new_grad",
         metatrain_dataset="emnist",
         display=True,
-        metaLearningRate=0.0001,
+        metaLearningRate=0.0007,
         numberOfClasses=numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,

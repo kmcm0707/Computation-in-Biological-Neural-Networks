@@ -99,7 +99,7 @@ class JAXChemicalRNN(eqx.Module):
             return jnp.zeros((self.forward2.out_features,))
         return jnp.zeros((batch_size, self.forward2.out_features))
 
-    def __call__(self, x: jnp.ndarray, h: jnp.ndarray, label: jnp.ndarray) -> jnp.ndarray:
+    def __call__(self, x: jnp.ndarray, h: jnp.ndarray, label: jnp.ndarray, past_h_new_pre_tau) -> jnp.ndarray:
         h1 = self.forward1(x)
         h1_activated = self.softplus(h1, beta=self.beta)
 
@@ -115,7 +115,7 @@ class JAXChemicalRNN(eqx.Module):
         y = self.forward3(h_new)
 
         if label is None:
-            return y, h_new, None, None
+            return y, h_new, None, None, None
 
         softmax_y = jax.nn.softmax(y)
         label_one_hot = jax.nn.one_hot(label, num_classes=y.shape[-1])
@@ -145,7 +145,7 @@ class JAXChemicalRNN(eqx.Module):
             gradients = {
                 "forward1": (1 - jnp.exp(-self.beta * x), jax.vmap(jax.grad(self.softplus))(h1)),
                 "forward2": (
-                    jnp.ones_like(h),
+                    (jax.vmap(jax.grad(self.outer_activation))(past_h_new_pre_tau)),
                     (
                         jax.vmap(jax.grad(self.recurrent_activation))(recurrent_input)  # * 1.0 / self.tau
                         if self.recurrent_activation
@@ -153,9 +153,7 @@ class JAXChemicalRNN(eqx.Module):
                     ),
                 ),
                 "forward3": (
-                    (
-                        jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau) 
-                    ),
+                    (jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau)),
                     jnp.ones_like(y),
                 ),
             }
@@ -178,4 +176,4 @@ class JAXChemicalRNN(eqx.Module):
         activations_arr = [activations["forward1"], activations["forward2"], activations["forward3"]]
         errors_arr = [errors["forward1"], errors["forward2"], errors["forward3"]]
 
-        return y, h_new, activations_arr, errors_arr
+        return y, h_new, h_new_pre_tau, activations_arr, errors_arr
