@@ -417,7 +417,7 @@ def main_jax_rnn_meta_learner():
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_6_new_grad_2",
+        results_subdir="jax_rnn_6_new_grad_3",
         metatrain_dataset="emnist",
         display=True,
         metaLearningRate=0.0007,
