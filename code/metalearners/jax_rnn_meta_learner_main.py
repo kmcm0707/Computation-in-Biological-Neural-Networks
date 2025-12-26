@@ -417,10 +417,10 @@ def main_jax_rnn_meta_learner():
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_6_new_grad",
+        results_subdir="jax_rnn_6_new_grad_2",
         metatrain_dataset="emnist",
         display=True,
-        metaLearningRate=0.0005,
+        metaLearningRate=0.0007,
         numberOfClasses=numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
