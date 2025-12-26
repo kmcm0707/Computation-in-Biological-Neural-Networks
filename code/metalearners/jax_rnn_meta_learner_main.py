@@ -63,8 +63,8 @@ class JaxMetaLearnerRNN:
         # -- optimizer --
         trainable_mask = self.get_trainable_mask(self.metaOptimizer)
         self.optimizer = optax.chain(
-            optax.clip_by_global_norm(1.0), # Max norm of 1.0
-            optax.adam(learning_rate=self.jaxMetaLearnerOptions.metaLearningRate)
+            optax.clip_by_global_norm(1.0),  # Max norm of 1.0
+            optax.adam(learning_rate=self.jaxMetaLearnerOptions.metaLearningRate),
         )
         dynamic, static = eqx.partition(self.metaOptimizer, trainable_mask)
         self.opt_state = self.optimizer.init(dynamic)
@@ -339,7 +339,7 @@ class JaxMetaLearnerRNN:
                         f.writelines("Episode: {}: {} \n".format(eps + 1, np.array(self.metaOptimizer.y_vector)))
                     with open(self.result_directory + "/{}.txt".format("v_vector"), "a") as f:
                         f.writelines("Episode: {}: {} \n".format(eps + 1, np.array(self.metaOptimizer.v_vector)))
-            if loss.item() != loss.item():
+            if jnp.isnan(loss):
                 raise ValueError("Loss is NaN")
 
         if self.save_results:

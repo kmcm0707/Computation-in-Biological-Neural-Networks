@@ -10,6 +10,7 @@
         "nadam",
         "radam",
         "rosenbaum",
+        "serialise",
         "Unoptimized",
         "unsqeezed",
         "xaiver"
