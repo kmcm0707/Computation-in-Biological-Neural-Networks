@@ -59,11 +59,16 @@ class JaxMetaLearnerRNN:
 
         self.numberOfChemicals = numberOfChemicals
         self.metaOptimizer = JAXFastRnn(numberOfChemicals, modelOptions)
+        # -- load model if specified --
+        if self.jaxMetaLearnerOptions.load_model is not None:
+            self.metaOptimizer = eqx.tree_deserialise_leaves(
+                self.jaxMetaLearnerOptions.load_model + "/meta_learner_model.eqx", self.metaOptimizer
+            )
 
         # -- optimizer --
         trainable_mask = self.get_trainable_mask(self.metaOptimizer)
         self.optimizer = optax.chain(
-            #optax.clip_by_global_norm(1.0),  # Max norm of 1.0
+            # optax.clip_by_global_norm(1.0),  # Max norm of 1.0
             optax.adam(learning_rate=self.jaxMetaLearnerOptions.metaLearningRate),
         )
         dynamic, static = eqx.partition(self.metaOptimizer, trainable_mask)
@@ -370,7 +375,7 @@ def main_jax_rnn_meta_learner():
 
     # -- load data
     numWorkers = 2
-    epochs = 5000
+    epochs = 1000
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
@@ -412,12 +417,12 @@ def main_jax_rnn_meta_learner():
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/post_cosyne_rnn_check_mode_9/0/20251206-005104"
+    continue_training = current_dir + "/results_2/jax_rnn_meta_learner_6_no_grad/20251222-235246"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_6_new_grad_7_no_tau",
+        results_subdir="jax_rnn_6_gra_continue",
         metatrain_dataset="emnist",
         display=True,
         metaLearningRate=0.0007,
@@ -436,6 +441,7 @@ def main_jax_rnn_meta_learner():
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=7,
+        load_model=continue_training,
     )
 
     metalearning_model = JaxMetaLearnerRNN(
