@@ -63,7 +63,7 @@ class JaxMetaLearnerRNN:
         # -- optimizer --
         trainable_mask = self.get_trainable_mask(self.metaOptimizer)
         self.optimizer = optax.chain(
-            optax.clip_by_global_norm(1.0),  # Max norm of 1.0
+            #optax.clip_by_global_norm(1.0),  # Max norm of 1.0
             optax.adam(learning_rate=self.jaxMetaLearnerOptions.metaLearningRate),
         )
         dynamic, static = eqx.partition(self.metaOptimizer, trainable_mask)
@@ -417,7 +417,7 @@ def main_jax_rnn_meta_learner():
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_6_new_grad_3",
+        results_subdir="jax_rnn_6_new_grad_7_no_tau",
         metatrain_dataset="emnist",
         display=True,
         metaLearningRate=0.0007,
