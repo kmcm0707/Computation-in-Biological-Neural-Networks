@@ -30,6 +30,8 @@ class RosenbaumRNN(nn.Module):
         biological_min_tau: int = 1,
         biological_max_tau: int = 56,
         biological_nonlinearity: nonLinearEnum = nonLinearEnum.tanh,
+        recurrent_nonlinearity: nonLinearEnum = nonLinearEnum.softplus,
+        output_nonlinearity: nonLinearEnum = nonLinearEnum.tanh,
         hidden_size: int = 128,
     ):
 
@@ -46,11 +48,22 @@ class RosenbaumRNN(nn.Module):
         self.biological_min_tau = biological_min_tau
         self.biological_max_tau = biological_max_tau
         self.hidden_size = hidden_size
+
         if biological_nonlinearity == nonLinearEnum.softplus:
             self.beta = 10
             self.biological_nonlinearity = nn.Softplus(beta=self.beta)
         else:
             self.biological_nonlinearity = biological_nonlinearity
+        if recurrent_nonlinearity == nonLinearEnum.softplus:
+            self.beta = 10
+            self.recurrent_nonlinearity = nn.Softplus(beta=self.beta)
+        else:
+            self.recurrent_nonlinearity = recurrent_nonlinearity
+        if output_nonlinearity == nonLinearEnum.softplus:
+            self.beta = 10
+            self.output_nonlinearity = nn.Softplus(beta=self.beta)
+        else:
+            self.output_nonlinearity = output_nonlinearity
 
         if not self.biological:
             # -- layers
@@ -94,7 +107,9 @@ class RosenbaumRNN(nn.Module):
             self.out1 = self.forward1(x)
 
             self.hx1 = self.y_vector * self.hx1 + self.z_vector * (
-                self.biological_nonlinearity(self.out1) + torch.tanh(self.recurrent1(self.hx1))
+                self.output_nonlinearity(
+                    self.biological_nonlinearity(self.out1) + self.recurrent_nonlinearity(self.recurrent1(self.hx1))
+                )
             )
 
             # -- compute output
@@ -132,6 +147,8 @@ class RnnMetaLearner:
         biological_min_tau: int = 1,
         biological_max_tau: int = 56,
         biological_nonlinearity: nonLinearEnum = nonLinearEnum.tanh,
+        recurrent_nonlinearity: nonLinearEnum = nonLinearEnum.softplus,
+        output_nonlinearity: nonLinearEnum = nonLinearEnum.tanh,
         hidden_size: int = 128,
     ):
 
@@ -145,6 +162,8 @@ class RnnMetaLearner:
         self.biological_min_tau = biological_min_tau
         self.biological_max_tau = biological_max_tau
         self.biological_nonlinearity = biological_nonlinearity
+        self.recurrent_nonlinearity = recurrent_nonlinearity
+        self.output_nonlinearity = output_nonlinearity
         self.hidden_size = hidden_size
 
         # -- data params
@@ -233,6 +252,8 @@ class RnnMetaLearner:
             biological_min_tau=self.biological_min_tau,
             biological_max_tau=self.biological_max_tau,
             biological_nonlinearity=self.biological_nonlinearity,
+            recurrent_nonlinearity=self.recurrent_nonlinearity,
+            output_nonlinearity=self.output_nonlinearity,
             hidden_size=self.hidden_size,
         )
         return model
@@ -377,7 +398,7 @@ def run(
 
     # -- load data
     numWorkers = 6
-    epochs = 10
+    epochs = 20
     numberOfClasses = 5
     trainingDataPerClass = trainingDataPerClass
     dimOut = 47
@@ -424,6 +445,8 @@ def run(
         biological_min_tau=1,
         biological_max_tau=7,
         biological_nonlinearity=nonLinearEnum.softplus,
+        recurrent_nonlinearity=nonLinearEnum.softplus,
+        output_nonlinearity=nonLinearEnum.tanh,
         hidden_size=128,
     )
     metalearning_model.train()
@@ -490,7 +513,7 @@ def rnn_backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_rnn_backprop_mode_4_128_tanh/{}".format(dim),
+                result_subdirectory="runner_rnn_backprop_post_cosyne/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
