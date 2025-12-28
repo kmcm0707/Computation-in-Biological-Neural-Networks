@@ -375,10 +375,10 @@ def main_jax_rnn_meta_learner():
 
     # -- load data
     numWorkers = 2
-    epochs = 1000
+    epochs = 200
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 5
+    minTrainingDataPerClass = 60
     maxTrainingDataPerClass = 70
     queryDataPerClass = 10
 
@@ -417,7 +417,7 @@ def main_jax_rnn_meta_learner():
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/jax_rnn_meta_learner_6_no_grad/20251222-235246"
+    continue_training = current_dir + "/results_2/jax_rnn_6_gra_continue/20251228-175351"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,

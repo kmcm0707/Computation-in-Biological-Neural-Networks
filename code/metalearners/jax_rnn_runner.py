@@ -362,12 +362,12 @@ def jax_runner(index: int):
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    runner = current_dir + "/results_2/jax_rnn_meta_learner_6_no_grad/20251222-235246"
+    runner = current_dir + "/results_2/jax_rnn_6_gra_continue/20251228-184025"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_rnn_meta_learner_6_no_grad_grad_no_tau",
+        results_subdir="runner_jax_rnn_grad_2",
         metatrain_dataset="emnist",
         display=True,
         metaLearningRate=None,
