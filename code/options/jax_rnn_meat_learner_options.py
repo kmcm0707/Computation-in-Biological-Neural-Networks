@@ -38,6 +38,7 @@ class JaxRnnMetaLearnerOptions:
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps: int = 10,
+        load_model: str = None,
     ):
         self.seed = seed
         self.save_results = save_results
@@ -60,6 +61,7 @@ class JaxRnnMetaLearnerOptions:
         self.outer_activation = outer_activation
         self.recurrent_activation = recurrent_activation
         self.number_of_time_steps = number_of_time_steps
+        self.load_model = load_model
 
     def __str__(self):
         string = ""

@@ -9,6 +9,7 @@ except RuntimeError:
 from metalearners.jax_rnn_meta_learner_main import (  # noqa: F401
     main_jax_rnn_meta_learner,
 )
+from metalearners.jax_rnn_runner import main_jax_runner  # noqa: F401
 from metalearners.meta_learner_main import main  # noqa: F401
 from metalearners.rnn_meta_learner_main import main_rnn  # noqa: F401
 from metalearners.runner import runner_main  # noqa: F401
@@ -33,4 +34,5 @@ if __name__ == "__main__":
     # main_runner_rnn()
     # rflo_main()
     # rflo_main_2()
-    main_jax_rnn_meta_learner()
+    # main_jax_rnn_meta_learner()
+    main_jax_runner()

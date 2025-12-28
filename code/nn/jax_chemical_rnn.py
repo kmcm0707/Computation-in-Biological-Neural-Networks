@@ -142,27 +142,28 @@ class JAXChemicalRNN(eqx.Module):
             "forward3": (h_new, y),
         }"""
         activations = {
-            "forward1": (x, h_new),
-            "forward2": (h, h_new),  # (recurrent_input_activated, recurrent_input),
+            "forward1": (x, h1_activated),
+            "forward2": (h, recurrent_input_activated),  # (recurrent_input_activated, recurrent_input),
             "forward3": (h_new, y),
         }
         if self.gradient:
             gradients = {
                 "forward1": (
-                    1 - jnp.exp(-self.beta * x),
-                    jax.vmap(jax.grad(self.softplus))(h1) * jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau),
+                    -jnp.expm1(-self.beta * x),
+                    jax.vmap(jax.grad(self.softplus))(h1)
+                    * jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau),  # * 1.0 / self.tau,
                 ),
                 "forward2": (
-                    (jax.vmap(jax.grad(self.outer_activation))(past_h_new_pre_tau)),
+                    (jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau)),  # * 1.0 / self.tau,
                     (
                         jax.vmap(jax.grad(self.recurrent_activation))(recurrent_input)
                         * jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau)
                         if self.recurrent_activation
-                        else jnp.ones_like(recurrent_input)  # * 1.0 / self.tau
+                        else jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau)  # * 1.0 / self.tau
                     ),
                 ),
                 "forward3": (
-                    (jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau)),
+                    (jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau)),  # * 1.0 / self.tau,
                     jnp.ones_like(y),
                 ),
             }
