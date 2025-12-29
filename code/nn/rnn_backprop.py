@@ -457,12 +457,12 @@ def run(
         # -- model params
         biological=True,
         biological_min_tau=1,
-        biological_max_tau=7,
+        biological_max_tau=14,
         biological_nonlinearity=nonLinearEnum.softplus,
         recurrent_nonlinearity=nonLinearEnum.softplus,
         output_nonlinearity=nonLinearEnum.tanh,
         hidden_size=128,
-        update_after_time_step=True,
+        update_after_time_step=False,
     )
     metalearning_model.train()
 
@@ -482,7 +482,7 @@ def rnn_backprop_main():
     :return: None
     """
     # -- run
-    dimIn = [112]
+    dimIn = [56]
     """trainingDataPerClass = [
         10,
         20,
@@ -528,7 +528,7 @@ def rnn_backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_rnn_backprop_post_cosyne_after_every/{}".format(dim),
+                result_subdirectory="runner_rnn_backprop_14_2/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
