@@ -33,6 +33,7 @@ class RosenbaumRNN(nn.Module):
         recurrent_nonlinearity: nonLinearEnum = nonLinearEnum.softplus,
         output_nonlinearity: nonLinearEnum = nonLinearEnum.tanh,
         hidden_size: int = 128,
+        update_after_time_step: bool = False,
     ):
 
         # Initialize the parent class
@@ -48,6 +49,7 @@ class RosenbaumRNN(nn.Module):
         self.biological_min_tau = biological_min_tau
         self.biological_max_tau = biological_max_tau
         self.hidden_size = hidden_size
+        self.update_after_time_step = update_after_time_step
 
         if biological_nonlinearity == nonLinearEnum.softplus:
             self.beta = 10
@@ -115,6 +117,9 @@ class RosenbaumRNN(nn.Module):
             # -- compute output
             output = self.forward2(self.hx1)
 
+            if self.update_after_time_step:
+                self.hx1 = self.hx1.detach()
+
             # return (x, self.hx1), output
             return (x, self.hx1), output
 
@@ -150,6 +155,7 @@ class RnnMetaLearner:
         recurrent_nonlinearity: nonLinearEnum = nonLinearEnum.softplus,
         output_nonlinearity: nonLinearEnum = nonLinearEnum.tanh,
         hidden_size: int = 128,
+        update_after_time_step: bool = False,
     ):
 
         # -- processor params
@@ -165,6 +171,7 @@ class RnnMetaLearner:
         self.recurrent_nonlinearity = recurrent_nonlinearity
         self.output_nonlinearity = output_nonlinearity
         self.hidden_size = hidden_size
+        self.update_after_time_step = update_after_time_step
 
         # -- data params
         self.trainingDataPerClass = trainingDataPerClass
@@ -255,6 +262,7 @@ class RnnMetaLearner:
             recurrent_nonlinearity=self.recurrent_nonlinearity,
             output_nonlinearity=self.output_nonlinearity,
             hidden_size=self.hidden_size,
+            update_after_time_step=self.update_after_time_step,
         )
         return model
 
@@ -314,14 +322,20 @@ class RnnMetaLearner:
                 for input in x_reshaped:
                     # -- predict
                     y, logits = self.model(input.unsqueeze(0))
+                    if self.update_after_time_step:
+                        loss_adapt = self.loss_func(logits, label)
+                        self.UpdateParameters.zero_grad()
+                        loss_adapt.backward()
+                        self.UpdateParameters.step()
 
-                # -- update network params
-                loss_adapt = self.loss_func(logits, label)
+                if not self.update_after_time_step:
+                    # -- update network params
+                    loss_adapt = self.loss_func(logits, label)
 
-                # -- backprop
-                self.UpdateParameters.zero_grad()
-                loss_adapt.backward()
-                self.UpdateParameters.step()
+                    # -- backprop
+                    self.UpdateParameters.zero_grad()
+                    loss_adapt.backward()
+                    self.UpdateParameters.step()
 
             # -- predict
             self.model.eval()
@@ -448,6 +462,7 @@ def run(
         recurrent_nonlinearity=nonLinearEnum.softplus,
         output_nonlinearity=nonLinearEnum.tanh,
         hidden_size=128,
+        update_after_time_step=True,
     )
     metalearning_model.train()
 
@@ -513,7 +528,7 @@ def rnn_backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_rnn_backprop_post_cosyne/{}".format(dim),
+                result_subdirectory="runner_rnn_backprop_post_cosyne_after_every/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
