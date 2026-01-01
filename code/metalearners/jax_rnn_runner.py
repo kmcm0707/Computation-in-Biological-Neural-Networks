@@ -362,12 +362,12 @@ def jax_runner(index: int):
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    runner = current_dir + "/results_2/jax_rnn_6_gra_continue/20251228-184025"
+    runner = current_dir + "/results_2/jax_rnn_6_grad_14/20251231-161259"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_rnn_grad_2_28",
+        results_subdir="runner_jax_rnn_grad_3_14_trained_0",
         metatrain_dataset="emnist",
         display=True,
         metaLearningRate=None,
@@ -377,15 +377,15 @@ def jax_runner(index: int):
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        input_size=int(28 * 28 / 28),
+        input_size=int(28 * 28 / 14),
         hidden_size=128,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=28,
+        biological_max_tau=14,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
-        number_of_time_steps=28,
+        number_of_time_steps=14,
         load_model=runner,
     )
 

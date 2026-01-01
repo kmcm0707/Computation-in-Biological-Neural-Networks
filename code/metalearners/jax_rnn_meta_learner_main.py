@@ -417,12 +417,12 @@ def main_jax_rnn_meta_learner():
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/jax_rnn_6_gra_continue/20251228-175351"
+    continue_training = current_dir + "/results_2/jax_rnn_6_grad_14/20251231-161259"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_6_gra_continue",
+        results_subdir="jax_rnn_6_grad_14",
         metatrain_dataset="emnist",
         display=True,
         metaLearningRate=0.0007,
@@ -432,15 +432,15 @@ def main_jax_rnn_meta_learner():
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        input_size=int(28 * 28 / 7),
+        input_size=int(28 * 28 / 14),
         hidden_size=128,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=7,
+        biological_max_tau=14,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
-        number_of_time_steps=7,
+        number_of_time_steps=14,
         load_model=continue_training,
     )
 
