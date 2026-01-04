@@ -527,6 +527,254 @@ class CombinedDataset(Dataset):
         )
 
 
+class AddingTaskDataset(Dataset):
+    """
+        Adding Task Dataset class.
+
+    Constructs training and query sets for meta-training on the adding task.
+    Each data point consists of two sequences of numbers and a target value
+    representing the sum of two specific elements from the first sequence,
+    as indicated by the second sequence.
+    """
+
+    def __init__(
+        self,
+        minSequenceLength: int,
+        maxSequenceLength: int,
+        numberOfSequences: int,
+        device: Literal["cpu", "cuda"] = "cpu",
+        use_jax: bool = False,
+    ):
+        """
+            Initialize the AddingTaskDataset class.
+
+        :param sequenceLength: (int) Length of each sequence,
+        :param numberOfSequences: (int) Number of sequences in the dataset,
+        :param device: (str) The processing device to use. Default is 'cpu',
+        """
+        self.minSequenceLength = minSequenceLength
+        self.maxSequenceLength = maxSequenceLength
+        self.numberOfSequences = numberOfSequences
+        self.device = device
+        self.use_jax = use_jax
+
+    def __len__(self):
+        """
+            Get the length of the dataset.
+
+        :return: int: the length of the dataset, i.e., the number of sequences
+            in the dataset
+        """
+        return self.numberOfSequences
+
+    def __getitem__(self, index: int):
+        """
+            Return a data point from the dataset based on the given index.
+
+        Each data point consists of two sequences of numbers and a target value
+        representing the sum of two specific elements from the first sequence,
+        as indicated by the second sequence.
+
+        :param index: (int) Index of the data point to be retrieved.
+        :return: tuple: A tuple containing two sequences and a target value.
+        """
+        sequenceLength = np.random.randint(self.minSequenceLength, self.maxSequenceLength + 1)
+        seq1 = np.random.rand(sequenceLength).astype(np.float32)
+        idx1 = np.random.randint(0, sequenceLength // 2)
+        idx2 = np.random.randint(sequenceLength // 2, sequenceLength)
+        seq2 = np.zeros(sequenceLength, dtype=np.float32)
+        seq2[idx1] = 1.0
+        seq2[idx2] = 1.0
+        target = seq1[idx1] + seq1[idx2]
+
+        if not self.use_jax:
+            seq1 = torch.tensor(seq1).to(self.device)
+            seq2 = torch.tensor(seq2).to(self.device)
+            target = torch.tensor(target).to(self.device)
+        return seq1, seq2, target
+
+
+class AddBernoulliTaskDataset(Dataset):
+    """
+        Add Bernoulli Task Dataset class.
+
+    Constructs training and query sets for meta-training on the adding
+    Bernoulli task. Each data point consists of 1 sequence of Bernoulli
+    numbers and a target value representing the sum of two specific
+    numbers from the sequence, with a lag
+    """
+
+    def __init__(
+        self,
+        minSequenceLength: int,
+        maxSequenceLength: int,
+        querySequenceLength: int = 10,
+        device: Literal["cpu", "cuda"] = "cpu",
+        use_jax: bool = False,
+    ):
+        """
+            Initialize the AddBernoulliTaskDataset class.
+
+        :param sequenceLength: (int) Length of each sequence,
+        :param numberOfSequences: (int) Number of sequences in the dataset,
+        :param device: (str) The processing device to use. Default is 'cpu',
+        """
+        self.minSequenceLength = minSequenceLength
+        self.maxSequenceLength = maxSequenceLength
+        self.querySequenceLength = querySequenceLength
+        self.device = device
+        self.use_jax = use_jax
+
+    def __len__(self):
+        """
+            Get the length of the dataset.
+
+        :return: int: the length of the dataset, i.e., the number of sequences
+            in the dataset
+        """
+        return 1000000  # Arbitrary large number for infinite sampling
+
+    def __getitem__(self, index: int):
+
+        sequenceLength = np.random.randint(self.minSequenceLength, self.maxSequenceLength + 1)
+        seq1 = np.random.binomial(1, 0.5, sequenceLength).astype(np.float32)
+        seq1 = torch.tensor(seq1)
+        seq2 = np.random.binomial(1, 0.5, self.querySequenceLength).astype(np.float32)
+        seq2 = torch.tensor(seq2)
+        return seq1, seq2
+
+
+class AddBernoulliTaskDataProcess:
+    """
+        Add Bernoulli Task data processor class.
+
+    The function is designed to process adding Bernoulli task data, specifically
+    sequences and their corresponding targets.
+    """
+
+    def __init__(
+        self,
+        device: Literal["cpu", "cuda"] = "cpu",
+        min_lag_1: int = 1,
+        max_lag_1: int = 10,
+        min_lag_2: int = 1,
+        max_lag_2: int = 10,
+        use_jax: bool = False,
+    ):
+        """
+            Initialize the AddBernoulliTaskDataProcess object.
+
+        :param device: (str) The processing device to use. Default is 'cpu',
+        """
+        self.device = device
+        self.use_jax = use_jax
+        self.min_lag_1 = min_lag_1
+        self.max_lag_1 = max_lag_1
+        self.min_lag_2 = min_lag_2
+        self.max_lag_2 = max_lag_2
+
+    def __call__(self, data):
+        """
+            Processing adding Bernoulli task data.
+
+        :param data: (tuple) A tuple of sequences and their corresponding targets.
+        :return: tuple: A tuple of processed sequences and their corresponding targets.
+        f(x) = 0.5 + 0.5*(x_{t-lag_1}) - 0.25*(x_{t-lag_2})
+        """
+
+        seq1, seq2 = data
+        roll_1 = np.random.randint(self.min_lag_1, self.max_lag_1 + 1)
+        roll_2 = np.random.randint(self.min_lag_2, self.max_lag_2 + 1)
+
+        rolled_seq_11 = torch.roll(seq1, shifts=roll_1, dims=1)
+        rolled_seq_12 = torch.roll(seq1, shifts=roll_2, dims=1)
+
+        rolled_seq_21 = torch.roll(seq2, shifts=roll_1, dims=1)
+        rolled_seq_22 = torch.roll(seq2, shifts=roll_2, dims=1)
+
+        rolled_seq_11 = rolled_seq_11[:, roll_1:]
+        rolled_seq_12 = rolled_seq_12[:, roll_2:]
+        rolled_seq_21 = rolled_seq_21[:, roll_1:]
+        rolled_seq_22 = rolled_seq_22[:, roll_2:]
+
+        rolled_seq_11 = torch.cat((torch.zeros((seq1.shape[0], roll_1), device=seq1.device), rolled_seq_11), dim=1)
+        rolled_seq_12 = torch.cat((torch.zeros((seq1.shape[0], roll_2), device=seq1.device), rolled_seq_12), dim=1)
+
+        rolled_seq_21 = torch.cat((torch.zeros((seq2.shape[0], roll_1), device=seq2.device), rolled_seq_21), dim=1)
+        rolled_seq_21[:, 0:roll_1] = seq1[:, -roll_1:]  # add dependency
+        rolled_seq_22 = torch.cat((torch.zeros((seq2.shape[0], roll_2), device=seq2.device), rolled_seq_22), dim=1)
+        rolled_seq_22[:, 0:roll_2] = seq1[:, -roll_2:]  # add dependency
+
+        y_05 = torch.ones_like(seq1) * 0.5
+        y_052 = torch.ones_like(seq2) * 0.5
+
+        target = y_05 + rolled_seq_11 * 0.5 - rolled_seq_12 * 0.25
+        target_2 = y_052 + rolled_seq_21 * 0.5 - rolled_seq_22 * 0.25
+
+        seq1 = torch.cat((seq1, 1 - seq1), dim=0).T
+        seq2 = torch.cat((seq2, 1 - seq2), dim=0).T
+        target = torch.cat((target, 1 - target), dim=0).T
+        target_2 = torch.cat((target_2, 1 - target_2), dim=0).T
+
+        if not self.use_jax:
+            seq1 = seq1.to(self.device)
+            seq2 = seq2.to(self.device)
+            target = target.to(self.device)
+            target_2 = target_2.to(self.device)
+        else:
+            seq1 = np.array(seq1)
+            seq2 = np.array(seq2)
+            target = np.array(target)
+            target_2 = np.array(target_2)
+
+        return seq1, target, seq2, target_2, roll_1, roll_2
+
+
+class RnnDataProcess:
+    """
+        RNN data processor class.
+
+    The function is designed to process RNN data, specifically sequences and
+    their corresponding targets. The function performs several operations,
+    including:
+    1) Transferring the processed data to the specified processing device,
+        which could either be 'cpu' or 'cuda'.
+    """
+
+    def __init__(
+        self,
+        device: Literal["cpu", "cuda"] = "cpu",
+        minNumberOfSequences: int = 20,
+        maxNumberOfSequences: int = 40,
+        use_jax: bool = False,
+    ):
+        """
+            Initialize the RnnDataProcess object.
+
+        :param device: (str) The processing device to use. Default is 'cpu',
+        """
+        self.device = device
+        self.use_jax = use_jax
+        self.minNumberOfSequences = minNumberOfSequences
+        self.maxNumberOfSequences = maxNumberOfSequences
+
+    def __call__(self, data):
+        """
+            Processing RNN data.
+
+        :param data: (tuple) A tuple of sequences and their corresponding targets.
+        :return: tuple: A tuple of processed sequences and their corresponding targets.
+        """
+
+        seq, target = data
+
+        if not self.use_jax:
+            seq = seq.to(self.device)
+            target = target.to(self.device)
+
+        return seq, target
+
+
 class DataProcess:
     """
         Meta-training data processor class.

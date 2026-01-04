@@ -6,7 +6,13 @@ from typing import Literal
 
 import numpy as np
 import torch
-from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset
+from misc.dataset import (
+    AddBernoulliTaskDataProcess,
+    AddBernoulliTaskDataset,
+    DataProcess,
+    EmnistDataset,
+    FashionMnistDataset,
+)
 from misc.utils import log
 from options.complex_options import nonLinearEnum
 from torch import nn, optim
@@ -128,6 +134,10 @@ class RosenbaumRNN(nn.Module):
         self.hx1 = torch.zeros(batch_size, self.hidden_size).to(self.device)
         # self.hx2 = torch.zeros(batch_size, 128).to(self.device)
 
+    def detach_hidden(self):
+        self.hx1 = self.hx1.detach()
+        # self.hx2 = self.hx2.detach()
+
 
 class RnnMetaLearner:
     """
@@ -142,6 +152,7 @@ class RnnMetaLearner:
         result_subdirectory: str = datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),
         save_results: bool = True,
         metatrain_dataset=None,
+        dataset_name: str = "EMNIST",
         seed: int = 0,
         number_of_classes: int = 5,
         trainingDataPerClass: int = 50,
@@ -156,6 +167,7 @@ class RnnMetaLearner:
         output_nonlinearity: nonLinearEnum = nonLinearEnum.tanh,
         hidden_size: int = 128,
         update_after_time_step: bool = False,
+        manually_update_after_time_step: int = 5,
     ):
 
         # -- processor params
@@ -172,18 +184,25 @@ class RnnMetaLearner:
         self.output_nonlinearity = output_nonlinearity
         self.hidden_size = hidden_size
         self.update_after_time_step = update_after_time_step
+        self.manually_update_after_time_step = manually_update_after_time_step
 
         # -- data params
         self.trainingDataPerClass = trainingDataPerClass
         self.queryDataPerClass = 20
         self.metatrain_dataset = metatrain_dataset
-        self.data_process = DataProcess(
-            minTrainingDataPerClass=self.trainingDataPerClass,
-            maxTrainingDataPerClass=self.trainingDataPerClass,
-            queryDataPerClass=self.queryDataPerClass,
-            dimensionOfImage=28,
-            device=self.device,
-        )
+        self.dataset_name = dataset_name
+        if self.dataset_name == "ADDBERNOULLI":
+            self.data_process = AddBernoulliTaskDataProcess(
+                device=self.device, min_lag_1=5, max_lag_1=5, min_lag_2=8, max_lag_2=8
+            )
+        else:
+            self.data_process = DataProcess(
+                minTrainingDataPerClass=self.trainingDataPerClass,
+                maxTrainingDataPerClass=self.trainingDataPerClass,
+                queryDataPerClass=self.queryDataPerClass,
+                dimensionOfImage=28,
+                device=self.device,
+            )
         self.number_of_classes = number_of_classes
 
         # -- model params
@@ -193,10 +212,13 @@ class RnnMetaLearner:
         else:
             self.model = self.load_model().to(self.device)
 
-        self.loss_func = nn.CrossEntropyLoss()
+        if self.dataset_name == "ADDBERNOULLI":
+            self.loss_func = nn.CrossEntropyLoss()
+        else:
+            self.loss_func = nn.CrossEntropyLoss()
 
-        lr = 1e-3
-        self.UpdateParameters = optim.Adam(self.model.parameters(), lr=lr)
+        self.lr = 1e-2
+        self.UpdateParameters = optim.Adam(self.model.parameters(), lr=self.lr)
 
         # -- log params
         self.save_results = save_results
@@ -307,28 +329,74 @@ class RnnMetaLearner:
             # -- reinitialize model
             self.model.train()
             self.model.apply(self.weights_init)
-            self.UpdateParameters = optim.Adam(self.model.parameters(), lr=1e-3)
+            self.UpdateParameters = optim.Adam(self.model.parameters(), lr=self.lr)
 
             # -- training data
-            x_trn, y_trn, x_qry, y_qry, current_training_data = self.data_process(data, self.number_of_classes)
+            if self.dataset_name == "ADDBERNOULLI":
+                x_trn, y_trn, x_qry, y_qry, roll_1, roll_2 = self.data_process(
+                    data
+                )  # current_training_data is current lag
+                x_trn = x_trn.unsqueeze(0)
+                y_trn = y_trn.unsqueeze(0)
+                x_qry = x_qry.unsqueeze(0)
+                y_qry = y_qry.unsqueeze(0)
+
+                current_training_data = x_trn.shape[1]
+            else:
+                x_trn, y_trn, x_qry, y_qry, current_training_data = self.data_process(data, self.number_of_classes)
 
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
 
                 self.model.reset_hidden(batch_size=1)
 
-                x_reshaped = torch.reshape(x, (784 // self.dimIn, self.dimIn))
+                # -- reshape input
+                if self.dataset_name != "ADDBERNOULLI":
+                    x_reshaped = torch.reshape(x, (784 // self.dimIn, self.dimIn))
+                else:
+                    x_reshaped = torch.reshape(x, (x.shape[0], self.dimIn))
 
-                for input in x_reshaped:
+                window_logits = []
+
+                for current_time_step, input in enumerate(x_reshaped):
                     # -- predict
-                    y, logits = self.model(input.unsqueeze(0))
+                    y, logits = self.model(
+                        input.unsqueeze(0),
+                    )
+                    window_logits.append(logits)
                     if self.update_after_time_step:
-                        loss_adapt = self.loss_func(logits, label)
+                        if self.dataset_name == "ADDBERNOULLI":
+                            loss_adapt = self.loss_func(logits, label[current_time_step, :].unsqueeze(0))
+                        else:
+                            loss_adapt = self.loss_func(logits, label)
                         self.UpdateParameters.zero_grad()
                         loss_adapt.backward()
                         self.UpdateParameters.step()
+                    elif self.manually_update_after_time_step > 0:
+                        if (current_time_step + 1) % self.manually_update_after_time_step == 0:
+                            pred = torch.stack(window_logits)
+                            pred = pred.squeeze(1)
+                            if self.dataset_name == "ADDBERNOULLI":
+                                loss_adapt = self.loss_func(
+                                    pred,
+                                    label[
+                                        current_time_step
+                                        - self.manually_update_after_time_step
+                                        + 1 : current_time_step
+                                        + 1,
+                                        :,
+                                    ],
+                                )
+                            else:
+                                loss_adapt = self.loss_func(logits, label)
+                            if current_time_step + 1 > 10 and self.dataset_name == "ADDBERNOULLI":
+                                self.UpdateParameters.zero_grad()
+                                loss_adapt.backward()
+                                self.UpdateParameters.step()
+                            self.model.detach_hidden()
+                            window_logits = []
 
-                if not self.update_after_time_step:
+                if not self.update_after_time_step and self.manually_update_after_time_step <= 0:
                     # -- update network params
                     loss_adapt = self.loss_func(logits, label)
 
@@ -339,17 +407,37 @@ class RnnMetaLearner:
 
             # -- predict
             self.model.eval()
-            x_qry = torch.reshape(x_qry, (x_qry.shape[0], 784 // self.dimIn, self.dimIn))
+            if self.dataset_name != "ADDBERNOULLI":
+                x_qry = torch.reshape(x_qry, (x_qry.shape[0], 784 // self.dimIn, self.dimIn))
+            else:
+                x_qry = torch.reshape(x_qry, (x_qry.shape[0], x_qry.shape[1], self.dimIn))
 
-            self.model.reset_hidden(batch_size=x_qry.shape[0])
+            if self.dataset_name != "ADDBERNOULLI":
+                self.model.reset_hidden(batch_size=x_qry.shape[0])
+
+            if self.dataset_name != "ADDBERNOULLI":
+                all_logits = torch.zeros(x_qry.shape[0], x_qry.shape[1] // self.dimIn, self.dimOut).to(self.device)
+            else:
+                all_logits = torch.zeros(x_qry.shape[0], x_qry.shape[1], self.dimOut).to(self.device)
+
             for input_index in range(x_qry.shape[1]):
                 x = x_qry[:, input_index, :]
                 _, logits = self.model(x)
+                all_logits[:, input_index, :] = logits
 
             # -- compute and store stats
-            pred = torch.argmax(logits, dim=1)
-            acc = torch.eq(pred, y_qry.ravel()).sum().item() / len(y_qry.ravel())
-            loss_meta = self.loss_func(logits, y_qry.ravel())
+            if self.dataset_name == "ADDBERNOULLI":
+                all_logits = all_logits.squeeze(-1).squeeze()
+                y_qry = y_qry.squeeze()
+                print(all_logits.shape, y_qry.shape)
+                all_logits_softmax = torch.softmax(all_logits, dim=1)
+                print(all_logits_softmax[0:10, :], y_qry[0:10, :])
+                loss_meta = self.loss_func(all_logits, y_qry)
+                acc = -1  # Accuracy not defined for regression
+            else:
+                pred = torch.argmax(logits, dim=1)
+                acc = torch.eq(pred, y_qry.ravel()).sum().item() / len(y_qry.ravel())
+                loss_meta = self.loss_func(logits, y_qry.ravel())
 
             # -- log
             if self.save_results:
@@ -414,9 +502,8 @@ def run(
     numWorkers = 6
     epochs = 20
     numberOfClasses = 5
-    trainingDataPerClass = trainingDataPerClass
     dimOut = 47
-    dataset_name = "EMNIST"
+    dataset_name = "ADDBERNOULLI"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -437,6 +524,14 @@ def run(
             all_classes=True,
         )
         dimOut = 10
+    elif dataset_name == "ADDBERNOULLI":
+        dataset = AddBernoulliTaskDataset(
+            minSequenceLength=trainingDataPerClass, maxSequenceLength=trainingDataPerClass, querySequenceLength=100
+        )
+        dimOut = 2
+        dimIn = 2
+        numberOfClasses = 1
+
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
     metatrain_dataset = DataLoader(
         dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True, num_workers=numWorkers
@@ -449,6 +544,7 @@ def run(
         result_subdirectory=result_subdirectory,
         save_results=True,
         metatrain_dataset=metatrain_dataset,
+        dataset_name=dataset_name,
         seed=seed,
         number_of_classes=numberOfClasses,
         trainingDataPerClass=trainingDataPerClass,
@@ -457,12 +553,13 @@ def run(
         # -- model params
         biological=True,
         biological_min_tau=1,
-        biological_max_tau=28,
-        biological_nonlinearity=nonLinearEnum.softplus,
-        recurrent_nonlinearity=nonLinearEnum.softplus,
+        biological_max_tau=5,
+        biological_nonlinearity=pass_through,  # nonLinearEnum.softplus,
+        recurrent_nonlinearity=pass_through,  # nonLinearEnum.softplus,
         output_nonlinearity=nonLinearEnum.tanh,
-        hidden_size=128,
-        update_after_time_step=True,
+        hidden_size=32,
+        update_after_time_step=False,
+        manually_update_after_time_step=40,
     )
     metalearning_model.train()
 
@@ -513,22 +610,46 @@ def rnn_backprop_main():
         375,
     ]"""
     trainingDataPerClass = [
+        # 10,
+        9,
         10,
         20,
-        30,
-        40,
         50,
-        60,
-        70,
-        80,
+        75,
         90,
+        # 30,
+        100,
+        200,
+        300,
+        500,
+        700,
+        1000,
+        2000,
+        3000,
+        4000,
+        6000,
+        8000,
+        # 40,
+        # 50,
+        # 60,
+        # 70,
+        # 80,
+        # 90,
+        10000,
+        12000,
+        14000,
+        15000,
     ]
     for dim in dimIn:
         for trainingData in trainingDataPerClass:
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_rnn_backprop_post_cosyne_after_every/{}".format(dim),
+                result_subdirectory="backprop_add_bernoulli_test_true_lr4/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
+
+
+def pass_through(x):
+    return x

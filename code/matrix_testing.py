@@ -1,5 +1,6 @@
 import torch
-import torch.nn as nn
+from misc.dataset import AddBernoulliTaskDataProcess, AddBernoulliTaskDataset
+from torch.utils.data import DataLoader, RandomSampler
 
 if __name__ == "__main__":
     # -- test matrix
@@ -74,10 +75,10 @@ if __name__ == "__main__":
     print(z_vector)
     print(y_vector)"""
 
-    test_matrix_2 = nn.Parameter(torch.nn.init.xavier_uniform_(torch.empty(size=(3, 2, 2), device="cpu"))) * 0.1
+    """test_matrix_2 = nn.Parameter(torch.nn.init.xavier_uniform_(torch.empty(size=(3, 2, 2), device="cpu"))) * 0.1
     test_matrix = nn.Parameter(torch.nn.init.xavier_uniform_(torch.empty(size=(2, 2), device="cpu")))
     test_matrix_norm = torch.norm(test_matrix, p=2)
-    test_matrix_2_norm = torch.norm(test_matrix_2, p=2, dim=(1, 2))
+    test_matrix_2_norm = torch.norm(test_matrix_2, p=2, dim=(1, 2))"""
     """divesor = test_matrix_norm / test_matrix_2_norm
     print(test_matrix_norm)
     print(test_matrix_2_norm)
@@ -162,7 +163,7 @@ if __name__ == "__main__":
     result_vector = y_vector * test_vector + z_vector * (test_vector @ test_matrix)
     print(torch.norm(result_vector) / torch.norm(test_vector))"""
 
-    linear = nn.Linear(4, 3, bias=False)
+    """linear = nn.Linear(4, 3, bias=False)
     x_vector = torch.randn((2, 4), requires_grad=True)
     z_vector = torch.randn((2, 4), requires_grad=True)
     y_vector = x_vector
@@ -179,7 +180,7 @@ if __name__ == "__main__":
         create_graph=True,
     )
     # grad = grad[0].requires_grad_(True)
-    print(grad)
+    print(grad)"""
     # print(z_vector)
 
     """matrix_1 = torch.randn((3, 4))
@@ -343,3 +344,19 @@ if __name__ == "__main__":
         x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = data_process(data, 2)
         print(y_trn)
         print(y_qry)"""
+
+    AddBernoulliTaskDatasetVal = AddBernoulliTaskDataset(
+        minSequenceLength=20, maxSequenceLength=50, querySequenceLength=10
+    )
+
+    data_process = AddBernoulliTaskDataProcess(device=torch.device("cpu"), min_lag=2, max_lag=10)
+    epochs = 1
+    sampler = RandomSampler(data_source=AddBernoulliTaskDatasetVal, replacement=True, num_samples=epochs)
+    metatrain_dataset = DataLoader(
+        dataset=AddBernoulliTaskDatasetVal, sampler=sampler, batch_size=1, drop_last=True, num_workers=1
+    )
+    for eps, data in enumerate(metatrain_dataset):
+        print(data.shape)
+        x_trn, y_trn = data_process(data)
+        print("x_trn:", x_trn)
+        print("y_trn:", y_trn)
