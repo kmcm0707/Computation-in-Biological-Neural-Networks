@@ -510,12 +510,12 @@ def run(
         dimIn=dimIn,
         # -- model params
         biological_min_tau=1,
-        biological_max_tau=5,
+        biological_max_tau=8,
         biological_nonlinearity=nonLinearEnum.tanh,
         hidden_size=32,
-        lr_in=0.005,
-        lr_hh=0.005,
-        lr_out=0.005,
+        lr_in=0.01,
+        lr_hh=0.01,
+        lr_out=0.01,
         reset_modulators=False,
     )
     metalearning_model.train()
@@ -558,8 +558,8 @@ def rflo_main_2():
     ]"""
     trainingDataPerClass = [
         # 10,
-        1,
-        5,
+        #1,
+        #5,
         9,
         10,
         20,
@@ -602,7 +602,7 @@ def rflo_main_2():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_murray_rflo_add/{}".format(dim),
+                result_subdirectory="runner_murray_rflo_add_max_2_3/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )

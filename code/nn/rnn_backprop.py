@@ -217,7 +217,7 @@ class RnnMetaLearner:
         else:
             self.loss_func = nn.CrossEntropyLoss()
 
-        self.lr = 1e-2
+        self.lr = 1e-3
         self.UpdateParameters = optim.Adam(self.model.parameters(), lr=self.lr)
 
         # -- log params
@@ -553,9 +553,9 @@ def run(
         # -- model params
         biological=True,
         biological_min_tau=1,
-        biological_max_tau=5,
-        biological_nonlinearity=pass_through,  # nonLinearEnum.softplus,
-        recurrent_nonlinearity=pass_through,  # nonLinearEnum.softplus,
+        biological_max_tau=2,
+        biological_nonlinearity=nonLinearEnum.softplus,
+        recurrent_nonlinearity=nonLinearEnum.softplus,
         output_nonlinearity=nonLinearEnum.tanh,
         hidden_size=32,
         update_after_time_step=False,
@@ -645,7 +645,7 @@ def rnn_backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="backprop_add_bernoulli_test_true_lr4/{}".format(dim),
+                result_subdirectory="backprop_add_bernoulli_max2/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
