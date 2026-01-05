@@ -118,8 +118,7 @@ class JAXChemicalRNN(eqx.Module):
             return y, h_new, None, None, None
 
         softmax_y = jax.nn.softmax(y)
-        label_one_hot = jax.nn.one_hot(label, num_classes=y.shape[-1])
-        error = softmax_y - label_one_hot
+        error = softmax_y - label
 
         w_pre1 = jax.lax.stop_gradient(self.pre_feedback1.weight)
         w_pre2 = jax.lax.stop_gradient(self.pre_feedback2.weight)

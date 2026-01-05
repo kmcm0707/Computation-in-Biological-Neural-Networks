@@ -5,7 +5,12 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 import optax
-from misc.dataset import DataProcess, EmnistDataset
+from misc.dataset import (
+    AddBernoulliTaskDataProcess,
+    AddBernoulliTaskDataset,
+    DataProcess,
+    EmnistDataset,
+)
 from misc.utils import Plot, accuracy, log
 from nn.jax_chemical_rnn import JAXChemicalRNN
 from options.complex_options import operatorEnum, yVectorEnum, zVectorEnum
@@ -46,14 +51,19 @@ class JaxMetaLearnerRNN:
         )
         self.save_results = self.jaxMetaLearnerOptions.save_results
         self.metaTrainingDataset = metaTrainingDataset
-        self.data_process = DataProcess(
-            minTrainingDataPerClass=self.jaxMetaLearnerOptions.minTrainingDataPerClass,
-            maxTrainingDataPerClass=self.jaxMetaLearnerOptions.maxTrainingDataPerClass,
-            queryDataPerClass=self.jaxMetaLearnerOptions.queryDataPerClass,
-            dimensionOfImage=28,
-            iid=True,
-            use_jax=True,
-        )
+        if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
+            self.data_process = AddBernoulliTaskDataProcess(
+                min_lag_1=5, max_lag_1=5, min_lag_2=8, max_lag_2=8, use_jax=True
+            )
+        else:
+            self.data_process = DataProcess(
+                minTrainingDataPerClass=self.jaxMetaLearnerOptions.minTrainingDataPerClass,
+                maxTrainingDataPerClass=self.jaxMetaLearnerOptions.maxTrainingDataPerClass,
+                queryDataPerClass=self.jaxMetaLearnerOptions.queryDataPerClass,
+                dimensionOfImage=28,
+                iid=True,
+                use_jax=True,
+            )
 
         self.numberOfChemicals = numberOfChemicals
         self.metaOptimizer = JAXFastRnn(numberOfChemicals, modelOptions)
@@ -103,6 +113,9 @@ class JaxMetaLearnerRNN:
     def inner_loop_per_image(self, carry, input):
         synaptic_weights, parameters, rnn, hidden_state, metaOptimizer, past_h_new_pre_tau = carry
         x, labels = input
+        if self.jaxMetaLearnerOptions.dataset_name != "ADDBERNOULLI":
+            labels = jax.nn.one_hot(labels, num_classes=self.jaxMetaLearnerOptions.output_size)
+
         y, hidden_state, past_h_new_pre_tau, activations_arr, errors_arr = rnn(
             x, hidden_state, labels, past_h_new_pre_tau
         )
@@ -141,13 +154,18 @@ class JaxMetaLearnerRNN:
         hidden_state = rnn.initialise_hidden_state(batch_size=1)
         past_h_new_pre_tau = rnn.initialise_hidden_state(batch_size=1)
         x, label = input
-        x = jnp.reshape(
-            x, (self.jaxMetaLearnerOptions.number_of_time_steps, -1)
-        )  # (time_steps, batch_size, input_size)
 
-        label = jnp.repeat(
-            label, repeats=self.jaxMetaLearnerOptions.number_of_time_steps, axis=0
-        )  # (time_steps, batch_size)
+        if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
+            x = jnp.reshape(x, (x.shape[0], -1))  # (time_steps, input_size)
+        else:
+            x = jnp.reshape(x, (self.jaxMetaLearnerOptions.number_of_time_steps, -1))  # (time_steps, input_size)
+
+        if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
+            label = jnp.reshape(label, (label.shape[0], -1))  # (time_steps, output_size)
+        else:
+            label = jnp.repeat(
+                label, repeats=self.jaxMetaLearnerOptions.number_of_time_steps, axis=0
+            )  # (time_steps, output_size)
 
         (new_synaptic_weights, new_parameters, new_rnn, hidden_state, metaOptimizer, past_h_new_pre_tau), y = (
             jax.lax.scan(
@@ -156,7 +174,7 @@ class JaxMetaLearnerRNN:
                 (x, label),
             )
         )
-        return (new_synaptic_weights, new_parameters, new_rnn, metaOptimizer), y
+        return (new_synaptic_weights, new_parameters, new_rnn, metaOptimizer), (y, hidden_state)
 
     def inner_loop_per_image_no_update(self, carry, input):
         hidden_state, rnn = carry
@@ -165,9 +183,18 @@ class JaxMetaLearnerRNN:
         return (hidden_state, rnn), y
 
     def full_inner_loop_no_update(self, input) -> jnp.ndarray:
-        x, number_of_timesteps, rnn = input
-        hidden_state = rnn.initialise_hidden_state(batch_size=x.shape[0])
-        x = jnp.reshape(x, (x.shape[0], number_of_timesteps, -1))  # (batch_size, time_steps, input_size)
+        x, number_of_timesteps, rnn, current_hidden_state = input
+
+        if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
+            hidden_state = current_hidden_state
+            hidden_state = jnp.reshape(hidden_state, (1, hidden_state.shape[-1]))
+        else:
+            hidden_state = rnn.initialise_hidden_state(batch_size=x.shape[0])
+
+        if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
+            x = jnp.reshape(x, (x.shape[0], x.shape[1], -1))  # (batch_size, time_steps, input_size)
+        else:
+            x = jnp.reshape(x, (x.shape[0], number_of_timesteps, -1))  # (batch_size, time_steps, input_size)
 
         # -- use vmap to process all sequences in the batch --
         def run_sequence(hidden_state, rnn, x):
@@ -201,7 +228,6 @@ class JaxMetaLearnerRNN:
         rnn = rnn
 
         # -- inner loop --
-        checkpointed_inner_loop = jax.checkpoint(self.full_inner_loop)
         carry_init = (
             synaptic_weights_tuple,
             parameters_tuple,
@@ -209,20 +235,29 @@ class JaxMetaLearnerRNN:
             metaOptimizer,
         )
 
-        (new_synaptic_weights, new_parameters, new_rnn, _), _ = jax.lax.scan(
-            checkpointed_inner_loop,
+        (new_synaptic_weights, new_parameters, new_rnn, _), (y, current_hidden_state) = jax.lax.scan(
+            self.full_inner_loop,
             carry_init,
             (x_trn, y_trn),
         )
 
         qry_predictions = self.full_inner_loop_no_update(
-            (x_qry, self.jaxMetaLearnerOptions.number_of_time_steps, new_rnn)
+            (x_qry, self.jaxMetaLearnerOptions.number_of_time_steps, new_rnn, current_hidden_state)
         )
-        qry_predictions = qry_predictions[:, -1, :]  # take last time step
-        one_hot_targets = jax.nn.one_hot(y_qry.flatten(), num_classes=self.jaxMetaLearnerOptions.output_size)
-        losses = self.loss_function(qry_predictions, one_hot_targets)
-        avg_loss = jnp.mean(losses)
-        acc = accuracy(qry_predictions, y_qry.ravel(), use_jax=True)
+
+        if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
+            qry_predictions = jnp.squeeze(qry_predictions)
+            y_qry = jnp.squeeze(y_qry)
+            losses = self.loss_function(qry_predictions, y_qry)
+            avg_loss = jnp.mean(losses)
+            acc = -1  # accuracy not defined for this task
+        else:
+            qry_predictions = qry_predictions[:, -1, :]  # take last time step
+            one_hot_targets = jax.nn.one_hot(y_qry.flatten(), num_classes=self.jaxMetaLearnerOptions.output_size)
+            losses = self.loss_function(qry_predictions, one_hot_targets)
+            avg_loss = jnp.mean(losses)
+            acc = accuracy(qry_predictions, y_qry.ravel(), use_jax=True)
+
         return avg_loss, acc
 
     @eqx.filter_jit
@@ -247,9 +282,21 @@ class JaxMetaLearnerRNN:
     def train(self):
         current_training_data_per_class = None
         for eps, data in enumerate(self.metaTrainingDataset):
-            x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(
-                data, self.jaxMetaLearnerOptions.numberOfClasses
-            )
+
+            if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
+                x_trn, y_trn, x_qry, y_qry, roll_1, roll_2 = self.data_process(
+                    data
+                )  # current_training_data is current lag
+                x_trn = jnp.expand_dims(x_trn, 0)
+                y_trn = jnp.expand_dims(y_trn, 0)
+                x_qry = jnp.expand_dims(x_qry, 0)
+                y_qry = jnp.expand_dims(y_qry, 0)
+
+                current_training_data_per_class = x_trn.shape[1]
+            else:
+                x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(
+                    data, self.jaxMetaLearnerOptions.numberOfClasses
+                )
             # -- convert to jax arrays --
             x_trn = jnp.array(x_trn)
             y_trn = jnp.array(y_trn)
@@ -319,10 +366,41 @@ def jax_runner(index: int):
 
     # -- load data
     numWorkers = 2
-    training_data = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
+    # training_data = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
+    training_data = [
+        # 10,
+        9,
+        10,
+        20,
+        50,
+        75,
+        90,
+        # 30,
+        100,
+        200,
+        300,
+        500,
+        700,
+        1000,
+        2000,
+        3000,
+        4000,
+        6000,
+        8000,
+        # 40,
+        # 50,
+        # 60,
+        # 70,
+        # 80,
+        # 90,
+        10000,
+        12000,
+        14000,
+        15000,
+    ]
     epochs = 20
 
-    dataset_name = "EMNIST"
+    dataset_name = "ADDBERNOULLI"
     minTrainingDataPerClass = training_data[index]
     maxTrainingDataPerClass = training_data[index]
     queryDataPerClass = 10
@@ -337,6 +415,16 @@ def jax_runner(index: int):
             use_jax=True,
         )
         dimOut = 47
+    elif dataset_name == "ADDBERNOULLI":
+        queryDataPerClass = 100
+        dataset = AddBernoulliTaskDataset(
+            minSequenceLength=minTrainingDataPerClass,
+            maxSequenceLength=maxTrainingDataPerClass,
+            querySequenceLength=100,
+        )
+        dimOut = 2
+        dimIn = 2
+        numberOfClasses = 1
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
     metatrain_dataset = DataLoader(
@@ -362,12 +450,12 @@ def jax_runner(index: int):
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    runner = current_dir + "/results_2/jax_rnn_6_grad_14/20251231-161259"
+    runner = current_dir + "/results_2/jax_rnn_6_grad_14/20251231-182555"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_rnn_grad_3_14_trained_0",
+        results_subdir="runner_jax_add",
         metatrain_dataset="emnist",
         display=True,
         metaLearningRate=None,
@@ -377,11 +465,11 @@ def jax_runner(index: int):
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        input_size=int(28 * 28 / 14),
-        hidden_size=128,
+        input_size=dimIn,  # int(28 * 28 / 14),
+        hidden_size=32,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=14,
+        biological_max_tau=8,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
