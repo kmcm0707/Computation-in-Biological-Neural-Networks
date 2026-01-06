@@ -421,7 +421,7 @@ def main_jax_rnn_meta_learner():
     numWorkers = 2
     epochs = 5000
 
-    dataset_name = "EMNIST"
+    dataset_name = "ADDBERNOULLI"
     minTrainingDataPerClass = 50
     maxTrainingDataPerClass = 300
     queryDataPerClass = 10
@@ -437,11 +437,11 @@ def main_jax_rnn_meta_learner():
         )
         dimOut = 47
     elif dataset_name == "ADDBERNOULLI":
-        queryDataPerClass = 100
+        queryDataPerClass = 50
         dataset = AddBernoulliTaskDataset(
             minSequenceLength=minTrainingDataPerClass,
             maxSequenceLength=maxTrainingDataPerClass,
-            querySequenceLength=100,
+            querySequenceLength=50,
         )
         dimOut = 2
         dimIn = 2
@@ -490,12 +490,12 @@ def main_jax_rnn_meta_learner():
         hidden_size=32,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=2,
-        gradient=False,
+        biological_max_tau=8,
+        gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=14,
-        load_model=None,
+        load_model=continue_training,
     )
 
     metalearning_model = JaxMetaLearnerRNN(
