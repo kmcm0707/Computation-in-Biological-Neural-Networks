@@ -455,7 +455,7 @@ def jax_runner(index: int):
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_add",
+        results_subdir="runner_jax_add_6",
         metatrain_dataset="emnist",
         display=True,
         metaLearningRate=None,
@@ -469,7 +469,7 @@ def jax_runner(index: int):
         hidden_size=32,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=8,
+        biological_max_tau=100,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
@@ -489,5 +489,5 @@ def jax_runner(index: int):
 
 
 def main_jax_runner():
-    for i in range(10):
+    for i in range(22):
         jax_runner(i)

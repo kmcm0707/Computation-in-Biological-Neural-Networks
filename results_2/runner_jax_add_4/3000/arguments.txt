@@ -1,0 +1,29 @@
+seed: 42
+save_results: True
+results_subdir: runner_jax_add_4
+metatrain_dataset: emnist
+display: True
+metaLearningRate: None
+numberOfClasses: 1
+dataset_name: ADDBERNOULLI
+chemicalInitialization: chemicalEnum.same
+minTrainingDataPerClass: 3000
+maxTrainingDataPerClass: 3000
+queryDataPerClass: 100
+input_size: 2
+hidden_size: 32
+output_size: 2
+biological_min_tau: 1
+biological_max_tau: 40
+gradient: True
+outer_activation: <PjitFunction of <function tanh at 0x7feea76ad630>>
+recurrent_activation: JaxActivationNonLinearEnum.softplus
+number_of_time_steps: 14
+load_model: /homes/kcm40/kcm40/Computation-in-Biological-Neural-Networks/results_2/jax_rnn_6_grad_14/20251231-182555
+nonLinear: <PjitFunction of <function tanh at 0x7feea76ad630>>
+update_rules: (0, 1, 2, 4, 9, 11)
+minSlowTau: 2
+maxSlowTau: 50
+y_vector: yVectorEnum.none
+z_vector: zVectorEnum.default
+operator: operatorEnum.mode_9
