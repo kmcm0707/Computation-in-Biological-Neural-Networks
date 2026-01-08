@@ -61,8 +61,8 @@ class JaxMetaLearnerRNN:
             )
         elif self.jaxMetaLearnerOptions.dataset_name == "IMDB":
             self.data_process = IMDBDataProcess(
-                minNumberOfSequences=self.jaxMetaLearnerOptions.minTrainingDataPerClass,
-                maxNumberOfSequences=self.jaxMetaLearnerOptions.maxTrainingDataPerClass,
+                minNumberOfSequencesPerClass=self.jaxMetaLearnerOptions.minTrainingDataPerClass,
+                maxNumberOfSequencesPerClass=self.jaxMetaLearnerOptions.maxTrainingDataPerClass,
                 use_jax=True,
             )
         else:
@@ -342,7 +342,7 @@ class JaxMetaLearnerRNN:
 
                 current_training_data_per_class = x_trn.shape[1]
             elif self.jaxMetaLearnerOptions.dataset_name == "IMDB":
-                x_trn, y_trn, x_qry, y_qry = self.data_process(data)
+                x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(data)
             else:
                 x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(
                     data, self.jaxMetaLearnerOptions.numberOfClasses
@@ -488,7 +488,7 @@ def main_jax_rnn_meta_learner():
         batch_size=numberOfClasses,
         drop_last=True,
         num_workers=numWorkers,
-        persistent_workers=True,
+        persistent_workers=False,
     )
 
     # -- options
@@ -524,10 +524,10 @@ def main_jax_rnn_meta_learner():
         hidden_size=128,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=28,
+        biological_max_tau=200,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
-        recurrent_activation=JaxActivationNonLinearEnum.softplus,
+        recurrent_activation=JaxActivationNonLinearEnum.pass_through,
         number_of_time_steps=28,
         load_model=None,
     )
