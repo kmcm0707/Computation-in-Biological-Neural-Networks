@@ -28,7 +28,7 @@ if __name__ == "__main__":
     # main()
     # runner_main()
     # load_model()
-    #backprop_main()
+    # backprop_main()
     # rnn_backprop_main()
     # main_rnn()
     # main_runner_rnn()
