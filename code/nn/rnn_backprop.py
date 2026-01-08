@@ -12,6 +12,8 @@ from misc.dataset import (
     DataProcess,
     EmnistDataset,
     FashionMnistDataset,
+    IMDBDataProcess,
+    IMDBMetaDataset,
 )
 from misc.utils import log
 from options.complex_options import nonLinearEnum
@@ -195,6 +197,12 @@ class RnnMetaLearner:
             self.data_process = AddBernoulliTaskDataProcess(
                 device=self.device, min_lag_1=5, max_lag_1=5, min_lag_2=8, max_lag_2=8
             )
+        elif self.dataset_name == "IMDB":
+            self.data_process = IMDBDataProcess(
+                minNumberOfSequencesPerClass=self.trainingDataPerClass,
+                maxNumberOfSequencesPerClass=self.trainingDataPerClass,
+                device=self.device,
+            )
         else:
             self.data_process = DataProcess(
                 minTrainingDataPerClass=self.trainingDataPerClass,
@@ -342,6 +350,8 @@ class RnnMetaLearner:
                 y_qry = y_qry.unsqueeze(0)
 
                 current_training_data = x_trn.shape[1]
+            elif self.dataset_name == "IMDB":
+                x_trn, y_trn, x_qry, y_qry, current_training_data = self.data_process(data)
             else:
                 x_trn, y_trn, x_qry, y_qry, current_training_data = self.data_process(data, self.number_of_classes)
 
@@ -351,10 +361,12 @@ class RnnMetaLearner:
                 self.model.reset_hidden(batch_size=1)
 
                 # -- reshape input
-                if self.dataset_name != "ADDBERNOULLI":
-                    x_reshaped = torch.reshape(x, (784 // self.dimIn, self.dimIn))
-                else:
+                if self.dataset_name == "ADDBERNOULLI":
                     x_reshaped = torch.reshape(x, (x.shape[0], self.dimIn))
+                elif self.dataset_name == "IMDB":
+                    x_reshaped = x  # (seq_len, dimIn)
+                else:
+                    x_reshaped = torch.reshape(x, (784 // self.dimIn, self.dimIn))
 
                 window_logits = []
 
@@ -404,19 +416,24 @@ class RnnMetaLearner:
                     self.UpdateParameters.zero_grad()
                     loss_adapt.backward()
                     self.UpdateParameters.step()
+                    window_logits = []
 
             # -- predict
             self.model.eval()
-            if self.dataset_name != "ADDBERNOULLI":
-                x_qry = torch.reshape(x_qry, (x_qry.shape[0], 784 // self.dimIn, self.dimIn))
-            else:
+            if self.dataset_name == "ADDBERNOULLI":
                 x_qry = torch.reshape(x_qry, (x_qry.shape[0], x_qry.shape[1], self.dimIn))
+            elif self.dataset_name == "IMDB":
+                pass
+            else:
+                x_qry = torch.reshape(x_qry, (x_qry.shape[0], 784 // self.dimIn, self.dimIn))
 
             if self.dataset_name != "ADDBERNOULLI":
                 self.model.reset_hidden(batch_size=x_qry.shape[0])
 
-            if self.dataset_name != "ADDBERNOULLI":
-                all_logits = torch.zeros(x_qry.shape[0], x_qry.shape[1] // self.dimIn, self.dimOut).to(self.device)
+            if self.dataset_name == "ADDBERNOULLI":
+                all_logits = torch.zeros(x_qry.shape[0], x_qry.shape[1], self.dimOut).to(self.device)
+            elif self.dataset_name == "IMDB":
+                all_logits = torch.zeros(x_qry.shape[0], x_qry.shape[1], self.dimOut).to(self.device)
             else:
                 all_logits = torch.zeros(x_qry.shape[0], x_qry.shape[1], self.dimOut).to(self.device)
 
@@ -499,11 +516,11 @@ def run(
     random.seed(seed)
 
     # -- load data
-    numWorkers = 6
+    numWorkers = 0
     epochs = 20
     numberOfClasses = 5
     dimOut = 47
-    dataset_name = "ADDBERNOULLI"
+    dataset_name = "IMDB"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -531,6 +548,17 @@ def run(
         dimOut = 2
         dimIn = 2
         numberOfClasses = 1
+    elif dataset_name == "IMDB":
+        numberOfClasses = 2
+        # -- dataset
+        dataset = IMDBMetaDataset(
+            minNumberOfSequences=trainingDataPerClass,
+            maxNumberOfSequences=trainingDataPerClass,
+            query_q=20,
+            max_seq_len=200,
+        )
+        dimIn = 768
+        dimOut = 2
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
     metatrain_dataset = DataLoader(
@@ -553,13 +581,13 @@ def run(
         # -- model params
         biological=True,
         biological_min_tau=1,
-        biological_max_tau=2,
+        biological_max_tau=200,
         biological_nonlinearity=nonLinearEnum.softplus,
         recurrent_nonlinearity=nonLinearEnum.softplus,
         output_nonlinearity=nonLinearEnum.tanh,
-        hidden_size=32,
+        hidden_size=256,
         update_after_time_step=False,
-        manually_update_after_time_step=40,
+        manually_update_after_time_step=-1,
     )
     metalearning_model.train()
 
@@ -580,7 +608,7 @@ def rnn_backprop_main():
     """
     # -- run
     dimIn = [28]
-    """trainingDataPerClass = [
+    trainingDataPerClass = [
         10,
         20,
         30,
@@ -591,25 +619,25 @@ def rnn_backprop_main():
         80,
         90,
         100,
-        110,
-        120,
-        130,
-        140,
-        150,
-        160,
-        170,
-        180,
-        190,
-        200,
-        225,
-        250,
-        275,
-        300,
-        325,
-        350,
-        375,
-    ]"""
-    trainingDataPerClass = [
+        # 110,
+        # 120,
+        # 130,
+        # 140,
+        # 150,
+        # 160,
+        # 170,
+        # 180,
+        # 190,
+        # 200,
+        # 225,
+        # 250,
+        # 275,
+        # 300,
+        # 325,
+        # 350,
+        # 375,
+    ]
+    """trainingDataPerClass = [
         # 10,
         9,
         10,
@@ -639,13 +667,13 @@ def rnn_backprop_main():
         12000,
         14000,
         15000,
-    ]
+    ]"""
     for dim in dimIn:
         for trainingData in trainingDataPerClass:
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="backprop_add_bernoulli_max2/{}".format(dim),
+                result_subdirectory="backprop_IMDB/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )

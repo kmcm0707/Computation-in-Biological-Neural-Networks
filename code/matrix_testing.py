@@ -1,6 +1,5 @@
 import torch
-from misc.dataset import AddBernoulliTaskDataProcess, AddBernoulliTaskDataset
-from torch.utils.data import DataLoader, RandomSampler
+from misc.dataset import IMDBDataProcess, IMDBMetaDataset
 
 if __name__ == "__main__":
     # -- test matrix
@@ -345,7 +344,7 @@ if __name__ == "__main__":
         print(y_trn)
         print(y_qry)"""
 
-    AddBernoulliTaskDatasetVal = AddBernoulliTaskDataset(
+    """AddBernoulliTaskDatasetVal = AddBernoulliTaskDataset(
         minSequenceLength=20, maxSequenceLength=50, querySequenceLength=10
     )
 
@@ -359,4 +358,22 @@ if __name__ == "__main__":
         print(data.shape)
         x_trn, y_trn = data_process(data)
         print("x_trn:", x_trn)
-        print("y_trn:", y_trn)
+        print("y_trn:", y_trn)"""
+
+    imdb_dataset = IMDBMetaDataset(minNumberOfSequences=1, maxNumberOfSequences=200, query_q=10)
+    data_process = IMDBDataProcess(
+        minNumberOfSequencesPerClass=10,
+        maxNumberOfSequencesPerClass=20,
+        device=torch.device("cpu"),
+    )
+    epochs = 1
+    sampler = torch.utils.data.RandomSampler(data_source=imdb_dataset, replacement=True, num_samples=epochs * 2)
+    metatrain_dataset = torch.utils.data.DataLoader(
+        dataset=imdb_dataset, sampler=sampler, batch_size=2, drop_last=True, num_workers=1
+    )
+    for eps, data in enumerate(metatrain_dataset):
+        x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = data_process(data)
+        print("x_trn:", x_trn.shape)
+        print("y_trn:", y_trn.shape)
+        print("x_qry:", x_qry.shape)
+        print("y_qry:", y_qry.shape)

@@ -7,12 +7,12 @@ from typing import Literal
 import numpy as np
 import requests
 import torch
-import torch.utils
-import torch.utils.data
 import torchvision
+from datasets import load_dataset
 from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import transforms
+from transformers import AutoModel, AutoTokenizer
 
 
 class EmnistDataset(Dataset):
@@ -728,6 +728,178 @@ class AddBernoulliTaskDataProcess:
             target_2 = np.array(target_2)
 
         return seq1, target, seq2, target_2, roll_1, roll_2
+
+
+class IMDBMetaDataset(Dataset):
+    """
+    IMDB Dataset for Meta-Learning without torchtext.
+    Uses Hugging Face 'datasets' for stability on Windows.
+    """
+
+    def __init__(self, minNumberOfSequences, maxNumberOfSequences, query_q, max_seq_len=200):
+        self.minNumberOfSequences = minNumberOfSequences
+        self.maxNumberOfSequences = maxNumberOfSequences
+        self.query_q = query_q
+        self.max_seq_len = max_seq_len
+        self.current_idx = 0
+
+        # 1. Load dataset (Automatically downloads if not present)
+        # IMDB has 'train' and 'test' splits
+        raw_datasets = load_dataset("imdb")
+
+        # 2. Setup Tokenizer (Fast, modern alternative to torchtext)
+        self.tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+
+        # 3. Organize by class: 0 (Neg), 1 (Pos)
+        # We combine train/test to have a larger pool for meta-learning tasks
+        self.class_data = {0: [], 1: []}
+
+        cache_dir = os.path.join(os.getcwd(), "data", "imdb_cache")
+        os.makedirs(cache_dir, exist_ok=True)
+        cache_file = os.path.join(cache_dir, f"imdb_meta_{max_seq_len}.pt")
+
+        if os.path.exists(cache_file):
+            self.class_data = torch.load(cache_file, weights_only=True)
+        else:
+            print("No cache found. Processing raw data...")
+            raw_datasets = load_dataset("imdb")
+            self.tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+
+            self.class_data = {0: [], 1: []}
+            for split in ["train", "test"]:
+                for item in raw_datasets[split]:
+                    tokens = self.tokenizer(
+                        item["text"], truncation=True, max_length=max_seq_len, padding="max_length", return_tensors="pt"
+                    )
+                    data_entry = {
+                        "input_ids": tokens["input_ids"].squeeze(0),
+                        "attention_mask": tokens["attention_mask"].squeeze(0),
+                    }
+                    self.class_data[item["label"]].append(data_entry)
+
+            # Save the processed dictionary
+            torch.save(self.class_data, cache_file)
+
+    def __len__(self):
+        # 2 classes: Positive and Negative
+        return 2
+
+    def __getitem__(self, index):
+        # index 0 = Negative, index 1 = Positive
+        index = self.current_idx
+        self.current_idx += 1
+        if self.current_idx == 2:
+            self.current_idx = 0
+        all_samples = self.class_data[index]
+
+        # Determine K-shot
+        k_shot = self.maxNumberOfSequences
+        total_needed = k_shot + self.query_q
+
+        # Sample unique indices
+        indices = np.random.choice(len(all_samples), total_needed, replace=False)
+
+        def gather_data(idxs):
+            texts = torch.stack([all_samples[i]["input_ids"] for i in idxs])
+            masks = torch.stack([all_samples[i]["attention_mask"] for i in idxs])
+            return texts, masks
+
+        support_texts, support_masks = gather_data(indices[:k_shot])
+        query_texts, query_masks = gather_data(indices[k_shot:])
+
+        # Create labels
+        support_labels = torch.full((k_shot,), index, dtype=torch.long)
+        query_labels = torch.full((self.query_q,), index, dtype=torch.long)
+
+        return support_texts, support_masks, support_labels, query_texts, query_masks, query_labels
+
+
+class IMDBDataProcess:
+    """
+        IMDB data processor class.
+
+    The function is designed to process IMDB data, specifically sequences and
+    their corresponding targets. The function performs several operations,
+    including:
+    1) Transferring the processed data to the specified processing device,
+        which could either be 'cpu' or 'cuda'.
+    """
+
+    def __init__(
+        self,
+        device: Literal["cpu", "cuda"] = "cpu",
+        use_jax: bool = False,
+        minNumberOfSequencesPerClass: int = 20,
+        maxNumberOfSequencesPerClass: int = 40,
+    ):
+        """
+            Initialize the IMDBDataProcess object.
+
+        :param device: (str) The processing device to use. Default is 'cpu',
+        """
+        self.device = device
+        self.use_jax = use_jax
+        self.minNumberOfSequencesPerClass = minNumberOfSequencesPerClass
+        self.maxNumberOfSequencesPerClass = maxNumberOfSequencesPerClass
+
+        self.bert = AutoModel.from_pretrained("bert-base-uncased")
+        for param in self.bert.parameters():
+            param.requires_grad = False
+        self.bert.eval()
+
+    def __call__(self, data):
+        """
+            Processing IMDB data.
+
+        :param data: (tuple) A tuple of sequences and their corresponding targets.
+        :return: tuple: A tuple of processed sequences and their corresponding targets.
+        """
+        current_sequences_per_class = 0
+        if self.maxNumberOfSequencesPerClass == self.minNumberOfSequencesPerClass:
+            current_sequences_per_class = self.minNumberOfSequencesPerClass
+        else:
+            current_sequences_per_class = np.random.randint(
+                self.minNumberOfSequencesPerClass, self.maxNumberOfSequencesPerClass
+            )
+        support_texts, support_masks, support_labels, query_texts, query_masks, query_labels = data
+        support_texts = support_texts[:, :current_sequences_per_class, :]
+        support_masks = support_masks[:, :current_sequences_per_class, :]
+        support_labels = support_labels[:, :current_sequences_per_class]
+
+        support_texts = torch.reshape(
+            support_texts, (current_sequences_per_class * support_texts.shape[0], support_texts.shape[2])
+        )  # reshape to (K, seq_len)
+        support_masks = torch.reshape(
+            support_masks, (current_sequences_per_class * support_masks.shape[0], support_masks.shape[2])
+        )  # reshape to (K, seq_len)
+        support_texts = self.bert(support_texts, attention_mask=support_masks).last_hidden_state
+        support_labels = torch.reshape(
+            support_labels, (current_sequences_per_class * support_labels.shape[0], 1)
+        )  # reshape to (K,)
+
+        query_texts = torch.reshape(
+            query_texts, (query_texts.shape[0] * query_texts.shape[1], query_texts.shape[2])
+        )  # reshape to (Q, seq_len)
+        query_masks = torch.reshape(
+            query_masks, (query_masks.shape[0] * query_masks.shape[1], query_masks.shape[2])
+        )  # reshape to (Q, seq_len)
+        query_texts = self.bert(query_texts, attention_mask=query_masks).last_hidden_state
+        query_labels = torch.reshape(
+            query_labels, (query_labels.shape[0] * query_labels.shape[1], 1)
+        )  # reshape to (Q,)
+
+        if not self.use_jax:
+            support_texts = support_texts.to(self.device)
+            support_labels = support_labels.to(self.device)
+            query_texts = query_texts.to(self.device)
+            query_labels = query_labels.to(self.device)
+        else:
+            support_texts = np.array(support_texts)
+            support_labels = np.array(support_labels)
+            query_texts = np.array(query_texts)
+            query_labels = np.array(query_labels)
+
+        return support_texts, support_labels, query_texts, query_labels, current_sequences_per_class
 
 
 class RnnDataProcess:
