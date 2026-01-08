@@ -225,7 +225,7 @@ class RnnMetaLearner:
         else:
             self.loss_func = nn.CrossEntropyLoss()
 
-        self.lr = 1e-3
+        self.lr = 5e-4
         self.UpdateParameters = optim.Adam(self.model.parameters(), lr=self.lr)
 
         # -- log params
@@ -555,7 +555,7 @@ def run(
             minNumberOfSequences=trainingDataPerClass,
             maxNumberOfSequences=trainingDataPerClass,
             query_q=20,
-            max_seq_len=200,
+            max_seq_len=500,
         )
         dimIn = 768
         dimOut = 2
@@ -609,6 +609,7 @@ def rnn_backprop_main():
     # -- run
     dimIn = [112]
     trainingDataPerClass = [
+        1,
         10,
         20,
         30,
@@ -673,7 +674,7 @@ def rnn_backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="backprop_IMDB/{}".format(dim),
+                result_subdirectory="backprop_IMDB_500_3/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
