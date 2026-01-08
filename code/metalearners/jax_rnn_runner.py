@@ -366,8 +366,8 @@ def jax_runner(index: int):
 
     # -- load data
     numWorkers = 2
-    # training_data = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
-    training_data = [
+    training_data = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+    """training_data = [
         # 10,
         9,
         10,
@@ -397,10 +397,10 @@ def jax_runner(index: int):
         12000,
         14000,
         15000,
-    ]
+    ]"""
     epochs = 20
 
-    dataset_name = "ADDBERNOULLI"
+    dataset_name = "EMNIST"
     minTrainingDataPerClass = training_data[index]
     maxTrainingDataPerClass = training_data[index]
     queryDataPerClass = 10
@@ -455,7 +455,7 @@ def jax_runner(index: int):
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_add_6",
+        results_subdir="runner_jax_784_3",
         metatrain_dataset="emnist",
         display=True,
         metaLearningRate=None,
@@ -465,15 +465,15 @@ def jax_runner(index: int):
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        input_size=dimIn,  # int(28 * 28 / 14),
-        hidden_size=32,
+        input_size=int(28 * 28 / 784),
+        hidden_size=128,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=100,
+        biological_max_tau=14,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
-        number_of_time_steps=14,
+        number_of_time_steps=784,
         load_model=runner,
     )
 

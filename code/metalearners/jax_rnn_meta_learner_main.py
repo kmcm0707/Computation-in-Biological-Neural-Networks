@@ -126,6 +126,10 @@ class JaxMetaLearnerRNN:
     def inner_loop_per_image(self, carry, input):
         synaptic_weights, parameters, rnn, hidden_state, metaOptimizer, past_h_new_pre_tau = carry
         x, labels = input
+
+        if self.jaxMetaLearnerOptions.dataset_name != "ADDBERNOULLI":
+                        labels = jax.nn.one_hot(labels, num_classes=self.jaxMetaLearnerOptions.output_size)
+
         y, hidden_state, past_h_new_pre_tau, activations_arr, errors_arr = rnn(
             x, hidden_state, labels, past_h_new_pre_tau
         )
@@ -419,12 +423,12 @@ def main_jax_rnn_meta_learner():
 
     # -- load data
     numWorkers = 2
-    epochs = 5000
+    epochs = 300
 
-    dataset_name = "ADDBERNOULLI"
-    minTrainingDataPerClass = 50
-    maxTrainingDataPerClass = 300
-    queryDataPerClass = 10
+    dataset_name = "EMNIST"
+    minTrainingDataPerClass = 60
+    maxTrainingDataPerClass = 70
+    queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -471,12 +475,12 @@ def main_jax_rnn_meta_learner():
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/jax_rnn_6_grad_14/20251231-161259"
+    continue_training = current_dir + "/results_2/jax_rnn_28/20260107-170520"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_addbernoulli_1",
+        results_subdir="jax_rnn_28",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=0.0007,
@@ -486,15 +490,15 @@ def main_jax_rnn_meta_learner():
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        input_size=dimIn,
-        hidden_size=32,
+        input_size=28, #dimIn,
+        hidden_size=128,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=8,
+        biological_max_tau=28,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
-        number_of_time_steps=14,
+        number_of_time_steps=28,
         load_model=continue_training,
     )
 
