@@ -575,7 +575,7 @@ def run(
             minNumberOfSequences=trainingDataPerClass,
             maxNumberOfSequences=trainingDataPerClass,
             query_q=20,
-            max_seq_len=200,
+            max_seq_len=500,
         )
         dimIn = 300
         dimOut = 2
@@ -695,7 +695,7 @@ def rnn_backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="backprop_IMDBWord2Vec/{}".format(dim),
+                result_subdirectory="backprop_IMDBWord2Vec_2/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
