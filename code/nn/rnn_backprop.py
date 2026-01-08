@@ -520,7 +520,7 @@ def run(
     epochs = 20
     numberOfClasses = 5
     dimOut = 47
-    dataset_name = "IMDB"
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -581,11 +581,11 @@ def run(
         # -- model params
         biological=True,
         biological_min_tau=1,
-        biological_max_tau=200,
+        biological_max_tau=7,
         biological_nonlinearity=nonLinearEnum.softplus,
         recurrent_nonlinearity=nonLinearEnum.softplus,
         output_nonlinearity=nonLinearEnum.tanh,
-        hidden_size=256,
+        hidden_size=128,
         update_after_time_step=False,
         manually_update_after_time_step=-1,
     )
@@ -607,7 +607,7 @@ def rnn_backprop_main():
     :return: None
     """
     # -- run
-    dimIn = [28]
+    dimIn = [112]
     trainingDataPerClass = [
         10,
         20,

@@ -1,3 +1,4 @@
+import collections
 import gzip
 import os
 import shutil
@@ -779,6 +780,68 @@ class IMDBMetaDataset(Dataset):
 
             # Save the processed dictionary
             torch.save(self.class_data, cache_file)
+
+    def __len__(self):
+        # 2 classes: Positive and Negative
+        return 2
+
+    def __getitem__(self, index):
+        # index 0 = Negative, index 1 = Positive
+        index = self.current_idx
+        self.current_idx += 1
+        if self.current_idx == 2:
+            self.current_idx = 0
+        all_samples = self.class_data[index]
+
+        # Determine K-shot
+        k_shot = self.maxNumberOfSequences
+        total_needed = k_shot + self.query_q
+
+        # Sample unique indices
+        indices = np.random.choice(len(all_samples), total_needed, replace=False)
+
+        def gather_data(idxs):
+            texts = torch.stack([all_samples[i]["input_ids"] for i in idxs])
+            masks = torch.stack([all_samples[i]["attention_mask"] for i in idxs])
+            return texts, masks
+
+        support_texts, support_masks = gather_data(indices[:k_shot])
+        query_texts, query_masks = gather_data(indices[k_shot:])
+
+        # Create labels
+        support_labels = torch.full((k_shot,), index, dtype=torch.long)
+        query_labels = torch.full((self.query_q,), index, dtype=torch.long)
+
+        return support_texts, support_masks, support_labels, query_texts, query_masks, query_labels
+
+
+class IMDBWord2VecDataset(Dataset):
+    def __init__(self, min_k, max_k, query_q, max_seq_len=200):
+        self.min_k, self.max_k, self.query_q = min_k, max_k, query_q
+        self.max_seq_len = max_seq_len
+
+        # 1. Load raw data
+        raw = load_dataset("imdb")
+
+        # 2. Simple Tokenization & Vocab Building
+        # We need a word-to-index map for Word2Vec
+        all_text = [item["text"].lower().split() for item in raw["train"]]
+        word_counts = collections.Counter([word for sublist in all_text for word in sublist])
+        # Only keep words appearing > 5 times to reduce noise
+        self.vocab = {word: i + 2 for i, (word, count) in enumerate(word_counts.items()) if count > 5}
+        self.vocab["<PAD>"] = 0
+        self.vocab["<UNK>"] = 1
+
+        # 3. Process into class data
+        self.class_data = {0: [], 1: []}
+        for split in ["train", "test"]:
+            for item in raw[split]:
+                tokens = item["text"].lower().split()[:max_seq_len]
+                # Convert words to IDs
+                ids = [self.vocab.get(w, 1) for w in tokens]
+                # Pad
+                ids += [0] * (max_seq_len - len(ids))
+                self.class_data[item["label"]].append(torch.tensor(ids))
 
     def __len__(self):
         # 2 classes: Positive and Negative

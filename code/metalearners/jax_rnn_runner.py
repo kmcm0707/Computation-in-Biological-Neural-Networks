@@ -10,6 +10,8 @@ from misc.dataset import (
     AddBernoulliTaskDataset,
     DataProcess,
     EmnistDataset,
+    IMDBDataProcess,
+    IMDBMetaDataset,
 )
 from misc.utils import Plot, accuracy, log
 from nn.jax_chemical_rnn import JAXChemicalRNN
@@ -54,6 +56,12 @@ class JaxMetaLearnerRNN:
         if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
             self.data_process = AddBernoulliTaskDataProcess(
                 min_lag_1=5, max_lag_1=5, min_lag_2=8, max_lag_2=8, use_jax=True
+            )
+        elif self.jaxMetaLearnerOptions.dataset_name == "IMDB":
+            self.data_process = IMDBDataProcess(
+                minNumberOfSequencesPerClass=self.jaxMetaLearnerOptions.minTrainingDataPerClass,
+                maxNumberOfSequencesPerClass=self.jaxMetaLearnerOptions.maxTrainingDataPerClass,
+                use_jax=True,
             )
         else:
             self.data_process = DataProcess(
@@ -157,6 +165,8 @@ class JaxMetaLearnerRNN:
 
         if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
             x = jnp.reshape(x, (x.shape[0], -1))  # (time_steps, input_size)
+        elif self.jaxMetaLearnerOptions.dataset_name == "IMDB":
+            pass  # x is already in shape (time_steps, input_size)
         else:
             x = jnp.reshape(x, (self.jaxMetaLearnerOptions.number_of_time_steps, -1))  # (time_steps, input_size)
 
@@ -193,6 +203,8 @@ class JaxMetaLearnerRNN:
 
         if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
             x = jnp.reshape(x, (x.shape[0], x.shape[1], -1))  # (batch_size, time_steps, input_size)
+        elif self.jaxMetaLearnerOptions.dataset_name == "IMDB":
+            pass  # x is already in shape (batch_size, time_steps, input_size)
         else:
             x = jnp.reshape(x, (x.shape[0], number_of_timesteps, -1))  # (batch_size, time_steps, input_size)
 
@@ -293,6 +305,8 @@ class JaxMetaLearnerRNN:
                 y_qry = jnp.expand_dims(y_qry, 0)
 
                 current_training_data_per_class = x_trn.shape[1]
+            elif self.jaxMetaLearnerOptions.dataset_name == "IMDB":
+                x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(data)
             else:
                 x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(
                     data, self.jaxMetaLearnerOptions.numberOfClasses
@@ -425,6 +439,16 @@ def jax_runner(index: int):
         dimOut = 2
         dimIn = 2
         numberOfClasses = 1
+    elif dataset_name == "IMDB":
+        numberOfClasses = 2
+        dimOut = 2
+        dataset = IMDBMetaDataset(
+            minNumberOfSequences=minTrainingDataPerClass,
+            maxNumberOfSequences=maxTrainingDataPerClass,
+            query_q=20,
+            max_seq_len=200,
+        )
+        dimIn = 768
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
     metatrain_dataset = DataLoader(
