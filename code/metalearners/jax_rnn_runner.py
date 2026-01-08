@@ -134,6 +134,8 @@ class JaxMetaLearnerRNN:
             synaptic_weight = synaptic_weights[idx]
             activations_tuple = activations_arr[idx]
             errors_tuple = errors_arr[idx]
+            jax.debug.print("{}s", errors_tuple)
+            jax.debug.print("{}s", activations_tuple)
             new_parameter, new_synaptic_weight = metaOptimizer(
                 synaptic_weight, parameter, activations_tuple, errors_tuple
             )
@@ -274,7 +276,7 @@ class JaxMetaLearnerRNN:
 
         return avg_loss, acc
 
-    @eqx.filter_jit
+    #@eqx.filter_jit
     def make_step(
         self,
         metaOptimizer,
@@ -484,12 +486,12 @@ def jax_runner(index: int):
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    runner = current_dir + "/results_2/jax_rnn_6_grad_14/20251231-182555"
+    runner = current_dir + "/results_2/jax_rnn_6_gra_continue/20251228-184025"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
-        save_results=True,
-        results_subdir="runner_jax_IMDB",
+        save_results=False,
+        results_subdir="russner_jax_IMDB_5",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
@@ -503,7 +505,7 @@ def jax_runner(index: int):
         hidden_size=256,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=200,
+        biological_max_tau=14,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
