@@ -373,6 +373,7 @@ if __name__ == "__main__":
     )
     for eps, data in enumerate(metatrain_dataset):
         x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = data_process(data)
+        print("")
         print("x_trn:", x_trn.shape)
         print("y_trn:", y_trn.shape)
         print("x_qry:", x_qry.shape)

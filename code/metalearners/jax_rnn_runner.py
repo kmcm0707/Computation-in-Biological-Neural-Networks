@@ -224,7 +224,7 @@ class JaxMetaLearnerRNN:
         )(hidden_state, rnn, x)
         return y
 
-    # @eqx.filter_jit
+    @eqx.filter_jit
     def compute_meta_loss(
         self,
         metaOptimizer,
@@ -274,7 +274,7 @@ class JaxMetaLearnerRNN:
 
         return avg_loss, acc
 
-    @eqx.filter_jit
+    # @eqx.filter_jit
     def make_step(
         self,
         metaOptimizer,
@@ -318,12 +318,6 @@ class JaxMetaLearnerRNN:
             y_trn = jnp.array(y_trn)
             x_qry = jnp.array(x_qry)
             y_qry = jnp.array(y_qry)
-
-            print(x_trn.shape, y_trn.shape, x_qry.shape, y_qry.shape)
-            # check nan in data
-            if jnp.isnan(x_trn).any() or jnp.isnan(y_trn).any() or jnp.isnan(x_qry).any() or jnp.isnan(y_qry).any():
-                print("NaN detected in data. Skipping this batch.")
-                continue
 
             # -- weight initialization --
             self.rnn = self.rnn.reset_weights(self.key2)
@@ -422,10 +416,11 @@ def jax_runner(index: int):
     ]"""
     epochs = 20
 
-    dataset_name = "IMDB"
+    dataset_name = "EMNIST"
     minTrainingDataPerClass = training_data[index]
     maxTrainingDataPerClass = training_data[index]
     queryDataPerClass = 10
+    numberOfTimeSteps = 28
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -437,6 +432,7 @@ def jax_runner(index: int):
             use_jax=True,
         )
         dimOut = 47
+        dimIn = int(28 * 28 / numberOfTimeSteps)
     elif dataset_name == "ADDBERNOULLI":
         queryDataPerClass = 100
         dataset = AddBernoulliTaskDataset(
@@ -488,8 +484,8 @@ def jax_runner(index: int):
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
-        save_results=True,
-        results_subdir="runner_jax_IMDB",
+        save_results=False,
+        results_subdir="runner_jax_IMDBjzjzj",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
@@ -499,15 +495,15 @@ def jax_runner(index: int):
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        input_size=dimIn,  # int(28 * 28 / 784),
+        input_size=dimIn,
         hidden_size=256,
         output_size=dimOut,
-        biological_min_tau=1,
+        biological_min_tau=50,
         biological_max_tau=200,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
-        number_of_time_steps=784,
+        number_of_time_steps=numberOfTimeSteps,
         load_model=runner,
     )
 
@@ -523,5 +519,6 @@ def jax_runner(index: int):
 
 
 def main_jax_runner():
+
     for i in range(22):
         jax_runner(i)
