@@ -319,6 +319,12 @@ class JaxMetaLearnerRNN:
             x_qry = jnp.array(x_qry)
             y_qry = jnp.array(y_qry)
 
+            print(x_trn.shape, y_trn.shape, x_qry.shape, y_qry.shape)
+            # check nan in data
+            if jnp.isnan(x_trn).any() or jnp.isnan(y_trn).any() or jnp.isnan(x_qry).any() or jnp.isnan(y_qry).any():
+                print("NaN detected in data. Skipping this batch.")
+                continue
+
             # -- weight initialization --
             self.rnn = self.rnn.reset_weights(self.key2)
 

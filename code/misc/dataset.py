@@ -951,6 +951,10 @@ class IMDBDataProcess:
             query_labels, (query_labels.shape[0] * query_labels.shape[1], 1)
         )  # reshape to (Q,)
 
+        perm = torch.randperm(support_texts.size(0))
+        support_texts = support_texts[perm]
+        support_labels = support_labels[perm]
+
         if not self.use_jax:
             support_texts = support_texts.to(self.device)
             support_labels = support_labels.to(self.device)

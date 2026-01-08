@@ -170,6 +170,7 @@ class RnnMetaLearner:
         hidden_size: int = 128,
         update_after_time_step: bool = False,
         manually_update_after_time_step: int = 5,
+        learning_rate: float = 1e-3,
     ):
 
         # -- processor params
@@ -225,7 +226,7 @@ class RnnMetaLearner:
         else:
             self.loss_func = nn.CrossEntropyLoss()
 
-        self.lr = 5e-4
+        self.lr = learning_rate
         self.UpdateParameters = optim.Adam(self.model.parameters(), lr=self.lr)
 
         # -- log params
@@ -520,7 +521,7 @@ def run(
     epochs = 20
     numberOfClasses = 5
     dimOut = 47
-    dataset_name = "EMNIST"
+    dataset_name = "IMDB"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -555,7 +556,7 @@ def run(
             minNumberOfSequences=trainingDataPerClass,
             maxNumberOfSequences=trainingDataPerClass,
             query_q=20,
-            max_seq_len=500,
+            max_seq_len=200,
         )
         dimIn = 768
         dimOut = 2
@@ -581,13 +582,14 @@ def run(
         # -- model params
         biological=True,
         biological_min_tau=1,
-        biological_max_tau=7,
+        biological_max_tau=200,
         biological_nonlinearity=nonLinearEnum.softplus,
         recurrent_nonlinearity=nonLinearEnum.softplus,
         output_nonlinearity=nonLinearEnum.tanh,
-        hidden_size=128,
+        hidden_size=256,
         update_after_time_step=False,
         manually_update_after_time_step=-1,
+        learning_rate=1e-3,
     )
     metalearning_model.train()
 
@@ -674,7 +676,7 @@ def rnn_backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="backprop_IMDB_500_3/{}".format(dim),
+                result_subdirectory="backprop_IMDB_perm_fixed/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
