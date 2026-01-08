@@ -172,6 +172,8 @@ class JaxMetaLearnerRNN:
 
         if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
             label = jnp.reshape(label, (label.shape[0], -1))  # (time_steps, output_size)
+        elif self.jaxMetaLearnerOptions.dataset_name == "IMDB":
+            label = jnp.repeat(label, repeats=x.shape[0], axis=0)
         else:
             label = jnp.repeat(
                 label, repeats=self.jaxMetaLearnerOptions.number_of_time_steps, axis=0
@@ -414,7 +416,7 @@ def jax_runner(index: int):
     ]"""
     epochs = 20
 
-    dataset_name = "EMNIST"
+    dataset_name = "IMDB"
     minTrainingDataPerClass = training_data[index]
     maxTrainingDataPerClass = training_data[index]
     queryDataPerClass = 10
@@ -442,12 +444,14 @@ def jax_runner(index: int):
     elif dataset_name == "IMDB":
         numberOfClasses = 2
         dimOut = 2
+        queryDataPerClass = 20
         dataset = IMDBMetaDataset(
             minNumberOfSequences=minTrainingDataPerClass,
             maxNumberOfSequences=maxTrainingDataPerClass,
-            query_q=20,
+            query_q=queryDataPerClass,
             max_seq_len=200,
         )
+        numWorkers = 0
         dimIn = 768
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
@@ -457,7 +461,7 @@ def jax_runner(index: int):
         batch_size=numberOfClasses,
         drop_last=True,
         num_workers=numWorkers,
-        persistent_workers=True,
+        persistent_workers=False,
     )
 
     # -- options
@@ -479,8 +483,8 @@ def jax_runner(index: int):
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_784_3",
-        metatrain_dataset="emnist",
+        results_subdir="runner_jax_IMDB",
+        metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
         numberOfClasses=numberOfClasses,
@@ -489,11 +493,11 @@ def jax_runner(index: int):
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        input_size=int(28 * 28 / 784),
-        hidden_size=128,
+        input_size=dimIn,  # int(28 * 28 / 784),
+        hidden_size=256,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=14,
+        biological_max_tau=200,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
