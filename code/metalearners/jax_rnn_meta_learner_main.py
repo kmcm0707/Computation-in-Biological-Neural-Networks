@@ -12,6 +12,7 @@ from misc.dataset import (
     AddBernoulliTaskDataset,
     DataProcess,
     EmnistDataset,
+    IMDBDataProcess,
     IMDBMetaDataset,
 )
 from misc.utils import Plot, accuracy, log
@@ -57,6 +58,12 @@ class JaxMetaLearnerRNN:
         if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
             self.data_process = AddBernoulliTaskDataProcess(
                 min_lag_1=5, max_lag_1=5, min_lag_2=8, max_lag_2=8, use_jax=True
+            )
+        elif self.jaxMetaLearnerOptions.dataset_name == "IMDB":
+            self.data_process = IMDBDataProcess(
+                minNumberOfSequences=self.jaxMetaLearnerOptions.minTrainingDataPerClass,
+                maxNumberOfSequences=self.jaxMetaLearnerOptions.maxTrainingDataPerClass,
+                use_jax=True,
             )
         else:
             self.data_process = DataProcess(
@@ -172,11 +179,15 @@ class JaxMetaLearnerRNN:
 
         if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
             x = jnp.reshape(x, (x.shape[0], -1))  # (time_steps, input_size)
+        elif self.jaxMetaLearnerOptions.dataset_name == "IMDB":
+            pass
         else:
             x = jnp.reshape(x, (self.jaxMetaLearnerOptions.number_of_time_steps, -1))  # (time_steps, input_size)
 
         if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
             label = jnp.reshape(label, (label.shape[0], -1))  # (time_steps, output_size)
+        elif self.jaxMetaLearnerOptions.dataset_name == "IMDB":
+            label = jnp.repeat(label, repeats=x.shape[0], axis=0)
         else:
             label = jnp.repeat(
                 label, repeats=self.jaxMetaLearnerOptions.number_of_time_steps, axis=0
@@ -208,6 +219,8 @@ class JaxMetaLearnerRNN:
 
         if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
             x = jnp.reshape(x, (x.shape[0], x.shape[1], -1))  # (batch_size, time_steps, input_size)
+        elif self.jaxMetaLearnerOptions.dataset_name == "IMDB":
+            pass
         else:
             x = jnp.reshape(x, (x.shape[0], number_of_timesteps, -1))  # (batch_size, time_steps, input_size)
 
@@ -328,6 +341,8 @@ class JaxMetaLearnerRNN:
                 y_qry = jnp.expand_dims(y_qry, 0)
 
                 current_training_data_per_class = x_trn.shape[1]
+            elif self.jaxMetaLearnerOptions.dataset_name == "IMDB":
+                x_trn, y_trn, x_qry, y_qry = self.data_process(data)
             else:
                 x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(
                     data, self.jaxMetaLearnerOptions.numberOfClasses
@@ -424,10 +439,10 @@ def main_jax_rnn_meta_learner():
 
     # -- load data
     numWorkers = 2
-    epochs = 300
+    epochs = 5000
 
-    dataset_name = "EMNIST"
-    minTrainingDataPerClass = 60
+    dataset_name = "IMDB"
+    minTrainingDataPerClass = 10
     maxTrainingDataPerClass = 70
     queryDataPerClass = 20
     numberOfTimeSteps = 28
@@ -456,7 +471,7 @@ def main_jax_rnn_meta_learner():
     elif dataset_name == "IMDB":
         numberOfClasses = 2
         dimOut = 2
-        queryDataPerClass = 20
+        queryDataPerClass = 10
         dataset = IMDBMetaDataset(
             minNumberOfSequences=minTrainingDataPerClass,
             maxNumberOfSequences=maxTrainingDataPerClass,
@@ -514,7 +529,7 @@ def main_jax_rnn_meta_learner():
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=28,
-        load_model=continue_training,
+        load_model=None,
     )
 
     metalearning_model = JaxMetaLearnerRNN(

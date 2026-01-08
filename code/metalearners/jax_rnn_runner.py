@@ -12,6 +12,7 @@ from misc.dataset import (
     EmnistDataset,
     IMDBDataProcess,
     IMDBMetaDataset,
+    IMDBWord2VecMetaDataset,
 )
 from misc.utils import Plot, accuracy, log
 from nn.jax_chemical_rnn import JAXChemicalRNN
@@ -455,6 +456,19 @@ def jax_runner(index: int):
         )
         numWorkers = 0
         dimIn = 768
+    elif dataset_name == "IMDB_WORD2VEC":
+        numberOfClasses = 2
+        dimOut = 2
+        queryDataPerClass = 20
+        dataset = IMDBWord2VecMetaDataset(
+            minNumberOfSequences=minTrainingDataPerClass,
+            maxNumberOfSequences=maxTrainingDataPerClass,
+            query_q=queryDataPerClass,
+            max_seq_len=200,
+            use_word2vec=True,
+        )
+        numWorkers = 0
+        dimIn = 300
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
     metatrain_dataset = DataLoader(
