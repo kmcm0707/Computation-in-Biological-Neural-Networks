@@ -814,9 +814,6 @@ class IMDBMetaDataset(Dataset):
         return support_texts, support_masks, support_labels, query_texts, query_masks, query_labels
 
 
-from torch.utils.data import Dataset
-
-
 class IMDBWord2VecMetaDataset(Dataset):
     """
     IMDB Meta-learning dataset using Word2Vec indices.
@@ -830,6 +827,7 @@ class IMDBWord2VecMetaDataset(Dataset):
         self.max_k = maxNumberOfSequences
         self.query_q = query_q
         self.max_seq_len = max_seq_len
+        self.current_idx = 0
         cache_path = os.path.join(os.getcwd(), cache_path)
 
         # 1. Load the Word2Vec Vocab Cache
@@ -883,6 +881,10 @@ class IMDBWord2VecMetaDataset(Dataset):
         Samples a task for a specific class (index).
         Returns (support_ids, support_labels, query_ids, query_labels)
         """
+        index = self.current_idx
+        self.current_idx += 1
+        if self.current_idx == 2:
+            self.current_idx = 0
         all_samples = self.class_data[index]
 
         # Determine K-shot for this specific task
@@ -921,7 +923,6 @@ class IMDBWord2VecDataProcess:
 
         # Initialize frozen embedding layer
         self.embedding = torch.nn.Embedding.from_pretrained(cache["weights"], freeze=True)
-        self.embedding.to(self.device)
 
     def __call__(self, data):
         s_ids, s_labels, q_ids, q_labels = data
@@ -929,21 +930,33 @@ class IMDBWord2VecDataProcess:
         s_ids = s_ids[:, :current_k, :]
         s_labels = s_labels[:, :current_k]
 
-
         s_ids = torch.reshape(s_ids, (current_k * s_ids.shape[0], s_ids.shape[2]))
-        s_labels = torch.reshape(s_labels, (current_k * s_labels.shape[0],))
+        s_labels = torch.reshape(s_labels, (current_k * s_labels.shape[0], 1))
         perm = torch.randperm(s_ids.size(0))
+        s_ids = s_ids[perm]
+        s_labels = s_labels[perm]
 
         q_ids = torch.reshape(q_ids, (q_ids.shape[0] * q_ids.shape[1], q_ids.shape[2]))
-        q_labels = torch.reshape(q_labels, (q_labels.shape[0] * q_labels.shape[1],))
+        q_labels = torch.reshape(q_labels, (q_labels.shape[0] * q_labels.shape[1], 1))
 
         # Vectorize: [Total_Samples, Seq_Len] -> [Total_Samples, Seq_Len, 300]
         with torch.no_grad():
             support_vectors = self.embedding(s_ids)
             query_vectors = self.embedding(q_ids)
 
+        if not self.use_jax:
+            support_vectors = support_vectors.to(self.device)
+            s_labels = s_labels.to(self.device)
+            query_vectors = query_vectors.to(self.device)
+            q_labels = q_labels.to(self.device)
+        else:
+            support_vectors = np.array(support_vectors)
+            s_labels = np.array(s_labels)
+            query_vectors = np.array(query_vectors)
+            q_labels = np.array(q_labels)
+
         # Flatten Seq dimension for your RNN if needed, or keep as (Samples, Seq, 300)
-        return support_vectors, s_labels.view(-1), query_vectors, q_labels.view(-1), current_k
+        return support_vectors, s_labels, query_vectors, q_labels, current_k
 
 
 class IMDBDataProcess:

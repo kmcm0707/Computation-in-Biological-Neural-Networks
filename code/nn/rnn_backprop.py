@@ -14,6 +14,8 @@ from misc.dataset import (
     FashionMnistDataset,
     IMDBDataProcess,
     IMDBMetaDataset,
+    IMDBWord2VecDataProcess,
+    IMDBWord2VecMetaDataset,
 )
 from misc.utils import log
 from options.complex_options import nonLinearEnum
@@ -204,6 +206,12 @@ class RnnMetaLearner:
                 maxNumberOfSequencesPerClass=self.trainingDataPerClass,
                 device=self.device,
             )
+        elif self.dataset_name == "IMDB_WORD2VEC":
+            self.data_process = IMDBWord2VecDataProcess(
+                minNumberOfSequencesPerClass=self.trainingDataPerClass,
+                maxNumberOfSequencesPerClass=self.trainingDataPerClass,
+                device=self.device,
+            )
         else:
             self.data_process = DataProcess(
                 minTrainingDataPerClass=self.trainingDataPerClass,
@@ -351,7 +359,7 @@ class RnnMetaLearner:
                 y_qry = y_qry.unsqueeze(0)
 
                 current_training_data = x_trn.shape[1]
-            elif self.dataset_name == "IMDB":
+            elif self.dataset_name == "IMDB" or self.dataset_name == "IMDB_WORD2VEC":
                 x_trn, y_trn, x_qry, y_qry, current_training_data = self.data_process(data)
             else:
                 x_trn, y_trn, x_qry, y_qry, current_training_data = self.data_process(data, self.number_of_classes)
@@ -364,7 +372,7 @@ class RnnMetaLearner:
                 # -- reshape input
                 if self.dataset_name == "ADDBERNOULLI":
                     x_reshaped = torch.reshape(x, (x.shape[0], self.dimIn))
-                elif self.dataset_name == "IMDB":
+                elif self.dataset_name == "IMDB" or self.dataset_name == "IMDB_WORD2VEC":
                     x_reshaped = x  # (seq_len, dimIn)
                 else:
                     x_reshaped = torch.reshape(x, (784 // self.dimIn, self.dimIn))
@@ -423,7 +431,7 @@ class RnnMetaLearner:
             self.model.eval()
             if self.dataset_name == "ADDBERNOULLI":
                 x_qry = torch.reshape(x_qry, (x_qry.shape[0], x_qry.shape[1], self.dimIn))
-            elif self.dataset_name == "IMDB":
+            elif self.dataset_name == "IMDB" or self.dataset_name == "IMDB_WORD2VEC":
                 pass
             else:
                 x_qry = torch.reshape(x_qry, (x_qry.shape[0], 784 // self.dimIn, self.dimIn))
@@ -433,7 +441,7 @@ class RnnMetaLearner:
 
             if self.dataset_name == "ADDBERNOULLI":
                 all_logits = torch.zeros(x_qry.shape[0], x_qry.shape[1], self.dimOut).to(self.device)
-            elif self.dataset_name == "IMDB":
+            elif self.dataset_name == "IMDB" or self.dataset_name == "IMDB_WORD2VEC":
                 all_logits = torch.zeros(x_qry.shape[0], x_qry.shape[1], self.dimOut).to(self.device)
             else:
                 all_logits = torch.zeros(x_qry.shape[0], x_qry.shape[1], self.dimOut).to(self.device)
@@ -521,7 +529,7 @@ def run(
     epochs = 20
     numberOfClasses = 5
     dimOut = 47
-    dataset_name = "IMDB"
+    dataset_name = "IMDB_WORD2VEC"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -559,6 +567,17 @@ def run(
             max_seq_len=200,
         )
         dimIn = 768
+        dimOut = 2
+    elif dataset_name == "IMDB_WORD2VEC":
+        numberOfClasses = 2
+        # -- dataset
+        dataset = IMDBWord2VecMetaDataset(
+            minNumberOfSequences=trainingDataPerClass,
+            maxNumberOfSequences=trainingDataPerClass,
+            query_q=20,
+            max_seq_len=200,
+        )
+        dimIn = 300
         dimOut = 2
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
@@ -676,7 +695,7 @@ def rnn_backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="backprop_IMDB_perm_fixed/{}".format(dim),
+                result_subdirectory="backprop_IMDBWord2Vec/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
