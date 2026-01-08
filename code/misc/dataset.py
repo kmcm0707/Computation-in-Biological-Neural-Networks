@@ -1,4 +1,3 @@
-import collections
 import gzip
 import os
 import shutil
@@ -815,66 +814,136 @@ class IMDBMetaDataset(Dataset):
         return support_texts, support_masks, support_labels, query_texts, query_masks, query_labels
 
 
-class IMDBWord2VecDataset(Dataset):
-    def __init__(self, min_k, max_k, query_q, max_seq_len=200):
-        self.min_k, self.max_k, self.query_q = min_k, max_k, query_q
+from torch.utils.data import Dataset
+
+
+class IMDBWord2VecMetaDataset(Dataset):
+    """
+    IMDB Meta-learning dataset using Word2Vec indices.
+    Samples 'tasks' consisting of K support samples and Q query samples.
+    """
+
+    def __init__(
+        self, minNumberOfSequences, maxNumberOfSequences, query_q, max_seq_len=200, cache_path="data/word2vec_300.pt"
+    ):
+        self.min_k = minNumberOfSequences
+        self.max_k = maxNumberOfSequences
+        self.query_q = query_q
         self.max_seq_len = max_seq_len
+        cache_path = os.path.join(os.getcwd(), cache_path)
 
-        # 1. Load raw data
-        raw = load_dataset("imdb")
+        # 1. Load the Word2Vec Vocab Cache
+        if not os.path.exists(cache_path):
+            raise FileNotFoundError(
+                f"Word2Vec cache not found at {cache_path}. Please run the cache creation script first."
+            )
 
-        # 2. Simple Tokenization & Vocab Building
-        # We need a word-to-index map for Word2Vec
-        all_text = [item["text"].lower().split() for item in raw["train"]]
-        word_counts = collections.Counter([word for sublist in all_text for word in sublist])
-        # Only keep words appearing > 5 times to reduce noise
-        self.vocab = {word: i + 2 for i, (word, count) in enumerate(word_counts.items()) if count > 5}
-        self.vocab["<PAD>"] = 0
-        self.vocab["<UNK>"] = 1
+        cache = torch.load(cache_path, weights_only=True)
+        self.wv_vocab = cache["vocab"]
+        # The UNK index is the very last row we added to the weights matrix
+        self.unk_idx = len(cache["weights"]) - 1
 
-        # 3. Process into class data
+        # 2. Load the IMDB dataset from Hugging Face
+        print("Loading raw IMDB dataset...")
+        raw_datasets = load_dataset("imdb")
+
+        # 3. Process data into two lists (Negative: 0, Positive: 1)
         self.class_data = {0: [], 1: []}
+
+        print("Tokenizing and indexing IMDB reviews...")
         for split in ["train", "test"]:
-            for item in raw[split]:
-                tokens = item["text"].lower().split()[:max_seq_len]
-                # Convert words to IDs
-                ids = [self.vocab.get(w, 1) for w in tokens]
-                # Pad
-                ids += [0] * (max_seq_len - len(ids))
-                self.class_data[item["label"]].append(torch.tensor(ids))
+            for item in raw_datasets[split]:
+                text = item["text"].lower()
+                # Simple cleanup: remove HTML breaks and non-alpha characters
+                text = text.replace("<br />", " ")
+
+                # Tokenize by whitespace
+                words = text.split()[: self.max_seq_len]
+
+                # Map words to Google News IDs, use unk_idx if word is missing
+                ids = [self.wv_vocab.get(w, self.unk_idx) for w in words]
+
+                # Pad sequence to max_seq_len
+                # Index 0 in Google News is usually '</s>', used here for padding
+                padding_len = self.max_seq_len - len(ids)
+                if padding_len > 0:
+                    ids.extend([0] * padding_len)
+
+                self.class_data[item["label"]].append(torch.tensor(ids, dtype=torch.long))
+
+        print(f"Dataset ready. Class 0: {len(self.class_data[0])} samples, Class 1: {len(self.class_data[1])} samples.")
 
     def __len__(self):
-        # 2 classes: Positive and Negative
+        # We return 2 because there are only two classes (Positive/Negative)
+        # This allows the RandomSampler to pick between class 0 and 1
         return 2
 
     def __getitem__(self, index):
-        # index 0 = Negative, index 1 = Positive
-        index = self.current_idx
-        self.current_idx += 1
-        if self.current_idx == 2:
-            self.current_idx = 0
+        """
+        Samples a task for a specific class (index).
+        Returns (support_ids, support_labels, query_ids, query_labels)
+        """
         all_samples = self.class_data[index]
 
-        # Determine K-shot
-        k_shot = self.maxNumberOfSequences
+        # Determine K-shot for this specific task
+        k_shot = self.max_k
+
         total_needed = k_shot + self.query_q
 
-        # Sample unique indices
-        indices = np.random.choice(len(all_samples), total_needed, replace=False)
+        # Randomly pick indices for this class
+        selected_indices = np.random.choice(len(all_samples), total_needed, replace=False)
 
-        def gather_data(idxs):
-            texts = torch.stack([all_samples[i]["input_ids"] for i in idxs])
-            masks = torch.stack([all_samples[i]["attention_mask"] for i in idxs])
-            return texts, masks
+        # Split into support and query
+        support_indices = selected_indices[:k_shot]
+        query_indices = selected_indices[k_shot:]
 
-        support_texts, support_masks = gather_data(indices[:k_shot])
-        query_texts, query_masks = gather_data(indices[k_shot:])
+        # Gather tensors
+        support_ids = torch.stack([all_samples[i] for i in support_indices])
+        query_ids = torch.stack([all_samples[i] for i in query_indices])
 
-        # Create labels
+        # Create labels (all same class index)
         support_labels = torch.full((k_shot,), index, dtype=torch.long)
         query_labels = torch.full((self.query_q,), index, dtype=torch.long)
 
-        return support_texts, support_masks, support_labels, query_texts, query_masks, query_labels
+        return support_ids, support_labels, query_ids, query_labels
+
+
+class IMDBWord2VecDataProcess:
+    def __init__(self, device="cpu", minNumberOfSequencesPerClass=5, maxNumberOfSequencesPerClass=10, use_jax=False):
+        self.device = device
+        self.min_k = minNumberOfSequencesPerClass
+        self.max_k = maxNumberOfSequencesPerClass
+        self.use_jax = use_jax
+
+        # Load cache
+        cache_path = os.path.join(os.getcwd(), "data/word2vec_300.pt")
+        cache = torch.load(cache_path, weights_only=True)
+
+        # Initialize frozen embedding layer
+        self.embedding = torch.nn.Embedding.from_pretrained(cache["weights"], freeze=True)
+        self.embedding.to(self.device)
+
+    def __call__(self, data):
+        s_ids, s_labels, q_ids, q_labels = data
+        current_k = np.random.randint(self.min_k, self.max_k + 1)
+        s_ids = s_ids[:, :current_k, :]
+        s_labels = s_labels[:, :current_k]
+
+
+        s_ids = torch.reshape(s_ids, (current_k * s_ids.shape[0], s_ids.shape[2]))
+        s_labels = torch.reshape(s_labels, (current_k * s_labels.shape[0],))
+        perm = torch.randperm(s_ids.size(0))
+
+        q_ids = torch.reshape(q_ids, (q_ids.shape[0] * q_ids.shape[1], q_ids.shape[2]))
+        q_labels = torch.reshape(q_labels, (q_labels.shape[0] * q_labels.shape[1],))
+
+        # Vectorize: [Total_Samples, Seq_Len] -> [Total_Samples, Seq_Len, 300]
+        with torch.no_grad():
+            support_vectors = self.embedding(s_ids)
+            query_vectors = self.embedding(q_ids)
+
+        # Flatten Seq dimension for your RNN if needed, or keep as (Samples, Seq, 300)
+        return support_vectors, s_labels.view(-1), query_vectors, q_labels.view(-1), current_k
 
 
 class IMDBDataProcess:

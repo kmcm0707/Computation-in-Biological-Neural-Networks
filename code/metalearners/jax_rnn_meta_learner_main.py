@@ -12,6 +12,7 @@ from misc.dataset import (
     AddBernoulliTaskDataset,
     DataProcess,
     EmnistDataset,
+    IMDBMetaDataset,
 )
 from misc.utils import Plot, accuracy, log
 from nn.jax_chemical_rnn import JAXChemicalRNN
@@ -128,7 +129,7 @@ class JaxMetaLearnerRNN:
         x, labels = input
 
         if self.jaxMetaLearnerOptions.dataset_name != "ADDBERNOULLI":
-                        labels = jax.nn.one_hot(labels, num_classes=self.jaxMetaLearnerOptions.output_size)
+            labels = jax.nn.one_hot(labels, num_classes=self.jaxMetaLearnerOptions.output_size)
 
         y, hidden_state, past_h_new_pre_tau, activations_arr, errors_arr = rnn(
             x, hidden_state, labels, past_h_new_pre_tau
@@ -429,6 +430,7 @@ def main_jax_rnn_meta_learner():
     minTrainingDataPerClass = 60
     maxTrainingDataPerClass = 70
     queryDataPerClass = 20
+    numberOfTimeSteps = 28
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -440,6 +442,7 @@ def main_jax_rnn_meta_learner():
             use_jax=True,
         )
         dimOut = 47
+        dimIn = int(28 * 28 / numberOfTimeSteps)
     elif dataset_name == "ADDBERNOULLI":
         queryDataPerClass = 50
         dataset = AddBernoulliTaskDataset(
@@ -450,6 +453,18 @@ def main_jax_rnn_meta_learner():
         dimOut = 2
         dimIn = 2
         numberOfClasses = 1
+    elif dataset_name == "IMDB":
+        numberOfClasses = 2
+        dimOut = 2
+        queryDataPerClass = 20
+        dataset = IMDBMetaDataset(
+            minNumberOfSequences=minTrainingDataPerClass,
+            maxNumberOfSequences=maxTrainingDataPerClass,
+            query_q=queryDataPerClass,
+            max_seq_len=200,
+        )
+        numWorkers = 0
+        dimIn = 768
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
     metatrain_dataset = DataLoader(
@@ -490,7 +505,7 @@ def main_jax_rnn_meta_learner():
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        input_size=28, #dimIn,
+        input_size=dimIn,  # dimIn,
         hidden_size=128,
         output_size=dimOut,
         biological_min_tau=1,

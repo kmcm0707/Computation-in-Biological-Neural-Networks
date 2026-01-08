@@ -1,5 +1,5 @@
 import torch
-from misc.dataset import IMDBDataProcess, IMDBMetaDataset
+from misc.dataset import IMDBWord2VecDataProcess, IMDBWord2VecMetaDataset
 
 if __name__ == "__main__":
     # -- test matrix
@@ -360,8 +360,8 @@ if __name__ == "__main__":
         print("x_trn:", x_trn)
         print("y_trn:", y_trn)"""
 
-    imdb_dataset = IMDBMetaDataset(minNumberOfSequences=1, maxNumberOfSequences=200, query_q=10)
-    data_process = IMDBDataProcess(
+    imdb_dataset = IMDBWord2VecMetaDataset(minNumberOfSequences=1, maxNumberOfSequences=200, query_q=10)
+    data_process = IMDBWord2VecDataProcess(
         minNumberOfSequencesPerClass=10,
         maxNumberOfSequencesPerClass=20,
         device=torch.device("cpu"),
@@ -375,6 +375,7 @@ if __name__ == "__main__":
         x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = data_process(data)
         print("")
         print("x_trn:", x_trn.shape)
+        print("x_trn_norm:", torch.norm(x_trn[0, 0, :]))
         print("y_trn:", y_trn.shape)
         print("x_qry:", x_qry.shape)
         print("y_qry:", y_qry.shape)
