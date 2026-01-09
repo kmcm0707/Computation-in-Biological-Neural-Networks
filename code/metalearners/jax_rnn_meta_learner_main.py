@@ -187,7 +187,10 @@ class JaxMetaLearnerRNN:
 
         if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
             x = jnp.reshape(x, (x.shape[0], -1))  # (time_steps, input_size)
-        elif self.jaxMetaLearnerOptions.dataset_name == "IMDB" or self.jaxMetaLearnerOptions.dataset_name == "IMDB_WORD2VEC":
+        elif (
+            self.jaxMetaLearnerOptions.dataset_name == "IMDB"
+            or self.jaxMetaLearnerOptions.dataset_name == "IMDB_WORD2VEC"
+        ):
             pass
         else:
             x = jnp.reshape(x, (self.jaxMetaLearnerOptions.number_of_time_steps, -1))  # (time_steps, input_size)
@@ -517,7 +520,7 @@ def main_jax_rnn_meta_learner():
         nonLinear=JaxActivationNonLinearEnum.tanh,
         update_rules=[0, 1, 2, 4, 9, 11],  # 4
         minSlowTau=2,
-        maxSlowTau=50,
+        maxSlowTau=100,
         y_vector=yVectorEnum.none,
         z_vector=zVectorEnum.default,
         operator=operatorEnum.mode_9,
@@ -530,7 +533,7 @@ def main_jax_rnn_meta_learner():
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_IMDB",
+        results_subdir="jax_rnn_IMDB_grad_altered",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=0.001,
@@ -545,7 +548,7 @@ def main_jax_rnn_meta_learner():
         output_size=dimOut,
         biological_min_tau=1,
         biological_max_tau=200,
-        gradient=False,
+        gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=28,
