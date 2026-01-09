@@ -513,7 +513,7 @@ def main_jax_rnn_meta_learner():
         results_subdir="jax_rnn_28",
         metatrain_dataset=dataset_name,
         display=True,
-        metaLearningRate=0.0007,
+        metaLearningRate=0.0001,
         numberOfClasses=numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -521,15 +521,15 @@ def main_jax_rnn_meta_learner():
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         input_size=dimIn,  # dimIn,
-        hidden_size=128,
+        hidden_size=256,
         output_size=dimOut,
         biological_min_tau=1,
         biological_max_tau=200,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
-        recurrent_activation=JaxActivationNonLinearEnum.pass_through,
+        recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=28,
-        load_model=None,
+        load_model=continue_training,
     )
 
     metalearning_model = JaxMetaLearnerRNN(

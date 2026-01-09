@@ -34,7 +34,7 @@ class JAXFastRnn(eqx.Module):
         # -- initialize matrices --
         self.Q_matrix = np.zeros((self.numberOfChemicals, self.numberUpdateRules))
         # self.Q_matrix[:, 0] = 1e-3  # rule 0
-        self.Q_matrix[:, 0] = 1e-5
+        self.Q_matrix[:, 0] = 1e-3
         self.Q_matrix = jnp.array(self.Q_matrix)
         self.K_matrix = jnp.zeros((self.numberOfChemicals, self.numberOfChemicals))
         self.z_vector = jnp.zeros((self.numberOfChemicals,))
