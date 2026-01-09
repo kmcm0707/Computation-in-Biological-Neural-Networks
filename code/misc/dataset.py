@@ -1018,6 +1018,7 @@ class IMDBDataProcess:
             support_masks, (current_sequences_per_class * support_masks.shape[0], support_masks.shape[2])
         )  # reshape to (K, seq_len)
         support_texts = self.bert(support_texts, attention_mask=support_masks).last_hidden_state
+        support_texts = torch.nn.functional.normalize(support_texts, p=2, dim=2)
         support_labels = torch.reshape(
             support_labels, (current_sequences_per_class * support_labels.shape[0], 1)
         )  # reshape to (K,)
@@ -1029,6 +1030,7 @@ class IMDBDataProcess:
             query_masks, (query_masks.shape[0] * query_masks.shape[1], query_masks.shape[2])
         )  # reshape to (Q, seq_len)
         query_texts = self.bert(query_texts, attention_mask=query_masks).last_hidden_state
+        query_texts = torch.nn.functional.normalize(query_texts, p=2, dim=2)
         query_labels = torch.reshape(
             query_labels, (query_labels.shape[0] * query_labels.shape[1], 1)
         )  # reshape to (Q,)

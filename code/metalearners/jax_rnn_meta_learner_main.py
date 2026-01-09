@@ -14,6 +14,8 @@ from misc.dataset import (
     EmnistDataset,
     IMDBDataProcess,
     IMDBMetaDataset,
+    IMDBWord2VecDataProcess,
+    IMDBWord2VecMetaDataset,
 )
 from misc.utils import Plot, accuracy, log
 from nn.jax_chemical_rnn import JAXChemicalRNN
@@ -63,6 +65,12 @@ class JaxMetaLearnerRNN:
             self.data_process = IMDBDataProcess(
                 minNumberOfSequences=self.jaxMetaLearnerOptions.minTrainingDataPerClass,
                 maxNumberOfSequences=self.jaxMetaLearnerOptions.maxTrainingDataPerClass,
+                use_jax=True,
+            )
+        elif self.jaxMetaLearnerOptions.dataset_name == "IMDB_WORD2VEC":
+            self.data_process = IMDBWord2VecDataProcess(
+                minNumberOfSequencesPerClass=self.jaxMetaLearnerOptions.minTrainingDataPerClass,
+                maxNumberOfSequencesPerClass=self.jaxMetaLearnerOptions.maxTrainingDataPerClass,
                 use_jax=True,
             )
         else:
@@ -179,7 +187,7 @@ class JaxMetaLearnerRNN:
 
         if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
             x = jnp.reshape(x, (x.shape[0], -1))  # (time_steps, input_size)
-        elif self.jaxMetaLearnerOptions.dataset_name == "IMDB":
+        elif self.jaxMetaLearnerOptions.dataset_name == "IMDB" or self.jaxMetaLearnerOptions.dataset_name == "IMDB_WORD2VEC":
             pass
         else:
             x = jnp.reshape(x, (self.jaxMetaLearnerOptions.number_of_time_steps, -1))  # (time_steps, input_size)
@@ -342,7 +350,7 @@ class JaxMetaLearnerRNN:
 
                 current_training_data_per_class = x_trn.shape[1]
             elif self.jaxMetaLearnerOptions.dataset_name == "IMDB":
-                x_trn, y_trn, x_qry, y_qry = self.data_process(data)
+                x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(data)
             else:
                 x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(
                     data, self.jaxMetaLearnerOptions.numberOfClasses
@@ -480,6 +488,18 @@ def main_jax_rnn_meta_learner():
         )
         numWorkers = 0
         dimIn = 768
+    elif dataset_name == "IMDB_WORD2VEC":
+        numberOfClasses = 2
+        dimOut = 2
+        queryDataPerClass = 20
+        dataset = IMDBWord2VecMetaDataset(
+            minNumberOfSequences=minTrainingDataPerClass,
+            maxNumberOfSequences=maxTrainingDataPerClass,
+            query_q=queryDataPerClass,
+            max_seq_len=200,
+        )
+        numWorkers = 0
+        dimIn = 300
 
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
     metatrain_dataset = DataLoader(
@@ -510,7 +530,7 @@ def main_jax_rnn_meta_learner():
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_28",
+        results_subdir="jax_IMDB",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=0.0007,

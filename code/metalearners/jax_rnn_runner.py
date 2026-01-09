@@ -12,6 +12,7 @@ from misc.dataset import (
     EmnistDataset,
     IMDBDataProcess,
     IMDBMetaDataset,
+    IMDBWord2VecDataProcess,
     IMDBWord2VecMetaDataset,
 )
 from misc.utils import Plot, accuracy, log
@@ -60,6 +61,12 @@ class JaxMetaLearnerRNN:
             )
         elif self.jaxMetaLearnerOptions.dataset_name == "IMDB":
             self.data_process = IMDBDataProcess(
+                minNumberOfSequencesPerClass=self.jaxMetaLearnerOptions.minTrainingDataPerClass,
+                maxNumberOfSequencesPerClass=self.jaxMetaLearnerOptions.maxTrainingDataPerClass,
+                use_jax=True,
+            )
+        elif self.jaxMetaLearnerOptions.dataset_name == "IMDB_WORD2VEC":
+            self.data_process = IMDBWord2VecDataProcess(
                 minNumberOfSequencesPerClass=self.jaxMetaLearnerOptions.minTrainingDataPerClass,
                 maxNumberOfSequencesPerClass=self.jaxMetaLearnerOptions.maxTrainingDataPerClass,
                 use_jax=True,
@@ -166,14 +173,20 @@ class JaxMetaLearnerRNN:
 
         if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
             x = jnp.reshape(x, (x.shape[0], -1))  # (time_steps, input_size)
-        elif self.jaxMetaLearnerOptions.dataset_name == "IMDB":
+        elif (
+            self.jaxMetaLearnerOptions.dataset_name == "IMDB"
+            or self.jaxMetaLearnerOptions.dataset_name == "IMDB_WORD2VEC"
+        ):
             pass  # x is already in shape (time_steps, input_size)
         else:
             x = jnp.reshape(x, (self.jaxMetaLearnerOptions.number_of_time_steps, -1))  # (time_steps, input_size)
 
         if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
             label = jnp.reshape(label, (label.shape[0], -1))  # (time_steps, output_size)
-        elif self.jaxMetaLearnerOptions.dataset_name == "IMDB":
+        elif (
+            self.jaxMetaLearnerOptions.dataset_name == "IMDB"
+            or self.jaxMetaLearnerOptions.dataset_name == "IMDB_WORD2VEC"
+        ):
             label = jnp.repeat(label, repeats=x.shape[0], axis=0)
         else:
             label = jnp.repeat(
@@ -206,7 +219,10 @@ class JaxMetaLearnerRNN:
 
         if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
             x = jnp.reshape(x, (x.shape[0], x.shape[1], -1))  # (batch_size, time_steps, input_size)
-        elif self.jaxMetaLearnerOptions.dataset_name == "IMDB":
+        elif (
+            self.jaxMetaLearnerOptions.dataset_name == "IMDB"
+            or self.jaxMetaLearnerOptions.dataset_name == "IMDB_WORD2VEC"
+        ):
             pass  # x is already in shape (batch_size, time_steps, input_size)
         else:
             x = jnp.reshape(x, (x.shape[0], number_of_timesteps, -1))  # (batch_size, time_steps, input_size)
@@ -308,7 +324,10 @@ class JaxMetaLearnerRNN:
                 y_qry = jnp.expand_dims(y_qry, 0)
 
                 current_training_data_per_class = x_trn.shape[1]
-            elif self.jaxMetaLearnerOptions.dataset_name == "IMDB":
+            elif (
+                self.jaxMetaLearnerOptions.dataset_name == "IMDB"
+                or self.jaxMetaLearnerOptions.dataset_name == "IMDB_WORD2VEC"
+            ):
                 x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(data)
             else:
                 x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(
@@ -417,7 +436,7 @@ def jax_runner(index: int):
     ]"""
     epochs = 20
 
-    dataset_name = "EMNIST"
+    dataset_name = "IMDB"
     minTrainingDataPerClass = training_data[index]
     maxTrainingDataPerClass = training_data[index]
     queryDataPerClass = 10
@@ -465,7 +484,6 @@ def jax_runner(index: int):
             maxNumberOfSequences=maxTrainingDataPerClass,
             query_q=queryDataPerClass,
             max_seq_len=200,
-            use_word2vec=True,
         )
         numWorkers = 0
         dimIn = 300
@@ -499,7 +517,7 @@ def jax_runner(index: int):
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=False,
-        results_subdir="russner_jax_IMDB_5",
+        results_subdir="russner_jax_IMDB_WORD2VEC_5",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
@@ -513,7 +531,7 @@ def jax_runner(index: int):
         hidden_size=256,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=14,
+        biological_max_tau=200,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
