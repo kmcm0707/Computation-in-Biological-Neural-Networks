@@ -445,6 +445,7 @@ class JaxMetaLearnerRNN:
 
 
 def main_jax_rnn_meta_learner():
+    os.environ["CUDA_VISIBLE_DEVICES"] = "1" # second gpu
     key = jax.random.PRNGKey(42)
     # jax.config.update("jax_enable_x64", False)
 
@@ -520,7 +521,7 @@ def main_jax_rnn_meta_learner():
         nonLinear=JaxActivationNonLinearEnum.tanh,
         update_rules=[0, 1, 2, 4, 9, 11],  # 4
         minSlowTau=2,
-        maxSlowTau=100,
+        maxSlowTau=50,
         y_vector=yVectorEnum.none,
         z_vector=zVectorEnum.default,
         operator=operatorEnum.mode_9,
@@ -533,10 +534,10 @@ def main_jax_rnn_meta_learner():
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_IMDB_grad_altered",
+        results_subdir="jax_rnn_IMDB_grad",
         metatrain_dataset=dataset_name,
         display=True,
-        metaLearningRate=0.001,
+        metaLearningRate=0.01,
         numberOfClasses=numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
