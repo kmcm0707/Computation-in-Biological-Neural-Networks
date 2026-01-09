@@ -153,7 +153,7 @@ class JAXChemicalRNN(eqx.Module):
                     * jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau),  # * 1.0 / self.tau,
                 ),
                 "forward2": (
-                    (jax.vmap(jax.grad(self.outer_activation))(past_h_new_pre_tau)),  # * 1.0 / self.tau,
+                    (jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau)),  # * 1.0 / self.tau,
                     (
                         jax.vmap(jax.grad(self.recurrent_activation))(recurrent_input)
                         * jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau)
