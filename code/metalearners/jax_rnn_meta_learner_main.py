@@ -445,13 +445,13 @@ class JaxMetaLearnerRNN:
 
 
 def main_jax_rnn_meta_learner():
-    os.environ["CUDA_VISIBLE_DEVICES"] = "1" # second gpu
+    #os.environ["CUDA_VISIBLE_DEVICES"] = "1" # second gpu
     key = jax.random.PRNGKey(42)
     # jax.config.update("jax_enable_x64", False)
 
     # -- load data
     numWorkers = 2
-    epochs = 5000
+    epochs = 2000
 
     dataset_name = "IMDB"
     minTrainingDataPerClass = 10
@@ -534,10 +534,10 @@ def main_jax_rnn_meta_learner():
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_IMDB_grad",
+        results_subdir="jax_rnn_IMDB_grad_no_softplus",
         metatrain_dataset=dataset_name,
         display=True,
-        metaLearningRate=0.01,
+        metaLearningRate=0.007,
         numberOfClasses=numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -548,10 +548,10 @@ def main_jax_rnn_meta_learner():
         hidden_size=256,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=200,
+        biological_max_tau=50,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
-        recurrent_activation=JaxActivationNonLinearEnum.softplus,
+        recurrent_activation=JaxActivationNonLinearEnum.pass_through,
         number_of_time_steps=28,
         load_model=None,
     )

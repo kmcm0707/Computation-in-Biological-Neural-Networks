@@ -517,7 +517,7 @@ def jax_runner(index: int):
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=False,
-        results_subdir="russner_jax_IMDB_WORD2VEC_5",
+        results_subdir="runer_jax_IMDB_word2vec",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
