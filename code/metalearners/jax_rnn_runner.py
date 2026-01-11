@@ -434,9 +434,9 @@ def jax_runner(index: int):
         14000,
         15000,
     ]"""
-    epochs = 20
+    epochs = 2
 
-    dataset_name = "IMDB"
+    dataset_name = "IMDB_WORD2VEC"
     minTrainingDataPerClass = training_data[index]
     maxTrainingDataPerClass = training_data[index]
     queryDataPerClass = 10
