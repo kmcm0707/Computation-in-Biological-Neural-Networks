@@ -4377,3 +4377,4 @@ Train Episode: 4376	Loss: 1.081546	Accuracy: 0.500	Grad Norm: 594.154236	Trainin
 Train Episode: 4377	Loss: 0.830621	Accuracy: 0.500	Grad Norm: 165.838959	Training/Class: 35
 Train Episode: 4378	Loss: 0.917361	Accuracy: 0.500	Grad Norm: 224.448013	Training/Class: 60
 Train Episode: 4379	Loss: 2.051066	Accuracy: 0.500	Grad Norm: 196.041504	Training/Class: 10
+Train Episode: 4380	Loss: 1.544106	Accuracy: 0.500	Grad Norm: 386.133514	Training/Class: 13
