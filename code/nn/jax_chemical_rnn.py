@@ -101,7 +101,8 @@ class JAXChemicalRNN(eqx.Module):
 
     def __call__(self, x: jnp.ndarray, h: jnp.ndarray, label: jnp.ndarray, past_h_new_pre_tau) -> jnp.ndarray:
         h1 = self.forward1(x)
-        h1_activated = self.softplus(h1, beta=self.beta)
+        h1_activated = h1
+        #h1_activated = self.softplus(h1, beta=self.beta)
 
         recurrent_input = self.forward2(h)
         recurrent_input_activated = (
@@ -149,8 +150,8 @@ class JAXChemicalRNN(eqx.Module):
             gradients = {
                 "forward1": (
                     -jnp.expm1(-self.beta * x),
-                    jax.vmap(jax.grad(self.softplus))(h1)
-                    * jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau),  # * 1.0 / self.tau,
+                    #jax.vmap(jax.grad(self.softplus))(h1) *
+                    jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau),  # * 1.0 / self.tau,
                 ),
                 "forward2": (
                     (jax.vmap(jax.grad(self.outer_activation))(h_new_pre_tau)),  # * 1.0 / self.tau,

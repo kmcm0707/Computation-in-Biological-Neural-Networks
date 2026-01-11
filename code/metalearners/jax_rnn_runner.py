@@ -415,9 +415,9 @@ def jax_runner(index: int):
         14000,
         15000,
     ]"""
-    epochs = 20
+    epochs = 2
 
-    dataset_name = "EMNIST"
+    dataset_name = "IMDB_WORD2VEC"
     minTrainingDataPerClass = training_data[index]
     maxTrainingDataPerClass = training_data[index]
     queryDataPerClass = 10
@@ -465,7 +465,6 @@ def jax_runner(index: int):
             maxNumberOfSequences=maxTrainingDataPerClass,
             query_q=queryDataPerClass,
             max_seq_len=200,
-            use_word2vec=True,
         )
         numWorkers = 0
         dimIn = 300
@@ -499,7 +498,7 @@ def jax_runner(index: int):
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=False,
-        results_subdir="russner_jax_IMDB_5",
+        results_subdir="runer_jax_IMDB_word2vec",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
@@ -513,7 +512,7 @@ def jax_runner(index: int):
         hidden_size=256,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=14,
+        biological_max_tau=200,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
