@@ -100,17 +100,17 @@ class JAXFastRnn(eqx.Module):
             ),
         )
         if self.fastRnnOptions.operator == operatorEnum.mode_7:
-            new_synaptic_weight = jnp.linalg.norm(
+            new_synaptic_norms = jnp.linalg.norm(
                 new_synaptic_weight, axis=1, ord=2
             )  # in jax it's in, out not out, in like pytorch
+            new_synaptic_weight = new_synaptic_weight / (new_synaptic_norms[:, None, :] + 1e-8)
 
         v_vector_softmax = jax.nn.softmax(self.v_vector)
         new_parameter_weight = jnp.einsum("c,cjk->jk", v_vector_softmax, new_synaptic_weight)
 
         if self.fastRnnOptions.operator == operatorEnum.mode_7:
-            new_parameter_weight = jnp.linalg.norm(
-                new_parameter_weight, axis=0, ord=2
-            )  # in jax it's in, out not out, in like pytorch
+            new_parameter_norms = jnp.linalg.norm(new_parameter_weight, axis=0, ord=2)  # TODO check axis
+            new_parameter_weight = new_parameter_weight / (new_parameter_norms + 1e-8)
         elif self.fastRnnOptions.operator == operatorEnum.mode_9:
             new_parameter_norms = jnp.linalg.norm(new_parameter_weight, axis=0, ord=2)  # TODO check axis
             new_parameter_weight = new_parameter_weight / new_parameter_norms
