@@ -90,6 +90,7 @@ class JaxMetaLearnerRNN:
             self.metaOptimizer = eqx.tree_deserialise_leaves(
                 self.jaxMetaLearnerOptions.load_model + "/meta_learner_model.eqx", self.metaOptimizer
             )
+            
 
         # -- optimizer --
         trainable_mask = self.get_trainable_mask(self.metaOptimizer)
@@ -97,9 +98,15 @@ class JaxMetaLearnerRNN:
             # optax.clip_by_global_norm(1.0),  # Max norm of 1.0
             optax.adam(learning_rate=self.jaxMetaLearnerOptions.metaLearningRate),
         )
+        
         dynamic, static = eqx.partition(self.metaOptimizer, trainable_mask)
         self.opt_state = self.optimizer.init(dynamic)
         self.metaOptimizer = eqx.combine(dynamic, static)
+
+        if self.jaxMetaLearnerOptions.load_model is not None:
+            self.opt_state = eqx.tree_deserialise_leaves(
+                self.jaxMetaLearnerOptions.load_model + "/meta_learner_optimizer.eqx", self.opt_state
+            )
 
         # -- loss function --
         self.loss_function = optax.safe_softmax_cross_entropy

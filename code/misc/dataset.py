@@ -744,7 +744,7 @@ class IMDBMetaDataset(Dataset):
         self.current_idx = 0
 
         # 1. Load dataset (Automatically downloads if not present)
-        # IMDB has 'train' and 'test' splits
+        # IMDB has 'train' and 'test' splits using only 1000 words by default
         raw_datasets = load_dataset("imdb")
 
         # 2. Setup Tokenizer (Fast, modern alternative to torchtext)
