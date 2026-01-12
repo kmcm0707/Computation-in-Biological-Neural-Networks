@@ -436,7 +436,7 @@ def jax_runner(index: int):
     ]"""
     epochs = 2
 
-    dataset_name = "IMDB_WORD2VEC"
+    dataset_name = "IMDB"
     minTrainingDataPerClass = training_data[index]
     maxTrainingDataPerClass = training_data[index]
     queryDataPerClass = 10
@@ -512,12 +512,12 @@ def jax_runner(index: int):
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    runner = current_dir + "/results_2/jax_rnn_6_gra_continue/20251228-184025"
+    runner = current_dir + "/results_2/jax_rnn_28/20260109-005925"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=False,
-        results_subdir="runer_jax_IMDB_word2vec",
+        results_subdir="runer_jax_IMDB_trained",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
