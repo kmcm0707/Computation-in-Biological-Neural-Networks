@@ -455,13 +455,13 @@ def main_jax_rnn_meta_learner():
 
     # -- load data
     numWorkers = 2
-    epochs = 1000
+    epochs = 200
 
-    dataset_name = "IMDB"
-    minTrainingDataPerClass = 10
+    dataset_name = "EMNIST"
+    minTrainingDataPerClass = 5
     maxTrainingDataPerClass = 70
     queryDataPerClass = 20
-    numberOfTimeSteps = 28
+    numberOfTimeSteps = 7
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -498,7 +498,7 @@ def main_jax_rnn_meta_learner():
         dimIn = 768
     elif dataset_name == "IMDB_WORD2VEC":
         numberOfClasses = 2
-        dimOut = 2
+        dimOut = 4
         queryDataPerClass = 10
         dataset = IMDBWord2VecMetaDataset(
             minNumberOfSequences=minTrainingDataPerClass,
@@ -525,7 +525,7 @@ def main_jax_rnn_meta_learner():
         nonLinear=JaxActivationNonLinearEnum.tanh,
         update_rules=[0, 1, 2, 4, 9, 11],  # 4
         minSlowTau=2,
-        maxSlowTau=50,
+        maxSlowTau=100,
         y_vector=yVectorEnum.none,
         z_vector=zVectorEnum.default,
         operator=operatorEnum.mode_9,
@@ -533,15 +533,15 @@ def main_jax_rnn_meta_learner():
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/jax_rnn_28/20260109-005925"
+    continue_training = current_dir + "/results_2/jax_rnn_9_chems_true/20260119-181831"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_IMDB",
+        results_subdir="jax_rnn_9_chems_true",
         metatrain_dataset=dataset_name,
         display=True,
-        metaLearningRate=0.001,
+        metaLearningRate=0.0007,
         numberOfClasses=numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -549,14 +549,14 @@ def main_jax_rnn_meta_learner():
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         input_size=dimIn,  # dimIn,
-        hidden_size=256,
+        hidden_size=128,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=200,
+        biological_max_tau=7,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
-        number_of_time_steps=28,
+        number_of_time_steps=7,
         load_model=continue_training,
     )
 
@@ -564,7 +564,7 @@ def main_jax_rnn_meta_learner():
         modelOptions=modelOptions,
         jaxMetaLearnerOptions=metaLearnerOptions,
         key=key,
-        numberOfChemicals=5,
+        numberOfChemicals=9,
         metaTrainingDataset=metatrain_dataset,
     )
 

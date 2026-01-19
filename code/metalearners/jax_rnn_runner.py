@@ -403,44 +403,44 @@ def jax_runner(index: int):
     # -- load data
     numWorkers = 2
     training_data = [10, 20, 30, 40, 50, 60, 70, 80, 90]
-    """training_data = [
+    training_data = [
         # 10,
-        9,
+        #9,
         10,
         20,
-        50,
-        75,
-        90,
+        #50,
+        #75,
+        #90,
         # 30,
-        100,
-        200,
-        300,
-        500,
-        700,
-        1000,
-        2000,
-        3000,
-        4000,
-        6000,
-        8000,
-        # 40,
-        # 50,
-        # 60,
-        # 70,
-        # 80,
-        # 90,
-        10000,
-        12000,
-        14000,
-        15000,
-    ]"""
-    epochs = 2
+        #100,
+        #200,
+        #300,
+        #500,
+        #700,
+        #1000,
+        #2000,
+        #3000,
+        #4000,
+        #6000,
+        #8000,
+        40,
+        50,
+        60,
+        70,
+        80,
+        90,
+        #10000,
+        #12000,
+        #14000,
+        #15000,
+    ]
+    epochs = 20
 
-    dataset_name = "IMDB"
+    dataset_name = "EMNIST"
     minTrainingDataPerClass = training_data[index]
     maxTrainingDataPerClass = training_data[index]
-    queryDataPerClass = 10
-    numberOfTimeSteps = 28
+    queryDataPerClass = 20
+    numberOfTimeSteps = 7
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -512,12 +512,12 @@ def jax_runner(index: int):
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    runner = current_dir + "/results_2/jax_rnn_28/20260109-005925"
+    runner = current_dir + "/results_2/jax_rnn_9_chems/20260119-122736"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=False,
-        results_subdir="runer_jax_IMDB_trained",
+        results_subdir="runer_jax_9_chems",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
@@ -528,10 +528,10 @@ def jax_runner(index: int):
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         input_size=dimIn,
-        hidden_size=256,
+        hidden_size=128,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=200,
+        biological_max_tau=7,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
@@ -543,7 +543,7 @@ def jax_runner(index: int):
         modelOptions=modelOptions,
         jaxMetaLearnerOptions=metaLearnerOptions,
         key=key,
-        numberOfChemicals=5,
+        numberOfChemicals=9,
         metaTrainingDataset=metatrain_dataset,
     )
 
@@ -552,5 +552,5 @@ def jax_runner(index: int):
 
 def main_jax_runner():
 
-    for i in range(22):
+    for i in range(10):
         jax_runner(i)
