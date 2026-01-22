@@ -658,11 +658,11 @@ def run(
         130,
         140,
         150,
-        160,
-        170,
-        180,
-        190,
-        200,
+        #160,
+        #170,
+        #180,
+        #190,
+        #200,
         # 225,
         # 250,
         # 275,
@@ -780,7 +780,7 @@ def run(
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4, 6, 8, 9],  # 5
+            update_rules=[0, 1, 2, 3, 4, 6, 9],  # 5
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
@@ -928,7 +928,7 @@ def run(
         wta=False,
         chemical_analysis=False,
         scalar_min=0.0,
-        scalar_variance_reduction=20,
+        scalar_variance_reduction=-1,
     )
 
     #   -- number of chemicals
@@ -1011,17 +1011,17 @@ def runner_main():
         # os.getcwd()
         # + "/results_2/mode_9_scalar/0/20251119-191938"
         os.getcwd()
-        + "/results_2/mode_9_scalar_variance_test/0/20251212-143206"
+        + "/results_2/mode_9_11_chems/0/20260122-054815"
     ]
     for i in range(len(modelPath_s)):
         for index in range(0, 28):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_scalar_variance_2_same",
+                result_subdirectory="runner_mode_9_scalar_11_chems",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=5,
-                max_tau=[50][i],
+                numberOfChemicals=11,
+                max_tau=[80][i],
             )
