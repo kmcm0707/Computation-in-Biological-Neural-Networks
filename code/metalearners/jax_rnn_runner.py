@@ -408,6 +408,7 @@ def jax_runner(index: int):
         #9,
         10,
         20,
+        30,
         #50,
         #75,
         #90,
@@ -502,7 +503,7 @@ def jax_runner(index: int):
     modelOptions = None
     modelOptions = fastRnnOptions(
         nonLinear=JaxActivationNonLinearEnum.tanh,
-        update_rules=[0, 1, 2, 4, 9, 11],  # 4
+        update_rules=[0, 1, 2, 4, 9, 12],  # 4
         minSlowTau=2,
         maxSlowTau=50,
         y_vector=yVectorEnum.none,
@@ -512,12 +513,12 @@ def jax_runner(index: int):
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    runner = current_dir + "/results_2/jax_rnn_9_chems/20260119-122736"
+    runner = current_dir + "/results_2/jax_rnn_12/20260121-024411"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=False,
-        results_subdir="runer_jax_9_chems",
+        results_subdir="runer_jax_5_chems_12",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
@@ -543,7 +544,7 @@ def jax_runner(index: int):
         modelOptions=modelOptions,
         jaxMetaLearnerOptions=metaLearnerOptions,
         key=key,
-        numberOfChemicals=9,
+        numberOfChemicals=5,
         metaTrainingDataset=metatrain_dataset,
     )
 
