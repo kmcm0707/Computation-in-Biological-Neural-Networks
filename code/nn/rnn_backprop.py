@@ -525,11 +525,11 @@ def run(
     random.seed(seed)
 
     # -- load data
-    numWorkers = 0
+    numWorkers = 2
     epochs = 20
     numberOfClasses = 5
     dimOut = 47
-    dataset_name = "IMDB_WORD2VEC"
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -601,13 +601,13 @@ def run(
         # -- model params
         biological=True,
         biological_min_tau=1,
-        biological_max_tau=200,
+        biological_max_tau=28,
         biological_nonlinearity=nonLinearEnum.softplus,
         recurrent_nonlinearity=nonLinearEnum.softplus,
         output_nonlinearity=nonLinearEnum.tanh,
-        hidden_size=256,
+        hidden_size=128,
         update_after_time_step=False,
-        manually_update_after_time_step=-1,
+        manually_update_after_time_step=10,
         learning_rate=1e-3,
     )
     metalearning_model.train()
@@ -628,9 +628,8 @@ def rnn_backprop_main():
     :return: None
     """
     # -- run
-    dimIn = [112]
+    dimIn = [28]
     trainingDataPerClass = [
-        1,
         10,
         20,
         30,
@@ -695,7 +694,7 @@ def rnn_backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="backprop_IMDBWord2Vec_2/{}".format(dim),
+                result_subdirectory="backprop_emnsit_10/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
