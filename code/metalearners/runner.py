@@ -653,11 +653,11 @@ def run(
         80,
         90,
         100,
-        110,
-        120,
-        130,
-        140,
-        150,
+        #110,
+        #120,
+        #130,
+        #140,
+        #150,
         #160,
         #170,
         #180,
@@ -706,7 +706,7 @@ def run(
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "EMNIST"
+    dataset_name = "COMBINED"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -1006,22 +1006,22 @@ def runner_main():
         # os.getcwd()
         # + "/results_2/mode_9_scalar_10/1/20251124-002143"
         # os.getcwd() + "/results_2/mode_9_CB/5/20251112-001951"
-        # os.getcwd()
-        # + "/results_2/mode_9_CB/5/20251112-225711"
+        os.getcwd()
+        + "/results_2/mode_9_CB/5/20251112-220930"
         # os.getcwd()
         # + "/results_2/mode_9_scalar/0/20251119-191938"
-        os.getcwd()
-        + "/results_2/mode_9_11_chems/0/20260122-054815"
+        #os.getcwd()
+        #+ "/results_2/mode_9_11_chems/0/20260122-054815"
     ]
     for i in range(len(modelPath_s)):
         for index in range(0, 28):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_scalar_11_chems",
+                result_subdirectory="runner_mode_9_CL_3",
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.scalar,
+                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=11,
-                max_tau=[80][i],
+                numberOfChemicals=3,
+                max_tau=[50][i],
             )

@@ -410,7 +410,7 @@ class RnnMetaLearner:
                                 )
                             else:
                                 loss_adapt = self.loss_func(logits, label)
-                            if current_time_step + 1 > 10 and self.dataset_name == "ADDBERNOULLI":
+                            if current_time_step + 1 > 10: #and self.dataset_name == "ADDBERNOULLI":
                                 self.UpdateParameters.zero_grad()
                                 loss_adapt.backward()
                                 self.UpdateParameters.step()
@@ -607,8 +607,8 @@ def run(
         output_nonlinearity=nonLinearEnum.tanh,
         hidden_size=128,
         update_after_time_step=False,
-        manually_update_after_time_step=10,
-        learning_rate=1e-3,
+        manually_update_after_time_step=7,
+        learning_rate=1e-2,
     )
     metalearning_model.train()
 
@@ -694,7 +694,7 @@ def rnn_backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="backprop_emnsit_10/{}".format(dim),
+                result_subdirectory="backprop_emnsit_7_3/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
