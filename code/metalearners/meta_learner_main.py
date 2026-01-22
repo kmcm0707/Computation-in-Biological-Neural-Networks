@@ -937,7 +937,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 1200
+    epochs = 2500
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
@@ -1010,15 +1010,15 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4, 9],
+            update_rules=[0, 1, 2, 3, 4, 6, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=50,
+            maxTau=80,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_7,
+            operator=operatorEnum.mode_9,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1114,12 +1114,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/20251103-183210"
+    continue_training = current_dir + "/results_2/mode_9_7_chems/0/20260121-205945"
     # continue_training = (
     #    current_dir + "/results_2/mode_9_rand/0/20251105-152312"
     # )  # "/results_2/mode_9/0/20251107-172732"
     # -- meta-learner options
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P and K matrices (check 1.5)
@@ -1128,16 +1128,16 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         model=model,
         results_subdir=result_subdirectory,
         seed=seed,
-        size=sizeEnum.convolutional,
+        size=sizeEnum.normal,
         raytune=False,
         save_results=True,
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.0001,
+        lr=0.0007,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         trainSeparateFeedback=False,
         feedbackSeparateModel=feedbackModel,
         trainSameFeedback=False,
@@ -1145,21 +1145,21 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=None,  # continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+        continueTraining=None,#continue_training,
+        typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
-        hrm_discount=200,
+        hrm_discount=-1,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
         train_RCN=True,
         wta=False,
         shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" else 0,
-        scalar_variance_reduction=20,  # -1 means no scalar variance reduction
+        scalar_variance_reduction=-1,  # -1 means no scalar variance reduction
     )
 
     # -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 13
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1190,4 +1190,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_7_convolutional_swapped", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_11_chems", index=i)

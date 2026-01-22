@@ -101,11 +101,11 @@ class JaxMetaLearnerRNN:
         
         dynamic, static = eqx.partition(self.metaOptimizer, trainable_mask)
         self.opt_state = self.optimizer.init(dynamic)
-        self.metaOptimizer = eqx.combine(dynamic, static)
-        if self.jaxMetaLearnerOptions.load_model is not None:
-            self.opt_state = eqx.tree_deserialise_leaves(
-                self.jaxMetaLearnerOptions.load_model + "/meta_learner_optimizer.eqx", self.opt_state
-            )
+        #self.metaOptimizer = eqx.combine(dynamic, static)
+        #if self.jaxMetaLearnerOptions.load_model is not None:
+        #    self.opt_state = eqx.tree_deserialise_leaves(
+        #        self.jaxMetaLearnerOptions.load_model + "/meta_learner_optimizer.eqx", self.opt_state
+        #    )
 
         if self.jaxMetaLearnerOptions.load_model is not None:
             self.opt_state = eqx.tree_deserialise_leaves(
@@ -462,13 +462,13 @@ def main_jax_rnn_meta_learner():
 
     # -- load data
     numWorkers = 2
-    epochs = 200
+    epochs = 2000
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
     maxTrainingDataPerClass = 70
     queryDataPerClass = 20
-    numberOfTimeSteps = 7
+    numberOfTimeSteps = 28
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -530,9 +530,9 @@ def main_jax_rnn_meta_learner():
     modelOptions = None
     modelOptions = fastRnnOptions(
         nonLinear=JaxActivationNonLinearEnum.tanh,
-        update_rules=[0, 1, 2, 4, 9, 11],  # 4
+        update_rules=[0, 1, 2, 4, 9, 12],  # 4
         minSlowTau=2,
-        maxSlowTau=100,
+        maxSlowTau=50,
         y_vector=yVectorEnum.none,
         z_vector=zVectorEnum.default,
         operator=operatorEnum.mode_9,
@@ -540,12 +540,12 @@ def main_jax_rnn_meta_learner():
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/jax_rnn_9_chems_true/20260119-181831"
+    continue_training = current_dir + "/results_2/jax_rnn_12_28/20260121-052053"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_9_chems_true",
+        results_subdir="jax_rnn_12_28",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=0.0007,
@@ -559,11 +559,11 @@ def main_jax_rnn_meta_learner():
         hidden_size=128,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=7,
+        biological_max_tau=28,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
-        number_of_time_steps=7,
+        number_of_time_steps=28,
         load_model=continue_training,
     )
 
@@ -571,7 +571,7 @@ def main_jax_rnn_meta_learner():
         modelOptions=modelOptions,
         jaxMetaLearnerOptions=metaLearnerOptions,
         key=key,
-        numberOfChemicals=9,
+        numberOfChemicals=5,
         metaTrainingDataset=metatrain_dataset,
     )
 
