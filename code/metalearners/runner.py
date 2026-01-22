@@ -1023,5 +1023,5 @@ def runner_main():
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=11,
-                max_tau=[50][i],
+                max_tau=[80][i],
             )

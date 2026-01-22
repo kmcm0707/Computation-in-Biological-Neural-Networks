@@ -517,7 +517,7 @@ def jax_runner(index: int):
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
-        save_results=False,
+        save_results=True,
         results_subdir="runner_jax_12_28",
         metatrain_dataset=dataset_name,
         display=True,
