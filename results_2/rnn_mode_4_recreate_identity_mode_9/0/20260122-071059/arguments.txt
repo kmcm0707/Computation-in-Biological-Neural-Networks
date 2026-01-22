@@ -1,0 +1,45 @@
+model: rnnModelEnum.fast
+optimizer: optimizerEnum.adam
+seed: 0
+save_results: True
+results_subdir: rnn_mode_4_recreate_identity_mode_9
+metatrain_dataset: <torch.utils.data.dataloader.DataLoader object at 0x74a3af03bd90>
+display: True
+lr: 0.0003
+numberOfClasses: 5
+dataset_name: EMNIST
+chemicalInitialization: chemicalEnum.same
+minTrainingDataPerClass: 20
+maxTrainingDataPerClass: 70
+rnn_input_size: 112
+queryDataPerClass: 10
+datasetDevice: cuda:0
+continueTraining: None
+reset_fast_weights: False
+requireFastChemical: False
+slowIsFast: True
+dimOut: 47
+biological: True
+biological_min_tau: 1
+biological_max_tau: 7
+error: errorEnum.all
+leaky_error: 0.0
+hidden_reset: True
+loss_meta_logits_all: False
+hidden_size: 128
+recurrent_init: recurrentInitEnum.identity
+test_time_training: False
+diff_hidden_error: False
+gradient: False
+easy_gradient: False
+hrm_discount: -1
+outer_non_linear: <function pass_through at 0x74a3af0d44c0>
+recurrent_non_linear: <function pass_through at 0x74a3af0d44c0>
+post_recurrent_non_linear: <function pass_through at 0x74a3af0d44c0>
+nonLinear: <function tanh at 0x74a40e13f9a0>
+update_rules: (0, 1, 2, 4, 9, 12)
+minSlowTau: 2
+maxSlowTau: 50
+y_vector: yVectorEnum.none
+z_vector: zVectorEnum.default
+operator: operatorEnum.mode_9

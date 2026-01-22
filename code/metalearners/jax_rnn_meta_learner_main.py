@@ -456,19 +456,19 @@ class JaxMetaLearnerRNN:
 
 
 def main_jax_rnn_meta_learner():
-    #os.environ["CUDA_VISIBLE_DEVICES"] = "1" # second gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = "1" # second gpu
     key = jax.random.PRNGKey(42)
     # jax.config.update("jax_enable_x64", False)
 
     # -- load data
     numWorkers = 2
-    epochs = 2000
+    epochs = 1000
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
     maxTrainingDataPerClass = 70
     queryDataPerClass = 20
-    numberOfTimeSteps = 28
+    numberOfTimeSteps = 56
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -540,12 +540,12 @@ def main_jax_rnn_meta_learner():
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/jax_rnn_12_28/20260121-052053"
+    continue_training = current_dir + "/results_2/jax_rnn_12_28/20260121-163605"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_12_28",
+        results_subdir="jax_rnn_12_56",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=0.0007,
@@ -559,11 +559,11 @@ def main_jax_rnn_meta_learner():
         hidden_size=128,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=28,
+        biological_max_tau=56,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
-        number_of_time_steps=28,
+        number_of_time_steps=56,
         load_model=continue_training,
     )
 

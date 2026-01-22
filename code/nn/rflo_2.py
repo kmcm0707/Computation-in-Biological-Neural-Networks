@@ -374,7 +374,7 @@ class RfloLearner:
                 self.model.reset_hidden(batch_size=x_qry.shape[0])
 
             if self.dataset_name != "ADDBERNOULLI":
-                all_logits = torch.zeros(x_qry.shape[0], x_qry.shape[1] // self.dimIn, self.dimOut).to(self.device)
+                all_logits = torch.zeros(x_qry.shape[0], x_qry.shape[1], self.dimOut).to(self.device)
             else:
                 all_logits = torch.zeros(x_qry.shape[0], x_qry.shape[1], self.dimOut).to(self.device)
 
@@ -462,7 +462,7 @@ def run(
     numberOfClasses = 5
     trainingDataPerClass = trainingDataPerClass
     dimOut = 47
-    dataset_name = "ADDBERNOULLI"
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -490,6 +490,7 @@ def run(
         )
         dimIn = 2
         dimOut = 2
+
     sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
     metatrain_dataset = DataLoader(
         dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True, num_workers=numWorkers
@@ -510,13 +511,13 @@ def run(
         dimIn=dimIn,
         # -- model params
         biological_min_tau=1,
-        biological_max_tau=8,
+        biological_max_tau=28,
         biological_nonlinearity=nonLinearEnum.tanh,
-        hidden_size=32,
+        hidden_size=128,
         lr_in=0.01,
         lr_hh=0.01,
         lr_out=0.01,
-        reset_modulators=False,
+        reset_modulators=True,
     )
     metalearning_model.train()
 
@@ -526,8 +527,8 @@ def rflo_main_2():
     Main function for running RFLO experiments.
     """
     # -- run
-    dimIn = [56]
-    """trainingDataPerClass = [
+    dimIn = [28]
+    trainingDataPerClass = [
         10,
         20,
         30,
@@ -538,25 +539,25 @@ def rflo_main_2():
         80,
         90,
         100,
-        110,
-        120,
-        130,
-        140,
-        150,
-        160,
-        170,
-        180,
-        190,
-        200,
-        225,
-        250,
-        275,
-        300,
-        325,
-        350,
-        375,
-    ]"""
-    trainingDataPerClass = [
+        #110,
+        #120,
+        #130,
+        #140,
+        #150,
+        #160,
+        #170,
+        #180,
+        #190,
+        #200,
+        #225,
+        #250,
+        #275,
+        #300,
+        #325,
+        #350,
+        #375,
+    ]
+    """trainingDataPerClass = [
         # 10,
         #1,
         #5,
@@ -596,13 +597,13 @@ def rflo_main_2():
         12000,
         14000,
         15000,
-    ]
+    ]"""
     for dim in dimIn:
         for trainingData in trainingDataPerClass:
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_murray_rflo_add_max_2_3/{}".format(dim),
+                result_subdirectory="runner_murray_rflo_28_4/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
