@@ -514,9 +514,9 @@ def run(
         biological_max_tau=28,
         biological_nonlinearity=nonLinearEnum.tanh,
         hidden_size=128,
-        lr_in=0.01,
-        lr_hh=0.01,
-        lr_out=0.01,
+        lr_in=0.005,
+        lr_hh=0.005,
+        lr_out=0.005,
         reset_modulators=True,
     )
     metalearning_model.train()
@@ -603,7 +603,7 @@ def rflo_main_2():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_murray_rflo_28_4/{}".format(dim),
+                result_subdirectory="runner_murray_rflo_28_5/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
