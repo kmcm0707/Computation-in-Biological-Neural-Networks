@@ -937,10 +937,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 300
+    epochs = 2000
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 60
+    minTrainingDataPerClass = 5
     maxTrainingDataPerClass = 80
     queryDataPerClass = 20
     dataset_1 = None
@@ -1015,10 +1015,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=80,
+            maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_9,
+            operator=operatorEnum.mode_7,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1134,7 +1134,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.0007,
+        lr=0.0001,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -1145,7 +1145,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=continue_training,
+        continueTraining=None, #continue_training,
         typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
         hrm_discount=-1,
@@ -1159,7 +1159,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 11
+    numberOfChemicals = 5
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1190,4 +1190,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_9_11_chems", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_7_5_chems", index=i)
