@@ -780,7 +780,7 @@ def run(
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4, 6, 9],  # 5
+            update_rules=[0], #[0, 1, 2, 3, 4, 6, 9],  # 5
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
@@ -1007,7 +1007,7 @@ def runner_main():
         # + "/results_2/mode_9_scalar_10/1/20251124-002143"
         # os.getcwd() + "/results_2/mode_9_CB/5/20251112-001951"
         os.getcwd() #+ "/results_2/mode_7_7_chems/0/20260121-182419"
-        + "/results_2/mode_7_5_chems/1/20260125-013242",
+        + "/results_2/scalar_only/1/20260125-180711",
         #+ "/results_2/mode_7_5_chems/2/20260124-215926" #0/20260124-200247"
         # os.getcwd()
         # + "/results_2/mode_9_scalar/0/20251119-191938"
@@ -1019,10 +1019,10 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_7_5_chems_11",
+                result_subdirectory="runner_FA_only",
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.scalar,
+                typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=5,
+                numberOfChemicals=1,
                 max_tau=[50][i],
             )

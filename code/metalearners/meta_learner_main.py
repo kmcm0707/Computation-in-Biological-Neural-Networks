@@ -1146,7 +1146,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=None, #continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.scalar,
+        typeOfFeedback=typeOfFeedbackEnum.FA,
         dimOut=dimOut,
         hrm_discount=-1,
         error_control=False,
