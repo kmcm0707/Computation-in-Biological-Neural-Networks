@@ -937,7 +937,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 400
+    epochs = 500
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
@@ -1010,7 +1010,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0], #[0, 1, 2, 3, 4, 6, 9],
+            update_rules=[0, 1, 2, 3, 4, 6, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
@@ -1018,7 +1018,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_6,
+            operator=operatorEnum.mode_7,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1146,7 +1146,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=None, #continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.FA,
+        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
         hrm_discount=-1,
         error_control=False,
@@ -1190,4 +1190,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="scalar_only", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_7_1_chem", index=i)
