@@ -462,13 +462,13 @@ def main_jax_rnn_meta_learner():
 
     # -- load data
     numWorkers = 2
-    epochs = 1000
+    epochs = 100
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 5
+    minTrainingDataPerClass = 60
     maxTrainingDataPerClass = 70
     queryDataPerClass = 20
-    numberOfTimeSteps = 56
+    numberOfTimeSteps = 28
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -545,7 +545,7 @@ def main_jax_rnn_meta_learner():
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_12_56",
+        results_subdir="jax_rnn_12_28",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=0.0007,
@@ -559,11 +559,11 @@ def main_jax_rnn_meta_learner():
         hidden_size=128,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=56,
+        biological_max_tau=28,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
-        number_of_time_steps=56,
+        number_of_time_steps=28,
         load_model=continue_training,
     )
 
