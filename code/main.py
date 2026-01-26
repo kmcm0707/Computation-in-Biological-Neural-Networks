@@ -26,7 +26,7 @@ from nn.rnn_backprop import rnn_backprop_main  # noqa: F401
 if __name__ == "__main__":
     # torch.autograd.set_detect_anomaly(True)
     #main()
-    #runner_main()
+    runner_main()
     # load_model()
     # backprop_main()
     #rnn_backprop_main()
@@ -34,5 +34,5 @@ if __name__ == "__main__":
     #main_runner_rnn()
     # rflo_main()
     #rflo_main_2()
-    main_jax_rnn_meta_learner()
+    #main_jax_rnn_meta_learner()
     #main_jax_runner()

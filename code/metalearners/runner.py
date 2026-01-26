@@ -788,7 +788,7 @@ def run(
             maxTau=max_tau,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_7,
+            operator=operatorEnum.mode_6,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1008,7 +1008,7 @@ def runner_main():
         # os.getcwd() + "/results_2/mode_9_CB/5/20251112-001951"
         os.getcwd() #+ "/results_2/mode_7_7_chems/0/20260121-182419"
         #+ "/results_2/20251103-214650"
-        + "/results_2/mode_7_1_chem/1/20260125-222619"
+        + "/results_2/mode_6_scalar_3_chem/3/20260126-011912"
         #+ "/results_2/scalar_only/1/20260125-180711",
         #+ "/results_2/mode_7_5_chems/2/20260124-215926" #0/20260124-200247"
         # os.getcwd()
@@ -1021,10 +1021,10 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_FA_1_chem_2",
+                result_subdirectory="runner_mode_6_scalar_3_chems",
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.FA,
+                typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=1,
+                numberOfChemicals=3,
                 max_tau=[50][i],
             )
