@@ -1114,7 +1114,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/mode_6_scalar_3_chem/3/20260126-011912"
+    continue_training = current_dir + "/results_2/mode_6_scalar_3_chem/3/20260126-050543"
     # continue_training = (
     #    current_dir + "/results_2/mode_9_rand/0/20251105-152312"
     # )  # "/results_2/mode_9/0/20251107-172732"
