@@ -441,13 +441,13 @@ class MetaLearner:
                 )
             )
             # self.UpdateWeights.z_vector = torch.nn.Parameter(current_z_vector)
-            #self.UpdateMetaParameters.load_state_dict(
+            # self.UpdateMetaParameters.load_state_dict(
             #    torch.load(
             #        self.options.continueTraining + "/UpdateMetaParameters.pth",
             #        weights_only=True,
             #        map_location=self.device,
             #    )
-            #)
+            # )
             if self.options.trainSeparateFeedback:
                 self.UpdateFeedbackWeights.load_state_dict(
                     torch.load(
@@ -614,7 +614,7 @@ class MetaLearner:
                         # error_scalar = -error[0][0][label]
                         # error_scalar = torch.tanh(error_scalar)  # tanh to avoid exploding gradients
                         if output[0][label] > 0.5:
-                            error_scalar = torch.tensor(-1.0, device=self.device)
+                            error_scalar = torch.tensor(0, device=self.device)
                         else:
                             error_scalar = torch.tensor(1.0, device=self.device)
                         if self.options.scalar_variance_reduction > 0:
@@ -636,6 +636,18 @@ class MetaLearner:
                         # error_scalar = torch.tensor(scalar_val, device=self.device)
                         for y, i in zip(reversed(activations), reversed(list(feedback))):
                             error.insert(0, scalar_val * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar_minus_one:
+                        if output[0][label] > 0.5:
+                            error_scalar = torch.tensor(-1.0, device=self.device)
+                        else:
+                            error_scalar = torch.tensor(1.0, device=self.device)
+                        if self.options.scalar_variance_reduction > 0:
+                            scalar_running_mean = (
+                                1 - 1 / self.options.scalar_variance_reduction
+                            ) * scalar_running_mean + (1 / self.options.scalar_variance_reduction) * error_scalar
+                            error_scalar = error_scalar - scalar_running_mean  # TODO: Check if this works
+                        for y, i in zip(reversed(activations), reversed(list(feedback))):
+                            error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.zero:
                         for y in reversed(activations):
                             error.insert(0, torch.zeros_like(y, device=self.device))
@@ -1159,7 +1171,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 3 
+    numberOfChemicals = 3
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,

@@ -70,6 +70,9 @@ if __name__ == "__main__":
     z_vector = 1 / tau_vector
     y_vector = 1 - z_vector
 
+    linear_layer = torch.nn.Linear(in_features=3, out_features=4, bias=False)
+    print(linear_layer.weight.shape)
+
     """print(tau_vector)
     print(z_vector)
     print(y_vector)"""

@@ -49,6 +49,7 @@ class typeOfFeedbackEnum(Enum):
     DFA_grad_FA = "DFA_grad_FA"
     scalar_rate = "scalar_rate"
     scalar_rich = "scalar_rich"
+    scalar_minus_one = "scalar_minus_one"
     zero = "zero"
     target_propagation = "target_propagation"
 
