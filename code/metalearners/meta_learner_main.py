@@ -1030,7 +1030,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_9,
+            operator=operatorEnum.mode_9_pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1157,8 +1157,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=continue_training, #None,
-        typeOfFeedback=typeOfFeedbackEnum.scalar_minus_one,
+        continueTraining=None,  # continue_training,  # None,
+        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
         hrm_discount=-1,
         error_control=False,
@@ -1202,4 +1202,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="mode_9_scalar_minus_one_5_chem", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_10_5_chem", index=i)

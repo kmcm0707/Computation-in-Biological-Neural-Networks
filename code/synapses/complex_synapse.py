@@ -581,6 +581,7 @@ class ComplexSynapse(nn.Module):
                     or self.operator == operatorEnum.mode_7_no_h_norm
                     or self.operator == operatorEnum.mode_8
                     or self.operator == operatorEnum.mode_9
+                    or self.operator == operatorEnum.mode_9_pre_activation
                     or self.operator == operatorEnum.compressed_full_attention
                     or self.operator == operatorEnum.v_linear
                     or self.operator == operatorEnum.compressed_v_linear
@@ -794,13 +795,13 @@ class ComplexSynapse(nn.Module):
                     or self.operator == operatorEnum.mode_7_no_h_norm
                     or self.operator == operatorEnum.mode_8
                     or self.operator == operatorEnum.mode_9
+                    or self.operator == operatorEnum.mode_9_pre_activation
                 ):
                     v_vector_softmax = torch.nn.functional.softmax(self.v_vector, dim=1)
                     new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)
                     if self.options.scale_chemical_weights:
                         scale_factor = torch.sqrt(torch.tensor(new_value.shape[0], dtype=torch.float32))
                         new_value = new_value / scale_factor
-
                     if self.operator == operatorEnum.mode_6:
                         parameter_norm = self.saved_norm[h_name]
                         current_norm = torch.norm(new_value, p=2)
@@ -817,6 +818,12 @@ class ComplexSynapse(nn.Module):
                         new_value = new_value / (normalizer + 1e-12)
                         chemical = h_parameters[h_name]
                         new_chemical = chemical / (normalizer[None, :] + 1e-12)
+                        h_parameters[h_name] = new_chemical
+                    elif self.operator == operatorEnum.mode_9_pre_activation:
+                        normalizer = torch.norm(new_value, p=2, dim=1)
+                        new_value = new_value / (normalizer[:, None] + 1e-12)
+                        chemical = h_parameters[h_name]
+                        new_chemical = chemical / (normalizer[:, None] + 1e-12)
                         h_parameters[h_name] = new_chemical
                 else:
                     new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
@@ -865,6 +872,7 @@ class ComplexSynapse(nn.Module):
                     or self.operator == operatorEnum.mode_7
                     or self.operator == operatorEnum.mode_7_no_h_norm
                     or self.operator == operatorEnum.mode_9
+                    or self.operator == operatorEnum.mode_9_pre_activation
                 ):
                     parameter_norm = self.saved_norm[h_name]
                     current_norm = torch.norm(new_value, p=2)
