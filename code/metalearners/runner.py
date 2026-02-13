@@ -1018,12 +1018,12 @@ def runner_main():
         # os.getcwd()
         # + "/results_2/mode_9_scalar_10/1/20251124-002143"
         # os.getcwd() + "/results_2/mode_9_CB/5/20251112-001951"
-        os.getcwd() #+ "/results_2/mode_7_7_chems/0/20260121-182419"
-        #+ "/results_2/20251103-214650"
+        os.getcwd()  # + "/results_2/mode_7_7_chems/0/20260121-182419"
+        # + "/results_2/20251103-214650"
         + "/results_2/mode_9_scalar_minus_one_5_chem/1/20260209-224155"
-        #+ "/results_2/mode_10_5_chem/1/20260212-015727"
-        #+ "/results_2/scalar_only/1/20260125-180711",
-        #+ "/results_2/mode_7_5_chems/2/20260124-215926" #0/20260124-200247"
+        # + "/results_2/mode_10_5_chem/1/20260212-015727"
+        # + "/results_2/scalar_only/1/20260125-180711",
+        # + "/results_2/mode_7_5_chems/2/20260124-215926" #0/20260124-200247"
         # os.getcwd()
         # + "/results_2/mode_9_scalar/0/20251119-191938"
         # os.getcwd()
