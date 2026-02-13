@@ -438,6 +438,18 @@ class Runner:
                             error_scalar = error_scalar - scalar_running_mean  # TODO: Check if this works
                         for y, i in zip(reversed(activations), reversed(list(feedback))):
                             error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar_minus_one:
+                        if output[0][label] > 0.5:
+                            error_scalar = torch.tensor(-1.0, device=self.device)
+                        else:
+                            error_scalar = torch.tensor(1.0, device=self.device)
+                        if self.options.scalar_variance_reduction > 0:
+                            scalar_running_mean = (
+                                1 - 1 / self.options.scalar_variance_reduction
+                            ) * scalar_running_mean + (1 / self.options.scalar_variance_reduction) * error_scalar
+                            error_scalar = error_scalar - scalar_running_mean  # TODO: Check if this works
+                        for y, i in zip(reversed(activations), reversed(list(feedback))):
+                            error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar_rich:
                         error_scalar_val = 1 - output[0][label]
                         error_scalar = torch.tensor(error_scalar_val, device=self.device)
@@ -661,8 +673,8 @@ def run(
         160,
         170,
         180,
-        #190,
-        #200,
+        # 190,
+        # 200,
         # 225,
         # 250,
         # 275,
@@ -1006,15 +1018,15 @@ def runner_main():
         # os.getcwd()
         # + "/results_2/mode_9_scalar_10/1/20251124-002143"
         # os.getcwd() + "/results_2/mode_9_CB/5/20251112-001951"
-        os.getcwd() #+ "/results_2/mode_7_7_chems/0/20260121-182419"
-        #+ "/results_2/20251103-214650"
+        os.getcwd()  # + "/results_2/mode_7_7_chems/0/20260121-182419"
+        # + "/results_2/20251103-214650"
         + "/results_2/mode_6_scalar_3_chem/3/20260126-060739"
-        #+ "/results_2/scalar_only/1/20260125-180711",
-        #+ "/results_2/mode_7_5_chems/2/20260124-215926" #0/20260124-200247"
+        # + "/results_2/scalar_only/1/20260125-180711",
+        # + "/results_2/mode_7_5_chems/2/20260124-215926" #0/20260124-200247"
         # os.getcwd()
         # + "/results_2/mode_9_scalar/0/20251119-191938"
-        #os.getcwd()
-        #+ "/results_2/mode_9_11_chems/0/20260122-054815"
+        # os.getcwd()
+        # + "/results_2/mode_9_11_chems/0/20260122-054815"
     ]
     for i in range(len(modelPath_s)):
         for index in range(0, 28):
