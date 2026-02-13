@@ -949,10 +949,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 1200
+    epochs = 120
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 5
+    minTrainingDataPerClass = 70
     maxTrainingDataPerClass = 80
     queryDataPerClass = 20
     dataset_1 = None
@@ -1030,7 +1030,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_9_pre_activation,
+            operator=operatorEnum.mode_9,#_pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1126,12 +1126,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/mode_9_scalar_minus_one_5_chem/0/20260209-214545"
+    continue_training = current_dir + "/results_2/mode_9_scalar_minus_one_5_chem/1/20260209-224155"
     # continue_training = (
     #    current_dir + "/results_2/mode_9_rand/0/20251105-152312"
     # )  # "/results_2/mode_9/0/20251107-172732"
     # -- meta-learner options
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P and K matrices (check 1.5)
@@ -1202,4 +1202,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="mode_10_5_chem_scalar_minus_one", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_9_5_chem_scalar_minus_one", index=i)
