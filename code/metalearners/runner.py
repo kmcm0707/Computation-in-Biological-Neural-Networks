@@ -1018,9 +1018,10 @@ def runner_main():
         # os.getcwd()
         # + "/results_2/mode_9_scalar_10/1/20251124-002143"
         # os.getcwd() + "/results_2/mode_9_CB/5/20251112-001951"
-        os.getcwd()  # + "/results_2/mode_7_7_chems/0/20260121-182419"
+        os.getcwd() + "/results_2/mode_9_scalar_10/1/20251124-005417" 
+        # + "/results_2/mode_7_7_chems/0/20260121-182419"
         # + "/results_2/20251103-214650"
-        + "/results_2/mode_10_5_chem_scalar/1/20260211-154427"
+        #+ "/results_2/mode_10_5_chem_scalar/1/20260211-154427"
         #+ "/results_2/mode_9_5_chem_scalar_minus_one/1/20260213-141251"
         # + "/results_2/mode_10_5_chem/1/20260212-015727"
         # + "/results_2/scalar_only/1/20260125-180711",
@@ -1035,7 +1036,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_10_scalar",
+                result_subdirectory="runner_mode_10_scalar_trained_9",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
