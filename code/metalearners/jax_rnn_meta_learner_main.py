@@ -90,7 +90,6 @@ class JaxMetaLearnerRNN:
             self.metaOptimizer = eqx.tree_deserialise_leaves(
                 self.jaxMetaLearnerOptions.load_model + "/meta_learner_model.eqx", self.metaOptimizer
             )
-            
 
         # -- optimizer --
         trainable_mask = self.get_trainable_mask(self.metaOptimizer)
@@ -98,11 +97,11 @@ class JaxMetaLearnerRNN:
             # optax.clip_by_global_norm(1.0),  # Max norm of 1.0
             optax.adam(learning_rate=self.jaxMetaLearnerOptions.metaLearningRate),
         )
-        
+
         dynamic, static = eqx.partition(self.metaOptimizer, trainable_mask)
         self.opt_state = self.optimizer.init(dynamic)
-        #self.metaOptimizer = eqx.combine(dynamic, static)
-        #if self.jaxMetaLearnerOptions.load_model is not None:
+        # self.metaOptimizer = eqx.combine(dynamic, static)
+        # if self.jaxMetaLearnerOptions.load_model is not None:
         #    self.opt_state = eqx.tree_deserialise_leaves(
         #        self.jaxMetaLearnerOptions.load_model + "/meta_learner_optimizer.eqx", self.opt_state
         #    )
@@ -208,7 +207,10 @@ class JaxMetaLearnerRNN:
 
         if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
             label = jnp.reshape(label, (label.shape[0], -1))  # (time_steps, output_size)
-        elif self.jaxMetaLearnerOptions.dataset_name == "IMDB" or self.jaxMetaLearnerOptions.dataset_name == "IMDB_WORD2VEC":
+        elif (
+            self.jaxMetaLearnerOptions.dataset_name == "IMDB"
+            or self.jaxMetaLearnerOptions.dataset_name == "IMDB_WORD2VEC"
+        ):
             label = jnp.repeat(label, repeats=x.shape[0], axis=0)
         else:
             label = jnp.repeat(
@@ -241,7 +243,10 @@ class JaxMetaLearnerRNN:
 
         if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
             x = jnp.reshape(x, (x.shape[0], x.shape[1], -1))  # (batch_size, time_steps, input_size)
-        elif self.jaxMetaLearnerOptions.dataset_name == "IMDB" or self.jaxMetaLearnerOptions.dataset_name == "IMDB_WORD2VEC":
+        elif (
+            self.jaxMetaLearnerOptions.dataset_name == "IMDB"
+            or self.jaxMetaLearnerOptions.dataset_name == "IMDB_WORD2VEC"
+        ):
             pass
         else:
             x = jnp.reshape(x, (x.shape[0], number_of_timesteps, -1))  # (batch_size, time_steps, input_size)
@@ -363,7 +368,10 @@ class JaxMetaLearnerRNN:
                 y_qry = jnp.expand_dims(y_qry, 0)
 
                 current_training_data_per_class = x_trn.shape[1]
-            elif self.jaxMetaLearnerOptions.dataset_name == "IMDB" or self.jaxMetaLearnerOptions.dataset_name == "IMDB_WORD2VEC":
+            elif (
+                self.jaxMetaLearnerOptions.dataset_name == "IMDB"
+                or self.jaxMetaLearnerOptions.dataset_name == "IMDB_WORD2VEC"
+            ):
                 x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(data)
             else:
                 x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(
@@ -456,19 +464,19 @@ class JaxMetaLearnerRNN:
 
 
 def main_jax_rnn_meta_learner():
-    os.environ["CUDA_VISIBLE_DEVICES"] = "1" # second gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
     key = jax.random.PRNGKey(42)
     # jax.config.update("jax_enable_x64", False)
 
     # -- load data
     numWorkers = 2
-    epochs = 100
+    epochs = 2000
 
     dataset_name = "EMNIST"
-    minTrainingDataPerClass = 60
+    minTrainingDataPerClass = 5
     maxTrainingDataPerClass = 70
     queryDataPerClass = 20
-    numberOfTimeSteps = 28
+    numberOfTimeSteps = 56
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -540,12 +548,12 @@ def main_jax_rnn_meta_learner():
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/jax_rnn_12_28/20260121-163605"
+    continue_training = current_dir + "/results_2/jax_rnn_12_28/20260126-043934"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_12_28",
+        results_subdir="jax_rnn_12_56",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=0.0007,
@@ -559,7 +567,7 @@ def main_jax_rnn_meta_learner():
         hidden_size=128,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=28,
+        biological_max_tau=56,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
