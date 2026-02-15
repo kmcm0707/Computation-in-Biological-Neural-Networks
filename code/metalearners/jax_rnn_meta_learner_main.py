@@ -163,10 +163,12 @@ class JaxMetaLearnerRNN:
         def update_layer(w, p, act, err):
             return metaOptimizer(w, p, act, err)
 
-        new_parameters, new_synaptic_weights = jax.vmap(update_layer)(
-            synaptic_weights, parameters, activations_arr, errors_arr
+        results = jax.tree_util.tree_map(
+            update_layer, synaptic_weights, parameters, activations_arr, errors_arr
         )
-
+        new_parameters = tuple(res[0] for res in results)
+        new_synaptic_weights = tuple(res[1] for res in results)
+        
         # new_synaptic_weights = tuple(new_synaptic_weights)
         new_rnn = eqx.tree_at(
             lambda r: (r.layers, r.forward1, r.forward2, r.forward3),
