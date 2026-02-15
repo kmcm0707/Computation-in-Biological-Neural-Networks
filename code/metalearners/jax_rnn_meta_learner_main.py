@@ -103,7 +103,7 @@ class JaxMetaLearnerRNN:
         self.metaOptimizer = eqx.combine(dynamic, static)
         if self.jaxMetaLearnerOptions.load_model is not None:
             self.opt_state = eqx.tree_deserialise_leaves(
-            self.jaxMetaLearnerOptions.load_model + "/meta_learner_optimizer.eqx", self.opt_state
+                self.jaxMetaLearnerOptions.load_model + "/meta_learner_optimizer.eqx", self.opt_state
             )
 
         if self.jaxMetaLearnerOptions.load_model is not None:
@@ -533,7 +533,7 @@ def main_jax_rnn_meta_learner():
         nonLinear=JaxActivationNonLinearEnum.tanh,
         update_rules=[0, 1, 2, 4, 9, 12],  # 4
         minSlowTau=2,
-        maxSlowTau=100,
+        maxSlowTau=200,
         y_vector=yVectorEnum.none,
         z_vector=zVectorEnum.default,
         operator=operatorEnum.mode_9,
@@ -549,7 +549,7 @@ def main_jax_rnn_meta_learner():
         results_subdir="jax_rnn_12_56",
         metatrain_dataset=dataset_name,
         display=True,
-        metaLearningRate=0.0001,
+        metaLearningRate=0.0007,
         numberOfClasses=numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -557,22 +557,22 @@ def main_jax_rnn_meta_learner():
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         input_size=dimIn,  # dimIn,
-        hidden_size=128,
+        hidden_size=256,
         output_size=dimOut,
-        biological_min_tau=1+1/56,
+        biological_min_tau=1 + 1 / 56,
         biological_max_tau=56,
         gradient=False,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=56,
-        load_model=None, #continue_training,
+        load_model=None,  # continue_training,
     )
 
     metalearning_model = JaxMetaLearnerRNN(
         modelOptions=modelOptions,
         jaxMetaLearnerOptions=metaLearnerOptions,
         key=key,
-        numberOfChemicals=5,
+        numberOfChemicals=7,
         metaTrainingDataset=metatrain_dataset,
     )
 
