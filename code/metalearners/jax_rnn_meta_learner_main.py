@@ -160,29 +160,22 @@ class JaxMetaLearnerRNN:
             x, hidden_state, labels, past_h_new_pre_tau
         )
 
-        new_parameters = list(parameters)
-        new_synaptic_weights = list(synaptic_weights)
-        for idx, parameter in enumerate(parameters):
-            synaptic_weight = synaptic_weights[idx]
-            activations_tuple = activations_arr[idx]
-            errors_tuple = errors_arr[idx]
-            new_parameter, new_synaptic_weight = metaOptimizer(
-                synaptic_weight, parameter, activations_tuple, errors_tuple
-            )
-            new_synaptic_weights[idx] = new_synaptic_weight
-            new_parameters[idx] = new_parameter
+        def update_layer(w, p, act, err):
+            return metaOptimizer(w, p, act, err)
 
-        new_parameters_tuple = tuple(new_parameters)
-        new_synaptic_weights_tuple = tuple(new_synaptic_weights)
+        new_parameters, new_synaptic_weights = jax.vmap(update_layer)(
+            synaptic_weights, parameters, activations_arr, errors_arr
+        )
+
         # new_synaptic_weights = tuple(new_synaptic_weights)
         new_rnn = eqx.tree_at(
             lambda r: (r.layers, r.forward1, r.forward2, r.forward3),
             rnn,
-            (new_parameters_tuple, new_parameters_tuple[0], new_parameters_tuple[1], new_parameters_tuple[2]),
+            (new_parameters, new_parameters[0], new_parameters[1], new_parameters[2]),
         )
         return (
-            new_synaptic_weights_tuple,
-            new_parameters_tuple,
+            new_synaptic_weights,
+            new_parameters,
             new_rnn,
             hidden_state,
             metaOptimizer,
