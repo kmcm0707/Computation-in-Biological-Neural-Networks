@@ -100,11 +100,11 @@ class JaxMetaLearnerRNN:
 
         dynamic, static = eqx.partition(self.metaOptimizer, trainable_mask)
         self.opt_state = self.optimizer.init(dynamic)
-        # self.metaOptimizer = eqx.combine(dynamic, static)
-        # if self.jaxMetaLearnerOptions.load_model is not None:
-        #    self.opt_state = eqx.tree_deserialise_leaves(
-        #        self.jaxMetaLearnerOptions.load_model + "/meta_learner_optimizer.eqx", self.opt_state
-        #    )
+        self.metaOptimizer = eqx.combine(dynamic, static)
+        if self.jaxMetaLearnerOptions.load_model is not None:
+            self.opt_state = eqx.tree_deserialise_leaves(
+            self.jaxMetaLearnerOptions.load_model + "/meta_learner_optimizer.eqx", self.opt_state
+            )
 
         if self.jaxMetaLearnerOptions.load_model is not None:
             self.opt_state = eqx.tree_deserialise_leaves(
@@ -470,7 +470,7 @@ def main_jax_rnn_meta_learner():
 
     # -- load data
     numWorkers = 2
-    epochs = 2000
+    epochs = 10000
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
@@ -540,7 +540,7 @@ def main_jax_rnn_meta_learner():
         nonLinear=JaxActivationNonLinearEnum.tanh,
         update_rules=[0, 1, 2, 4, 9, 12],  # 4
         minSlowTau=2,
-        maxSlowTau=50,
+        maxSlowTau=100,
         y_vector=yVectorEnum.none,
         z_vector=zVectorEnum.default,
         operator=operatorEnum.mode_9,
@@ -556,7 +556,7 @@ def main_jax_rnn_meta_learner():
         results_subdir="jax_rnn_12_56",
         metatrain_dataset=dataset_name,
         display=True,
-        metaLearningRate=0.0007,
+        metaLearningRate=0.0001,
         numberOfClasses=numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -566,13 +566,13 @@ def main_jax_rnn_meta_learner():
         input_size=dimIn,  # dimIn,
         hidden_size=128,
         output_size=dimOut,
-        biological_min_tau=1,
+        biological_min_tau=1+1/56,
         biological_max_tau=56,
-        gradient=True,
+        gradient=False,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
-        number_of_time_steps=28,
-        load_model=continue_training,
+        number_of_time_steps=56,
+        load_model=None, #continue_training,
     )
 
     metalearning_model = JaxMetaLearnerRNN(
