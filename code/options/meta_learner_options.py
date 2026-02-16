@@ -52,6 +52,7 @@ class typeOfFeedbackEnum(Enum):
     scalar_minus_one = "scalar_minus_one"
     zero = "zero"
     target_propagation = "target_propagation"
+    non_linear_DFA = "non_linear_DFA"
 
 
 class sizeEnum(Enum):

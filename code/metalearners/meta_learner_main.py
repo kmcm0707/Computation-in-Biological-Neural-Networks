@@ -651,6 +651,15 @@ class MetaLearner:
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.zero:
                         for y in reversed(activations):
                             error.insert(0, torch.zeros_like(y, device=self.device))
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.non_linear_DFA:
+                        feedback_1 = {name: value for name, value in params.items() if "feedback" in name and "_1" in name}
+                        feedback_2 = {name: value for name, value in params.items() if "feedback" in name and "_2" in name}
+                        reversed_feedback_2 = list(reversed(list(feedback_2)))
+                        for index, (y, i) in enumerate(zip(reversed(activations), reversed(list(feedback_1)))):
+                            temp_error = torch.matmul(error[0], feedback_1[i])
+                            temp_error_non_linear = torch.relu(temp_error)  # non-linearity
+                            true_error = torch.matmul(temp_error_non_linear, reversed_feedback_2[index]) * (1 - torch.exp(-self.model.beta * y))
+                            error.insert(0, true_error)
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
                         DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
                         feedback = {name: value for name, value in params.items() if "feedback_FA" in name}

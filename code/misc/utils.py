@@ -359,6 +359,17 @@ def meta_stats(
         elif typeOfFeedback == typeOfFeedbackEnum.zero:
             for y_ in reversed(y):
                 e.insert(0, torch.zeros_like(y_, device=logits.device))
+        elif typeOfFeedback == typeOfFeedbackEnum.non_linear_DFA:
+            feedback_1 = {name: value for name, value in params.items() if "feedback" in name and "_1" in name}
+            feedback_2 = {name: value for name, value in params.items() if "feedback" in name and "_2" in name}
+            reversed_feedback_2 = list(reversed(list(feedback_2)))
+            for index, (y_, i) in enumerate(zip(reversed(y), reversed(list(feedback_1)))):
+                temp_error = torch.matmul(e[0], feedback_1[i])
+                temp_error_non_linear = torch.relu(temp_error)  # non-linearity
+                true_error = torch.matmul(temp_error_non_linear, reversed_feedback_2[index]) * (
+                    1 - torch.exp(-Beta * y_)
+                )
+                e.insert(0, true_error)
         elif typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
             feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
             DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
@@ -375,7 +386,6 @@ def meta_stats(
                 e.insert(0, torch.matmul(target, B[i]) * (1 - torch.exp(-Beta * y_)))
 
         # -- orthonormality errors
-
         W = [v for k, v in params.items() if "forward" in k]
         E1 = []
         activation = [*y, functional.softmax(logits, dim=0)]
