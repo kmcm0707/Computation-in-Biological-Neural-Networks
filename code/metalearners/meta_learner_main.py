@@ -652,13 +652,19 @@ class MetaLearner:
                         for y in reversed(activations):
                             error.insert(0, torch.zeros_like(y, device=self.device))
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.non_linear_DFA:
-                        feedback_1 = {name: value for name, value in params.items() if "feedback" in name and "_1" in name}
-                        feedback_2 = {name: value for name, value in params.items() if "feedback" in name and "_2" in name}
-                        reversed_feedback_2 = list(reversed(list(feedback_2)))
+                        feedback_1 = {
+                            name: value for name, value in params.items() if "feedback" in name and "_1" in name
+                        }
+                        feedback_2 = {
+                            name: value for name, value in params.items() if "feedback" in name and "_2" in name
+                        }
+                        reversed_feedback_2 = list(reversed(list(feedback_2.values())))
                         for index, (y, i) in enumerate(zip(reversed(activations), reversed(list(feedback_1)))):
-                            temp_error = torch.matmul(error[0], feedback_1[i])
+                            temp_error = torch.matmul(error[-1], feedback_1[i])
                             temp_error_non_linear = torch.relu(temp_error)  # non-linearity
-                            true_error = torch.matmul(temp_error_non_linear, reversed_feedback_2[index]) * (1 - torch.exp(-self.model.beta * y))
+                            true_error = torch.matmul(temp_error_non_linear, reversed_feedback_2[index]) * (
+                                1 - torch.exp(-self.model.beta * y)
+                            )
                             error.insert(0, true_error)
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
                         DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
@@ -958,11 +964,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 3000
+    epochs = 1200
 
-    dataset_name = "COMBINED"
-    minTrainingDataPerClass = 10
-    maxTrainingDataPerClass = 40
+    dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
+    minTrainingDataPerClass = 5
+    maxTrainingDataPerClass = 80
     queryDataPerClass = 20
     dataset_1 = None
     dataset_2 = None
@@ -1039,7 +1045,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_6,#_pre_activation,
+            operator=operatorEnum.mode_6,  # _pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1155,7 +1161,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.001,
+        lr=0.0001,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -1166,7 +1172,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=continue_training,
+        continueTraining=None,  # continue_training,
         typeOfFeedback=typeOfFeedbackEnum.non_linear_DFA,
         dimOut=dimOut,
         hrm_discount=-1,

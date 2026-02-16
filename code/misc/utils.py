@@ -362,7 +362,7 @@ def meta_stats(
         elif typeOfFeedback == typeOfFeedbackEnum.non_linear_DFA:
             feedback_1 = {name: value for name, value in params.items() if "feedback" in name and "_1" in name}
             feedback_2 = {name: value for name, value in params.items() if "feedback" in name and "_2" in name}
-            reversed_feedback_2 = list(reversed(list(feedback_2)))
+            reversed_feedback_2 = list(reversed(list(feedback_2.values())))
             for index, (y_, i) in enumerate(zip(reversed(y), reversed(list(feedback_1)))):
                 temp_error = torch.matmul(e[0], feedback_1[i])
                 temp_error_non_linear = torch.relu(temp_error)  # non-linearity
