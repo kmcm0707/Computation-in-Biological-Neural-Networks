@@ -662,17 +662,17 @@ def run(
         50,
         60,
         70,
-        80,
-        90,
-        100,
-        110,
-        120,
-        130,
-        140,
-        150,
-        160,
-        170,
-        180,
+        #80,
+        #90,
+        #100,
+        #110,
+        #120,
+        #130,
+        #140,
+        #150,
+        #160,
+        #170,
+        #180,
         # 190,
         # 200,
         # 225,
@@ -718,7 +718,7 @@ def run(
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "EMNIST"
+    dataset_name = "COMBINED"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -800,7 +800,7 @@ def run(
             maxTau=max_tau,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_9_pre_activation,
+            operator=operatorEnum.mode_6,#_pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1018,7 +1018,7 @@ def runner_main():
         # os.getcwd()
         # + "/results_2/mode_9_scalar_10/1/20251124-002143"
         # os.getcwd() + "/results_2/mode_9_CB/5/20251112-001951"
-        os.getcwd() + "/results_2/mode_9_scalar_10/1/20251124-005417" 
+        os.getcwd() + "/results_2/mode_6_5_chem_scalar_CB/1/20260216-033236" 
         # + "/results_2/mode_7_7_chems/0/20260121-182419"
         # + "/results_2/20251103-214650"
         #+ "/results_2/mode_10_5_chem_scalar/1/20260211-154427"
@@ -1036,7 +1036,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_10_scalar_trained_9",
+                result_subdirectory="runner_mode_6_scalar_CB_2",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],

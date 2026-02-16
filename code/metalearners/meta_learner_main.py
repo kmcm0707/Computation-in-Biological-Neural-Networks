@@ -1126,7 +1126,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/mode_6_scalar_not_all_ones_same/2/20251123-235027"
+    continue_training = current_dir + "/results_2/mode_9_scalar_10/1/20251124-005417"
     # continue_training = (
     #    current_dir + "/results_2/mode_9_rand/0/20251105-152312"
     # )  # "/results_2/mode_9/0/20251107-172732"
@@ -1202,4 +1202,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="mode_6_5_chem_scalar_CB", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_9_5_chem_scalar_CB", index=i)
