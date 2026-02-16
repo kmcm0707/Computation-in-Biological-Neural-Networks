@@ -961,7 +961,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     epochs = 3000
 
     dataset_name = "COMBINED"
-    minTrainingDataPerClass = 20
+    minTrainingDataPerClass = 10
     maxTrainingDataPerClass = 40
     queryDataPerClass = 20
     dataset_1 = None
@@ -1140,7 +1140,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     #    current_dir + "/results_2/mode_9_rand/0/20251105-152312"
     # )  # "/results_2/mode_9/0/20251107-172732"
     # -- meta-learner options
-    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P and K matrices (check 1.5)
@@ -1167,9 +1167,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.scalar,
+        typeOfFeedback=typeOfFeedbackEnum.non_linear_DFA,
         dimOut=dimOut,
-        hrm_discount=350,
+        hrm_discount=-1,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1211,4 +1211,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="mode_9_5_chem_scalar_CB", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_6_non_linear_DFA", index=i)
