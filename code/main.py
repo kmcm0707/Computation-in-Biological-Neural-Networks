@@ -25,7 +25,7 @@ from nn.rnn_backprop import rnn_backprop_main  # noqa: F401
 
 if __name__ == "__main__":
     # torch.autograd.set_detect_anomaly(True)
-    # main()
+    #main()
     # runner_main()
     # load_model()
     # backprop_main()

@@ -949,11 +949,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 120
+    epochs = 3000
 
-    dataset_name = "EMNIST"
-    minTrainingDataPerClass = 70
-    maxTrainingDataPerClass = 80
+    dataset_name = "COMBINED"
+    minTrainingDataPerClass = 5
+    maxTrainingDataPerClass = 40
     queryDataPerClass = 20
     dataset_1 = None
     dataset_2 = None
@@ -980,19 +980,19 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     elif dataset_name == "COMBINED":
         numberOfClasses_1 = 5
         numberOfClasses_2 = 5
-        # dataset_1 = EmnistDataset(
-        #   minTrainingDataPerClass=minTrainingDataPerClass,
-        #   maxTrainingDataPerClass=maxTrainingDataPerClass,
-        #   queryDataPerClass=queryDataPerClass,
-        #   dimensionOfImage=28,
-        # )
-        # dataset_2 = FashionMnistDataset(
-        #   minTrainingDataPerClass=minTrainingDataPerClass,
-        #   maxTrainingDataPerClass=maxTrainingDataPerClass,
-        #   queryDataPerClass=queryDataPerClass,
-        #   dimensionOfImage=28,
-        #   all_classes=True,
-        #
+        dataset_1 = EmnistDataset(
+            minTrainingDataPerClass=minTrainingDataPerClass,
+            maxTrainingDataPerClass=maxTrainingDataPerClass,
+            queryDataPerClass=queryDataPerClass,
+            dimensionOfImage=28,
+        )
+        dataset_2 = FashionMnistDataset(
+            minTrainingDataPerClass=minTrainingDataPerClass,
+            maxTrainingDataPerClass=maxTrainingDataPerClass,
+            queryDataPerClass=queryDataPerClass,
+            dimensionOfImage=28,
+            all_classes=True,
+        )
         shift_labels_2 = 47  # EMNIST has 47 classes
         dimOut = 57
 
@@ -1126,7 +1126,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/mode_9_scalar_minus_one_5_chem/1/20260209-224155"
+    continue_training = current_dir + "/results_2/mode_9_scalar_10/1/20251124-005417"
     # continue_training = (
     #    current_dir + "/results_2/mode_9_rand/0/20251105-152312"
     # )  # "/results_2/mode_9/0/20251107-172732"
@@ -1146,10 +1146,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.0007,
+        lr=0.001,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         trainSeparateFeedback=False,
         feedbackSeparateModel=feedbackModel,
         trainSameFeedback=False,
@@ -1158,9 +1158,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.scalar_minus_one,
+        typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
-        hrm_discount=-1,
+        hrm_discount=300,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1202,4 +1202,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=1, display=True, result_subdirectory="mode_9_5_chem_scalar_minus_one", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_9_5_chem_scalar_CB", index=i)
