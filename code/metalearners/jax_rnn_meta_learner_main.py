@@ -23,6 +23,7 @@ from options.complex_options import operatorEnum, yVectorEnum, zVectorEnum
 from options.fast_rnn_options import fastRnnOptions
 from options.jax_rnn_meat_learner_options import (
     JaxActivationNonLinearEnum,
+    JaxErrorTypeEnum,
     JaxRnnMetaLearnerOptions,
 )
 from options.meta_learner_options import chemicalEnum
@@ -54,6 +55,7 @@ class JaxMetaLearnerRNN:
             gradient=self.jaxMetaLearnerOptions.gradient,
             outer_activation=self.jaxMetaLearnerOptions.outer_activation,
             recurrent_activation=self.jaxMetaLearnerOptions.recurrent_activation,
+            error_type=self.jaxMetaLearnerOptions.error_type,
         )
         self.save_results = self.jaxMetaLearnerOptions.save_results
         self.metaTrainingDataset = metaTrainingDataset
@@ -261,7 +263,7 @@ class JaxMetaLearnerRNN:
         )(hidden_state, rnn, x)
         return y
 
-    # @eqx.filter_jit
+    @eqx.filter_jit
     def compute_meta_loss(
         self,
         trainable_metaOptimizer,
@@ -323,7 +325,7 @@ class JaxMetaLearnerRNN:
 
         return mask
 
-    @eqx.filter_jit
+    # @eqx.filter_jit
     def make_step(
         self,
         dynamic_model,
@@ -460,13 +462,13 @@ class JaxMetaLearnerRNN:
 
 
 def main_jax_rnn_meta_learner():
-    #s.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
+    # s.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
     key = jax.random.PRNGKey(42)
     # jax.config.update("jax_enable_x64", False)
 
     # -- load data
     numWorkers = 2
-    epochs = 2000
+    epochs = 2
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
@@ -549,10 +551,10 @@ def main_jax_rnn_meta_learner():
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_7",
+        results_subdir="jax_rnn_7_DSEF",
         metatrain_dataset=dataset_name,
         display=True,
-        metaLearningRate=0.0006,
+        metaLearningRate=0.0007,
         numberOfClasses=numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -560,7 +562,7 @@ def main_jax_rnn_meta_learner():
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         input_size=dimIn,  # dimIn,
-        hidden_size=256,
+        hidden_size=128,
         output_size=dimOut,
         biological_min_tau=1,
         biological_max_tau=7,
@@ -569,13 +571,14 @@ def main_jax_rnn_meta_learner():
         recurrent_activation=JaxActivationNonLinearEnum.pass_through,
         number_of_time_steps=7,
         load_model=None,  # continue_training,
+        error_type=JaxErrorTypeEnum.DSEF,
     )
 
     metalearning_model = JaxMetaLearnerRNN(
         modelOptions=modelOptions,
         jaxMetaLearnerOptions=metaLearnerOptions,
         key=key,
-        numberOfChemicals=9,
+        numberOfChemicals=5,
         metaTrainingDataset=metatrain_dataset,
     )
 

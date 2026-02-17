@@ -3,7 +3,10 @@ from typing import Callable, Optional
 import equinox as eqx
 import jax
 import jax.numpy as jnp
-from options.jax_rnn_meat_learner_options import JaxActivationNonLinearEnum
+from options.jax_rnn_meat_learner_options import (
+    JaxActivationNonLinearEnum,
+    JaxErrorTypeEnum,
+)
 
 
 def beta_softplus(x: jnp.ndarray, beta: float = 10) -> jnp.ndarray:
@@ -25,6 +28,7 @@ class JAXChemicalRNN(eqx.Module):
     beta: float
     tau: jnp.ndarray
     softplus: Callable[[jnp.ndarray, float], jnp.ndarray] = eqx.field(static=True)
+    error_type: JaxErrorTypeEnum = eqx.field(static=True)
 
     def __init__(
         self,
@@ -37,6 +41,7 @@ class JAXChemicalRNN(eqx.Module):
         gradient: bool = False,
         outer_activation: Optional[Callable[[jnp.ndarray], jnp.ndarray]] = None,
         recurrent_activation: Optional[Callable[[jnp.ndarray], jnp.ndarray]] = None,
+        error_type: JaxErrorTypeEnum = JaxErrorTypeEnum.DFA,
     ):
         key1, key2, key3, key4, key5, key6 = jax.random.split(key, 6)
         self.forward1 = eqx.nn.Linear(input_size, hidden_size, key=key1, use_bias=False)
@@ -44,9 +49,16 @@ class JAXChemicalRNN(eqx.Module):
         self.forward3 = eqx.nn.Linear(hidden_size, output_size, key=key3, use_bias=False)
         self.layers = (self.forward1, self.forward2, self.forward3)
 
-        self.pre_feedback1 = eqx.nn.Linear(output_size, input_size, key=key4, use_bias=False)
-        self.pre_feedback2 = eqx.nn.Linear(output_size, hidden_size, key=key5, use_bias=False)
-        self.recurrent_feedback = eqx.nn.Linear(output_size, hidden_size, key=key6, use_bias=False)
+        if error_type == JaxErrorTypeEnum.DFA:
+            self.pre_feedback1 = eqx.nn.Linear(output_size, input_size, key=key4, use_bias=False)
+            self.pre_feedback2 = eqx.nn.Linear(output_size, hidden_size, key=key5, use_bias=False)
+            self.recurrent_feedback = eqx.nn.Linear(output_size, hidden_size, key=key6, use_bias=False)
+        elif error_type == JaxErrorTypeEnum.DSEF:
+            self.pre_feedback1 = eqx.nn.Linear(1, input_size, key=key4, use_bias=False)
+            self.pre_feedback2 = eqx.nn.Linear(1, hidden_size, key=key5, use_bias=False)
+            self.recurrent_feedback = eqx.nn.Linear(1, hidden_size, key=key6, use_bias=False)
+        else:
+            raise ValueError(f"Unsupported error type: {error_type}")
         self.feedback_layers = (self.pre_feedback1, self.pre_feedback2, self.recurrent_feedback)
 
         self.gradient = gradient
@@ -66,6 +78,8 @@ class JAXChemicalRNN(eqx.Module):
         # tau = jnp.linspace(biological_min_tau, biological_max_tau, hidden_size)
         self.tau = tau
 
+        self.error_type = error_type
+
     def reset_weights(self, key: jax.random.PRNGKey) -> "JAXChemicalRNN":
         new_pre_feedback1 = eqx.nn.Linear(
             self.pre_feedback1.in_features, self.pre_feedback1.out_features, key=key, use_bias=False
@@ -77,7 +91,7 @@ class JAXChemicalRNN(eqx.Module):
             self.pre_feedback2.in_features, self.pre_feedback2.out_features, key=key, use_bias=False
         )
         # new_pre_feedback2 = jax.lax.stop_gradient(new_pre_feedback2.weight)
-        new_self = eqx.tree_at(lambda r: r.pre_feedback2, self, new_pre_feedback2)
+        new_self = eqx.tree_at(lambda r: r.pre_feedback2, new_self, new_pre_feedback2)
 
         new_recurrent_feedback = eqx.nn.Linear(
             self.recurrent_feedback.in_features, self.recurrent_feedback.out_features, key=key, use_bias=False
@@ -118,7 +132,16 @@ class JAXChemicalRNN(eqx.Module):
             return y, h_new, None, None, None
 
         softmax_y = jax.nn.softmax(y)
-        error = softmax_y - label
+        if self.error_type == JaxErrorTypeEnum.DFA:
+            error = softmax_y - label
+        elif self.error_type == JaxErrorTypeEnum.DSEF:
+            label_index = jnp.argmax(label, axis=-1, keepdims=True)
+            y_index = jnp.take_along_axis(softmax_y, label_index, axis=-1)
+            error = jax.lax.cond(
+                jnp.squeeze(y_index) > 0.5,
+                lambda: jnp.zeros_like(label_index),
+                lambda: jnp.ones_like(label_index),
+            )
 
         w_pre1 = jax.lax.stop_gradient(self.pre_feedback1.weight)
         w_pre2 = jax.lax.stop_gradient(self.pre_feedback2.weight)

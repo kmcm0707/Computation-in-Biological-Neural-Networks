@@ -14,6 +14,11 @@ class JaxActivationNonLinearEnum(Enum):
     pass_through = pass_through
 
 
+class JaxErrorTypeEnum(Enum):
+    DFA = "DFA"
+    DSEF = "DSEF"
+
+
 class JaxRnnMetaLearnerOptions:
     def __init__(
         self,
@@ -39,6 +44,7 @@ class JaxRnnMetaLearnerOptions:
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps: int = 10,
         load_model: str = None,
+        error_type: JaxErrorTypeEnum = JaxErrorTypeEnum.DFA,
     ):
         self.seed = seed
         self.save_results = save_results
@@ -62,6 +68,7 @@ class JaxRnnMetaLearnerOptions:
         self.recurrent_activation = recurrent_activation
         self.number_of_time_steps = number_of_time_steps
         self.load_model = load_model
+        self.error_type = error_type
 
     def __str__(self):
         string = ""
