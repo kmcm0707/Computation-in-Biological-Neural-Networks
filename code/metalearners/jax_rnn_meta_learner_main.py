@@ -263,7 +263,7 @@ class JaxMetaLearnerRNN:
         )(hidden_state, rnn, x)
         return y
 
-    @eqx.filter_jit
+    #@eqx.filter_jit
     def compute_meta_loss(
         self,
         trainable_metaOptimizer,
@@ -325,7 +325,7 @@ class JaxMetaLearnerRNN:
 
         return mask
 
-    # @eqx.filter_jit
+    @eqx.filter_jit
     def make_step(
         self,
         dynamic_model,
@@ -462,13 +462,13 @@ class JaxMetaLearnerRNN:
 
 
 def main_jax_rnn_meta_learner():
-    # s.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
+    #os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
     key = jax.random.PRNGKey(42)
     # jax.config.update("jax_enable_x64", False)
 
     # -- load data
     numWorkers = 2
-    epochs = 2
+    epochs = 5000
 
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
@@ -538,7 +538,7 @@ def main_jax_rnn_meta_learner():
         nonLinear=JaxActivationNonLinearEnum.tanh,
         update_rules=[0, 1, 2, 4, 9, 12],  # 4
         minSlowTau=2,
-        maxSlowTau=200,
+        maxSlowTau=50,
         y_vector=yVectorEnum.none,
         z_vector=zVectorEnum.default,
         operator=operatorEnum.mode_9,
@@ -546,15 +546,15 @@ def main_jax_rnn_meta_learner():
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/jax_rnn_12_28/20260126-043934"
+    continue_training = current_dir + "/results_2/jax_rnn_12/20260121-024411"#"/results_2/jax_rnn_12_28/20260126-043934"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_7_DSEF",
+        results_subdir="jax_rnn_7_DSEF_fixed",
         metatrain_dataset=dataset_name,
         display=True,
-        metaLearningRate=0.0007,
+        metaLearningRate=0.0005,
         numberOfClasses=numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -568,9 +568,9 @@ def main_jax_rnn_meta_learner():
         biological_max_tau=7,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
-        recurrent_activation=JaxActivationNonLinearEnum.pass_through,
+        recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=7,
-        load_model=None,  # continue_training,
+        load_model=continue_training,
         error_type=JaxErrorTypeEnum.DSEF,
     )
 

@@ -152,6 +152,9 @@ class JAXChemicalRNN(eqx.Module):
         pre_feedback_hidden = jnp.dot(w_pre2, error)
         recurrent_feedback_hidden = jnp.dot(w_rec, error)
 
+        if self.error_type == JaxErrorTypeEnum.DSEF:
+            error = softmax_y - label
+        
         errors = {
             "forward1": (pre_feedback_input, recurrent_feedback_hidden),
             "forward2": (pre_feedback_hidden, recurrent_feedback_hidden),
