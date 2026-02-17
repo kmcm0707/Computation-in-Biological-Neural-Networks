@@ -250,20 +250,20 @@ class ChemicalNN(nn.Module):
                 self.DFA_feedback4 = nn.Linear(100, self.dim_out, bias=False)
                 self.DFA_feedback5 = nn.Linear(70, self.dim_out, bias=False)
         elif self.typeOfFeedback == typeOfFeedbackEnum.non_linear_DFA:
-            self.feedback1_1 = nn.Linear(350, self.dim_out, bias=False)
-            self.feedback1_2 = nn.Linear(784, 350, bias=False)
+            self.feedback1_1 = nn.Linear(1000, self.dim_out, bias=False)
+            self.feedback1_2 = nn.Linear(784, 1000, bias=False)
 
-            self.feedback2_1 = nn.Linear(90, self.dim_out, bias=False)
-            self.feedback2_2 = nn.Linear(170, 90, bias=False)
+            self.feedback2_1 = nn.Linear(300, self.dim_out, bias=False)
+            self.feedback2_2 = nn.Linear(170, 300, bias=False)
 
-            self.feedback3_1 = nn.Linear(70, self.dim_out, bias=False)
-            self.feedback3_2 = nn.Linear(130, 70, bias=False)
+            self.feedback3_1 = nn.Linear(300, self.dim_out, bias=False)
+            self.feedback3_2 = nn.Linear(130, 300, bias=False)
 
-            self.feedback4_1 = nn.Linear(50, self.dim_out, bias=False)
-            self.feedback4_2 = nn.Linear(100, 50, bias=False)
+            self.feedback4_1 = nn.Linear(300, self.dim_out, bias=False)
+            self.feedback4_2 = nn.Linear(100, 300, bias=False)
 
-            self.feedback5_1 = nn.Linear(40, self.dim_out, bias=False)
-            self.feedback5_2 = nn.Linear(70, 40, bias=False)
+            self.feedback5_1 = nn.Linear(150, self.dim_out, bias=False)
+            self.feedback5_2 = nn.Linear(70, 150, bias=False)
         elif self.typeOfFeedback == typeOfFeedbackEnum.zero:
             pass
         else:
