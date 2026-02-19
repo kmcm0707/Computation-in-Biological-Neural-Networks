@@ -24,6 +24,7 @@ class ChemicalNN(nn.Module):
         error_control: bool = False,
         meta_learn_fixed_feedback: bool = False,
         wta: bool = False,
+        low_rank_feedback: int = -1,
     ):
 
         # Initialize the parent class
@@ -37,6 +38,7 @@ class ChemicalNN(nn.Module):
         self.error_control = error_control  # Error control for feedback alignment
         self.meta_learn_fixed_feedback = meta_learn_fixed_feedback  # Meta-learn fixed feedback weights
         self.wta = wta  # Winner-take-all mechanism
+        self.low_rank_feedback = low_rank_feedback  # Low-rank feedback matrices for feedback alignment
 
         if self.typeOfFeedback == "DFA" and self.train_feedback:
             raise ValueError("DFA and train_feedback cannot be used together")
@@ -250,20 +252,20 @@ class ChemicalNN(nn.Module):
                 self.DFA_feedback4 = nn.Linear(100, self.dim_out, bias=False)
                 self.DFA_feedback5 = nn.Linear(70, self.dim_out, bias=False)
         elif self.typeOfFeedback == typeOfFeedbackEnum.non_linear_DFA:
-            self.feedback1_1 = nn.Linear(1000, self.dim_out, bias=False)
-            self.feedback1_2 = nn.Linear(784, 1000, bias=False)
+            self.feedback1_1 = nn.Linear(self.low_rank_feedback, self.dim_out, bias=False)
+            self.feedback1_2 = nn.Linear(784, self.low_rank_feedback, bias=False)
 
-            self.feedback2_1 = nn.Linear(300, self.dim_out, bias=False)
-            self.feedback2_2 = nn.Linear(170, 300, bias=False)
+            self.feedback2_1 = nn.Linear(self.low_rank_feedback, self.dim_out, bias=False)
+            self.feedback2_2 = nn.Linear(170, self.low_rank_feedback, bias=False)
 
-            self.feedback3_1 = nn.Linear(300, self.dim_out, bias=False)
-            self.feedback3_2 = nn.Linear(130, 300, bias=False)
+            self.feedback3_1 = nn.Linear(self.low_rank_feedback, self.dim_out, bias=False)
+            self.feedback3_2 = nn.Linear(130, self.low_rank_feedback, bias=False)
 
-            self.feedback4_1 = nn.Linear(300, self.dim_out, bias=False)
-            self.feedback4_2 = nn.Linear(100, 300, bias=False)
+            self.feedback4_1 = nn.Linear(self.low_rank_feedback, self.dim_out, bias=False)
+            self.feedback4_2 = nn.Linear(100, self.low_rank_feedback, bias=False)
 
-            self.feedback5_1 = nn.Linear(150, self.dim_out, bias=False)
-            self.feedback5_2 = nn.Linear(70, 150, bias=False)
+            self.feedback5_1 = nn.Linear(self.low_rank_feedback, self.dim_out, bias=False)
+            self.feedback5_2 = nn.Linear(70, self.low_rank_feedback, bias=False)
         elif self.typeOfFeedback == typeOfFeedbackEnum.zero:
             pass
         else:

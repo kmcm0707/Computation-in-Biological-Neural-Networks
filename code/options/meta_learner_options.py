@@ -110,6 +110,7 @@ class MetaLearnerOptions:
         wta: bool = False,
         shift_labels_2: int = 0,
         scalar_variance_reduction: int = -1,
+        low_rank_feedback: int = -1,
     ):
         # print(trainSameFeedback)
         # assert (
@@ -152,6 +153,7 @@ class MetaLearnerOptions:
         self.wta = wta
         self.shift_labels_2 = shift_labels_2
         self.scalar_variance_reduction = scalar_variance_reduction
+        self.low_rank_feedback = low_rank_feedback
 
     def __str__(self):
         string = ""

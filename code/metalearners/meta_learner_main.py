@@ -317,6 +317,7 @@ class MetaLearner:
             error_control=self.options.error_control,
             # meta_learn_fixed_feedback=self.options.meta_learn_fixed_feedback,
             wta=self.options.wta,
+            low_rank_feedback=self.options.low_rank_feedback,
         )
 
         # -- learning flags
@@ -395,6 +396,22 @@ class MetaLearner:
             for key, val in dict(self.model.named_parameters()).items()
             if "." in key and "chemical" not in key and "layer_norm" not in key
         }
+
+        if self.options.typeOfFeedback == typeOfFeedbackEnum.non_linear_DFA:
+            feedback_1 = {name: value for name, value in params.items() if "feedback" in name and "_1" in name}
+            feedback_2 = {name: value for name, value in params.items() if "feedback" in name and "_2" in name}
+            for feedback_1_param, feedback_1_name, feedback_2_param, feedback_2_name in zip(
+                feedback_1.values(), feedback_1.keys(), feedback_2.values(), feedback_2.keys()
+            ):
+                dim_in = feedback_1_param.shape[0]
+                dim_out = feedback_2_param.shape[1]
+                r = feedback_1_param.shape[1]
+                a = (18.0 / (r * (dim_in + dim_out))) ** 0.25
+                new_feedback_1_param = torch.empty_like(feedback_1_param).uniform_(-a, a)
+                new_feedback_2_param = torch.empty_like(feedback_2_param).uniform_(-a, a)
+                params[feedback_1_name] = new_feedback_1_param.clone()
+                params[feedback_2_name] = new_feedback_2_param.clone()
+
         h_params = {
             key: val.clone()
             for key, val in dict(self.model.named_parameters()).items()
@@ -661,8 +678,8 @@ class MetaLearner:
                         reversed_feedback_2 = list(reversed(list(feedback_2.values())))
                         for index, (y, i) in enumerate(zip(reversed(activations), reversed(list(feedback_1)))):
                             temp_error = torch.matmul(error[-1], feedback_1[i])
-                            temp_error_non_linear = torch.relu(temp_error)  # non-linearity
-                            true_error = torch.matmul(temp_error_non_linear, reversed_feedback_2[index]) * (
+                            # temp_error_non_linear = torch.relu(temp_error)  # non-linearity
+                            true_error = torch.matmul(temp_error, reversed_feedback_2[index]) * (
                                 1 - torch.exp(-self.model.beta * y)
                             )
                             error.insert(0, true_error)
@@ -1045,7 +1062,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_6,  # _pre_activation,
+            operator=operatorEnum.mode_9,  # _pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1183,6 +1200,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         wta=False,
         shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" else 0,
         scalar_variance_reduction=-1,  # -1 means no scalar variance reduction
+        low_rank_feedback=1,
     )
 
     # -- number of chemicals
@@ -1217,4 +1235,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_6_non_linear_DFA_tanh", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_low_dim_DFA", index=i)
