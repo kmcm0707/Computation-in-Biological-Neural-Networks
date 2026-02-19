@@ -29,6 +29,7 @@ class JAXChemicalRNN(eqx.Module):
     tau: jnp.ndarray
     softplus: Callable[[jnp.ndarray, float], jnp.ndarray] = eqx.field(static=True)
     error_type: JaxErrorTypeEnum = eqx.field(static=True)
+    low_dim_DFA: int = eqx.field(static=True)
 
     def __init__(
         self,
@@ -42,6 +43,7 @@ class JAXChemicalRNN(eqx.Module):
         outer_activation: Optional[Callable[[jnp.ndarray], jnp.ndarray]] = None,
         recurrent_activation: Optional[Callable[[jnp.ndarray], jnp.ndarray]] = None,
         error_type: JaxErrorTypeEnum = JaxErrorTypeEnum.DFA,
+        low_dim_DFA: int = -1,
     ):
         key1, key2, key3, key4, key5, key6 = jax.random.split(key, 6)
         self.forward1 = eqx.nn.Linear(input_size, hidden_size, key=key1, use_bias=False)
@@ -79,23 +81,51 @@ class JAXChemicalRNN(eqx.Module):
         self.tau = tau
 
         self.error_type = error_type
+        self.low_dim_DFA = low_dim_DFA
 
     def reset_weights(self, key: jax.random.PRNGKey) -> "JAXChemicalRNN":
         new_pre_feedback1 = eqx.nn.Linear(
             self.pre_feedback1.in_features, self.pre_feedback1.out_features, key=key, use_bias=False
         )
+        if self.low_dim_DFA > 0:
+            a = (18.0 / (self.low_dim_DFA * (self.pre_feedback1.in_features + self.pre_feedback1.out_features))) ** 0.25
+            vec_pre1 = jax.random.uniform(key, (self.low_dim_DFA, self.pre_feedback1.in_features), minval=-a, maxval=a)
+            vec_pre2 = jax.random.uniform(key, (self.low_dim_DFA, self.pre_feedback1.out_features), minval=-a, maxval=a)
+            full_pre1 = jnp.dot(vec_pre1.T, vec_pre2)
+            new_pre_feedback1 = eqx.tree_at(lambda r: r.weight, new_pre_feedback1, full_pre1.T)
+
         # new_pre_feedback1 = jax.lax.stop_gradient(new_pre_feedback1.weight)
         new_self = eqx.tree_at(lambda r: r.pre_feedback1, self, new_pre_feedback1)
 
         new_pre_feedback2 = eqx.nn.Linear(
             self.pre_feedback2.in_features, self.pre_feedback2.out_features, key=key, use_bias=False
         )
+        if self.low_dim_DFA > 0:
+            a = (18.0 / (self.low_dim_DFA * (self.pre_feedback2.in_features + self.pre_feedback2.out_features))) ** 0.25
+            vec_pre1 = jax.random.uniform(key, (self.low_dim_DFA, self.pre_feedback2.in_features), minval=-a, maxval=a)
+            vec_pre2 = jax.random.uniform(key, (self.low_dim_DFA, self.pre_feedback2.out_features), minval=-a, maxval=a)
+            full_pre2 = jnp.dot(vec_pre1.T, vec_pre2)
+            new_pre_feedback2 = eqx.tree_at(lambda r: r.weight, new_pre_feedback2, full_pre2.T)
+
         # new_pre_feedback2 = jax.lax.stop_gradient(new_pre_feedback2.weight)
         new_self = eqx.tree_at(lambda r: r.pre_feedback2, new_self, new_pre_feedback2)
 
         new_recurrent_feedback = eqx.nn.Linear(
             self.recurrent_feedback.in_features, self.recurrent_feedback.out_features, key=key, use_bias=False
         )
+        if self.low_dim_DFA > 0:
+            a = (
+                18.0 / (self.low_dim_DFA * (self.recurrent_feedback.in_features + self.recurrent_feedback.out_features))
+            ) ** 0.25
+            vec_pre1 = jax.random.uniform(
+                key, (self.low_dim_DFA, self.recurrent_feedback.in_features), minval=-a, maxval=a
+            )
+            vec_pre2 = jax.random.uniform(
+                key, (self.low_dim_DFA, self.recurrent_feedback.out_features), minval=-a, maxval=a
+            )
+            full_rec = jnp.dot(vec_pre1.T, vec_pre2)
+            new_recurrent_feedback = eqx.tree_at(lambda r: r.weight, new_recurrent_feedback, full_rec.T)
+
         new_self = eqx.tree_at(lambda r: r.recurrent_feedback, new_self, new_recurrent_feedback)
         # new_recurrent_feedback = jax.lax.stop_gradient(new_recurrent_feedback.weight)
 
@@ -154,7 +184,7 @@ class JAXChemicalRNN(eqx.Module):
 
         if self.error_type == JaxErrorTypeEnum.DSEF:
             error = softmax_y - label
-        
+
         errors = {
             "forward1": (pre_feedback_input, recurrent_feedback_hidden),
             "forward2": (pre_feedback_hidden, recurrent_feedback_hidden),

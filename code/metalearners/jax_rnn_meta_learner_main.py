@@ -56,6 +56,7 @@ class JaxMetaLearnerRNN:
             outer_activation=self.jaxMetaLearnerOptions.outer_activation,
             recurrent_activation=self.jaxMetaLearnerOptions.recurrent_activation,
             error_type=self.jaxMetaLearnerOptions.error_type,
+            low_dim_DFA=self.jaxMetaLearnerOptions.low_dim_DFA,
         )
         self.save_results = self.jaxMetaLearnerOptions.save_results
         self.metaTrainingDataset = metaTrainingDataset
@@ -258,7 +259,7 @@ class JaxMetaLearnerRNN:
         )(hidden_state, rnn, x)
         return y
 
-    #@eqx.filter_jit
+    # @eqx.filter_jit
     def compute_meta_loss(
         self,
         trainable_metaOptimizer,
@@ -457,7 +458,7 @@ class JaxMetaLearnerRNN:
 
 
 def main_jax_rnn_meta_learner():
-    #os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
+    # os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
     key = jax.random.PRNGKey(42)
     # jax.config.update("jax_enable_x64", False)
 
@@ -541,12 +542,14 @@ def main_jax_rnn_meta_learner():
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/jax_rnn_12/20260121-024411" #"/results_2/jax_rnn_7_DSEF_fixed/20260217-174916" # "/results_2/jax_rnn_12/20260121-024411"#"/results_2/jax_rnn_12_28/20260126-043934"
+    continue_training = (
+        current_dir + "/results_2/jax_rnn_12/20260121-024411"
+    )  # "/results_2/jax_rnn_7_DSEF_fixed/20260217-174916" # "/results_2/jax_rnn_12/20260121-024411"#"/results_2/jax_rnn_12_28/20260126-043934"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_Linear",
+        results_subdir="jax_rnn_Low_dim_DFA_1",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=0.0001,
@@ -559,14 +562,15 @@ def main_jax_rnn_meta_learner():
         input_size=dimIn,
         hidden_size=128,
         output_size=dimOut,
-        biological_min_tau=2,
+        biological_min_tau=1,
         biological_max_tau=7,
         gradient=True,
-        outer_activation=JaxActivationNonLinearEnum.pass_through,
-        recurrent_activation=JaxActivationNonLinearEnum.pass_through,
+        outer_activation=JaxActivationNonLinearEnum.tanh,
+        recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=7,
-        load_model=None, #continue_training,
+        load_model=continue_training,
         error_type=JaxErrorTypeEnum.DFA,
+        low_dim_DFA=1,
     )
 
     metalearning_model = JaxMetaLearnerRNN(
