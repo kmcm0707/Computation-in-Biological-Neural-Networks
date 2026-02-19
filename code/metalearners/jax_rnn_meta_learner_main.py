@@ -108,11 +108,6 @@ class JaxMetaLearnerRNN:
                 self.jaxMetaLearnerOptions.load_model + "/meta_learner_optimizer.eqx", self.opt_state
             )
 
-        if self.jaxMetaLearnerOptions.load_model is not None:
-            self.opt_state = eqx.tree_deserialise_leaves(
-                self.jaxMetaLearnerOptions.load_model + "/meta_learner_optimizer.eqx", self.opt_state
-            )
-
         # -- loss function --
         self.loss_function = optax.safe_softmax_cross_entropy
 
@@ -546,32 +541,32 @@ def main_jax_rnn_meta_learner():
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/jax_rnn_12/20260121-024411"#"/results_2/jax_rnn_12_28/20260126-043934"
+    continue_training = current_dir + "/results_2/jax_rnn_12/20260121-024411" #"/results_2/jax_rnn_7_DSEF_fixed/20260217-174916" # "/results_2/jax_rnn_12/20260121-024411"#"/results_2/jax_rnn_12_28/20260126-043934"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_7_DSEF_fixed",
+        results_subdir="jax_rnn_Linear",
         metatrain_dataset=dataset_name,
         display=True,
-        metaLearningRate=0.0005,
+        metaLearningRate=0.0001,
         numberOfClasses=numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
-        input_size=dimIn,  # dimIn,
+        input_size=dimIn,
         hidden_size=128,
         output_size=dimOut,
-        biological_min_tau=1,
+        biological_min_tau=2,
         biological_max_tau=7,
         gradient=True,
-        outer_activation=JaxActivationNonLinearEnum.tanh,
-        recurrent_activation=JaxActivationNonLinearEnum.softplus,
+        outer_activation=JaxActivationNonLinearEnum.pass_through,
+        recurrent_activation=JaxActivationNonLinearEnum.pass_through,
         number_of_time_steps=7,
-        load_model=continue_training,
-        error_type=JaxErrorTypeEnum.DSEF,
+        load_model=None, #continue_training,
+        error_type=JaxErrorTypeEnum.DFA,
     )
 
     metalearning_model = JaxMetaLearnerRNN(
