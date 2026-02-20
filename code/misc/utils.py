@@ -364,9 +364,9 @@ def meta_stats(
             feedback_2 = {name: value for name, value in params.items() if "feedback" in name and "_2" in name}
             reversed_feedback_2 = list(reversed(list(feedback_2.values())))
             for index, (y_, i) in enumerate(zip(reversed(y), reversed(list(feedback_1)))):
-                temp_error = torch.matmul(e[0], feedback_1[i])
-                temp_error_non_linear = torch.relu(temp_error)  # non-linearity
-                true_error = torch.matmul(temp_error_non_linear, reversed_feedback_2[index]) * (
+                temp_error = torch.matmul(e[-1], feedback_1[i])
+                #temp_error_non_linear = torch.relu(temp_error)  # non-linearity
+                true_error = torch.matmul(temp_error, reversed_feedback_2[index]) * (
                     1 - torch.exp(-Beta * y_)
                 )
                 e.insert(0, true_error)

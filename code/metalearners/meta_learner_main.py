@@ -1163,7 +1163,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     #    current_dir + "/results_2/mode_9_rand/0/20251105-152312"
     # )  # "/results_2/mode_9/0/20251107-172732"
     # -- meta-learner options
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P and K matrices (check 1.5)
@@ -1178,7 +1178,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.0007,
+        lr=0.0001,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.different,
@@ -1200,7 +1200,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         wta=False,
         shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" else 0,
         scalar_variance_reduction=-1,  # -1 means no scalar variance reduction
-        low_rank_feedback=3,
+        low_rank_feedback=5,
     )
 
     # -- number of chemicals
@@ -1235,4 +1235,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_9_low_dim_DFA_3", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_low_dim_DFA_5", index=i)

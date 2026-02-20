@@ -1074,7 +1074,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_low_dim_DFA_{}".format(index),
+                result_subdirectory="runner_mode_9_low_dim_DFA_{}_2".format(index),
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.non_linear_DFA,
                 modelPath=modelPath_s[i],
