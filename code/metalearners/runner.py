@@ -957,7 +957,7 @@ def run(
         ),  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" else None,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
@@ -1057,6 +1057,7 @@ def runner_main():
         os.getcwd() + "/results_2/mode_9_low_dim_DFA_2/0/20260219-012932",
         os.getcwd() + "/results_2/mode_9_low_dim_DFA_2/0/20260219-012932",
         os.getcwd() + "/results_2/mode_9_low_dim_DFA_3/0/20260219-013111",
+        # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
         # + "/results_2/mode_7_7_chems/0/20260121-182419"
         # + "/results_2/20251103-214650"
         # + "/results_2/mode_10_5_chem_scalar/1/20260211-154427"
@@ -1074,7 +1075,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_low_dim_DFA_{}_2".format(index),
+                result_subdirectory="runner_mode_9_low_dim_DFA_{}_2".format(i),
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.non_linear_DFA,
                 modelPath=modelPath_s[i],
