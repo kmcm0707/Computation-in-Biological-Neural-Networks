@@ -968,7 +968,7 @@ def run(
         queryDataPerClass=queryDataPerClass,
         typeOfFeedback=typeOfFeedback,
         dimOut=dimOut,
-        data_repetitions=10,
+        data_repetitions=1,
         wta=False,
         chemical_analysis=False,
         scalar_min=0.0,
@@ -1057,7 +1057,12 @@ def runner_main():
         #os.getcwd() + "/results_2/mode_9_low_dim_DFA_2/0/20260219-012932",
         #os.getcwd() + "/results_2/mode_9_low_dim_DFA_2/0/20260219-012932",
         #os.getcwd() + "/results_2/mode_9_low_dim_DFA_3/0/20260219-013111",
-        os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
+        #os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
+        os.getcwd() + "/results_2/20251103-214650",
+        os.getcwd() + "/results_2/20251103-214650",
+        os.getcwd() + "/results_2/20251103-214650",
+        os.getcwd() + "/results_2/20251103-214650",
+        os.getcwd() + "/results_2/20251103-214650",
         # + "/results_2/mode_7_7_chems/0/20260121-182419"
         # + "/results_2/20251103-214650"
         # + "/results_2/mode_10_5_chem_scalar/1/20260211-154427"
@@ -1075,10 +1080,10 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_10_epochs",
+                result_subdirectory="runner_mode_9_DFA_low_dim_{}_3_chems".format(i),
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.DFA,
+                typeOfFeedback=typeOfFeedbackEnum.non_linear_DFA,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=5,
-                low_Dim_Feedback=[-1, 2, 3, 3][i],
+                numberOfChemicals=3,
+                low_Dim_Feedback=[1, 2, 3, 4, 5, 6, 7, 8][i],
             )
