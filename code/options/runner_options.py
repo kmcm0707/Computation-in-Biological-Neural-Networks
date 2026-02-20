@@ -45,6 +45,7 @@ class RunnerOptions:
         chemical_analysis: bool = False,
         scalar_min: float = 0.0,
         scalar_variance_reduction: int = -1,
+        low_Dim_Feedback: int = -1,
     ):
 
         self.model = model
@@ -76,6 +77,7 @@ class RunnerOptions:
         self.chemical_analysis = chemical_analysis
         self.scalar_min = scalar_min
         self.scalar_variance_reduction = scalar_variance_reduction
+        self.low_Dim_Feedback = low_Dim_Feedback
 
     def __str__(self):
         string = ""

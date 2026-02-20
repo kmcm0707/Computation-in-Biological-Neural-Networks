@@ -219,6 +219,7 @@ class Runner:
             typeOfFeedback=self.options.typeOfFeedback,
             dim_out=self.options.dimOut,
             wta=self.options.wta,
+            low_rank_feedback=self.options.low_Dim_Feedback,
         )
 
         # -- learning flags
@@ -286,6 +287,22 @@ class Runner:
             for key, val in dict(self.model.named_parameters()).items()
             if "." in key and "chemical" not in key and "layer_norm" not in key
         }
+
+        if self.options.typeOfFeedback == typeOfFeedbackEnum.non_linear_DFA:
+            feedback_1 = {name: value for name, value in params.items() if "feedback" in name and "_1" in name}
+            feedback_2 = {name: value for name, value in params.items() if "feedback" in name and "_2" in name}
+            for feedback_1_param, feedback_1_name, feedback_2_param, feedback_2_name in zip(
+                feedback_1.values(), feedback_1.keys(), feedback_2.values(), feedback_2.keys()
+            ):
+                dim_in = feedback_1_param.shape[0]
+                dim_out = feedback_2_param.shape[1]
+                r = feedback_1_param.shape[1]
+                a = (18.0 / (r * (dim_in + dim_out))) ** 0.25
+                new_feedback_1_param = torch.empty_like(feedback_1_param).uniform_(-a, a)
+                new_feedback_2_param = torch.empty_like(feedback_2_param).uniform_(-a, a)
+                params[feedback_1_name] = new_feedback_1_param.clone()
+                params[feedback_2_name] = new_feedback_2_param.clone()
+
         h_params = {
             key: val.clone()
             for key, val in dict(self.model.named_parameters()).items()
@@ -465,6 +482,21 @@ class Runner:
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.zero:
                         for y in reversed(activations):
                             error.insert(0, torch.zeros_like(y, device=self.device))
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.non_linear_DFA:
+                        feedback_1 = {
+                            name: value for name, value in params.items() if "feedback" in name and "_1" in name
+                        }
+                        feedback_2 = {
+                            name: value for name, value in params.items() if "feedback" in name and "_2" in name
+                        }
+                        reversed_feedback_2 = list(reversed(list(feedback_2.values())))
+                        for index, (y, i) in enumerate(zip(reversed(activations), reversed(list(feedback_1)))):
+                            temp_error = torch.matmul(error[-1], feedback_1[i])
+                            # temp_error_non_linear = torch.relu(temp_error)  # non-linearity
+                            true_error = torch.matmul(temp_error, reversed_feedback_2[index]) * (
+                                1 - torch.exp(-self.model.beta * y)
+                            )
+                            error.insert(0, true_error)
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
                         DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
                         feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
@@ -623,7 +655,7 @@ def run(
     typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
     modelPath=None,
     numberOfChemicals=1,
-    max_tau=50,
+    low_Dim_Feedback=1,
 ) -> None:
     """
         Main function for Meta-learning the plasticity rule.
@@ -662,17 +694,17 @@ def run(
         50,
         60,
         70,
-        #80,
-        #90,
-        #100,
-        #110,
-        #120,
-        #130,
-        #140,
-        #150,
-        #160,
-        #170,
-        #180,
+        80,
+        90,
+        100,
+        110,
+        120,
+        130,
+        140,
+        150,
+        160,
+        170,
+        180,
         # 190,
         # 200,
         # 225,
@@ -718,7 +750,7 @@ def run(
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "COMBINED"
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -797,10 +829,10 @@ def run(
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,
-            maxTau=max_tau,
+            maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_6,#_pre_activation,
+            operator=operatorEnum.mode_9,  # _pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -941,6 +973,7 @@ def run(
         chemical_analysis=False,
         scalar_min=0.0,
         scalar_variance_reduction=-1,
+        low_Dim_Feedback=low_Dim_Feedback,
     )
 
     #   -- number of chemicals
@@ -1018,11 +1051,16 @@ def runner_main():
         # os.getcwd()
         # + "/results_2/mode_9_scalar_10/1/20251124-002143"
         # os.getcwd() + "/results_2/mode_9_CB/5/20251112-001951"
-        os.getcwd() + "/results_2/mode_6_5_chem_scalar_CB/1/20260216-033236" 
+        # os.getcwd()
+        # + "/results_2/mode_6_5_chem_scalar_CB/1/20260216-033236"
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA/0/20260219-011142",
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_2/0/20260219-012932",
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_2/0/20260219-012932",
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_3/0/20260219-013111",
         # + "/results_2/mode_7_7_chems/0/20260121-182419"
         # + "/results_2/20251103-214650"
-        #+ "/results_2/mode_10_5_chem_scalar/1/20260211-154427"
-        #+ "/results_2/mode_9_5_chem_scalar_minus_one/1/20260213-141251"
+        # + "/results_2/mode_10_5_chem_scalar/1/20260211-154427"
+        # + "/results_2/mode_9_5_chem_scalar_minus_one/1/20260213-141251"
         # + "/results_2/mode_10_5_chem/1/20260212-015727"
         # + "/results_2/scalar_only/1/20260125-180711",
         # + "/results_2/mode_7_5_chems/2/20260124-215926" #0/20260124-200247"
@@ -1032,14 +1070,14 @@ def runner_main():
         # + "/results_2/mode_9_11_chems/0/20260122-054815"
     ]
     for i in range(len(modelPath_s)):
-        for index in range(0, 28):
+        for index in range(0, 20):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_6_scalar_CB_2",
+                result_subdirectory="runner_mode_9_low_dim_DFA_{}".format(index),
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.scalar,
+                typeOfFeedback=typeOfFeedbackEnum.non_linear_DFA,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=5,
-                max_tau=[50][i],
+                low_Dim_Feedback=[1, 2, 3, 3][i],
             )
