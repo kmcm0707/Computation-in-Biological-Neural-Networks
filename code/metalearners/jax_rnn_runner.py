@@ -399,6 +399,7 @@ class JaxMetaLearnerRNN:
 
 
 def jax_runner(index: int):
+    os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
     key = jax.random.PRNGKey(42)
     # jax.config.update("jax_enable_x64", False)
 
@@ -515,16 +516,16 @@ def jax_runner(index: int):
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    runner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_1/20260219-122821"
-    # runner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_2/20260219-193712"
-    # runner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_3/20260219-193948"
-    # runner = current_dir + "/results_2/jax_rnn_low_dim_DFA_4/20260219-193948"
-    # runner = current_dir + "/results_2/jax_rnn_low_dim_DFA_5/20260219-230905"
+    #runner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_1/20260219-122821"
+    #runner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_2/20260219-193712"
+    #unner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_3/20260219-193948"
+    #runner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_4/20260219-230758"
+    runner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_5/20260219-230905"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_rnn_Low_dim_DFA_1",
+        results_subdir="runner_jax_rnn_Low_dim_DFA_5",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
@@ -544,7 +545,7 @@ def jax_runner(index: int):
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=numberOfTimeSteps,
         load_model=runner,
-        low_dim_DFA=1,
+        low_dim_DFA=4,
     )
 
     metalearning_model = JaxMetaLearnerRNN(
