@@ -519,13 +519,13 @@ def jax_runner(index: int):
     #runner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_1/20260219-122821"
     #runner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_2/20260219-193712"
     #unner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_3/20260219-193948"
-    #runner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_4/20260219-230758"
-    runner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_5/20260219-230905"
+    runner = current_dir + "/results_2/jax_rnn_12/20260121-024411"
+    #runner = current_dir + "/results_2/jax_rnn_DFA_3_chems/20260221-195452"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_rnn_Low_dim_DFA_5",
+        results_subdir="runner_jax_5_chems_12_2",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
@@ -545,7 +545,7 @@ def jax_runner(index: int):
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=numberOfTimeSteps,
         load_model=runner,
-        low_dim_DFA=4,
+        low_dim_DFA=-1,
     )
 
     metalearning_model = JaxMetaLearnerRNN(
