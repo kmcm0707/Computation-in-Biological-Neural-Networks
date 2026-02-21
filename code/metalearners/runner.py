@@ -1058,11 +1058,18 @@ def runner_main():
         #os.getcwd() + "/results_2/mode_9_low_dim_DFA_2/0/20260219-012932",
         #os.getcwd() + "/results_2/mode_9_low_dim_DFA_3/0/20260219-013111",
         #os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
-        os.getcwd() + "/results_2/20251103-214650",
-        os.getcwd() + "/results_2/20251103-214650",
-        os.getcwd() + "/results_2/20251103-214650",
-        os.getcwd() + "/results_2/20251103-214650",
-        os.getcwd() + "/results_2/20251103-214650",
+        #os.getcwd() + "/results_2/20251103-214650",
+        #os.getcwd() + "/results_2/20251103-214650",
+        #os.getcwd() + "/results_2/20251103-214650",
+        #os.getcwd() + "/results_2/20251103-214650",
+        #os.getcwd() + "/results_2/20251103-214650",
+        os.getcwd() + "/results/mode_6_1_chem_1/0/20250910-221744",
+        os.getcwd() + "/results/mode_6_1_chem_1/0/20250910-221744",
+        os.getcwd() + "/results/mode_6_1_chem_1/0/20250910-221744",
+        os.getcwd() + "/results/mode_6_1_chem_1/0/20250910-221744",
+        os.getcwd() + "/results/mode_6_1_chem_1/0/20250910-221744",
+        os.getcwd() + "/results/mode_6_1_chem_1/0/20250910-221744",
+        os.getcwd() + "/results/mode_6_1_chem_1/0/20250910-221744",
         # + "/results_2/mode_7_7_chems/0/20260121-182419"
         # + "/results_2/20251103-214650"
         # + "/results_2/mode_10_5_chem_scalar/1/20260211-154427"
