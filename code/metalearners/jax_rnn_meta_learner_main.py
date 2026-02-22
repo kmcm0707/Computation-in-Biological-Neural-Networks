@@ -533,8 +533,8 @@ def main_jax_rnn_meta_learner():
     modelOptions = fastRnnOptions(
         nonLinear=JaxActivationNonLinearEnum.tanh,
         update_rules=[0, 1, 2, 4, 9, 12],  # 4
-        minSlowTau=2,
-        maxSlowTau=80,
+        minSlowTau=5,
+        maxSlowTau=50,
         y_vector=yVectorEnum.none,
         z_vector=zVectorEnum.default,
         operator=operatorEnum.mode_9,
@@ -549,7 +549,7 @@ def main_jax_rnn_meta_learner():
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_DFA_5_chems_11_12",
+        results_subdir="jax_rnn_DFA_5_chems_12",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=0.0007,
@@ -566,7 +566,7 @@ def main_jax_rnn_meta_learner():
         biological_max_tau=7,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
-        recurrent_activation=JaxActivationNonLinearEnum.softplus,
+        recurrent_activation=JaxActivationNonLinearEnum.pass_through,#.softplus,
         number_of_time_steps=7,
         load_model=None, #continue_training,
         error_type=JaxErrorTypeEnum.DFA,
