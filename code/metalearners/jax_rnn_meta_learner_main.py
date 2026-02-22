@@ -534,7 +534,7 @@ def main_jax_rnn_meta_learner():
         nonLinear=JaxActivationNonLinearEnum.tanh,
         update_rules=[0, 1, 2, 4, 9, 12],  # 4
         minSlowTau=5,
-        maxSlowTau=50,
+        maxSlowTau=80,
         y_vector=yVectorEnum.none,
         z_vector=zVectorEnum.default,
         operator=operatorEnum.mode_9,
