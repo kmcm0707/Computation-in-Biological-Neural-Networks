@@ -458,7 +458,7 @@ class JaxMetaLearnerRNN:
 
 
 def main_jax_rnn_meta_learner():
-    #os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
     key = jax.random.PRNGKey(42)
     # jax.config.update("jax_enable_x64", False)
 
@@ -532,9 +532,9 @@ def main_jax_rnn_meta_learner():
     modelOptions = None
     modelOptions = fastRnnOptions(
         nonLinear=JaxActivationNonLinearEnum.tanh,
-        update_rules=[0, 1, 2, 4, 9, 11, 12],  # 4
+        update_rules=[0, 1, 2, 4, 9, 12],  # 4
         minSlowTau=2,
-        maxSlowTau=50,
+        maxSlowTau=80,
         y_vector=yVectorEnum.none,
         z_vector=zVectorEnum.default,
         operator=operatorEnum.mode_9,
