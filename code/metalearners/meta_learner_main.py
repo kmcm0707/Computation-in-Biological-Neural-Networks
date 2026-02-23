@@ -981,7 +981,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 1200
+    epochs = 500
 
     dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
     minTrainingDataPerClass = 5
@@ -1178,7 +1178,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.0001,
+        lr=0.0007,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.different,
@@ -1192,7 +1192,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.non_linear_DFA,
         dimOut=dimOut,
-        hrm_discount=-1,
+        hrm_discount=300,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1200,7 +1200,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         wta=False,
         shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" else 0,
         scalar_variance_reduction=-1,  # -1 means no scalar variance reduction
-        low_rank_feedback=5,
+        low_rank_feedback=1,
     )
 
     # -- number of chemicals
@@ -1235,4 +1235,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(6):
-        run(seed=0, display=True, result_subdirectory="mode_9_low_dim_DFA_5", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_low_dim_DFA_trained", index=i)

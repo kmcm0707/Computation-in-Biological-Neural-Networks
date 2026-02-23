@@ -968,7 +968,7 @@ def run(
         queryDataPerClass=queryDataPerClass,
         typeOfFeedback=typeOfFeedback,
         dimOut=dimOut,
-        data_repetitions=1,
+        data_repetitions=10,
         wta=False,
         chemical_analysis=False,
         scalar_min=0.0,
@@ -1040,13 +1040,13 @@ def runner_main():
         # os.getcwd() + "/results_2/mode_9_scalar_clip/1/20251204-195612",
         # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312"
         # os.getcwd() + "/results_2/mode_9_scalar_9_chems/1/20251210-183207"
-        # os.getcwd() + "/results/no_z_all_ones/0/max_tau_500",
+        os.getcwd() + "/results/error_1_fixed/0/20251009-194350",
         # os.getcwd()
         # + "/results_2/mode_6_CB/1/20251111-151155" 20251111-203959
         # os.getcwd()
         # + "/results_2/mode_6_CB/1/20251111-203959"
         # os.getcwd() + "/results_2/20251103-183210",
-        # os.getcwd() + "/results_2/mode_9_scalar/1/20251120-002556",
+        #os.getcwd() + "/results_2/mode_9_scalar_clip/1/20251204-195612",
         # os.getcwd() + "/results_2/mode_9_5_scalar_all_ones/0/2251120-191135"
         # os.getcwd()
         # + "/results_2/mode_9_scalar_10/1/20251124-002143"
@@ -1064,11 +1064,11 @@ def runner_main():
         #os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
         #os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
         #os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
-        os.getcwd() + "/results_2/20251103-214650",
-        os.getcwd() + "/results_2/20251103-214650",
-        os.getcwd() + "/results_2/20251103-214650",
-        os.getcwd() + "/results_2/20251103-214650",
-        os.getcwd() + "/results_2/20251103-214650",
+        #os.getcwd() + "/results_2/20251103-214650",
+        #os.getcwd() + "/results_2/20251103-214650",
+        #os.getcwd() + "/results_2/20251103-214650",
+        #os.getcwd() + "/results_2/20251103-214650",
+        #os.getcwd() + "/results_2/20251103-214650",
         #os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
         #os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
         #os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
@@ -1088,8 +1088,7 @@ def runner_main():
         # + "/results_2/mode_10_5_chem/1/20260212-015727"
         # + "/results_2/scalar_only/1/20260125-180711",
         # + "/results_2/mode_7_5_chems/2/20260124-215926" #0/20260124-200247"
-        # os.getcwd()
-        # + "/results_2/mode_9_scalar/0/20251119-191938"
+        #os.getcwd() + "/results_2/mode_9_scalar_10/1/20251124-005417"
         # os.getcwd()
         # + "/results_2/mode_9_11_chems/0/20260122-054815"
     ]
@@ -1098,10 +1097,10 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_DFA_low_dim_{}_2".format(i + 5),
+                result_subdirectory="runner_mode_9_DSEF_3_chems_10_epochs",
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.non_linear_DFA,
+                typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=3,
-                low_Dim_Feedback=[6, 7, 8, 10, 20][i],
+                low_Dim_Feedback=[-1, 7, 8, 10, 20][i],
             )
