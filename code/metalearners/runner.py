@@ -699,12 +699,12 @@ def run(
         100,
         110,
         120,
-        130,
-        140,
-        150,
-        160,
-        170,
-        180,
+        #130,
+        #140,
+        #150,
+        #160,
+        #170,
+        #180,
         # 190,
         # 200,
         # 225,
@@ -968,7 +968,7 @@ def run(
         queryDataPerClass=queryDataPerClass,
         typeOfFeedback=typeOfFeedback,
         dimOut=dimOut,
-        data_repetitions=10,
+        data_repetitions=1,
         wta=False,
         chemical_analysis=False,
         scalar_min=0.0,
@@ -1040,13 +1040,13 @@ def runner_main():
         # os.getcwd() + "/results_2/mode_9_scalar_clip/1/20251204-195612",
         # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312"
         # os.getcwd() + "/results_2/mode_9_scalar_9_chems/1/20251210-183207"
-        os.getcwd() + "/results_2/error_1_fixed/0/20251009-194350",
+        # os.getcwd() + "/results_2/error_1_fixed/0/20251009-194350",
         # os.getcwd()
         # + "/results_2/mode_6_CB/1/20251111-151155" 20251111-203959
         # os.getcwd()
         # + "/results_2/mode_6_CB/1/20251111-203959"
         # os.getcwd() + "/results_2/20251103-183210",
-        #os.getcwd() + "/results_2/mode_9_scalar_clip/1/20251204-195612",
+        # os.getcwd() + "/results_2/mode_9_scalar_clip/1/20251204-195612",
         # os.getcwd() + "/results_2/mode_9_5_scalar_all_ones/0/2251120-191135"
         # os.getcwd()
         # + "/results_2/mode_9_scalar_10/1/20251124-002143"
@@ -1058,29 +1058,29 @@ def runner_main():
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_2/0/20260219-012932",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_3/0/20260219-013111",
         # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
-        #os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
-        #os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
-        #os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
-        #os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
-        #os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
-        #os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
-        #os.getcwd() + "/results_2/20251103-214650",
-        #os.getcwd() + "/results_2/20251103-214650",
-        #os.getcwd() + "/results_2/20251103-214650",
-        #os.getcwd() + "/results_2/20251103-214650",
-        #os.getcwd() + "/results_2/20251103-214650",
-        #os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
-        #os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
-        #os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
-        #os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
-        #os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
-        #os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
-        #os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
-        #os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
-        #os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
-        #os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
-        #os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
-        #os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
+        # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
+        # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
+        # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
+        # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
+        # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
+        # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
+        # os.getcwd() + "/results_2/20251103-214650",
+        # os.getcwd() + "/results_2/20251103-214650",
+        # os.getcwd() + "/results_2/20251103-214650",
+        # os.getcwd() + "/results_2/20251103-214650",
+        # os.getcwd() + "/results_2/20251103-214650",
+        # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
+        # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
+        # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
+        # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
+        # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
+        # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
+        # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
+        # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
+        # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
+        # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
+        # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
+        # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
         # + "/results_2/mode_7_7_chems/0/20260121-182419"
         # + "/results_2/20251103-214650"
         # + "/results_2/mode_10_5_chem_scalar/1/20260211-154427"
@@ -1088,9 +1088,18 @@ def runner_main():
         # + "/results_2/mode_10_5_chem/1/20260212-015727"
         # + "/results_2/scalar_only/1/20260125-180711",
         # + "/results_2/mode_7_5_chems/2/20260124-215926" #0/20260124-200247"
-        #os.getcwd() + "/results_2/mode_9_scalar_10/1/20251124-005417"
+        # os.getcwd() + "/results_2/mode_9_scalar_10/1/20251124-005417"
         # os.getcwd()
         # + "/results_2/mode_9_11_chems/0/20260122-054815"
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-022843",
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-030724",
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-025145",
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-031022",
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-032859",
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-034740",
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-052052",
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-055947",
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-063849",
     ]
     for i in range(len(modelPath_s)):
         for index in range(0, 20):
@@ -1099,8 +1108,8 @@ def runner_main():
                 display=True,
                 result_subdirectory="runner_mode_9_DSEF_1_chems_10_epochs",
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.scalar,
+                typeOfFeedback=typeOfFeedbackEnum.non_linear_DFA,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=1,
-                low_Dim_Feedback=[-1, 7, 8, 10, 20][i],
+                low_Dim_Feedback=[1, 2, 4, 6, 8, 10, 15, 20, 30][i],
             )
