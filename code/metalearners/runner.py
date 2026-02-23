@@ -699,12 +699,12 @@ def run(
         100,
         110,
         120,
-        #130,
-        #140,
-        #150,
-        #160,
-        #170,
-        #180,
+        # 130,
+        # 140,
+        # 150,
+        # 160,
+        # 170,
+        # 180,
         # 190,
         # 200,
         # 225,
@@ -715,6 +715,8 @@ def run(
         # 350,
         # 375,
     ]
+    if index >= len(trainingDataPerClass):
+        return
     """ trainingDataPerClass = [
         250,
     ]"""
@@ -1102,11 +1104,12 @@ def runner_main():
         os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-063849",
     ]
     for i in range(len(modelPath_s)):
+        low_Dim_Feedback = [1, 2, 4, 6, 8, 10, 15, 20, 30][i]
         for index in range(0, 20):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_DSEF_1_chems_10_epochs",
+                result_subdirectory="runner_mode_9_low_dim_DFA_trained_1_chems_{}".format(low_Dim_Feedback),
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.non_linear_DFA,
                 modelPath=modelPath_s[i],
