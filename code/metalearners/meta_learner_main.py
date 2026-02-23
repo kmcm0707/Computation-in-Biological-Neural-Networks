@@ -981,7 +981,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 500
+    epochs = 300
 
     dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
     minTrainingDataPerClass = 5
@@ -1158,7 +1158,16 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/mode_9_rand/0/20251105-152312"# "/results_2/mode_9_scalar_10/1/20251124-005417"
+    continue_training = current_dir + "/results_2/mode_9_rand/0/20251105-152312"
+
+    # continue_training = (
+    #    current_dir + "/results_2/DFA_longer_1/0/20251008-021457"
+    # )
+    # continue_training = (
+    #    current_dir + "/results_2/20251103-214650"
+    # )
+
+    # "/results_2/mode_9_scalar_10/1/20251124-005417"
     # continue_training = (
     #    current_dir + "/results_2/mode_9_rand/0/20251105-152312"
     # )  # "/results_2/mode_9/0/20251107-172732"
@@ -1200,7 +1209,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         wta=False,
         shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" else 0,
         scalar_variance_reduction=-1,  # -1 means no scalar variance reduction
-        low_rank_feedback=1,
+        low_rank_feedback=[1, 2, 4, 6, 8, 10, 15, 20, 30][index],
     )
 
     # -- number of chemicals
@@ -1215,7 +1224,6 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     metalearning_model.train()
-    exit()
 
 
 def main():
@@ -1234,5 +1242,5 @@ def main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    for i in range(6):
+    for i in range(11):
         run(seed=0, display=True, result_subdirectory="mode_9_low_dim_DFA_trained", index=i)
