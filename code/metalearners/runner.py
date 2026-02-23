@@ -981,7 +981,7 @@ def run(
     #   -- number of chemicals
     numberOfChemicals = numberOfChemicals
     # -- meta-traing
-    device = "cuda:1" if torch.cuda.is_available() else "cpu"
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
     runner = Runner(
         device=device,
@@ -1093,15 +1093,33 @@ def runner_main():
         # os.getcwd() + "/results_2/mode_9_scalar_10/1/20251124-005417"
         # os.getcwd()
         # + "/results_2/mode_9_11_chems/0/20260122-054815"
-        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-022843",
-        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-030724",
-        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-025145",
-        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-031022",
-        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-032859",
-        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-034740",
-        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-052052",
-        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-055947",
-        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-063849",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-022843",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-030724",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-025145",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-031022",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-032859",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-034740",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-052052",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-055947",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-063849",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-022126",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-031941",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-041805",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-051547",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-061038",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-070539",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-080041",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-085544",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-095108",
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-022702",
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-030726",
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-034803",
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-042836",
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-050912",
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-054952",
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-063034",
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-071109",
+        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-075035",
     ]
     for i in range(len(modelPath_s)):
         low_Dim_Feedback = [1, 2, 4, 6, 8, 10, 15, 20, 30][i]
@@ -1109,10 +1127,10 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_low_dim_DFA_trained_1_chems_{}".format(low_Dim_Feedback),
+                result_subdirectory="runner_mode_9_low_dim_DFA_trained_3_chems_{}".format(low_Dim_Feedback),
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.non_linear_DFA,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=1,
+                numberOfChemicals=3,
                 low_Dim_Feedback=[1, 2, 4, 6, 8, 10, 15, 20, 30][i],
             )
