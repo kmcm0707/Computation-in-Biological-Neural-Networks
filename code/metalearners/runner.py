@@ -1040,7 +1040,7 @@ def runner_main():
         # os.getcwd() + "/results_2/mode_9_scalar_clip/1/20251204-195612",
         # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312"
         # os.getcwd() + "/results_2/mode_9_scalar_9_chems/1/20251210-183207"
-        os.getcwd() + "/results/error_1_fixed/0/20251009-194350",
+        os.getcwd() + "/results_2/error_1_fixed/0/20251009-194350",
         # os.getcwd()
         # + "/results_2/mode_6_CB/1/20251111-151155" 20251111-203959
         # os.getcwd()
@@ -1097,10 +1097,10 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_DSEF_3_chems_10_epochs",
+                result_subdirectory="runner_mode_9_DSEF_1_chems_10_epochs",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=3,
+                numberOfChemicals=1,
                 low_Dim_Feedback=[-1, 7, 8, 10, 20][i],
             )

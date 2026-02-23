@@ -1158,21 +1158,21 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/mode_9_rand/0/20251105-152312"
+    #continue_training = current_dir + "/results_2/mode_9_rand/0/20251105-152312"
 
-    # continue_training = (
-    #    current_dir + "/results_2/DFA_longer_1/0/20251008-021457"
-    # )
-    # continue_training = (
-    #    current_dir + "/results_2/20251103-214650"
-    # )
+    continue_training = (
+       current_dir + "/results_2/DFA_longer_1/0/20251008-021457"
+    )
+    #continue_training = (
+    #   current_dir + "/results_2/20251103-214650"
+    #)
 
     # "/results_2/mode_9_scalar_10/1/20251124-005417"
     # continue_training = (
     #    current_dir + "/results_2/mode_9_rand/0/20251105-152312"
     # )  # "/results_2/mode_9/0/20251107-172732"
     # -- meta-learner options
-    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P and K matrices (check 1.5)
@@ -1213,7 +1213,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 1
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1243,4 +1243,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(11):
-        run(seed=0, display=True, result_subdirectory="mode_9_low_dim_DFA_trained", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_low_dim_DFA_trained_1_chems_300", index=i)
