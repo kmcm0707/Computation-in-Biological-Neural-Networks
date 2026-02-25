@@ -83,6 +83,9 @@ class MetaLearner:
             queryDataPerClass=self.queryDataPerClass,
             dimensionOfImage=28,
             device=torch.device(self.options.datasetDevice),
+            split=metaLearnerOptions.split,
+            split_min_number_of_tasks=metaLearnerOptions.split_min_number_of_tasks,
+            split_max_number_of_tasks=metaLearnerOptions.split_max_number_of_tasks,
         )
         if self.metatrain_dataset_2 is not None:
             self.data_process_2 = DataProcess(
@@ -91,6 +94,9 @@ class MetaLearner:
                 queryDataPerClass=self.queryDataPerClass,
                 dimensionOfImage=28,
                 device=torch.device(self.options.datasetDevice),
+                split=metaLearnerOptions.split,
+                split_min_number_of_tasks=metaLearnerOptions.split_min_number_of_tasks,
+                split_max_number_of_tasks=metaLearnerOptions.split_max_number_of_tasks,
             )
 
         # -- model params
@@ -530,13 +536,13 @@ class MetaLearner:
             # -- training data
             data_1 = data if self.metatrain_dataset_2 is None else data[0]
             data_2 = None if self.metatrain_dataset_2 is None else data[1]
-            x_trn_1, y_trn_1, x_qry_1, y_qry_1, current_training_data_per_class_1 = self.data_process_1(
-                data_1, self.options.numberOfClasses
+            x_trn_1, y_trn_1, x_qry_1, y_qry_1, current_training_data_per_class_1, current_number_of_tasks = (
+                self.data_process_1(data_1, self.options.numberOfClasses)
             )
             current_training_data_per_class = current_training_data_per_class_1
             if self.metatrain_dataset_2 is not None:
-                x_trn_2, y_trn_2, x_qry_2, y_qry_2, current_training_data_per_class_2 = self.data_process_2(
-                    data_2, self.options.numberOfClasses
+                x_trn_2, y_trn_2, x_qry_2, y_qry_2, current_training_data_per_class_2, current_number_of_tasks_2 = (
+                    self.data_process_2(data_2, self.options.numberOfClasses)
                 )
                 y_trn_2 = y_trn_2 + self.shift_labels_2
                 y_qry_2 = y_qry_2 + self.shift_labels_2
@@ -874,12 +880,12 @@ class MetaLearner:
                     log([loss_meta_1.item()], self.result_directory + "/loss_meta_1.txt")
                     log([loss_meta_2.item()], self.result_directory + "/loss_meta_2.txt")
 
-            line = "Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}\tCurrent Training Data Per Class 1: {}".format(
-                eps + 1, loss_meta_1.item(), acc_1, current_training_data_per_class_1
+            line = "Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}\tCurrent Training Data: {}\tNumber of Tasks: {}".format(
+                eps + 1, loss_meta_1.item(), acc_1, current_training_data_per_class_1, current_number_of_tasks
             )
             if self.metatrain_dataset_2 is not None:
-                line += "\tLoss 2: {:.6f}\tAccuracy 2: {:.3f}\tCurrent Training Data Per Class 2: {}".format(
-                    loss_meta_2.item(), acc_2, current_training_data_per_class_2
+                line += "\tLoss 2: {:.6f}\tAccuracy 2: {:.3f}\tCurrent Training Data Per Class 2: {} \tNumber of Tasks 2: {}".format(
+                    loss_meta_2.item(), acc_2, current_training_data_per_class_2, current_number_of_tasks_2
                 )
                 line += "\t Total loss: {:.6f}\t Total Accuracy: {:.3f}".format(loss_meta.item(), (acc_1 + acc_2) / 2)
             if self.display:
@@ -981,11 +987,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 300
+    epochs = 1200
 
-    dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
-    minTrainingDataPerClass = 5
-    maxTrainingDataPerClass = 80
+    dataset_name = "FASHION-MNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
+    minTrainingDataPerClass = 10
+    maxTrainingDataPerClass = 30
     queryDataPerClass = 20
     dataset_1 = None
     dataset_2 = None
@@ -1158,14 +1164,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    #continue_training = current_dir + "/results_2/mode_9_rand/0/20251105-152312"
+    # continue_training = current_dir + "/results_2/mode_9_rand/0/20251105-152312"
 
-    continue_training = (
-       current_dir + "/results_2/DFA_longer_1/0/20251008-021457"
-    )
-    #continue_training = (
+    continue_training = current_dir + "/results_2/mode_9_CB/5/20251112-001951"
+    # continue_training = (
     #   current_dir + "/results_2/20251103-214650"
-    #)
+    # )
 
     # "/results_2/mode_9_scalar_10/1/20251124-005417"
     # continue_training = (
@@ -1187,10 +1191,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.0007,
+        lr=0.001,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         trainSeparateFeedback=False,
         feedbackSeparateModel=feedbackModel,
         trainSameFeedback=False,
@@ -1199,7 +1203,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.non_linear_DFA,
+        typeOfFeedback=typeOfFeedbackEnum.DFA,
         dimOut=dimOut,
         hrm_discount=300,
         error_control=False,
@@ -1209,11 +1213,14 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         wta=False,
         shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" else 0,
         scalar_variance_reduction=-1,  # -1 means no scalar variance reduction
-        low_rank_feedback=[1, 2, 4, 6, 8, 10, 15, 20, 30][index],
+        low_rank_feedback=-1,  # [1, 2, 4, 6, 8, 10, 15, 20, 30][index],
+        split=True,
+        split_min_number_of_tasks=2,
+        split_max_number_of_tasks=5,
     )
 
     # -- number of chemicals
-    numberOfChemicals = 1
+    numberOfChemicals = 5
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1243,4 +1250,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(11):
-        run(seed=0, display=True, result_subdirectory="mode_9_low_dim_DFA_trained_1_chems_300", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_split_FM", index=i)

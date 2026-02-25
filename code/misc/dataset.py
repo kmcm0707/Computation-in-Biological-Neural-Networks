@@ -1121,6 +1121,9 @@ class DataProcess:
         device: Literal["cpu", "cuda"] = "cpu",
         iid: bool = True,
         use_jax: bool = False,
+        split: bool = False,
+        split_min_number_of_tasks: int = 2,
+        split_max_number_of_tasks: int = 5,
     ):
         """
             Initialize the DataProcess object.
@@ -1137,6 +1140,9 @@ class DataProcess:
         self.iid = iid
         self.dimensionOfImage = dimensionOfImage
         self.use_jax = use_jax
+        self.split = split
+        self.split_min_number_of_tasks = split_min_number_of_tasks
+        self.split_max_number_of_tasks = split_max_number_of_tasks
 
     def __call__(self, data, classes: int):
         """
@@ -1177,7 +1183,7 @@ class DataProcess:
             y_qry = np.reshape(y_qry, (classes * self.queryDataPerClass, 1))
 
         # -- shuffle
-        if self.iid:
+        if self.iid and not self.split:
             perm = np.random.choice(
                 range(classes * current_training_data_per_class),
                 classes * current_training_data_per_class,
@@ -1187,4 +1193,37 @@ class DataProcess:
             x_trn = x_trn[perm]
             y_trn = y_trn[perm]
 
-        return x_trn, y_trn, x_qry, y_qry, current_training_data_per_class
+        current_number_of_tasks = 1
+
+        if self.split:
+            split_number = 2
+            if self.split_max_number_of_tasks > classes * split_number:
+                raise ValueError(
+                    f"split_max_number_of_tasks must be less than or equal to classes * split_number ({classes * split_number})"
+                )
+            current_split_number_of_tasks = np.random.randint(
+                self.split_min_number_of_tasks, self.split_max_number_of_tasks + 1
+            )
+            class_indicies = y_trn.unique()
+            random_perm = torch.randperm(len(class_indicies))
+            class_indicies = class_indicies[random_perm]
+
+            split_tasks = []
+            selected_classes = class_indicies[: current_split_number_of_tasks * split_number]
+            for i in range(current_split_number_of_tasks):
+                split_tasks.append(class_indicies[i * split_number : (i + 1) * split_number])
+            print(f"Split tasks: {split_tasks}")
+            split_indices = []
+            for split_task in split_tasks:
+                temp_split_indices = []
+                for split_task_class in split_task:
+                    temp_split_indices += (y_trn == split_task_class).nonzero(as_tuple=True)[0].tolist()
+                temp_split_indices = np.random.choice(temp_split_indices, len(temp_split_indices), False)
+                split_indices += temp_split_indices.tolist()
+            x_trn = x_trn[split_indices]
+            y_trn = y_trn[split_indices]
+            current_number_of_tasks = current_split_number_of_tasks
+            y_qry_indicies_of_split_classes = torch.isin(y_qry.squeeze(), selected_classes)
+            x_qry = x_qry[y_qry_indicies_of_split_classes]
+            y_qry = y_qry[y_qry_indicies_of_split_classes]
+        return x_trn, y_trn, x_qry, y_qry, current_training_data_per_class, current_number_of_tasks

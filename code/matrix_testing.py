@@ -1,5 +1,6 @@
 import torch
-from misc.dataset import IMDBWord2VecDataProcess, IMDBWord2VecMetaDataset
+from misc.dataset import DataProcess, FashionMnistDataset
+from torch.utils.data import DataLoader
 
 if __name__ == "__main__":
     # -- test matrix
@@ -62,7 +63,7 @@ if __name__ == "__main__":
     print(norm_A)
     print(A)"""
 
-    min_tau = 10
+    """min_tau = 10
     max_tau = 100
     base = max_tau / min_tau
 
@@ -71,7 +72,7 @@ if __name__ == "__main__":
     y_vector = 1 - z_vector
 
     linear_layer = torch.nn.Linear(in_features=3, out_features=4, bias=False)
-    print(linear_layer.weight.shape)
+    print(linear_layer.weight.shape)"""
 
     """print(tau_vector)
     print(z_vector)
@@ -363,7 +364,7 @@ if __name__ == "__main__":
         print("x_trn:", x_trn)
         print("y_trn:", y_trn)"""
 
-    imdb_dataset = IMDBWord2VecMetaDataset(minNumberOfSequences=1, maxNumberOfSequences=200, query_q=10)
+    """imdb_dataset = IMDBWord2VecMetaDataset(minNumberOfSequences=1, maxNumberOfSequences=200, query_q=10)
     data_process = IMDBWord2VecDataProcess(
         minNumberOfSequencesPerClass=10,
         maxNumberOfSequencesPerClass=20,
@@ -381,4 +382,35 @@ if __name__ == "__main__":
         print("x_trn_norm:", torch.norm(x_trn[0, 0, :]))
         print("y_trn:", y_trn.shape)
         print("x_qry:", x_qry.shape)
+        print("y_qry:", y_qry.shape)"""
+    dataset = FashionMnistDataset(
+        minTrainingDataPerClass=3,
+        maxTrainingDataPerClass=3,
+        queryDataPerClass=1,
+        dimensionOfImage=28,
+        all_classes=True,
+    )
+    epochs = 1
+    sampler = torch.utils.data.RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * 10)
+
+    metatrain_dataset = DataLoader(dataset=dataset, sampler=sampler, batch_size=10, drop_last=True)
+    data_process = DataProcess(
+        minTrainingDataPerClass=3,
+        maxTrainingDataPerClass=3,
+        queryDataPerClass=1,
+        dimensionOfImage=28,
+        device=torch.device("cpu"),
+        split=True,
+        split_min_number_of_tasks=2,
+        split_max_number_of_tasks=5,
+    )
+    for eps, data in enumerate(metatrain_dataset):
+        x_trn, y_trn, x_qry, y_qry, current_training_data_per_class, total_training_data = data_process(data, 10)
+        print("")
+        print("x_trn:", x_trn.shape)
+        print("y_trn:", y_trn.shape)
+        print("x_qry:", x_qry.shape)
         print("y_qry:", y_qry.shape)
+        print("current_training_data_per_class:", current_training_data_per_class)
+        print("total_training_data:", total_training_data)
+        print("y_trn:", y_trn)
