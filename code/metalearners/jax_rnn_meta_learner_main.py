@@ -464,8 +464,8 @@ def main_jax_rnn_meta_learner():
 
     # -- load data
     numWorkers = 2
-    epochs = 10000
-
+    epochs = 5000
+  
     dataset_name = "EMNIST"
     minTrainingDataPerClass = 5
     maxTrainingDataPerClass = 70
@@ -534,7 +534,7 @@ def main_jax_rnn_meta_learner():
         nonLinear=JaxActivationNonLinearEnum.tanh,
         update_rules=[0, 1, 2, 4, 9, 12],  # 4
         minSlowTau=5,
-        maxSlowTau=80,
+        maxSlowTau=50,
         y_vector=yVectorEnum.none,
         z_vector=zVectorEnum.default,
         operator=operatorEnum.mode_9,
@@ -543,16 +543,16 @@ def main_jax_rnn_meta_learner():
     # device = "cpu"
     current_dir = os.getcwd()
     continue_training = (
-        current_dir + "/results_2/jax_rnn_12/20260120-222231"#20260121-024411"
+        current_dir + "/results_2/jax_rnn_12/20260121-024411"#20260121-024411"
     )  # "/results_2/jax_rnn_7_DSEF_fixed/20260217-174916" # "/results_2/jax_rnn_12/20260121-024411"#"/results_2/jax_rnn_12_28/20260126-043934"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="jax_rnn_DFA_5_chems_12",
+        results_subdir="jax_rnn_low_dim",
         metatrain_dataset=dataset_name,
         display=True,
-        metaLearningRate=0.0007,
+        metaLearningRate=0.0001,
         numberOfClasses=numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -566,11 +566,11 @@ def main_jax_rnn_meta_learner():
         biological_max_tau=7,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
-        recurrent_activation=JaxActivationNonLinearEnum.pass_through,#.softplus,
+        recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=7,
-        load_model=None, #continue_training,
+        load_model=continue_training,
         error_type=JaxErrorTypeEnum.DFA,
-        low_dim_DFA=-1,
+        low_dim_DFA=[6, 8, 10, 15, 20, 30][index],
     )
 
     metalearning_model = JaxMetaLearnerRNN(

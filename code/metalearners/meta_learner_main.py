@@ -457,20 +457,20 @@ class MetaLearner:
         # -- continue training
         last_trained_epoch = -1
         if self.options.continueTraining is not None:
-            #current_z_vector = self.UpdateWeights.z_vector.clone().detach()
+            current_z_vector = self.UpdateWeights.z_vector.clone().detach()
             self.UpdateWeights.load_state_dict(
                 torch.load(
                     self.options.continueTraining + "/UpdateWeights.pth", weights_only=True, map_location=self.device
                 )
             )
-            # self.UpdateWeights.z_vector = torch.nn.Parameter(current_z_vector)
-            self.UpdateMetaParameters.load_state_dict(
-               torch.load(
-                   self.options.continueTraining + "/UpdateMetaParameters.pth",
-                   weights_only=True,
-                   map_location=self.device,
-               )
-            )
+            self.UpdateWeights.z_vector = torch.nn.Parameter(current_z_vector)
+            #self.UpdateMetaParameters.load_state_dict(
+            #   torch.load(
+            #       self.options.continueTraining + "/UpdateMetaParameters.pth",
+            #       weights_only=True,
+            #       map_location=self.device,
+            #   )
+            #)
             if self.options.trainSeparateFeedback:
                 self.UpdateFeedbackWeights.load_state_dict(
                     torch.load(
@@ -987,11 +987,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 600
+    epochs = 1200
 
-    dataset_name = "FASHION-MNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
-    minTrainingDataPerClass = 10
-    maxTrainingDataPerClass = 30
+    dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
+    minTrainingDataPerClass = 5
+    maxTrainingDataPerClass = 80
     queryDataPerClass = 20
     dataset_1 = None
     dataset_2 = None
@@ -1065,7 +1065,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=50,
+            maxTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
             operator=operatorEnum.mode_9,  # _pre_activation,
@@ -1166,7 +1166,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     current_dir = os.getcwd()
     # continue_training = current_dir + "/results_2/mode_9_rand/0/20251105-152312"
 
-    continue_training = current_dir + "/results_2/mode_9_split_FM/0/20260225-153348"
+    continue_training = current_dir + "/results_2/mode_9_CB/5/20251112-001951"
     # continue_training = (
     #   current_dir + "/results_2/20251103-214650"
     # )
@@ -1191,10 +1191,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.001,
+        lr=0.0007,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,
         trainSeparateFeedback=False,
         feedbackSeparateModel=feedbackModel,
         trainSameFeedback=False,
@@ -1205,7 +1205,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.DFA,
         dimOut=dimOut,
-        hrm_discount=300,
+        hrm_discount=-1,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1214,7 +1214,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" else 0,
         scalar_variance_reduction=-1,  # -1 means no scalar variance reduction
         low_rank_feedback=-1,  # [1, 2, 4, 6, 8, 10, 15, 20, 30][index],
-        split=True,
+        split=False,
         split_min_number_of_tasks=2,
         split_max_number_of_tasks=5,
     )
@@ -1250,4 +1250,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=0, display=True, result_subdirectory="mode_9_split_FM", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_EMNIST_100", index=i)
