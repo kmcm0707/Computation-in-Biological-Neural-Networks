@@ -368,7 +368,7 @@ class JaxMetaLearnerRNN:
             ):
                 x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(data)
             else:
-                x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(
+                x_trn, y_trn, x_qry, y_qry, current_training_data_per_class, _ = self.data_process(
                     data, self.jaxMetaLearnerOptions.numberOfClasses
                 )
             # -- convert to jax arrays --
