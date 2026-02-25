@@ -1212,7 +1212,6 @@ class DataProcess:
             selected_classes = class_indicies[: current_split_number_of_tasks * split_number]
             for i in range(current_split_number_of_tasks):
                 split_tasks.append(class_indicies[i * split_number : (i + 1) * split_number])
-            print(f"Split tasks: {split_tasks}")
             split_indices = []
             for split_task in split_tasks:
                 temp_split_indices = []
