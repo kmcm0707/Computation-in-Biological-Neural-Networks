@@ -457,20 +457,20 @@ class MetaLearner:
         # -- continue training
         last_trained_epoch = -1
         if self.options.continueTraining is not None:
-            current_z_vector = self.UpdateWeights.z_vector.clone().detach()
+            #current_z_vector = self.UpdateWeights.z_vector.clone().detach()
             self.UpdateWeights.load_state_dict(
                 torch.load(
                     self.options.continueTraining + "/UpdateWeights.pth", weights_only=True, map_location=self.device
                 )
             )
             # self.UpdateWeights.z_vector = torch.nn.Parameter(current_z_vector)
-            # self.UpdateMetaParameters.load_state_dict(
-            #    torch.load(
-            #        self.options.continueTraining + "/UpdateMetaParameters.pth",
-            #        weights_only=True,
-            #        map_location=self.device,
-            #    )
-            # )
+            self.UpdateMetaParameters.load_state_dict(
+               torch.load(
+                   self.options.continueTraining + "/UpdateMetaParameters.pth",
+                   weights_only=True,
+                   map_location=self.device,
+               )
+            )
             if self.options.trainSeparateFeedback:
                 self.UpdateFeedbackWeights.load_state_dict(
                     torch.load(
@@ -987,7 +987,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 1200
+    epochs = 600
 
     dataset_name = "FASHION-MNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
     minTrainingDataPerClass = 10
@@ -1166,7 +1166,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     current_dir = os.getcwd()
     # continue_training = current_dir + "/results_2/mode_9_rand/0/20251105-152312"
 
-    continue_training = current_dir + "/results_2/mode_9_CB/5/20251112-001951"
+    continue_training = current_dir + "/results_2/mode_9_split_FM/0/20260225-153348"
     # continue_training = (
     #   current_dir + "/results_2/20251103-214650"
     # )
@@ -1249,5 +1249,5 @@ def main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    for i in range(11):
+    for i in range(1):
         run(seed=0, display=True, result_subdirectory="mode_9_split_FM", index=i)
