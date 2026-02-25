@@ -1082,7 +1082,7 @@ def runner_main():
         # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
         # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
         # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
-        # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
+        os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
         # + "/results_2/mode_7_7_chems/0/20260121-182419"
         # + "/results_2/20251103-214650"
         # + "/results_2/mode_10_5_chem_scalar/1/20260211-154427"
@@ -1111,26 +1111,26 @@ def runner_main():
         #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-080041",
         #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-085544",
         #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-095108",
-        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-022702",
-        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-030726",
-        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-034803",
-        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-042836",
-        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-050912",
-        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-054952",
-        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-063034",
-        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-071109",
-        os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-075035",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-022702",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-030726",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-034803",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-042836",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-050912",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-054952",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-063034",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-071109",
+        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-075035",
     ]
     for i in range(len(modelPath_s)):
-        low_Dim_Feedback = [1, 2, 4, 6, 8, 10, 15, 20, 30][i]
+        low_Dim_Feedback = [30][i]
         for index in range(0, 20):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_low_dim_DFA_trained_3_chems_{}".format(low_Dim_Feedback),
+                result_subdirectory="runner_mode_9_low_dim_DFA_trained_1_chems_{}_2".format(low_Dim_Feedback),
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.non_linear_DFA,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=3,
-                low_Dim_Feedback=[1, 2, 4, 6, 8, 10, 15, 20, 30][i],
+                numberOfChemicals=1,
+                low_Dim_Feedback=[30][i],
             )
