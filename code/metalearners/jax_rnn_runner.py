@@ -332,7 +332,7 @@ class JaxMetaLearnerRNN:
             ):
                 x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(data)
             else:
-                x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(
+                x_trn, y_trn, x_qry, y_qry, current_training_data_per_class, _ = self.data_process(
                     data, self.jaxMetaLearnerOptions.numberOfClasses
                 )
             # -- convert to jax arrays --
@@ -533,7 +533,7 @@ def jax_runner(index: int, index2: int):
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_rnn_low_dim_{}".format([6, 8, 10, 20, 30][index2]),
+        results_subdir="runner_jax_rnn_low_dim_{}_2".format([6, 8, 10, 20, 30][index2]),
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
