@@ -458,12 +458,14 @@ class MetaLearner:
         last_trained_epoch = -1
         if self.options.continueTraining is not None:
             current_z_vector = self.UpdateWeights.z_vector.clone().detach()
+            current_y_vector = self.UpdateWeights.y_vector.clone().detach()
             self.UpdateWeights.load_state_dict(
                 torch.load(
                     self.options.continueTraining + "/UpdateWeights.pth", weights_only=True, map_location=self.device
                 )
             )
             self.UpdateWeights.z_vector = torch.nn.Parameter(current_z_vector)
+            self.UpdateWeights.y_vector = torch.nn.Parameter(current_y_vector)
             #self.UpdateMetaParameters.load_state_dict(
             #   torch.load(
             #       self.options.continueTraining + "/UpdateMetaParameters.pth",
@@ -987,7 +989,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 1200
+    epochs = 1600
 
     dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
     minTrainingDataPerClass = 5
