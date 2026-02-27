@@ -81,6 +81,7 @@ class JaxMetaLearnerRNN:
                 dimensionOfImage=28,
                 iid=True,
                 use_jax=True,
+                permutation=self.jaxMetaLearnerOptions.permutation,
             )
 
         self.numberOfChemicals = numberOfChemicals
@@ -398,7 +399,7 @@ class JaxMetaLearnerRNN:
         print("Training completed.")
 
 
-def jax_runner(index: int, index2: int):
+def jax_runner(index: int):
     os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
     key = jax.random.PRNGKey(42)
     # jax.config.update("jax_enable_x64", False)
@@ -521,19 +522,19 @@ def jax_runner(index: int, index2: int):
     runner = current_dir + "/results_2/jax_rnn_12/20260121-004412"
     # runner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_2/20260219-193712"
     # unner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_3/20260219-193948"
-    #runner = [
+    # runner = [
     #    current_dir + "/results_2/jax_rnn_low_dim_6/20260225-183751",
     #    current_dir + "/results_2/jax_rnn_low_dim_8/20260225-200334",
     #    current_dir + "/results_2/jax_rnn_low_dim_10/20260225-212923",
     #    current_dir + "/results_2/jax_rnn_low_dim_20/20260226-002204",
     #    current_dir + "/results_2/jax_rnn_low_dim_30/20260226-014817",
-    #][index2]
+    # ][index2]
     # runner = current_dir + "/results_2/jax_rnn_DFA_3_chems/20260221-195452"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_rnn_low_dim_{}_3".format([1, 2, 4, 6, 8, 10, 15, 20, 30][index2]),
+        results_subdir="runner_jax_rnn_permutation",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
@@ -553,7 +554,8 @@ def jax_runner(index: int, index2: int):
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=numberOfTimeSteps,
         load_model=runner,
-        low_dim_DFA=[1, 2, 4, 6, 8, 10, 15, 20, 30][index2],
+        low_dim_DFA=-1,
+        permutation=True,
     )
 
     metalearning_model = JaxMetaLearnerRNN(
@@ -569,6 +571,5 @@ def jax_runner(index: int, index2: int):
 
 def main_jax_runner():
 
-    for index in range(6):
-        for i in range(10):
-            jax_runner(i, index)
+    for i in range(10):
+        jax_runner(i)

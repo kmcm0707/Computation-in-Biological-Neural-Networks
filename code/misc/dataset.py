@@ -1124,6 +1124,7 @@ class DataProcess:
         split: bool = False,
         split_min_number_of_tasks: int = 2,
         split_max_number_of_tasks: int = 5,
+        permutation: bool = False,
     ):
         """
             Initialize the DataProcess object.
@@ -1143,6 +1144,7 @@ class DataProcess:
         self.split = split
         self.split_min_number_of_tasks = split_min_number_of_tasks
         self.split_max_number_of_tasks = split_max_number_of_tasks
+        self.permutation = permutation
 
     def __call__(self, data, classes: int):
         """
@@ -1182,6 +1184,12 @@ class DataProcess:
             x_qry = np.reshape(x_qry, (classes * self.queryDataPerClass, self.dimensionOfImage**2))
             y_qry = np.reshape(y_qry, (classes * self.queryDataPerClass, 1))
 
+        # -- permutation
+        if self.permutation:
+            perm = np.random.permutation(self.dimensionOfImage**2)
+            x_trn = x_trn[:, perm]
+            x_qry = x_qry[:, perm]
+            
         # -- shuffle
         if self.iid and not self.split:
             perm = np.random.choice(

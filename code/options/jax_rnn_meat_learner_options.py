@@ -46,6 +46,7 @@ class JaxRnnMetaLearnerOptions:
         load_model: str = None,
         error_type: JaxErrorTypeEnum = JaxErrorTypeEnum.DFA,
         low_dim_DFA: int = -1,
+        permutation: bool = False,
     ):
         self.seed = seed
         self.save_results = save_results
@@ -71,6 +72,7 @@ class JaxRnnMetaLearnerOptions:
         self.load_model = load_model
         self.error_type = error_type
         self.low_dim_DFA = low_dim_DFA
+        self.permutation = permutation
 
     def __str__(self):
         string = ""

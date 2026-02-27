@@ -162,6 +162,7 @@ class RnnMetaLearner:
         trainingDataPerClass: int = 50,
         dimOut: int = 47,
         dimIn: int = 28,
+        permutation: bool = False,
         # -- model params
         biological: bool = False,
         biological_min_tau: int = 1,
@@ -196,6 +197,7 @@ class RnnMetaLearner:
         self.queryDataPerClass = 20
         self.metatrain_dataset = metatrain_dataset
         self.dataset_name = dataset_name
+        self.permutation = permutation
         if self.dataset_name == "ADDBERNOULLI":
             self.data_process = AddBernoulliTaskDataProcess(
                 device=self.device, min_lag_1=5, max_lag_1=5, min_lag_2=8, max_lag_2=8
@@ -219,6 +221,7 @@ class RnnMetaLearner:
                 queryDataPerClass=self.queryDataPerClass,
                 dimensionOfImage=28,
                 device=self.device,
+                permutation=self.permutation,
             )
         self.number_of_classes = number_of_classes
 
@@ -362,7 +365,7 @@ class RnnMetaLearner:
             elif self.dataset_name == "IMDB" or self.dataset_name == "IMDB_WORD2VEC":
                 x_trn, y_trn, x_qry, y_qry, current_training_data = self.data_process(data)
             else:
-                x_trn, y_trn, x_qry, y_qry, current_training_data = self.data_process(data, self.number_of_classes)
+                x_trn, y_trn, x_qry, y_qry, current_training_data, _ = self.data_process(data, self.number_of_classes)
 
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
@@ -410,7 +413,7 @@ class RnnMetaLearner:
                                 )
                             else:
                                 loss_adapt = self.loss_func(logits, label)
-                            if current_time_step + 1 > 10: #and self.dataset_name == "ADDBERNOULLI":
+                            if current_time_step + 1 > 10:  # and self.dataset_name == "ADDBERNOULLI":
                                 self.UpdateParameters.zero_grad()
                                 loss_adapt.backward()
                                 self.UpdateParameters.step()
@@ -598,17 +601,18 @@ def run(
         trainingDataPerClass=trainingDataPerClass,
         dimOut=dimOut,
         dimIn=dimIn,
+        permutation=True,
         # -- model params
         biological=True,
         biological_min_tau=1,
-        biological_max_tau=28,
+        biological_max_tau=7,
         biological_nonlinearity=nonLinearEnum.softplus,
         recurrent_nonlinearity=nonLinearEnum.softplus,
         output_nonlinearity=nonLinearEnum.tanh,
         hidden_size=128,
         update_after_time_step=False,
-        manually_update_after_time_step=7,
-        learning_rate=1e-2,
+        manually_update_after_time_step=-1,
+        learning_rate=1e-3,
     )
     metalearning_model.train()
 
@@ -628,7 +632,7 @@ def rnn_backprop_main():
     :return: None
     """
     # -- run
-    dimIn = [28]
+    dimIn = [784 // 7]
     trainingDataPerClass = [
         10,
         20,
@@ -694,7 +698,7 @@ def rnn_backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="backprop_emnsit_7_3/{}".format(dim),
+                result_subdirectory="backprop_emnsit_permutation/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
