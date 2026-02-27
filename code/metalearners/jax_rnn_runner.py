@@ -518,22 +518,22 @@ def jax_runner(index: int, index2: int):
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    # runner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_1/20260219-122821"
+    runner = current_dir + "/results_2/jax_rnn_12/20260121-004412"
     # runner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_2/20260219-193712"
     # unner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_3/20260219-193948"
-    runner = [
-        current_dir + "/results_2/jax_rnn_low_dim_6/20260225-183751",
-        current_dir + "/results_2/jax_rnn_low_dim_8/20260225-200334",
-        current_dir + "/results_2/jax_rnn_low_dim_10/20260225-212923",
-        current_dir + "/results_2/jax_rnn_low_dim_20/20260226-002204",
-        current_dir + "/results_2/jax_rnn_low_dim_30/20260226-014817",
-    ][index2]
+    #runner = [
+    #    current_dir + "/results_2/jax_rnn_low_dim_6/20260225-183751",
+    #    current_dir + "/results_2/jax_rnn_low_dim_8/20260225-200334",
+    #    current_dir + "/results_2/jax_rnn_low_dim_10/20260225-212923",
+    #    current_dir + "/results_2/jax_rnn_low_dim_20/20260226-002204",
+    #    current_dir + "/results_2/jax_rnn_low_dim_30/20260226-014817",
+    #][index2]
     # runner = current_dir + "/results_2/jax_rnn_DFA_3_chems/20260221-195452"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_rnn_low_dim_{}_2".format([6, 8, 10, 20, 30][index2]),
+        results_subdir="runner_jax_rnn_low_dim_{}_3".format([1, 2, 4, 6, 8, 10, 15, 20, 30][index2]),
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
@@ -553,7 +553,7 @@ def jax_runner(index: int, index2: int):
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=numberOfTimeSteps,
         load_model=runner,
-        low_dim_DFA=[6, 8, 10, 15, 20, 30][index2],
+        low_dim_DFA=[1, 2, 4, 6, 8, 10, 15, 20, 30][index2],
     )
 
     metalearning_model = JaxMetaLearnerRNN(

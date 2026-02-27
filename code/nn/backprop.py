@@ -359,11 +359,11 @@ class MetaLearner:
             self.UpdateParameters = optim.Adam(self.model.parameters(), lr=1e-3)
 
             # -- training data
-            x_trn_1, y_trn_1, x_qry_1, y_qry_1, current_training_data = self.data_process_1(
+            x_trn_1, y_trn_1, x_qry_1, y_qry_1, current_training_data, _ = self.data_process_1(
                 data_1, self.number_of_classes_1
             )
             if self.metatrain_dataset_2 is not None:
-                x_trn_2, y_trn_2, x_qry_2, y_qry_2, _ = self.data_process_2(data_2, self.number_of_classes_2)
+                x_trn_2, y_trn_2, x_qry_2, y_qry_2, current_training_data_2, _ = self.data_process_2(data_2, self.number_of_classes_2)
                 y_trn_2 = y_trn_2 + self.shift_class_2
                 y_qry_2 = y_qry_2 + self.shift_class_2
             # x_trn_copy = x_trn.clone()
@@ -426,7 +426,7 @@ class MetaLearner:
                         for n, p in self.model.named_parameters():
                             if p.requires_grad:
                                 ewc_loss += (fim[n] * (p - saved_params[n]).pow(2)).flatten().sum(dim=-1)
-                        loss_adapt += ewc_loss * 10000
+                        loss_adapt += ewc_loss * 1000000.0
                         all_ewc_loss += ewc_loss
                     # loss_adapt += all_ewc_loss * 1000
 
@@ -515,10 +515,10 @@ def run(
     numWorkers = 3
     epochs = 20
     numberOfClasses = 5
-    trainingDataPerClass_1 = trainingDataPerClass
-    trainingDataPerClass_2 = None
+    trainingDataPerClass_1 = 40
+    trainingDataPerClass_2 = trainingDataPerClass
     dimOut = 47
-    dataset_name = "EMNIST"
+    dataset_name = "COMBINED"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -570,14 +570,13 @@ def run(
             sampler=sampler_1,
             batch_size=numberOfClasses_1,
             drop_last=True,
-            num_workers=numWorkers,
         )
         metatrain_dataset_2 = DataLoader(
-            dataset=dataset_2, sampler=sampler_2, batch_size=numberOfClasses_2, drop_last=True, num_workers=numWorkers
+            dataset=dataset_2, sampler=sampler_2, batch_size=numberOfClasses_2, drop_last=True
         )
 
     metalearning_model = MetaLearner(
-        device="cuda:0" if torch.cuda.is_available() else "cpu",
+        device="cuda:1" if torch.cuda.is_available() else "cpu",
         result_subdirectory=result_subdirectory,
         save_results=True,
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
@@ -590,7 +589,7 @@ def run(
         trainingDataPerClass_2=trainingDataPerClass_2 if dataset_name == "COMBINED" else None,
         dimOut=dimOut,
         numberOfDataRepetitions=1,
-        size=sizeEnum.convolutional,
+        size=sizeEnum.normal,
         elastic_weight_consolidation=True if dataset_name == "COMBINED" else False,
     )
     metalearning_model.train()
@@ -630,18 +629,18 @@ def backprop_main():
         60,
         70,
         80,
-        90,
-        100,
-        110,
-        120,
-        130,
-        140,
-        150,
-        160,
-        170,
-        180,
-        190,
-        200,
+        #90,
+        #100,
+        #110,
+        #120,
+        #130,
+        #140,
+        #150,
+        #160,
+        #170,
+        #180,
+        #190,
+        #200,
         # 225,
         # 250,
         # 275,
@@ -683,6 +682,6 @@ def backprop_main():
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_backprop_conv",
+            result_subdirectory="runner_backprop_EWC_1000000_4",
             trainingDataPerClass=trainingData,
         )
