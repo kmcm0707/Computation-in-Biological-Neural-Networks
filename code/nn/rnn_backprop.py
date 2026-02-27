@@ -605,13 +605,13 @@ def run(
         # -- model params
         biological=True,
         biological_min_tau=1,
-        biological_max_tau=7,
+        biological_max_tau=28,
         biological_nonlinearity=nonLinearEnum.softplus,
         recurrent_nonlinearity=nonLinearEnum.softplus,
         output_nonlinearity=nonLinearEnum.tanh,
         hidden_size=128,
         update_after_time_step=False,
-        manually_update_after_time_step=-1,
+        manually_update_after_time_step=7,
         learning_rate=1e-3,
     )
     metalearning_model.train()
@@ -632,7 +632,7 @@ def rnn_backprop_main():
     :return: None
     """
     # -- run
-    dimIn = [784 // 7]
+    dimIn = [28]
     trainingDataPerClass = [
         10,
         20,
