@@ -410,9 +410,9 @@ def jax_runner(index: int):
     training_data = [
         # 10,
         # 9,
-        #10,
-        #20,
-        #30,
+        10,
+        20,
+        30,
         # 50,
         # 75,
         # 90,
@@ -428,16 +428,16 @@ def jax_runner(index: int):
         # 4000,
         # 6000,
         # 8000,
-        #40,
-        #50,
-        #60,
-        #70,
-        #80,
-        #90,
-        100,
-        110,
-        120,
-        130,
+        40,
+        50,
+        60,
+        70,
+        80,
+        90,
+        #100,
+        #110,
+        #120,
+        #130,
         # 10000,
         # 12000,
         # 14000,
@@ -451,7 +451,7 @@ def jax_runner(index: int):
     minTrainingDataPerClass = training_data[index]
     maxTrainingDataPerClass = training_data[index]
     queryDataPerClass = 20
-    numberOfTimeSteps = 28
+    numberOfTimeSteps = 7
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -523,22 +523,21 @@ def jax_runner(index: int):
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    # runner = current_dir + "/results_2/jax_rnn_12/20260121-004412"
-    runner = current_dir + "/results_2/jax_rnn_12_28/20260126-043934"
+    runner = current_dir + "/results_2/jax_rnn_12/20260121-004412"
+    #runner = current_dir + "/results_2/jax_rnn_12_28/20260126-043934"
     # unner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_3/20260219-193948"
     # runner = [
     #    current_dir + "/results_2/jax_rnn_low_dim_6/20260225-183751",
     #    current_dir + "/results_2/jax_rnn_low_dim_8/20260225-200334",
     #    current_dir + "/results_2/jax_rnn_low_dim_10/20260225-212923",
-    #    current_dir + "/results_2/jax_rnn_low_dim_20/20260226-002204",
-    #    current_dir + "/results_2/jax_rnn_low_dim_30/20260226-014817",
+    #runner = current_dir + "/results_2/jax_rnn_low_dim_30/20260226-014817"
     # ][index2]
     # runner = current_dir + "/results_2/jax_rnn_DFA_3_chems/20260221-195452"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_rnn_permutation_28",
+        results_subdir="runner_jax_rnn_pass",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
@@ -552,14 +551,14 @@ def jax_runner(index: int):
         hidden_size=128,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=28,
+        biological_max_tau=7,
         gradient=True,
-        outer_activation=JaxActivationNonLinearEnum.tanh,
+        outer_activation=JaxActivationNonLinearEnum.pass_through,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=numberOfTimeSteps,
         load_model=runner,
         low_dim_DFA=-1,
-        permutation=True,
+        permutation=False,
     )
 
     metalearning_model = JaxMetaLearnerRNN(
