@@ -21,6 +21,7 @@ from options.complex_options import operatorEnum, yVectorEnum, zVectorEnum
 from options.fast_rnn_options import fastRnnOptions
 from options.jax_rnn_meat_learner_options import (
     JaxActivationNonLinearEnum,
+    JaxErrorTypeEnum,
     JaxRnnMetaLearnerOptions,
 )
 from options.meta_learner_options import chemicalEnum
@@ -434,10 +435,10 @@ def jax_runner(index: int):
         70,
         80,
         90,
-        #100,
-        #110,
-        #120,
-        #130,
+        # 100,
+        # 110,
+        # 120,
+        # 130,
         # 10000,
         # 12000,
         # 14000,
@@ -523,21 +524,22 @@ def jax_runner(index: int):
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    runner = current_dir + "/results_2/jax_rnn_12/20260121-004412"
-    #runner = current_dir + "/results_2/jax_rnn_12_28/20260126-043934"
+    # runner = current_dir + "/results_2/jax_rnn_12/20260121-004412"
+    runner = current_dir + "/results_2/jax_rnn_7_DSEF_fixed/20260218-004755"
+    # runner = current_dir + "/results_2/jax_rnn_12_28/20260126-043934"
     # unner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_3/20260219-193948"
     # runner = [
     #    current_dir + "/results_2/jax_rnn_low_dim_6/20260225-183751",
     #    current_dir + "/results_2/jax_rnn_low_dim_8/20260225-200334",
     #    current_dir + "/results_2/jax_rnn_low_dim_10/20260225-212923",
-    #runner = current_dir + "/results_2/jax_rnn_low_dim_30/20260226-014817"
+    # runner = current_dir + "/results_2/jax_rnn_low_dim_30/20260226-014817"
     # ][index2]
     # runner = current_dir + "/results_2/jax_rnn_DFA_3_chems/20260221-195452"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_rnn_pass",
+        results_subdir="runner_jax_rnn_DSEF",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
@@ -553,10 +555,11 @@ def jax_runner(index: int):
         biological_min_tau=1,
         biological_max_tau=7,
         gradient=True,
-        outer_activation=JaxActivationNonLinearEnum.pass_through,
+        outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=numberOfTimeSteps,
         load_model=runner,
+        error_type=JaxErrorTypeEnum.DSEF,
         low_dim_DFA=-1,
         permutation=False,
     )
