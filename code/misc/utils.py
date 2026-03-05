@@ -438,8 +438,13 @@ def meta_stats(
                 )
                 weight_update = {k: temp_params[k] - current_params[k] for k in current_params.keys() if "forward" in k}
                 weight_update_i_array = [weight_update[k].flatten() for k in weight_update.keys()]
-                Cs_weight_update += weight_update_i_array
+                if len(Cs_weight_update) == 0:
+                    Cs_weight_update = weight_update_i_array
+                else:
+                    for j, weight_update_j in enumerate(weight_update_i_array):
+                        Cs_weight_update[j] += weight_update_j
 
+            print(len(Cs_weight_update))
             for i in range(len(Cs_weight_update)):
                 Cs_weight_update[i] = Cs_weight_update[i] / error_batch_size
             Bp_weight_update = []
