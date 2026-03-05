@@ -837,9 +837,9 @@ def run(
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_9,  # _pre_activation,
+            operator=operatorEnum.mode_1,  # _pre_activation,
             train_z_vector=False,
-            mode=modeEnum.all,
+            mode=modeEnum.rosenbaum,
             v_vector=vVectorEnum.default,
             eta=1,
             beta=0,  ## Only for v_vector=random_beta
@@ -962,7 +962,7 @@ def run(
         ),  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" else None,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
@@ -1063,7 +1063,7 @@ def runner_main():
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_2/0/20260219-012932",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_3/0/20260219-013111",
         # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
-        os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
+        #os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
         # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
         # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
         # os.getcwd() + "/results_2/20251103-214650",
@@ -1075,10 +1075,10 @@ def runner_main():
         # + "/results_2/mode_10_5_chem/1/20260212-015727"
         # + "/results_2/scalar_only/1/20260125-180711",
         # + "/results_2/mode_7_5_chems/2/20260124-215926" #0/20260124-200247"
-        # os.getcwd() + "/results_2/mode_9_scalar_10/1/20251124-005417"
+        #os.getcwd() + "/results_2/mode_9_scalar_10/1/20251124-005417"
         # os.getcwd()
         # + "/results_2/mode_9_11_chems/0/20260122-054815"
-        # os.getcwd() + "/results_2/rosenbaum_recreate/1/20250215-010641",
+        os.getcwd() + "/results_2/rosenbaum_recreate/1/20250215-010641",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-022843",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-030724",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-025145",
@@ -1112,10 +1112,10 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_5_chem_FA_weight_analysis",
+                result_subdirectory="runner_mode_9_1_chem_FA_weight_analysis",
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=5,
+                numberOfChemicals=1,
                 low_Dim_Feedback=[-1][i],
             )
