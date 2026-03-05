@@ -156,6 +156,7 @@ class RfloLearner:
         trainingDataPerClass: int = 50,
         dimOut: int = 47,
         dimIn: int = 28,
+        permutation: bool = False,
         # -- model params
         biological_min_tau: int = 1,
         biological_max_tau: int = 56,
@@ -181,6 +182,7 @@ class RfloLearner:
         self.lr_hh = lr_hh
         self.lr_out = lr_out
         self.reset_modulators = reset_modulators
+        self.permutation = permutation
 
         # -- data params
         self.dataset_name = dataset_name
@@ -200,6 +202,7 @@ class RfloLearner:
                 queryDataPerClass=self.queryDataPerClass,
                 dimensionOfImage=28,
                 device=self.device,
+                permutation=self.permutation,
             )
         self.number_of_classes = number_of_classes
 
@@ -338,7 +341,7 @@ class RfloLearner:
 
                 current_training_data = x_trn.shape[1]
             else:
-                x_trn, y_trn, x_qry, y_qry, current_training_data = self.data_process(data, self.number_of_classes)
+                x_trn, y_trn, x_qry, y_qry, current_training_data, _ = self.data_process(data, self.number_of_classes)
 
             """ adaptation """
             for itr_adapt, (x, label) in enumerate(zip(x_trn, y_trn)):
@@ -509,9 +512,10 @@ def run(
         trainingDataPerClass=trainingDataPerClass,
         dimOut=dimOut,
         dimIn=dimIn,
+        permutation = True,
         # -- model params
         biological_min_tau=1,
-        biological_max_tau=28,
+        biological_max_tau=7,
         biological_nonlinearity=nonLinearEnum.tanh,
         hidden_size=128,
         lr_in=0.005,
@@ -527,7 +531,7 @@ def rflo_main_2():
     Main function for running RFLO experiments.
     """
     # -- run
-    dimIn = [28]
+    dimIn = [28, 112]
     trainingDataPerClass = [
         10,
         20,
@@ -539,11 +543,11 @@ def rflo_main_2():
         80,
         90,
         100,
-        #110,
-        #120,
-        #130,
-        #140,
-        #150,
+        110,
+        120,
+        130,
+        140,
+        150,
         #160,
         #170,
         #180,
@@ -603,7 +607,7 @@ def rflo_main_2():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_murray_rflo_28_5/{}".format(dim),
+                result_subdirectory="runner_murray_rflo_pertubation/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )

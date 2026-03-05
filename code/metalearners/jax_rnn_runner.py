@@ -525,7 +525,7 @@ def jax_runner(index: int):
     # device = "cpu"
     current_dir = os.getcwd()
     # runner = current_dir + "/results_2/jax_rnn_12/20260121-004412"
-    runner = current_dir + "/results_2/jax_rnn_7_DSEF_fixed/20260218-004755"
+    runner = current_dir + "/results_2/jax_rnn_7_DSEF_fixed/20260217-235558"
     # runner = current_dir + "/results_2/jax_rnn_12_28/20260126-043934"
     # unner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_3/20260219-193948"
     # runner = [
@@ -539,7 +539,7 @@ def jax_runner(index: int):
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_rnn_DSEF",
+        results_subdir="runner_jax_rnn_DSEF_2",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
