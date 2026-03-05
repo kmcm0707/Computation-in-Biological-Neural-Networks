@@ -283,6 +283,9 @@ def meta_stats(
     dimOut=47,
     save_index="",
     calculate_only_acc=False,
+    calculate_weight_update=False,
+    complex_synapse=None,
+    h_params=None,
 ):
     """
         Compute meta statistics.
@@ -365,10 +368,8 @@ def meta_stats(
             reversed_feedback_2 = list(reversed(list(feedback_2.values())))
             for index, (y_, i) in enumerate(zip(reversed(y), reversed(list(feedback_1)))):
                 temp_error = torch.matmul(e[-1], feedback_1[i])
-                #temp_error_non_linear = torch.relu(temp_error)  # non-linearity
-                true_error = torch.matmul(temp_error, reversed_feedback_2[index]) * (
-                    1 - torch.exp(-Beta * y_)
-                )
+                # temp_error_non_linear = torch.relu(temp_error)  # non-linearity
+                true_error = torch.matmul(temp_error, reversed_feedback_2[index]) * (1 - torch.exp(-Beta * y_))
                 e.insert(0, true_error)
         elif typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
             feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
@@ -413,8 +414,46 @@ def meta_stats(
         for e_fix_, e_sym_ in zip(e, e_sym):
             e_angl.append(measure_angle(e_fix_.mean(dim=0), e_sym_.mean(dim=0)))
 
+        # -- weight update angle
+        if calculate_weight_update:
+            current_params = {k: v.clone() for k, v in params.items() if "forward" in k}
+            error_batch_size = e[0].shape[0]
+            Cs_weight_update = []
+            for i in range(error_batch_size):
+                e_i = [e_x[i, :].unsqueeze(0) for e_x in e]
+                y_i = [y_x[i, :].unsqueeze(0) for y_x in y]
+                logits_i = logits[i, :].unsqueeze(0)
+                softmax_i = functional.softmax(logits_i, dim=1)
+                activation_i = [*y_i, softmax_i]
+                temp_params = {k: v.clone() for k, v in params.items()}
+                for k in temp_params.keys():
+                    if "forward" in k:
+                        temp_params[k].adapt = "forward"
+                    else:
+                        temp_params[k].adapt = "feedback"
+
+                temp_h_params = {k: v.clone() for k, v in h_params.items()}
+                complex_synapse(
+                    params=temp_params, h_parameters=temp_h_params, error=e_i, activations_and_output=activation_i
+                )
+                weight_update = {k: temp_params[k] - current_params[k] for k in current_params.keys() if "forward" in k}
+                weight_update_i_array = [weight_update[k].flatten() for k in weight_update.keys()]
+                Cs_weight_update += weight_update_i_array
+
+            for i in range(len(Cs_weight_update)):
+                Cs_weight_update[i] = Cs_weight_update[i] / error_batch_size
+            Bp_weight_update = []
+            for e_sym_, y_ in zip(e_sym[1:], y):
+                Bp_weight_update.append(torch.mean(torch.matmul(e_sym_.unsqueeze(2), y_.unsqueeze(1)), dim=0).flatten())
+
+            weight_angle = [
+                measure_angle(Cs_weight_update_i, Bp_weight_update_i)
+                for Bp_weight_update_i, Cs_weight_update_i in zip(Bp_weight_update, Cs_weight_update)
+            ]
+
         if save:
             log(e_angl, res_dir + "/e_ang_meta{}.txt".format(save_index))
+            log(weight_angle, res_dir + "/weight_ang_meta{}.txt".format(save_index))
 
         # -- accuracy
         acc = accuracy(logits, label)

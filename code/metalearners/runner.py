@@ -364,11 +364,11 @@ class Runner:
                 self.UpdateFeedbackWeights.reset_time_index()
 
             # -- training data
-            x_trn_1, y_trn_1, x_qry_1, y_qry_1, current_training_data_per_class_1 = self.data_process_1(
+            x_trn_1, y_trn_1, x_qry_1, y_qry_1, current_training_data_per_class_1, _ = self.data_process_1(
                 data_1, self.options.numberOfClasses_1
             )
             if self.metatrain_dataset_2 is not None:
-                x_trn_2, y_trn_2, x_qry_2, y_qry_2, current_training_data_per_class_2 = self.data_process_2(
+                x_trn_2, y_trn_2, x_qry_2, y_qry_2, current_training_data_per_class_2, _ = self.data_process_2(
                     data_2, self.options.numberOfClasses_2
                 )
                 y_trn_2 = y_trn_2 + self.options.shift_labels_2
@@ -601,6 +601,9 @@ class Runner:
                 self.save_results,
                 typeOfFeedback=self.options.typeOfFeedback,
                 dimOut=self.options.dimOut,
+                calculate_weight_update=True,
+                complex_synapse=self.UpdateWeights,
+                h_params=h_parameters,
             )
             if self.metatrain_dataset_2 is not None:
                 acc_2 = meta_stats(
@@ -699,16 +702,16 @@ def run(
         100,
         110,
         120,
-        # 130,
-        # 140,
-        # 150,
-        # 160,
-        # 170,
-        # 180,
-        # 190,
-        # 200,
-        # 225,
-        # 250,
+        130,
+        140,
+        150,
+        160,
+        170,
+        180,
+        190,
+        200,
+        225,
+        250,
         # 275,
         # 300,
         # 325,
@@ -1063,9 +1066,9 @@ def runner_main():
         # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
         # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
         # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
+        os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
         # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
         # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
-        # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
         # os.getcwd() + "/results_2/20251103-214650",
         # os.getcwd() + "/results_2/20251103-214650",
         # os.getcwd() + "/results_2/20251103-214650",
@@ -1082,7 +1085,7 @@ def runner_main():
         # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
         # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
         # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
-        os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
+        # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
         # + "/results_2/mode_7_7_chems/0/20260121-182419"
         # + "/results_2/20251103-214650"
         # + "/results_2/mode_10_5_chem_scalar/1/20260211-154427"
@@ -1093,44 +1096,43 @@ def runner_main():
         # os.getcwd() + "/results_2/mode_9_scalar_10/1/20251124-005417"
         # os.getcwd()
         # + "/results_2/mode_9_11_chems/0/20260122-054815"
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-022843",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-030724",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-025145",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-031022",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-032859",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-034740",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-052052",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-055947",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-063849",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-022126",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-031941",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-041805",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-051547",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-061038",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-070539",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-080041",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-085544",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-095108",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-022702",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-030726",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-034803",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-042836",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-050912",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-054952",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-063034",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-071109",
-        #os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-075035",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-022843",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-030724",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-025145",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-031022",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-032859",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-034740",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-052052",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-055947",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-063849",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-022126",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-031941",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-041805",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-051547",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-061038",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-070539",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-080041",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-085544",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-095108",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-022702",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-030726",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-034803",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-042836",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-050912",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-054952",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-063034",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-071109",
+        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-075035",
     ]
     for i in range(len(modelPath_s)):
-        low_Dim_Feedback = [30][i]
         for index in range(0, 20):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_low_dim_DFA_trained_1_chems_{}_2".format(low_Dim_Feedback),
+                result_subdirectory="runner_mode_9_5_chem_weight_analysis",
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.non_linear_DFA,
+                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=1,
-                low_Dim_Feedback=[30][i],
+                numberOfChemicals=5,
+                low_Dim_Feedback=[-1][i],
             )
