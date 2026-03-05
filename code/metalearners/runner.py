@@ -1093,7 +1093,7 @@ def runner_main():
         # + "/results_2/mode_10_5_chem/1/20260212-015727"
         # + "/results_2/scalar_only/1/20260125-180711",
         # + "/results_2/mode_7_5_chems/2/20260124-215926" #0/20260124-200247"
-        # os.getcwd() + "/results_2/mode_9_scalar_10/1/20251124-005417"
+        #os.getcwd() + "/results_2/mode_9_scalar_10/1/20251124-005417"
         # os.getcwd()
         # + "/results_2/mode_9_11_chems/0/20260122-054815"
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-022843",
@@ -1125,13 +1125,13 @@ def runner_main():
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-075035",
     ]
     for i in range(len(modelPath_s)):
-        for index in range(0, 20):
+        for index in range(0, 40):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_5_chem_weight_analysis",
+                result_subdirectory="runner_mode_9_5_chem_FA_weight_analysis_3",
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+                typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=5,
                 low_Dim_Feedback=[-1][i],
