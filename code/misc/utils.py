@@ -415,6 +415,7 @@ def meta_stats(
             e_angl.append(measure_angle(e_fix_.mean(dim=0), e_sym_.mean(dim=0)))
 
         # -- weight update angle
+        weight_angle = None
         if calculate_weight_update:
             current_params = {k: v.clone() for k, v in params.items() if "forward" in k}
             error_batch_size = e[0].shape[0]
@@ -436,25 +437,46 @@ def meta_stats(
                 complex_synapse(
                     params=temp_params, h_parameters=temp_h_params, error=e_i, activations_and_output=activation_i
                 )
-                weight_update = {k: temp_params[k] - current_params[k] for k in current_params.keys() if "forward" in k}
-                weight_update_i_array = [weight_update[k].flatten() for k in weight_update.keys()]
-                if len(Cs_weight_update) == 0:
-                    Cs_weight_update = weight_update_i_array
-                else:
-                    for j, weight_update_j in enumerate(weight_update_i_array):
-                        Cs_weight_update[j] += weight_update_j
+                weight_update = {
+                    k: temp_params[k].data - current_params[k].data for k in current_params.keys() if "forward" in k
+                }
+                weight_update_i_array = [weight_update[k] for k in weight_update.keys()]
+                Bp_weight_update = []
+                for e_sym_, y_ in zip(e_sym[1:], y):
+                    e_sym_i = e_sym_[i, :]
+                    y_i = y_[i, :]
+                    Bp_weight_update.append(torch.matmul(e_sym_i.unsqueeze(1), y_i.unsqueeze(0)))
+                # print("Bp_weight_update Norm: ", torch.norm(Bp_weight_update[0]).item())
+                # print("Cs_weight_update Norm: ", torch.norm(weight_update_i_array[0]).item())
+                # print(Bp_weight_update[0].shape)
+                # print(weight_update_i_array[0].shape)
 
-            print(len(Cs_weight_update))
-            for i in range(len(Cs_weight_update)):
+                temp_weight_angle = [
+                    measure_angle(Cs_weight_update_i.flatten(), Bp_weight_update_i.flatten())
+                    for Bp_weight_update_i, Cs_weight_update_i in zip(weight_update_i_array, Bp_weight_update)
+                ]
+                if weight_angle is None:
+                    weight_angle = temp_weight_angle
+                else:
+                    weight_angle = [
+                        weight_angle_i + temp_weight_angle_i
+                        for weight_angle_i, temp_weight_angle_i in zip(weight_angle, temp_weight_angle)
+                    ]
+
+            weight_angle = [weight_angle_i / error_batch_size for weight_angle_i in weight_angle]
+
+            """for i in range(len(Cs_weight_update)):
                 Cs_weight_update[i] = Cs_weight_update[i] / error_batch_size
             Bp_weight_update = []
             for e_sym_, y_ in zip(e_sym[1:], y):
-                Bp_weight_update.append(torch.mean(torch.matmul(e_sym_.unsqueeze(2), y_.unsqueeze(1)), dim=0).flatten())
+                Bp_weight_update.append(
+                    torch.mean(torch.matmul(e_sym_.unsqueeze(2), y_.unsqueeze(1)), dim=0).T.flatten()
+                )"""
 
-            weight_angle = [
+            """weight_angle = [
                 measure_angle(Cs_weight_update_i, Bp_weight_update_i)
                 for Bp_weight_update_i, Cs_weight_update_i in zip(Bp_weight_update, Cs_weight_update)
-            ]
+            ]"""
 
         if save:
             log(e_angl, res_dir + "/e_ang_meta{}.txt".format(save_index))
