@@ -1112,9 +1112,9 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_5_chem_DFA_weight_analysis_check",
+                result_subdirectory="runner_mode_9_5_chem_FA_weight_analysis_minus",
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+                typeOfFeedback=typeOfFeedbackEnum.FA,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=5,
                 low_Dim_Feedback=[-1][i],

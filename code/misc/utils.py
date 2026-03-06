@@ -445,7 +445,7 @@ def meta_stats(
                 for e_sym_, y_ in zip(e_sym[1:], y):
                     e_sym_i = e_sym_[i, :]
                     y_i = y_[i, :]
-                    Bp_weight_update.append(torch.matmul(e_sym_i.unsqueeze(1), y_i.unsqueeze(0)))
+                    Bp_weight_update.append(-torch.matmul(e_sym_i.unsqueeze(1), y_i.unsqueeze(0)))
                 # print("Bp_weight_update Norm: ", torch.norm(Bp_weight_update[0]).item())
                 # print("Cs_weight_update Norm: ", torch.norm(weight_update_i_array[0]).item())
                 # print(Bp_weight_update[0].shape)
