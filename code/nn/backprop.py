@@ -529,7 +529,7 @@ class MetaLearner:
                     acc_current_task_1 = torch.eq(
                         pred[task_indices_1], y_qry_1[task_indices_1].ravel()
                     ).sum().item() / torch.sum(task_indices_1)
-                    log([acc_current_task_1], self.result_directory + "/accuracy__task_{}.txt".format(current_task))
+                    log([acc_current_task_1.cpu()], self.result_directory + "/accuracy__task_{}.txt".format(current_task))
 
             if self.save_results:
                 self.summary_writer.add_scalar("Loss/meta", loss_meta.item(), eps)
@@ -659,7 +659,7 @@ def run(
         dimOut=dimOut,
         numberOfDataRepetitions=1,
         size=sizeEnum.normal,
-        elastic_weight_consolidation=True,
+        elastic_weight_consolidation=False,
         ewc_lambda=10000000000.0,
         split=True,
         split_min_number_of_tasks=min_tasks,
@@ -757,7 +757,7 @@ def backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_backprop_split_FMI_EWC/{}".format([min_tasks]),
+                result_subdirectory="runner_backprop_split_FMI_2/{}".format([min_tasks]),
                 trainingDataPerClass=trainingData,
                 min_tasks=min_tasks,
             )

@@ -1122,7 +1122,7 @@ def runner_main():
         # + "/results_2/mode_9_11_chems/0/20260122-054815"
         # os.getcwd() + "/results_2/rosenbaum_recreate/1/20250215-010641",
         os.getcwd() + "/results_2/mode_9_split_FM/0/20260225-172302",
-        os.getcwd() + "/results_2/mode_9_split_FM/0/20260225-153348"
+        os.getcwd() + "/results_2/mode_9_split_FM/0/20260225-153348",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-022843",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-030724",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-025145",
@@ -1156,10 +1156,10 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_split_FM_{}/{}".format(i, [1, 2, 3, 4, 5][index]),
+                result_subdirectory="runner_mode_9_split_FM_{}_3/{}".format(str(i), str([1, 2, 3, 4, 5][index])),
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
-                modelPath=modelPath_s,
+                modelPath=modelPath_s[i],
                 numberOfChemicals=5,
                 split_number_of_tasks=[1, 2, 3, 4, 5][index],
             )
