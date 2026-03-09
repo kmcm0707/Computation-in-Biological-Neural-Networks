@@ -76,6 +76,10 @@ class Runner:
             queryDataPerClass=self.queryDataPerClass,
             dimensionOfImage=28,
             device=self.device,
+            split=self.options.split,
+            split_min_number_of_tasks=self.options.split_min_number_of_tasks,
+            split_max_number_of_tasks=self.options.split_max_number_of_tasks,
+            split_eval=True,
         )
         if self.metatrain_dataset_2 is not None:
             self.data_process_2 = DataProcess(
@@ -84,6 +88,10 @@ class Runner:
                 queryDataPerClass=self.queryDataPerClass,
                 dimensionOfImage=28,
                 device=self.device,
+                split=self.options.split,
+                split_min_number_of_tasks=self.options.split_min_number_of_tasks,
+                split_max_number_of_tasks=self.options.split_max_number_of_tasks,
+                split_eval=True,
             )
 
         # -- model params
@@ -364,13 +372,25 @@ class Runner:
                 self.UpdateFeedbackWeights.reset_time_index()
 
             # -- training data
-            x_trn_1, y_trn_1, x_qry_1, y_qry_1, current_training_data_per_class_1, _ = self.data_process_1(
-                data_1, self.options.numberOfClasses_1
-            )
+            (
+                x_trn_1,
+                y_trn_1,
+                x_qry_1,
+                y_qry_1,
+                current_training_data_per_class_1,
+                current_number_of_tasks_1,
+                y_qry_task_indices_1,
+            ) = self.data_process_1(data_1, self.options.numberOfClasses_1)
             if self.metatrain_dataset_2 is not None:
-                x_trn_2, y_trn_2, x_qry_2, y_qry_2, current_training_data_per_class_2, _ = self.data_process_2(
-                    data_2, self.options.numberOfClasses_2
-                )
+                (
+                    x_trn_2,
+                    y_trn_2,
+                    x_qry_2,
+                    y_qry_2,
+                    current_training_data_per_class_2,
+                    current_number_of_tasks_2,
+                    y_qry_task_indices_2,
+                ) = self.data_process_2(data_2, self.options.numberOfClasses_2)
                 y_trn_2 = y_trn_2 + self.options.shift_labels_2
                 y_qry_2 = y_qry_2 + self.options.shift_labels_2
 
@@ -619,6 +639,24 @@ class Runner:
                     save_index="_2",
                 )
 
+            if self.options.split:
+                for task in range(current_number_of_tasks_1):
+                    task_indices_1 = y_qry_task_indices_1 == task
+                    task_indices_1 = task_indices_1[:, 0]
+                    meta_stats(
+                        logits_1[task_indices_1, :],
+                        parameters,
+                        y_qry_1.ravel()[task_indices_1],
+                        y_1,
+                        self.model.beta,
+                        self.result_directory,
+                        self.save_results,
+                        typeOfFeedback=self.options.typeOfFeedback,
+                        dimOut=self.options.dimOut,
+                        save_index="_task_" + str(task),
+                        calculate_only_acc=True,
+                    )
+
             # -- log
             if self.save_results:
                 log([loss_meta_1.item()], self.result_directory + "/loss_meta.txt")
@@ -658,7 +696,7 @@ def run(
     typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
     modelPath=None,
     numberOfChemicals=1,
-    low_Dim_Feedback=1,
+    split_number_of_tasks=5,
 ) -> None:
     """
         Main function for Meta-learning the plasticity rule.
@@ -687,7 +725,7 @@ def run(
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    trainingDataPerClass = [
+    """trainingDataPerClass = [
         0,
         5,
         10,
@@ -717,7 +755,8 @@ def run(
         # 325,
         # 350,
         # 375,
-    ]
+    ]"""
+    trainingDataPerClass = [20]
     if index >= len(trainingDataPerClass):
         return
     """ trainingDataPerClass = [
@@ -754,8 +793,8 @@ def run(
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
-    queryDataPerClass = 20
-    dataset_name = "EMNIST"
+    queryDataPerClass = 100
+    dataset_name = "FASHION-MNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -777,7 +816,7 @@ def run(
             all_classes=True,
         )
         dimOut = 10
-        epochs = 20
+        epochs = 100
     elif dataset_name == "COMBINED":
         numberOfClasses_1 = 5
         numberOfClasses_2 = 5
@@ -837,9 +876,9 @@ def run(
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_1,  # _pre_activation,
+            operator=operatorEnum.mode_9,  # _pre_activation,
             train_z_vector=False,
-            mode=modeEnum.rosenbaum,
+            mode=modeEnum.all,
             v_vector=vVectorEnum.default,
             eta=1,
             beta=0,  ## Only for v_vector=random_beta
@@ -978,7 +1017,10 @@ def run(
         chemical_analysis=False,
         scalar_min=0.0,
         scalar_variance_reduction=-1,
-        low_Dim_Feedback=low_Dim_Feedback,
+        low_Dim_Feedback=-1,
+        split=True,
+        split_min_number_of_tasks=split_number_of_tasks,
+        split_max_number_of_tasks=split_number_of_tasks,
     )
 
     #   -- number of chemicals
@@ -1063,7 +1105,7 @@ def runner_main():
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_2/0/20260219-012932",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_3/0/20260219-013111",
         # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
-        #os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
+        # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
         # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
         # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
         # os.getcwd() + "/results_2/20251103-214650",
@@ -1075,10 +1117,12 @@ def runner_main():
         # + "/results_2/mode_10_5_chem/1/20260212-015727"
         # + "/results_2/scalar_only/1/20260125-180711",
         # + "/results_2/mode_7_5_chems/2/20260124-215926" #0/20260124-200247"
-        #os.getcwd() + "/results_2/mode_9_scalar_10/1/20251124-005417"
+        # os.getcwd() + "/results_2/mode_9_scalar_10/1/20251124-005417"
         # os.getcwd()
         # + "/results_2/mode_9_11_chems/0/20260122-054815"
-        os.getcwd() + "/results_2/rosenbaum_recreate/1/20250215-010641",
+        # os.getcwd() + "/results_2/rosenbaum_recreate/1/20250215-010641",
+        os.getcwd() + "/results_2/mode_9_split_FM/0/20260225-172302",
+        os.getcwd() + "/results_2/mode_9_split_FM/0/20260225-153348"
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-022843",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-030724",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-025145",
@@ -1108,14 +1152,14 @@ def runner_main():
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-075035",
     ]
     for i in range(len(modelPath_s)):
-        for index in range(0, 40):
+        for index in range(0, 5):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_1_chem_FA_weight_analysis_minus_2",
+                result_subdirectory="runner_mode_9_split_FM_{}/{}".format(i, [1, 2, 3, 4, 5][index]),
                 index=index,
-                typeOfFeedback=typeOfFeedbackEnum.FA,
-                modelPath=modelPath_s[i],
-                numberOfChemicals=1,
-                low_Dim_Feedback=[-1][i],
+                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+                modelPath=modelPath_s,
+                numberOfChemicals=5,
+                split_number_of_tasks=[1, 2, 3, 4, 5][index],
             )

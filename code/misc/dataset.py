@@ -1125,6 +1125,7 @@ class DataProcess:
         split_min_number_of_tasks: int = 2,
         split_max_number_of_tasks: int = 5,
         permutation: bool = False,
+        split_eval: bool = False,
     ):
         """
             Initialize the DataProcess object.
@@ -1145,6 +1146,7 @@ class DataProcess:
         self.split_min_number_of_tasks = split_min_number_of_tasks
         self.split_max_number_of_tasks = split_max_number_of_tasks
         self.permutation = permutation
+        self.split_eval = split_eval
 
     def __call__(self, data, classes: int):
         """
@@ -1189,7 +1191,7 @@ class DataProcess:
             perm = np.random.permutation(self.dimensionOfImage**2)
             x_trn = x_trn[:, perm]
             x_qry = x_qry[:, perm]
-            
+
         # -- shuffle
         if self.iid and not self.split:
             perm = np.random.choice(
@@ -1202,6 +1204,7 @@ class DataProcess:
             y_trn = y_trn[perm]
 
         current_number_of_tasks = 1
+        y_qry_task_indices = None
 
         if self.split:
             split_number = 2
@@ -1233,4 +1236,22 @@ class DataProcess:
             y_qry_indicies_of_split_classes = torch.isin(y_qry.squeeze(), selected_classes)
             x_qry = x_qry[y_qry_indicies_of_split_classes]
             y_qry = y_qry[y_qry_indicies_of_split_classes]
+
+            if self.split_eval:
+                ## Return task index of each query data point
+                y_qry_task_indices = torch.zeros_like(y_qry)
+                for i, split_task in enumerate(split_tasks):
+                    y_qry_task_indices[torch.isin(y_qry.squeeze(), split_task)] = i
+
+        if self.split_eval:
+            return (
+                x_trn,
+                y_trn,
+                x_qry,
+                y_qry,
+                current_training_data_per_class,
+                current_number_of_tasks,
+                y_qry_task_indices,
+            )
+
         return x_trn, y_trn, x_qry, y_qry, current_training_data_per_class, current_number_of_tasks

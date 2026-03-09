@@ -214,6 +214,11 @@ class MetaLearner:
         numberOfDataRepetitions: int = 1,
         size: sizeEnum = sizeEnum.normal,
         elastic_weight_consolidation: bool = False,
+        ewc_lambda=0.0,
+        split=False,
+        split_min_number_of_tasks=2,
+        split_max_number_of_tasks=2,
+        queryDataPerClass: int = 20,
     ):
 
         # -- processor params
@@ -224,15 +229,22 @@ class MetaLearner:
         # -- data params
         self.trainingDataPerClass_1 = trainingDataPerClass_1
         self.trainingDataPerClass_2 = trainingDataPerClass_2
-        self.queryDataPerClass = 20
+        self.queryDataPerClass = queryDataPerClass
         self.metatrain_dataset_1 = metatrain_dataset_1
         self.metatrain_dataset_2 = metatrain_dataset_2
+        self.split_min_number_of_tasks = split_min_number_of_tasks
+        self.split_max_number_of_tasks = split_max_number_of_tasks
+        self.split = split
         self.data_process_1 = DataProcess(
             minTrainingDataPerClass=self.trainingDataPerClass_1,
             maxTrainingDataPerClass=self.trainingDataPerClass_1,
             queryDataPerClass=self.queryDataPerClass,
             dimensionOfImage=28,
             device=self.device,
+            split=self.split,
+            split_min_number_of_tasks=self.split_min_number_of_tasks,
+            split_max_number_of_tasks=self.split_max_number_of_tasks,
+            split_eval=True,
         )
         self.data_process_2 = DataProcess(
             minTrainingDataPerClass=self.trainingDataPerClass_2,
@@ -240,12 +252,17 @@ class MetaLearner:
             queryDataPerClass=self.queryDataPerClass,
             dimensionOfImage=28,
             device=self.device,
+            split=self.split,
+            split_min_number_of_tasks=self.split_min_number_of_tasks,
+            split_max_number_of_tasks=self.split_max_number_of_tasks,
+            split_eval=True,
         )
         self.number_of_classes_1 = number_of_classes_1
         self.number_of_classes_2 = number_of_classes_2
         self.shift_class_2 = shift_class_2
         self.numberOfDataRepetitions = numberOfDataRepetitions
         self.elastic_weight_consolidation = elastic_weight_consolidation
+        self.ewc_lambda = ewc_lambda
 
         # -- model params
         if self.device == "cpu":  # Remove if using a newer GPU
@@ -359,11 +376,25 @@ class MetaLearner:
             self.UpdateParameters = optim.Adam(self.model.parameters(), lr=1e-3)
 
             # -- training data
-            x_trn_1, y_trn_1, x_qry_1, y_qry_1, current_training_data, _ = self.data_process_1(
-                data_1, self.number_of_classes_1
-            )
+            (
+                x_trn_1,
+                y_trn_1,
+                x_qry_1,
+                y_qry_1,
+                current_training_data_per_class,
+                current_number_of_tasks_1,
+                y_qry_task_indices_1,
+            ) = self.data_process_1(data_1, self.number_of_classes_1)
             if self.metatrain_dataset_2 is not None:
-                x_trn_2, y_trn_2, x_qry_2, y_qry_2, current_training_data_2, _ = self.data_process_2(data_2, self.number_of_classes_2)
+                (
+                    x_trn_2,
+                    y_trn_2,
+                    x_qry_2,
+                    y_qry_2,
+                    current_training_data_per_class_2,
+                    current_number_of_tasks_2,
+                    y_qry_task_indices_2,
+                ) = self.data_process_2(data_2, self.number_of_classes_2)
                 y_trn_2 = y_trn_2 + self.shift_class_2
                 y_qry_2 = y_qry_2 + self.shift_class_2
             # x_trn_copy = x_trn.clone()
@@ -371,69 +402,94 @@ class MetaLearner:
 
             for epoch in range(self.numberOfDataRepetitions):
                 """adaptation"""
-                for itr_adapt, (x, label) in enumerate(zip(x_trn_1, y_trn_1)):
+                fim_n_all_taks = None
+                saved_params = None
+                for current_task in range(current_number_of_tasks_1):
+                    min_current_task_range = current_task * current_training_data_per_class * 2
+                    max_current_task_range = (current_task + 1) * current_training_data_per_class * 2
+                    for itr_adapt, (x, label) in enumerate(
+                        zip(
+                            x_trn_1[min_current_task_range:max_current_task_range],
+                            y_trn_1[min_current_task_range:max_current_task_range],
+                        )
+                    ):
 
-                    # -- predict
-                    y, logits = self.model(x.unsqueeze(0).unsqueeze(0))
-
-                    # -- update network params
-                    loss_adapt = self.loss_func(logits, label)
-
-                    # -- backprop
-                    self.UpdateParameters.zero_grad()
-                    loss_adapt.backward()
-                    self.UpdateParameters.step()
-
-                fim = {}
-                if self.elastic_weight_consolidation:
-                    # -- compute Fisher Information Matrix
-
-                    for itr_fim, (x, label) in enumerate(zip(x_trn_1, y_trn_1)):
                         # -- predict
                         y, logits = self.model(x.unsqueeze(0).unsqueeze(0))
 
-                        # -- compute loss
-                        loss_fim = self.loss_func(logits, label)
+                        # -- update network params
+                        loss_adapt = self.loss_func(logits, label)
+                        if self.elastic_weight_consolidation and fim_n_all_taks is not None:
+                            # -- EWC penalty
+                            ewc_loss = 0
+                            for n, p in self.model.named_parameters():
+                                if p.requires_grad:
+                                    ewc_loss += (fim_n_all_taks[n] * (p - saved_params[n]).pow(2)).flatten().sum(dim=-1)
+                            loss_adapt += ewc_loss * self.ewc_lambda
 
                         # -- backprop
                         self.UpdateParameters.zero_grad()
-                        loss_fim.backward()
+                        loss_adapt.backward()
+                        self.UpdateParameters.step()
 
-                        for n, p in self.model.named_parameters():
-                            if p.requires_grad:
-                                if n not in fim:
-                                    fim[n] = p.grad.data.clone().pow(2)
-                                else:
-                                    fim[n] += p.grad.data.clone().pow(2)
-                    for n, p in self.model.named_parameters():
-                        if p.requires_grad:
-                            fim[n] = fim[n] / float(len(x_trn_1))
-                    saved_params = copy.deepcopy(self.model.state_dict())
-
-                for itr_adapt, (x, label) in (
-                    enumerate(zip(x_trn_2, y_trn_2)) if self.metatrain_dataset_2 is not None else []
-                ):
-
-                    # -- predict
-                    y, logits = self.model(x.unsqueeze(0).unsqueeze(0))
-
-                    # -- update network params
-                    loss_adapt = self.loss_func(logits, label)
-                    all_ewc_loss = 0
+                    fim = {}
                     if self.elastic_weight_consolidation:
-                        # -- EWC penalty
-                        ewc_loss = 0
+                        # -- compute Fisher Information Matrix
+
+                        for itr_fim, (x, label) in enumerate(
+                            zip(
+                                x_trn_1[min_current_task_range:max_current_task_range],
+                                y_trn_1[min_current_task_range:max_current_task_range],
+                            )
+                        ):
+                            # -- predict
+                            y, logits = self.model(x.unsqueeze(0).unsqueeze(0))
+
+                            # -- compute loss
+                            loss_fim = self.loss_func(logits, label)
+
+                            # -- backprop
+                            self.UpdateParameters.zero_grad()
+                            loss_fim.backward()
+
+                            for n, p in self.model.named_parameters():
+                                if p.requires_grad:
+                                    if n not in fim:
+                                        fim[n] = p.grad.data.clone().pow(2)
+                                    else:
+                                        fim[n] += p.grad.data.clone().pow(2)
                         for n, p in self.model.named_parameters():
                             if p.requires_grad:
-                                ewc_loss += (fim[n] * (p - saved_params[n]).pow(2)).flatten().sum(dim=-1)
-                        loss_adapt += ewc_loss * 1000000.0
-                        all_ewc_loss += ewc_loss
-                    # loss_adapt += all_ewc_loss * 1000
+                                fim[n] = fim[n] / float(len(x_trn_1))
+                        if fim_n_all_taks is None:
+                            fim_n_all_taks = copy.deepcopy(fim)
+                        else:
+                            for n, p in self.model.named_parameters():
+                                if p.requires_grad:
+                                    fim_n_all_taks[n] = fim_n_all_taks[n] + fim[n]
+                        saved_params = copy.deepcopy(self.model.state_dict())
 
-                    # -- backprop
-                    self.UpdateParameters.zero_grad()
-                    loss_adapt.backward()
-                    self.UpdateParameters.step()
+                    for itr_adapt, (x, label) in (
+                        enumerate(zip(x_trn_2, y_trn_2)) if self.metatrain_dataset_2 is not None else []
+                    ):
+
+                        # -- predict
+                        y, logits = self.model(x.unsqueeze(0).unsqueeze(0))
+
+                        # -- update network params
+                        loss_adapt = self.loss_func(logits, label)
+                        if self.elastic_weight_consolidation:
+                            # -- EWC penalty
+                            ewc_loss = 0
+                            for n, p in self.model.named_parameters():
+                                if p.requires_grad:
+                                    ewc_loss += (fim[n] * (p - saved_params[n]).pow(2)).flatten().sum(dim=-1)
+                            loss_adapt += ewc_loss * self.ewc_lambda
+
+                        # -- backprop
+                        self.UpdateParameters.zero_grad()
+                        loss_adapt.backward()
+                        self.UpdateParameters.step()
 
             # -- predict
             self.model.eval()
@@ -458,13 +514,22 @@ class MetaLearner:
                 if self.metatrain_dataset_2 is not None:
                     log([loss_meta_2.item()], self.result_directory + "/loss_meta_2.txt")
 
-            line = "Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}\t Current training data: {}".format(
-                eps + 1, loss_meta.item(), acc, current_training_data
+            line = "Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}\t Current training data per class: {}".format(
+                eps + 1, loss_meta.item(), acc, current_training_data_per_class
             )
             if self.metatrain_dataset_2 is not None:
                 line += "\tLoss 2: {:.6f}\tAccuracy 2: {:.3f}".format(loss_meta_2.item(), acc_2)
             if self.display:
                 print(line)
+
+            if self.split:
+                for current_task in range(current_number_of_tasks_1):
+                    task_indices_1 = y_qry_task_indices_1 == current_task
+                    task_indices_1 = task_indices_1[:, 0]
+                    acc_current_task_1 = torch.eq(
+                        pred[task_indices_1], y_qry_1[task_indices_1].ravel()
+                    ).sum().item() / torch.sum(task_indices_1)
+                    log([acc_current_task_1], self.result_directory + "/accuracy__task_{}.txt".format(current_task))
 
             if self.save_results:
                 self.summary_writer.add_scalar("Loss/meta", loss_meta.item(), eps)
@@ -488,7 +553,11 @@ class MetaLearner:
 
 
 def run(
-    seed: int, display: bool = True, result_subdirectory: str = "testing", trainingDataPerClass: int = "50"
+    seed: int,
+    display: bool = True,
+    result_subdirectory: str = "testing",
+    trainingDataPerClass: int = "50",
+    min_tasks: int = 1,
 ) -> None:
     """
         Main function for Meta-learning the plasticity rule.
@@ -513,12 +582,12 @@ def run(
 
     # -- load data
     numWorkers = 3
-    epochs = 20
+    epochs = 100
     numberOfClasses = 5
-    trainingDataPerClass_1 = 40
-    trainingDataPerClass_2 = trainingDataPerClass
+    trainingDataPerClass_1 = 20
+    trainingDataPerClass_2 = None
     dimOut = 47
-    dataset_name = "COMBINED"
+    dataset_name = "FASHION-MNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -590,7 +659,12 @@ def run(
         dimOut=dimOut,
         numberOfDataRepetitions=1,
         size=sizeEnum.normal,
-        elastic_weight_consolidation=True if dataset_name == "COMBINED" else False,
+        elastic_weight_consolidation=True,
+        ewc_lambda=10000000000.0,
+        split=True,
+        split_min_number_of_tasks=min_tasks,
+        split_max_number_of_tasks=min_tasks,
+        queryDataPerClass=20,
     )
     metalearning_model.train()
 
@@ -616,31 +690,31 @@ def backprop_main():
         # 2,
         # 3,
         # 4,
-        5,
+        # 5,
         # 6,
         # 7,
         # 8,
         # 9,
-        10,
+        # 10,
         20,
-        30,
-        40,
-        50,
-        60,
-        70,
-        80,
-        #90,
-        #100,
-        #110,
-        #120,
-        #130,
-        #140,
-        #150,
-        #160,
-        #170,
-        #180,
-        #190,
-        #200,
+        # 30,
+        # 40,
+        # 50,
+        # 60,
+        # 70,
+        # 80,
+        # 90,
+        # 100,
+        # 110,
+        # 120,
+        # 130,
+        # 140,
+        # 150,
+        # 160,
+        # 170,
+        # 180,
+        # 190,
+        # 200,
         # 225,
         # 250,
         # 275,
@@ -678,10 +752,12 @@ def backprop_main():
         # 1250,
         # 1300,
     ]"""
-    for trainingData in trainingDataPerClass:
-        run(
-            seed=0,
-            display=True,
-            result_subdirectory="runner_backprop_EWC_1000000_4",
-            trainingDataPerClass=trainingData,
-        )
+    for min_tasks in [1, 2, 3, 4, 5]:
+        for trainingData in trainingDataPerClass:
+            run(
+                seed=0,
+                display=True,
+                result_subdirectory="runner_backprop_split_FMI_EWC/{}".format([min_tasks]),
+                trainingDataPerClass=trainingData,
+                min_tasks=min_tasks,
+            )

@@ -46,6 +46,9 @@ class RunnerOptions:
         scalar_min: float = 0.0,
         scalar_variance_reduction: int = -1,
         low_Dim_Feedback: int = -1,
+        split=False,
+        split_min_number_of_tasks=2,
+        split_max_number_of_tasks=5,
     ):
 
         self.model = model
@@ -78,6 +81,9 @@ class RunnerOptions:
         self.scalar_min = scalar_min
         self.scalar_variance_reduction = scalar_variance_reduction
         self.low_Dim_Feedback = low_Dim_Feedback
+        self.split = split
+        self.split_min_number_of_tasks = split_min_number_of_tasks
+        self.split_max_number_of_tasks = split_max_number_of_tasks
 
     def __str__(self):
         string = ""
