@@ -1156,10 +1156,10 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_split_FM_{}_3/{}".format(str(i), str([3, 4, 5][index_outer])),
+                result_subdirectory="runner_mode_9_split_FM_{}_3/{}".format(str(i), str([5][index_outer])),
                 index=index_outer,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=5,
-                split_number_of_tasks=[3, 4, 5][index_outer],
+                split_number_of_tasks=[5][index_outer],
             )
