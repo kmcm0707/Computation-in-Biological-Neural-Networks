@@ -309,6 +309,9 @@ class MetaLearner:
                     f.writelines("Dimension of output: {}\n".format(self.dimOut))
                     f.writelines("Size: {}\n".format(self.size))
                     f.writelines("Elastic Weight Consolidation: {}\n".format(self.elastic_weight_consolidation))
+                    f.writelines("EWC Lambda: {}\n".format(self.ewc_lambda))
+                    f.writelines("Split: {}\n".format(self.split))
+                    f.writelines("Split min number of tasks: {}\n".format(self.split_min_number_of_tasks))
             except FileExistsError:
                 warnings.warn("The directory already exists. The results will be overwritten.")
 
@@ -529,7 +532,10 @@ class MetaLearner:
                     acc_current_task_1 = torch.eq(
                         pred[task_indices_1], y_qry_1[task_indices_1].ravel()
                     ).sum().item() / torch.sum(task_indices_1)
-                    log([acc_current_task_1.cpu()], self.result_directory + "/accuracy__task_{}.txt".format(current_task))
+                    log(
+                        [acc_current_task_1.cpu()],
+                        self.result_directory + "/accuracy__task_{}.txt".format(current_task),
+                    )
 
             if self.save_results:
                 self.summary_writer.add_scalar("Loss/meta", loss_meta.item(), eps)
