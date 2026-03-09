@@ -582,7 +582,7 @@ def run(
 
     # -- load data
     numWorkers = 3
-    epochs = 100
+    epochs = 20
     numberOfClasses = 5
     trainingDataPerClass_1 = 20
     trainingDataPerClass_2 = None
@@ -603,7 +603,7 @@ def run(
         dataset = FashionMnistDataset(
             minTrainingDataPerClass=trainingDataPerClass,
             maxTrainingDataPerClass=trainingDataPerClass,
-            queryDataPerClass=20,
+            queryDataPerClass=100,
             dimensionOfImage=28,
             all_classes=True,
         )
@@ -659,12 +659,12 @@ def run(
         dimOut=dimOut,
         numberOfDataRepetitions=1,
         size=sizeEnum.normal,
-        elastic_weight_consolidation=False,
-        ewc_lambda=10000000000.0,
+        elastic_weight_consolidation=True,
+        ewc_lambda=100000.0,
         split=True,
         split_min_number_of_tasks=min_tasks,
         split_max_number_of_tasks=min_tasks,
-        queryDataPerClass=20,
+        queryDataPerClass=100,
     )
     metalearning_model.train()
 
@@ -757,7 +757,7 @@ def backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_backprop_split_FMI_2/{}".format([min_tasks]),
+                result_subdirectory="runner_backprop_split_EWC_FMI_lower_2/{}".format(min_tasks),
                 trainingDataPerClass=trainingData,
                 min_tasks=min_tasks,
             )

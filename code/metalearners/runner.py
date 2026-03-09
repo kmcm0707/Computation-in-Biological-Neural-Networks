@@ -816,7 +816,7 @@ def run(
             all_classes=True,
         )
         dimOut = 10
-        epochs = 100
+        epochs = 20
     elif dataset_name == "COMBINED":
         numberOfClasses_1 = 5
         numberOfClasses_2 = 5
@@ -1156,10 +1156,10 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_split_FM_{}_3/{}".format(str(i), str([1, 2, 3, 4, 5][index])),
+                result_subdirectory="runner_mode_9_split_FM_{}_3/{}".format(str(i), str([2, 3, 4, 5][index])),
                 index=index,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=5,
-                split_number_of_tasks=[1, 2, 3, 4, 5][index],
+                split_number_of_tasks=[2, 3, 4, 5][index],
             )
