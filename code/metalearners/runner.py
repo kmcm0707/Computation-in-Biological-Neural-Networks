@@ -1152,14 +1152,14 @@ def runner_main():
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-075035",
     ]
     for i in range(len(modelPath_s)):
-        for index in range(0, 5):
+        for index_outer in range(0, 3):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_split_FM_{}_3/{}".format(str(i), str([2, 3, 4, 5][index])),
-                index=index,
+                result_subdirectory="runner_mode_9_split_FM_{}_3/{}".format(str(i), str([3, 4, 5][index_outer])),
+                index=index_outer,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=5,
-                split_number_of_tasks=[2, 3, 4, 5][index],
+                split_number_of_tasks=[3, 4, 5][index_outer],
             )

@@ -660,7 +660,7 @@ def run(
         numberOfDataRepetitions=1,
         size=sizeEnum.normal,
         elastic_weight_consolidation=True,
-        ewc_lambda=100000.0,
+        ewc_lambda=1000000.0,
         split=True,
         split_min_number_of_tasks=min_tasks,
         split_max_number_of_tasks=min_tasks,
@@ -757,7 +757,7 @@ def backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_backprop_split_EWC_FMI_lower_2/{}".format(min_tasks),
+                result_subdirectory="runner_backprop_split_EWC_FMI_4/{}".format(min_tasks),
                 trainingDataPerClass=trainingData,
                 min_tasks=min_tasks,
             )
