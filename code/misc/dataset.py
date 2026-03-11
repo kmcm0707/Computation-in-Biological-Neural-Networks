@@ -1126,6 +1126,7 @@ class DataProcess:
         split_max_number_of_tasks: int = 5,
         permutation: bool = False,
         split_eval: bool = False,
+        split_only_one_task_evaluation: int = -1,
     ):
         """
             Initialize the DataProcess object.
@@ -1147,6 +1148,7 @@ class DataProcess:
         self.split_max_number_of_tasks = split_max_number_of_tasks
         self.permutation = permutation
         self.split_eval = split_eval
+        self.split_only_one_task_evaluation = split_only_one_task_evaluation
 
     def __call__(self, data, classes: int):
         """
@@ -1236,6 +1238,11 @@ class DataProcess:
             y_qry_indicies_of_split_classes = torch.isin(y_qry.squeeze(), selected_classes)
             x_qry = x_qry[y_qry_indicies_of_split_classes]
             y_qry = y_qry[y_qry_indicies_of_split_classes]
+
+            if self.split_only_one_task_evaluation >= 0 and self.split_only_one_task_evaluation < current_number_of_tasks:
+                selected_task = split_tasks[self.split_only_one_task_evaluation]
+                x_qry = x_qry[torch.isin(y_qry.squeeze(), selected_task)]
+                y_qry = y_qry[torch.isin(y_qry.squeeze(), selected_task)]
 
             if self.split_eval:
                 ## Return task index of each query data point

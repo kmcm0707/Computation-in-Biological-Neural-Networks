@@ -86,6 +86,7 @@ class MetaLearner:
             split=metaLearnerOptions.split,
             split_min_number_of_tasks=metaLearnerOptions.split_min_number_of_tasks,
             split_max_number_of_tasks=metaLearnerOptions.split_max_number_of_tasks,
+            split_only_one_task_evaluation=metaLearnerOptions.split_only_one_task_evaluation,
         )
         if self.metatrain_dataset_2 is not None:
             self.data_process_2 = DataProcess(
@@ -97,6 +98,7 @@ class MetaLearner:
                 split=metaLearnerOptions.split,
                 split_min_number_of_tasks=metaLearnerOptions.split_min_number_of_tasks,
                 split_max_number_of_tasks=metaLearnerOptions.split_max_number_of_tasks,
+                split_only_one_task_evaluation=metaLearnerOptions.split_only_one_task_evaluation,
             )
 
         # -- model params
@@ -457,22 +459,22 @@ class MetaLearner:
         # -- continue training
         last_trained_epoch = -1
         if self.options.continueTraining is not None:
-            current_z_vector = self.UpdateWeights.z_vector.clone().detach()
-            current_y_vector = self.UpdateWeights.y_vector.clone().detach()
+            # current_z_vector = self.UpdateWeights.z_vector.clone().detach()
+            # current_y_vector = self.UpdateWeights.y_vector.clone().detach()
             self.UpdateWeights.load_state_dict(
                 torch.load(
                     self.options.continueTraining + "/UpdateWeights.pth", weights_only=True, map_location=self.device
                 )
             )
-            self.UpdateWeights.z_vector = torch.nn.Parameter(current_z_vector)
-            self.UpdateWeights.y_vector = torch.nn.Parameter(current_y_vector)
-            #self.UpdateMetaParameters.load_state_dict(
+            # self.UpdateWeights.z_vector = torch.nn.Parameter(current_z_vector)
+            # self.UpdateWeights.y_vector = torch.nn.Parameter(current_y_vector)
+            # self.UpdateMetaParameters.load_state_dict(
             #   torch.load(
             #       self.options.continueTraining + "/UpdateMetaParameters.pth",
             #       weights_only=True,
             #       map_location=self.device,
             #   )
-            #)
+            # )
             if self.options.trainSeparateFeedback:
                 self.UpdateFeedbackWeights.load_state_dict(
                     torch.load(
@@ -991,10 +993,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     numWorkers = 2
     epochs = 1600
 
-    dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
-    minTrainingDataPerClass = 5
-    maxTrainingDataPerClass = 80
-    queryDataPerClass = 20
+    dataset_name = "FASHION-MNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
+    minTrainingDataPerClass = 10
+    maxTrainingDataPerClass = 30
+    queryDataPerClass = 50
     dataset_1 = None
     dataset_2 = None
 
@@ -1193,7 +1195,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.0007,
+        lr=0.001,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.different,
@@ -1216,9 +1218,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" else 0,
         scalar_variance_reduction=-1,  # -1 means no scalar variance reduction
         low_rank_feedback=-1,  # [1, 2, 4, 6, 8, 10, 15, 20, 30][index],
-        split=False,
-        split_min_number_of_tasks=2,
+        split=True,
+        split_min_number_of_tasks=1,
         split_max_number_of_tasks=5,
+        split_only_one_task_evaluation=0,  # starts from 0
     )
 
     # -- number of chemicals
@@ -1252,4 +1255,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=0, display=True, result_subdirectory="mode_9_EMNIST_100", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_split_FM_0_CLASS", index=i)

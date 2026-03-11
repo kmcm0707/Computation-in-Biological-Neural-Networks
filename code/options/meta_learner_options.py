@@ -114,6 +114,7 @@ class MetaLearnerOptions:
         split: bool = False,
         split_min_number_of_tasks: int = 2,
         split_max_number_of_tasks: int = 5,
+        split_only_one_task_evaluation: int = -1,
     ):
         # print(trainSameFeedback)
         # assert (
@@ -160,6 +161,7 @@ class MetaLearnerOptions:
         self.split = split
         self.split_min_number_of_tasks = split_min_number_of_tasks
         self.split_max_number_of_tasks = split_max_number_of_tasks
+        self.split_only_one_task_evaluation = split_only_one_task_evaluation
 
     def __str__(self):
         string = ""
