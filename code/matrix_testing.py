@@ -89,6 +89,10 @@ if __name__ == "__main__":
     fixed_matrix = test_matrix_2 * divesor[:, None, None]
     print(torch.norm(fixed_matrix, p=2, dim=(1, 2)))"""
 
+    x = torch.tensor([0.25, 0.5, 0.75])
+    logits_x = torch.log(x / (1 - x))
+    print(torch.sigmoid(logits_x))
+
     trainingDataPerClass = [
         0,
         5,

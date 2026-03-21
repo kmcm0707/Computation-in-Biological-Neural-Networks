@@ -346,6 +346,15 @@ class ComplexSynapse(nn.Module):
         ## Initialize the mode
         self.operator = self.options.operator
 
+        ## gating
+        if self.options.gating:
+            self.z_sigmoid = torch.log(self.z_vector / (1 - self.z_vector))
+            # input: w, pre-e, post-e, pre-activation, post-activation
+            self.weight_gate = nn.Parameter(
+                torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 5), device=self.device))
+            )
+            self.all_meta_parameters.append(self.weight_gate)
+
         ## Attention mechanism
         """if self.operator == operatorEnum.attention:
             self.A = nn.Parameter(
@@ -586,15 +595,49 @@ class ComplexSynapse(nn.Module):
                     or self.operator == operatorEnum.v_linear
                     or self.operator == operatorEnum.compressed_v_linear
                 ):  # mode 1 - was also called add in results
-                    new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.einsum(
-                        "i,ijk->ijk",
-                        self.z_vector,
-                        self.non_linearity(
-                            torch.einsum("ic,ijk->cjk", self.K_matrix, chemical)  # self.K_mask * self.K_matrix
-                            + torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
-                            # + self.bias_dictionary[h_name]  # [:, None, None]
-                        ),
-                    )
+
+                    if self.options.gating:
+                        gate_input = torch.stack(
+                            [
+                                parameter,
+                                torch.matmul(torch.ones(size=(parameter.shape[0], 1), device=self.device), error[i]),
+                                torch.matmul(
+                                    error[i + 1].T, torch.ones(size=(1, parameter.shape[1]), device=self.device)
+                                ),
+                                torch.matmul(
+                                    torch.ones(size=(parameter.shape[0], 1), device=self.device),
+                                    activations_and_output[i],
+                                ),
+                                torch.matmul(
+                                    activations_and_output[i + 1].T,
+                                    torch.ones(size=(1, parameter.shape[1]), device=self.device),
+                                ),
+                            ]
+                        )
+                        current_z_matrix = torch.sigmoid(
+                            self.z_sigmoid.unsqueeze(1).unsqueeze(2)
+                            + torch.einsum("il,ljk->ijk", self.weight_gate, gate_input)
+                        )
+                        current_y_matrix = torch.ones_like(current_z_matrix) - current_z_matrix
+                        new_chemical = torch.einsum("ijk,ijk->ijk", current_y_matrix, chemical) + torch.einsum(
+                            "ijk,ijk->ijk",
+                            current_z_matrix,
+                            self.non_linearity(
+                                torch.einsum("ic,ijk->cjk", self.K_matrix, chemical)  # self.K_mask * self.K_matrix
+                                + torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
+                                # + self.bias_dictionary[h_name]  # [:, None, None]
+                            ),
+                        )
+                    else:
+                        new_chemical = torch.einsum("i,ijk->ijk", self.y_vector, chemical) + torch.einsum(
+                            "i,ijk->ijk",
+                            self.z_vector,
+                            self.non_linearity(
+                                torch.einsum("ic,ijk->cjk", self.K_matrix, chemical)  # self.K_mask * self.K_matrix
+                                + torch.einsum("ci,ijk->cjk", self.P_matrix, update_vector)
+                                # + self.bias_dictionary[h_name]  # [:, None, None]
+                            ),
+                        )
 
                     if analysis_mode:
                         self.Kh[h_name] = torch.einsum("ic,ijk->cjk", self.K_matrix, chemical)

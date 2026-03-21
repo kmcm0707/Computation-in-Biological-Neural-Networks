@@ -463,8 +463,11 @@ class MetaLearner:
             # current_y_vector = self.UpdateWeights.y_vector.clone().detach()
             self.UpdateWeights.load_state_dict(
                 torch.load(
-                    self.options.continueTraining + "/UpdateWeights.pth", weights_only=True, map_location=self.device
-                )
+                    self.options.continueTraining + "/UpdateWeights.pth",
+                    weights_only=True,
+                    map_location=self.device,
+                ),
+                strict=False,
             )
             # self.UpdateWeights.z_vector = torch.nn.Parameter(current_z_vector)
             # self.UpdateWeights.y_vector = torch.nn.Parameter(current_y_vector)
@@ -917,6 +920,7 @@ class MetaLearner:
                         or "max_tau" in key
                         or "lstm" in key
                         or "gru" in key
+                        or "weight_gate" in key
                     ):
                         with open(self.result_directory + "/{}.txt".format(key), "a") as f:
                             f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
@@ -935,6 +939,7 @@ class MetaLearner:
                             or "linear" in key
                             or "min_tau" in key
                             or "max_tau" in key
+                            or "weight_gate" in key
                         ):
                             with open(self.result_directory + "/Feedback_{}.txt".format(key), "a") as f:
                                 f.writelines("Episode: {}: {} \n".format(eps + 1, val.clone().detach().cpu().numpy()))
@@ -991,12 +996,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 1600
+    epochs = 2
 
-    dataset_name = "FASHION-MNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
-    minTrainingDataPerClass = 10
-    maxTrainingDataPerClass = 30
-    queryDataPerClass = 50
+    dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
+    minTrainingDataPerClass = 5
+    maxTrainingDataPerClass = 80
+    queryDataPerClass = 20
     dataset_1 = None
     dataset_2 = None
 
@@ -1069,7 +1074,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=100,
+            maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
             operator=operatorEnum.mode_9,  # _pre_activation,
@@ -1083,6 +1088,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
             scale_chemical_weights=False,
+            gating=True,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -1168,9 +1174,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    # continue_training = current_dir + "/results_2/mode_9_rand/0/20251105-152312"
+    continue_training = current_dir + "/results_2/mode_9_rand/0/20251105-152312"
 
-    continue_training = current_dir + "/results_2/mode_9_CB/5/20251112-001951"
+    # continue_training = current_dir + "/results_2/mode_9_CB/5/20251112-001951"
     # continue_training = (
     #   current_dir + "/results_2/20251103-214650"
     # )
@@ -1195,7 +1201,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.001,
+        lr=0.0007,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.different,
@@ -1218,7 +1224,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" else 0,
         scalar_variance_reduction=-1,  # -1 means no scalar variance reduction
         low_rank_feedback=-1,  # [1, 2, 4, 6, 8, 10, 15, 20, 30][index],
-        split=True,
+        split=False,
         split_min_number_of_tasks=1,
         split_max_number_of_tasks=5,
         split_only_one_task_evaluation=0,  # starts from 0
@@ -1255,4 +1261,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=0, display=True, result_subdirectory="mode_9_split_FM_0_CLASS", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_gating", index=i)

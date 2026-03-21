@@ -116,6 +116,7 @@ class complexOptions:
         scheduler_t0: Union[int, None] = None,
         train_tau: bool = False,
         scale_chemical_weights: bool = False,
+        gating: bool = False,
     ):
         self.nonLinear = nonLinear
         self.bias = bias
@@ -137,6 +138,7 @@ class complexOptions:
         self.scheduler_t0 = scheduler_t0
         self.train_tau = train_tau
         self.scale_chemical_weights = scale_chemical_weights
+        self.gating = gating
 
     def __str__(self):
         string = ""
