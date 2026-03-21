@@ -763,7 +763,7 @@ def backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_backprop_split_EWC_FMI_666666format(min_tasks),
+                result_subdirectory="runner_backprop_split_EWC_FMI_66_{}".format(min_tasks),
                 trainingDataPerClass=trainingData,
                 min_tasks=min_tasks,
             )

@@ -1168,9 +1168,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    # continue_training = current_dir + "/results_2/mode_9_rand/0/20251105-152312"
+    continue_training = current_dir + "/results_2/mode_9_split_FM/0/20260225-172302"
 
-    continue_training = current_dir + "/results_2/mode_9_CB/5/20251112-001951"
+    #continue_training = current_dir + "/results_2/mode_9_CB/5/20251112-001951"
     # continue_training = (
     #   current_dir + "/results_2/20251103-214650"
     # )
@@ -1219,7 +1219,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         scalar_variance_reduction=-1,  # -1 means no scalar variance reduction
         low_rank_feedback=-1,  # [1, 2, 4, 6, 8, 10, 15, 20, 30][index],
         split=True,
-        split_min_number_of_tasks=1,
+        split_min_number_of_tasks=2,
         split_max_number_of_tasks=5,
         split_only_one_task_evaluation=0,  # starts from 0
     )
@@ -1255,4 +1255,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=0, display=True, result_subdirectory="mode_9_split_FM_0_CLASS", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_9_split_FM_0_CLASS", index=i)
