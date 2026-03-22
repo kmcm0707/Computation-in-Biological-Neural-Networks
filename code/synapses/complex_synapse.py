@@ -597,7 +597,7 @@ class ComplexSynapse(nn.Module):
                 ):  # mode 1 - was also called add in results
 
                     if self.options.gating:
-                        gate_input = torch.stack(
+                        """gate_input = torch.stack(
                             [
                                 parameter,
                                 torch.matmul(torch.ones(size=(parameter.shape[0], 1), device=self.device), error[i]),
@@ -610,6 +610,23 @@ class ComplexSynapse(nn.Module):
                                 ),
                                 torch.matmul(
                                     activations_and_output[i + 1].T,
+                                    torch.ones(size=(1, parameter.shape[1]), device=self.device),
+                                ),
+                            ]
+                        )"""
+                        gate_input = torch.stack(
+                            [
+                                torch.nn.functional.normalize(parameter, p=2, dim=0),
+                                torch.matmul(torch.ones(size=(parameter.shape[0], 1), device=self.device), torch.nn.functional.normalize(error[i], p=2, dim=0)),
+                                torch.matmul(
+                                    torch.nn.functional.normalize(error[i + 1], p=2, dim=0).T, torch.ones(size=(1, parameter.shape[1]), device=self.device)
+                                ),
+                                torch.matmul(
+                                    torch.ones(size=(parameter.shape[0], 1), device=self.device),
+                                    torch.nn.functional.normalize(activations_and_output[i], p=2, dim=0),
+                                ),
+                                torch.matmul(
+                                    torch.nn.functional.normalize(activations_and_output[i + 1], p=2, dim=0).T,
                                     torch.ones(size=(1, parameter.shape[1]), device=self.device),
                                 ),
                             ]
