@@ -353,6 +353,7 @@ class ComplexSynapse(nn.Module):
             self.weight_gate = nn.Parameter(
                 torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 5), device=self.device))
             )
+            #self.all_meta_parameters = nn.ParameterList([])
             self.all_meta_parameters.append(self.weight_gate)
 
         ## Attention mechanism
