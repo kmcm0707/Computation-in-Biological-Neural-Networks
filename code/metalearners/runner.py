@@ -143,7 +143,7 @@ class Runner:
         self.save_results = self.options.save_results
         self.display = self.options.display
         if self.save_results:
-            self.result_directory = os.getcwd() + "/results_2"
+            self.result_directory = os.getcwd() + "/results_3"
             os.makedirs(self.result_directory, exist_ok=True)
             self.result_directory += (
                 "/"
@@ -725,7 +725,7 @@ def run(
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    """trainingDataPerClass = [
+    trainingDataPerClass = [
         0,
         5,
         10,
@@ -755,8 +755,8 @@ def run(
         # 325,
         # 350,
         # 375,
-    ]"""
-    trainingDataPerClass = [20]
+    ]
+    # trainingDataPerClass = [20]
     if index >= len(trainingDataPerClass):
         return
     """ trainingDataPerClass = [
@@ -793,8 +793,8 @@ def run(
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
-    queryDataPerClass = 100
-    dataset_name = "FASHION-MNIST"
+    queryDataPerClass = 20
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -887,6 +887,7 @@ def run(
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
             scale_chemical_weights=False,
+            gating=True,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -1018,7 +1019,7 @@ def run(
         scalar_min=0.0,
         scalar_variance_reduction=-1,
         low_Dim_Feedback=-1,
-        split=True,
+        split=False,
         split_min_number_of_tasks=split_number_of_tasks,
         split_max_number_of_tasks=split_number_of_tasks,
     )
@@ -1121,8 +1122,8 @@ def runner_main():
         # os.getcwd()
         # + "/results_2/mode_9_11_chems/0/20260122-054815"
         # os.getcwd() + "/results_2/rosenbaum_recreate/1/20250215-010641",
-        os.getcwd() + "/results_2/mode_9_split_FM/0/20260225-172302",
-        os.getcwd() + "/results_2/mode_9_split_FM/0/20260225-153348",
+        # os.getcwd() + "/results_2/mode_9_split_FM/0/20260225-172302",
+        # os.getcwd() + "/results_2/mode_9_split_FM/0/20260225-153348",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-022843",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-030724",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-025145",
@@ -1150,16 +1151,18 @@ def runner_main():
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-063034",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-071109",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-075035",
+        os.getcwd() + "/results_3/mode_9_gating_no_W/0/20260324-210116",
+        os.getcwd() + "/results_3/mode_9_gating_no_W_scalar/0/20260324-205505",
     ]
     for i in range(len(modelPath_s)):
-        for index_outer in range(0, 3):
+        for index_outer in range(0, 25):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_9_split_FM_{}_3/{}".format(str(i), str([5][index_outer])),
+                result_subdirectory=["runner_mode_9_gating_no_W", "runner_mode_9_gating_no_W_scalar"][i],
                 index=index_outer,
-                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+                typeOfFeedback=[typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.scalar][i],
                 modelPath=modelPath_s[i],
                 numberOfChemicals=5,
-                split_number_of_tasks=[5][index_outer],
+                split_number_of_tasks=[5],
             )
