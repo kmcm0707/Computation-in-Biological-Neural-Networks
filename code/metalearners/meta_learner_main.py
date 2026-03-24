@@ -226,9 +226,9 @@ class MetaLearner:
         # -- log params
         self.save_results = metaLearnerOptions.save_results
         self.display = metaLearnerOptions.display
-        self.result_directory = os.getcwd() + "/results_2"
+        self.result_directory = os.getcwd() + "/results_3"
         if self.save_results:
-            self.result_directory = os.getcwd() + "/results_2"
+            self.result_directory = os.getcwd() + "/results_3"
             os.makedirs(self.result_directory, exist_ok=True)
             self.result_directory += (
                 "/"
@@ -1174,17 +1174,17 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    # continue_training = current_dir + "/results_2/mode_9_rand/0/20251105-152312"
+    # continue_training = current_dir + "/results_3/mode_9_rand/0/20251105-152312"
 
-    # continue_training = current_dir + "/results_2/mode_9_CB/5/20251112-001951"
+    # continue_training = current_dir + "/results_3/mode_9_CB/5/20251112-001951"
     # continue_training = (
-    #   current_dir + "/results_2/20251103-214650"
+    #   current_dir + "/results_3/20251103-214650"
     # )
 
-    continue_training = current_dir + "/results_2/mode_9_scalar_10/1/20251124-005417"
+    continue_training = current_dir + "/results_3/mode_9_scalar_10/1/20251124-005417"
     # continue_training = (
-    #    current_dir + "/results_2/mode_9_rand/0/20251105-152312"
-    # )  # "/results_2/mode_9/0/20251107-172732"
+    #    current_dir + "/results_3/mode_9_rand/0/20251105-152312"
+    # )  # "/results_3/mode_9/0/20251107-172732"
     # -- meta-learner options
     device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
