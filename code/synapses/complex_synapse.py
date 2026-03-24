@@ -353,7 +353,7 @@ class ComplexSynapse(nn.Module):
             self.weight_gate = nn.Parameter(
                 torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 5), device=self.device))
             )
-            #self.all_meta_parameters = nn.ParameterList([])
+            # self.all_meta_parameters = nn.ParameterList([])
             self.all_meta_parameters.append(self.weight_gate)
 
         ## Attention mechanism
@@ -598,7 +598,7 @@ class ComplexSynapse(nn.Module):
                 ):  # mode 1 - was also called add in results
 
                     if self.options.gating:
-                        """gate_input = torch.stack(
+                        gate_input = torch.stack(
                             [
                                 torch.zeros_like(parameter),
                                 torch.matmul(torch.ones(size=(parameter.shape[0], 1), device=self.device), error[i]),
@@ -614,8 +614,8 @@ class ComplexSynapse(nn.Module):
                                     torch.ones(size=(1, parameter.shape[1]), device=self.device),
                                 ),
                             ]
-                        )"""
-                        gate_input = torch.stack(
+                        )
+                        """gate_input = torch.stack(
                             [
                                 torch.nn.functional.normalize(parameter, p=2, dim=0),
                                 torch.matmul(torch.ones(size=(parameter.shape[0], 1), device=self.device), torch.nn.functional.normalize(error[i], p=2, dim=0)),
@@ -631,7 +631,7 @@ class ComplexSynapse(nn.Module):
                                     torch.ones(size=(1, parameter.shape[1]), device=self.device),
                                 ),
                             ]
-                        )
+                        )"""
                         current_z_matrix = torch.sigmoid(
                             self.z_sigmoid.unsqueeze(1).unsqueeze(2)
                             + torch.einsum("il,ljk->ijk", self.weight_gate, gate_input)

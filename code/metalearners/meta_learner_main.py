@@ -1077,7 +1077,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_6,  # _pre_activation,
+            operator=operatorEnum.mode_9,  # _pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1174,7 +1174,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    #continue_training = current_dir + "/results_2/mode_9_rand/0/20251105-152312"
+    # continue_training = current_dir + "/results_2/mode_9_rand/0/20251105-152312"
 
     # continue_training = current_dir + "/results_2/mode_9_CB/5/20251112-001951"
     # continue_training = (
