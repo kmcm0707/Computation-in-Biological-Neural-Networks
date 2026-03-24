@@ -1174,14 +1174,14 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_2/mode_9_rand/0/20251105-152312"
+    #continue_training = current_dir + "/results_2/mode_9_rand/0/20251105-152312"
 
     # continue_training = current_dir + "/results_2/mode_9_CB/5/20251112-001951"
     # continue_training = (
     #   current_dir + "/results_2/20251103-214650"
     # )
 
-    # "/results_2/mode_9_scalar_10/1/20251124-005417"
+    continue_training = current_dir + "/results_2/mode_9_scalar_10/1/20251124-005417"
     # continue_training = (
     #    current_dir + "/results_2/mode_9_rand/0/20251105-152312"
     # )  # "/results_2/mode_9/0/20251107-172732"
@@ -1204,7 +1204,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         lr=0.0003,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         trainSeparateFeedback=False,
         feedbackSeparateModel=feedbackModel,
         trainSameFeedback=False,
@@ -1212,10 +1212,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=None, #continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.DFA,
+        continueTraining=continue_training,
+        typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
-        hrm_discount=-1,
+        hrm_discount=200,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1261,4 +1261,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=0, display=True, result_subdirectory="mode_6_gating_not_hot_start", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_gating_no_W_scalar", index=i)
