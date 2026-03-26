@@ -10,6 +10,7 @@ from nn.chemical_nn import ChemicalNN
 from options.benna_options import bennaOptions
 from options.complex_options import (
     complexOptions,
+    gatingEnum,
     kMatrixEnum,
     modeEnum,
     nonLinearEnum,
@@ -18,7 +19,6 @@ from options.complex_options import (
     vVectorEnum,
     yVectorEnum,
     zVectorEnum,
-    gatingEnum,
 )
 from options.meta_learner_options import (
     chemicalEnum,
@@ -697,7 +697,7 @@ def run(
     typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
     modelPath=None,
     numberOfChemicals=1,
-    split_number_of_tasks=5,
+    gating=gatingEnum.no_gating,
 ) -> None:
     """
         Main function for Meta-learning the plasticity rule.
@@ -888,7 +888,7 @@ def run(
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
             scale_chemical_weights=False,
-            gating=gatingEnum.learning_rule_gating,
+            gating=gating,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -1021,8 +1021,8 @@ def run(
         scalar_variance_reduction=-1,
         low_Dim_Feedback=-1,
         split=False,
-        split_min_number_of_tasks=split_number_of_tasks,
-        split_max_number_of_tasks=split_number_of_tasks,
+        split_min_number_of_tasks=5,
+        split_max_number_of_tasks=5,
     )
 
     #   -- number of chemicals
@@ -1153,17 +1153,22 @@ def runner_main():
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-071109",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-075035",
         #os.getcwd() + "/results_3/mode_9_gating_no_W/0/20260324-210116",
-        os.getcwd() + "/results_3/mode_9_gating_lr/1/20260326-004813",
+        #os.getcwd() + "/results_3/mode_9_gating_lr/1/20260326-004813",
+        os.getcwd() + "/results_3/mode_9_gating_lr_DFA_grad_log/1/20260326-032731",
+        os.getcwd() + "/results_3/mode_9_gating_lr_DFA_grad/1/20260326-032555",
+        os.getcwd() + "/results_3/mode_9_gating_lr_h_DFA_grad/1/20260326-032449",
+        os.getcwd() + "/results_3/mode_9_gating_lr_h_scalar/1/20260326-025622",
+
     ]
     for i in range(len(modelPath_s)):
         for index_outer in range(0, 25):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_9_gating_lr"][i],
+                result_subdirectory=["runner_mode_9_gating_lr_DFA_grad_log", "runner_mode_9_gating_lr_DFA_grad", "runner_mode_9_gating_lr_h_DFA_grad", "runner_mode_9_gating_lr_h_scalar"][i],
                 index=index_outer,
-                typeOfFeedback=[typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.scalar][i],
+                typeOfFeedback=[typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.scalar][i],
                 modelPath=modelPath_s[i],
                 numberOfChemicals=5,
-                split_number_of_tasks=[5],
+                gating=[gatingEnum.learning_rule_gating, gatingEnum.learning_rule_gating, gatingEnum.learning_rule_gating_h, gatingEnum.learning_rule_gating_h][i],
             )
