@@ -606,7 +606,7 @@ class ComplexSynapse(nn.Module):
                     or self.operator == operatorEnum.compressed_v_linear
                 ):  # mode 1 - was also called add in results
 
-                    if self.options.gating != gatingEnum.none:
+                    if self.options.gating != gatingEnum.no_gating:
                         if self.options.gating == gatingEnum.error_activation_gating:
                             gate_input = torch.stack(
                                 [
