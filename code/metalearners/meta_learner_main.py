@@ -858,6 +858,7 @@ class MetaLearner:
                 UpdateFeedbackWeights_state_dict = copy.deepcopy(self.UpdateFeedbackWeights.state_dict())
 
             # -- backpropagation
+            loss_meta = torch.log(loss_meta)
             loss_meta.backward()
 
             # -- gradient clipping
@@ -1089,7 +1090,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
             scale_chemical_weights=False,
-            gating=gatingEnum.learning_rule_gating_h,
+            gating=gatingEnum.learning_rule_gating,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -1182,7 +1183,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     #   current_dir + "/results_3/20251103-214650"
     # )
 
-    # continue_training = current_dir + "/results_3/mode_9_scalar_10/1/20251124-005417"
+    #continue_training = current_dir + "/results_3/mode_9_scalar_10/1/20251124-005417"
     # continue_training = (
     #    current_dir + "/results_3/mode_9_rand/0/20251105-152312"
     # )  # "/results_3/mode_9/0/20251107-172732"
@@ -1214,7 +1215,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.DFA,
+        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
         hrm_discount=200,
         error_control=False,
@@ -1262,4 +1263,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=1, display=True, result_subdirectory="mode_9_gating_lr_h", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_9_gating_lr_DFA_grad_log", index=i)
