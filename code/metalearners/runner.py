@@ -18,6 +18,7 @@ from options.complex_options import (
     vVectorEnum,
     yVectorEnum,
     zVectorEnum,
+    gatingEnum,
 )
 from options.meta_learner_options import (
     chemicalEnum,
@@ -887,7 +888,7 @@ def run(
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
             scale_chemical_weights=False,
-            gating=True,
+            gating=gatingEnum.learning_rule_gating,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -1152,14 +1153,14 @@ def runner_main():
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-071109",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-075035",
         #os.getcwd() + "/results_3/mode_9_gating_no_W/0/20260324-210116",
-        os.getcwd() + "/results_3/mode_9_gating/1/20260325-204702",
+        os.getcwd() + "/results_3/mode_9_gating_lr/1/20260326-004813",
     ]
     for i in range(len(modelPath_s)):
         for index_outer in range(0, 25):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_9_gating"][i],
+                result_subdirectory=["runner_mode_9_gating_lr"][i],
                 index=index_outer,
                 typeOfFeedback=[typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.scalar][i],
                 modelPath=modelPath_s[i],

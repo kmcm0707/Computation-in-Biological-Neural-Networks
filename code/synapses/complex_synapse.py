@@ -647,7 +647,7 @@ class ComplexSynapse(nn.Module):
                                     ),
                                 ]
                             )
-                        elif self.options.gating == gatingEnum.gatingEnum.learning_rule_gating:
+                        elif self.options.gating == gatingEnum.learning_rule_gating:
                             gate_input = update_vector
                         else:
                             raise ValueError("Invalid gating option")
