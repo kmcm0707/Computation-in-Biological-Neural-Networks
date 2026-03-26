@@ -57,6 +57,7 @@ class gatingEnum(Enum):
     error_activation_gating = "only_error_activation_gating"
     error_activation_gating_no_W = "only_error_activation_gating_no_W"
     learning_rule_gating = "learning_rule_gating"
+    learning_rule_gating_h = "learning_rule_gating_h"
 
 
 class operatorEnum(Enum):

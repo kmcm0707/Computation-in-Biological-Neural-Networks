@@ -1089,7 +1089,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
             scale_chemical_weights=False,
-            gating=gatingEnum.learning_rule_gating,
+            gating=gatingEnum.learning_rule_gating_h,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -1262,4 +1262,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=1, display=True, result_subdirectory="mode_9_gating_lr", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_9_gating_lr_h", index=i)

@@ -362,6 +362,10 @@ class ComplexSynapse(nn.Module):
                 self.weight_gate = nn.Parameter(
                     torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device))
                 )
+            elif self.options.gating == gatingEnum.learning_rule_gating_h:
+                self.weight_gate = nn.Parameter(
+                    torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10 + self.number_chemicals), device=self.device))
+                )
             # self.all_meta_parameters = nn.ParameterList([])
             self.all_meta_parameters.append(self.weight_gate)
 
@@ -649,6 +653,10 @@ class ComplexSynapse(nn.Module):
                             )
                         elif self.options.gating == gatingEnum.learning_rule_gating:
                             gate_input = update_vector
+                        elif self.options.gating == gatingEnum.learning_rule_gating_h:
+                            gate_input = torch.cat(
+                                [chemical, update_vector], dim=0
+                            ) 
                         else:
                             raise ValueError("Invalid gating option")
 
