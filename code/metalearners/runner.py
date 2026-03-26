@@ -1151,15 +1151,15 @@ def runner_main():
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-063034",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-071109",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-075035",
-        os.getcwd() + "/results_3/mode_9_gating_no_W/0/20260324-210116",
-        os.getcwd() + "/results_3/mode_9_gating_no_W_scalar/0/20260324-205505",
+        #os.getcwd() + "/results_3/mode_9_gating_no_W/0/20260324-210116",
+        os.getcwd() + "/results_3/mode_9_gating/1/20260325-204702",
     ]
     for i in range(len(modelPath_s)):
         for index_outer in range(0, 25):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_9_gating_no_W", "runner_mode_9_gating_no_W_scalar"][i],
+                result_subdirectory=["runner_mode_9_gating"][i],
                 index=index_outer,
                 typeOfFeedback=[typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.scalar][i],
                 modelPath=modelPath_s[i],

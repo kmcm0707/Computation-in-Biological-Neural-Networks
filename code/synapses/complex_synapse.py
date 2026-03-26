@@ -600,7 +600,7 @@ class ComplexSynapse(nn.Module):
                     if self.options.gating:
                         gate_input = torch.stack(
                             [
-                                torch.zeros_like(parameter),
+                                parameter, #torch.zeros_like(parameter),
                                 torch.matmul(torch.ones(size=(parameter.shape[0], 1), device=self.device), error[i]),
                                 torch.matmul(
                                     error[i + 1].T, torch.ones(size=(1, parameter.shape[1]), device=self.device)
