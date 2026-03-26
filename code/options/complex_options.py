@@ -51,6 +51,12 @@ class yVectorEnum(Enum):
     all_ones = "all_ones"
     half = "half"
 
+class gatingEnum(Enum):
+    no_gating = "no_gating"
+    error_activation_gating = "only_error_activation_gating"
+    error_activation_gating_no_W = "only_error_activation_gating_no_W"
+    learning_rule_gating = "learning_rule_gating"
+
 
 class operatorEnum(Enum):
     mode_1 = "mode_1"
@@ -116,7 +122,7 @@ class complexOptions:
         scheduler_t0: Union[int, None] = None,
         train_tau: bool = False,
         scale_chemical_weights: bool = False,
-        gating: bool = False,
+        gating: gatingEnum = gatingEnum.no_gating,
     ):
         self.nonLinear = nonLinear
         self.bias = bias

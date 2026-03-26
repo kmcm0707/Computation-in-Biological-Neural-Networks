@@ -3,6 +3,7 @@ from typing import Literal
 import torch
 from options.complex_options import (
     complexOptions,
+    gatingEnum,
     kMatrixEnum,
     modeEnum,
     operatorEnum,
@@ -347,12 +348,20 @@ class ComplexSynapse(nn.Module):
         self.operator = self.options.operator
 
         ## gating
-        if self.options.gating:
+        if self.options.gating != gatingEnum.no_gating:
             self.z_sigmoid = torch.log(self.z_vector / (1 - self.z_vector))
             # input: w, pre-e, post-e, pre-activation, post-activation
-            self.weight_gate = nn.Parameter(
-                torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 5), device=self.device))
-            )
+            if (
+                self.options.gating == gatingEnum.error_activation_gating
+                or self.options.gating == gatingEnum.error_activation_gating_no_W
+            ):
+                self.weight_gate = nn.Parameter(
+                    torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 5), device=self.device))
+                )
+            elif self.options.gating == gatingEnum.learning_rule_gating:
+                self.weight_gate = nn.Parameter(
+                    torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10), device=self.device))
+                )
             # self.all_meta_parameters = nn.ParameterList([])
             self.all_meta_parameters.append(self.weight_gate)
 
@@ -597,41 +606,52 @@ class ComplexSynapse(nn.Module):
                     or self.operator == operatorEnum.compressed_v_linear
                 ):  # mode 1 - was also called add in results
 
-                    if self.options.gating:
-                        gate_input = torch.stack(
-                            [
-                                parameter, #torch.zeros_like(parameter),
-                                torch.matmul(torch.ones(size=(parameter.shape[0], 1), device=self.device), error[i]),
-                                torch.matmul(
-                                    error[i + 1].T, torch.ones(size=(1, parameter.shape[1]), device=self.device)
-                                ),
-                                torch.matmul(
-                                    torch.ones(size=(parameter.shape[0], 1), device=self.device),
-                                    activations_and_output[i],
-                                ),
-                                torch.matmul(
-                                    activations_and_output[i + 1].T,
-                                    torch.ones(size=(1, parameter.shape[1]), device=self.device),
-                                ),
-                            ]
-                        )
-                        """gate_input = torch.stack(
-                            [
-                                torch.nn.functional.normalize(parameter, p=2, dim=0),
-                                torch.matmul(torch.ones(size=(parameter.shape[0], 1), device=self.device), torch.nn.functional.normalize(error[i], p=2, dim=0)),
-                                torch.matmul(
-                                    torch.nn.functional.normalize(error[i + 1], p=2, dim=0).T, torch.ones(size=(1, parameter.shape[1]), device=self.device)
-                                ),
-                                torch.matmul(
-                                    torch.ones(size=(parameter.shape[0], 1), device=self.device),
-                                    torch.nn.functional.normalize(activations_and_output[i], p=2, dim=0),
-                                ),
-                                torch.matmul(
-                                    torch.nn.functional.normalize(activations_and_output[i + 1], p=2, dim=0).T,
-                                    torch.ones(size=(1, parameter.shape[1]), device=self.device),
-                                ),
-                            ]
-                        )"""
+                    if self.options.gating != gatingEnum.none:
+                        if self.options.gating == gatingEnum.error_activation_gating:
+                            gate_input = torch.stack(
+                                [
+                                    parameter,
+                                    torch.matmul(
+                                        torch.ones(size=(parameter.shape[0], 1), device=self.device), error[i]
+                                    ),
+                                    torch.matmul(
+                                        error[i + 1].T, torch.ones(size=(1, parameter.shape[1]), device=self.device)
+                                    ),
+                                    torch.matmul(
+                                        torch.ones(size=(parameter.shape[0], 1), device=self.device),
+                                        activations_and_output[i],
+                                    ),
+                                    torch.matmul(
+                                        activations_and_output[i + 1].T,
+                                        torch.ones(size=(1, parameter.shape[1]), device=self.device),
+                                    ),
+                                ]
+                            )
+                        elif self.options.gating == gatingEnum.error_activation_gating_no_W:
+                            gate_input = torch.stack(
+                                [
+                                    torch.zeros_like(parameter),
+                                    torch.matmul(
+                                        torch.ones(size=(parameter.shape[0], 1), device=self.device), error[i]
+                                    ),
+                                    torch.matmul(
+                                        error[i + 1].T, torch.ones(size=(1, parameter.shape[1]), device=self.device)
+                                    ),
+                                    torch.matmul(
+                                        torch.ones(size=(parameter.shape[0], 1), device=self.device),
+                                        activations_and_output[i],
+                                    ),
+                                    torch.matmul(
+                                        activations_and_output[i + 1].T,
+                                        torch.ones(size=(1, parameter.shape[1]), device=self.device),
+                                    ),
+                                ]
+                            )
+                        elif self.options.gating == gatingEnum.gatingEnum.learning_rule_gating:
+                            gate_input = update_vector
+                        else:
+                            raise ValueError("Invalid gating option")
+
                         current_z_matrix = torch.sigmoid(
                             self.z_sigmoid.unsqueeze(1).unsqueeze(2)
                             + torch.einsum("il,ljk->ijk", self.weight_gate, gate_input)

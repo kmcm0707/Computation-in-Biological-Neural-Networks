@@ -12,6 +12,7 @@ from nn.chemical_nn import ChemicalNN
 from options.benna_options import bennaOptions
 from options.complex_options import (
     complexOptions,
+    gatingEnum,
     kMatrixEnum,
     modeEnum,
     nonLinearEnum,
@@ -996,7 +997,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 2000
+    epochs = 1200
 
     dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
     minTrainingDataPerClass = 5
@@ -1088,7 +1089,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
             scale_chemical_weights=False,
-            gating=True,
+            gating=gatingEnum.learning_rule_gating,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -1181,7 +1182,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     #   current_dir + "/results_3/20251103-214650"
     # )
 
-    #continue_training = current_dir + "/results_3/mode_9_scalar_10/1/20251124-005417"
+    # continue_training = current_dir + "/results_3/mode_9_scalar_10/1/20251124-005417"
     # continue_training = (
     #    current_dir + "/results_3/mode_9_rand/0/20251105-152312"
     # )  # "/results_3/mode_9/0/20251107-172732"
@@ -1215,7 +1216,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.DFA,
         dimOut=dimOut,
-        hrm_discount=-1,
+        hrm_discount=200,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
