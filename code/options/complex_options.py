@@ -51,6 +51,7 @@ class yVectorEnum(Enum):
     all_ones = "all_ones"
     half = "half"
 
+
 class gatingEnum(Enum):
     no_gating = "no_gating"
     error_activation_gating = "only_error_activation_gating"

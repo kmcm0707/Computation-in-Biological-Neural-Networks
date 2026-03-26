@@ -1262,4 +1262,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=1, display=True, result_subdirectory="mode_9_gating", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_9_gating_lr", index=i)
