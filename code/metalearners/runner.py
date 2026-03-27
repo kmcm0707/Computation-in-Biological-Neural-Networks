@@ -1003,7 +1003,7 @@ def run(
         ),  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" else None,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
@@ -1154,9 +1154,9 @@ def runner_main():
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-075035",
         #os.getcwd() + "/results_3/mode_9_gating_no_W/0/20260324-210116",
         #os.getcwd() + "/results_3/mode_9_gating_lr/1/20260326-004813",
-        os.getcwd() + "/results_3/mode_9_gating_lr_DFA_grad_log/1/20260326-032731",
-        os.getcwd() + "/results_3/mode_9_gating_lr_DFA_grad/1/20260326-032555",
-        os.getcwd() + "/results_3/mode_9_gating_lr_h_DFA_grad/1/20260326-032449",
+        #os.getcwd() + "/results_3/mode_9_gating_lr_DFA_grad_log/1/20260326-032731",
+        #os.getcwd() + "/results_3/mode_9_gating_lr_DFA_grad/1/20260326-032555",
+        #os.getcwd() + "/results_3/mode_9_gating_lr_h_DFA_grad/1/20260326-032449",
         os.getcwd() + "/results_3/mode_9_gating_lr_h_scalar/1/20260326-025622",
 
     ]
@@ -1165,10 +1165,10 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_9_gating_lr_DFA_grad_log", "runner_mode_9_gating_lr_DFA_grad", "runner_mode_9_gating_lr_h_DFA_grad", "runner_mode_9_gating_lr_h_scalar"][i],
+                result_subdirectory=["runner_mode_9_gating_lr_h_scalar_same"][i],
                 index=index_outer,
-                typeOfFeedback=[typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.scalar][i],
+                typeOfFeedback=[typeOfFeedbackEnum.scalar][i],
                 modelPath=modelPath_s[i],
                 numberOfChemicals=5,
-                gating=[gatingEnum.learning_rule_gating, gatingEnum.learning_rule_gating, gatingEnum.learning_rule_gating_h, gatingEnum.learning_rule_gating_h][i],
+                gating=[gatingEnum.learning_rule_gating_h][i],
             )
