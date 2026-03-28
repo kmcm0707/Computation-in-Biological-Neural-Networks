@@ -858,7 +858,7 @@ class MetaLearner:
                 UpdateFeedbackWeights_state_dict = copy.deepcopy(self.UpdateFeedbackWeights.state_dict())
 
             # -- backpropagation
-            loss_meta = torch.log(loss_meta)
+            #loss_meta = torch.log(loss_meta)
             loss_meta.backward()
 
             # -- gradient clipping
