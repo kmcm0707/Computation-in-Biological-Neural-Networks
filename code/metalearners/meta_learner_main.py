@@ -381,7 +381,7 @@ class MetaLearner:
             raise ValueError("Invalid Chemical Initialization")
 
     @torch.no_grad()
-    def reinitialize(self):
+    def reinitialize(self, feedback_only=False, current_parameters=None):
         """
             Initialize module parameters.
 
@@ -393,18 +393,26 @@ class MetaLearner:
         :return: dict: module parameters
         """
         # -- initialize weights
-        self.model.apply(self.weights_init)
-        self.chemical_init(self.model.chemicals)
-        if self.options.trainSeparateFeedback or self.options.trainSameFeedback:
-            self.chemical_init(self.model.feedback_chemicals)
-
-        # -- module parameters
-        # -- parameters are not linked to the model even if .clone() is not used
-        params = {
-            key: val.clone()
-            for key, val in dict(self.model.named_parameters()).items()
-            if "." in key and "chemical" not in key and "layer_norm" not in key
-        }
+        if not feedback_only:
+            self.model.apply(self.weights_init)
+            self.chemical_init(self.model.chemicals)
+            if self.options.trainSeparateFeedback or self.options.trainSameFeedback:
+                self.chemical_init(self.model.feedback_chemicals)
+            # -- module parameters
+            # -- parameters are not linked to the model even if .clone() is not used
+            params = {
+                key: val.clone()
+                for key, val in dict(self.model.named_parameters()).items()
+                if "." in key and "chemical" not in key and "layer_norm" not in key
+            }
+        else:
+            params = current_parameters
+            feedback_all = {
+                name: value for name, value in dict(self.model.named_parameters()).items() if "feedback" in name
+            }
+            for feedback_param, feedback_name in zip(feedback_all.values(), feedback_all.keys()):
+                nn.init.xavier_uniform_(feedback_param)
+                params[feedback_name] = feedback_param.clone()
 
         if self.options.typeOfFeedback == typeOfFeedbackEnum.non_linear_DFA:
             feedback_1 = {name: value for name, value in params.items() if "feedback" in name and "_1" in name}
@@ -421,24 +429,28 @@ class MetaLearner:
                 params[feedback_1_name] = new_feedback_1_param.clone()
                 params[feedback_2_name] = new_feedback_2_param.clone()
 
-        h_params = {
-            key: val.clone()
-            for key, val in dict(self.model.named_parameters()).items()
-            if "chemical" in key and "feedback" not in key
-        }
-        feedback_h_params = None
-        if self.options.trainSeparateFeedback or self.options.trainSameFeedback:
-            feedback_h_params = {
+        if not feedback_only:
+            h_params = {
                 key: val.clone()
                 for key, val in dict(self.model.named_parameters()).items()
-                if "feedback_chemical" in key
+                if "chemical" in key and "feedback" not in key
             }
+            feedback_h_params = None
+            if self.options.trainSeparateFeedback or self.options.trainSameFeedback:
+                feedback_h_params = {
+                    key: val.clone()
+                    for key, val in dict(self.model.named_parameters()).items()
+                    if "feedback_chemical" in key
+                }
 
         # -- set adaptation flags for cloned parameters
         for key in params:
             params[key].adapt = dict(self.model.named_parameters())[key].adapt
 
-        return params, h_params, feedback_h_params
+        if not feedback_only:
+            return params, h_params, feedback_h_params
+        else:
+            return params
 
     def train(self):
         """
@@ -772,6 +784,13 @@ class MetaLearner:
                         # self.model.set_errors(current_errors)
                         raise NotImplementedError("Leaky error control not implemented yet.")
 
+                    # -- regenerate feedback weights
+                    if (
+                        self.options.regenerate_feedback_weights > 0
+                        and (itr_adapt + 1) % self.options.regenerate_feedback_weights == 0
+                    ):
+                        parameters = self.reinitialize(feedback_only=True, current_parameters=parameters)
+
             """ meta update """
             self.model.eval()
             # -- fix device
@@ -998,7 +1017,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 2000
+    epochs = 2
 
     dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
     minTrainingDataPerClass = 5
@@ -1079,7 +1098,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_6,  # _pre_activation,
+            operator=operatorEnum.mode_9,  # _pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1090,7 +1109,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
             scale_chemical_weights=False,
-            gating=gatingEnum.learning_rule_gating_h,
+            gating=gatingEnum.no_gating,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -1183,7 +1202,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     #   current_dir + "/results_3/20251103-214650"
     # )
 
-    #continue_training = current_dir + "/results_3/mode_9_scalar_10/1/20251124-005417"
+    # continue_training = current_dir + "/results_3/mode_9_scalar_10/1/20251124-005417"
     # continue_training = (
     #    current_dir + "/results_3/mode_9_rand/0/20251105-152312"
     # )  # "/results_3/mode_9/0/20251107-172732"
@@ -1214,7 +1233,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=None,#continue_training,
+        continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
         hrm_discount=200,
@@ -1230,6 +1249,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         split_min_number_of_tasks=1,
         split_max_number_of_tasks=5,
         split_only_one_task_evaluation=0,  # starts from 0
+        regenerate_feedback_weights=2,  # regenerate feedback weights every n episodes, -1 means never regenerate
     )
 
     # -- number of chemicals
@@ -1263,5 +1283,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=1, display=True, result_subdirectory="mode_6_gating_lr_h_DFA_grad_same", index=i)
-
+        run(seed=1, display=True, result_subdirectory="mode_9_regenerate", index=i)
