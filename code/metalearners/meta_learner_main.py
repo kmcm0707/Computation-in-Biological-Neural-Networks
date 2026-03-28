@@ -1234,7 +1234,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+        typeOfFeedback=typeOfFeedbackEnum.non_linear_DFA,
         dimOut=dimOut,
         hrm_discount=-1,
         error_control=False,
@@ -1244,12 +1244,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         wta=False,
         shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" else 0,
         scalar_variance_reduction=-1,  # -1 means no scalar variance reduction
-        low_rank_feedback=-1,  # [1, 2, 4, 6, 8, 10, 15, 20, 30][index],
+        low_rank_feedback=5,  # [1, 2, 4, 6, 8, 10, 15, 20, 30][index],
         split=False,
         split_min_number_of_tasks=1,
         split_max_number_of_tasks=5,
         split_only_one_task_evaluation=0,  # starts from 0
-        regenerate_feedback_weights=5,  # regenerate feedback weights every n episodes, -1 means never regenerate
+        regenerate_feedback_weights=2,  # regenerate feedback weights every n episodes, -1 means never regenerate
     )
 
     # -- number of chemicals
@@ -1283,4 +1283,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=1, display=True, result_subdirectory="mode_9_regenerate", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_9_regenerate_low_dim", index=i)
