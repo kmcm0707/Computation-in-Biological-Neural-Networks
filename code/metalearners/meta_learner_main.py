@@ -877,7 +877,7 @@ class MetaLearner:
                 UpdateFeedbackWeights_state_dict = copy.deepcopy(self.UpdateFeedbackWeights.state_dict())
 
             # -- backpropagation
-            #loss_meta = torch.log(loss_meta)
+            # loss_meta = torch.log(loss_meta)
             loss_meta.backward()
 
             # -- gradient clipping
@@ -1017,7 +1017,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 2
+    epochs = 1200
 
     dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
     minTrainingDataPerClass = 5
@@ -1236,7 +1236,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
-        hrm_discount=200,
+        hrm_discount=-1,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1249,7 +1249,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         split_min_number_of_tasks=1,
         split_max_number_of_tasks=5,
         split_only_one_task_evaluation=0,  # starts from 0
-        regenerate_feedback_weights=2,  # regenerate feedback weights every n episodes, -1 means never regenerate
+        regenerate_feedback_weights=5,  # regenerate feedback weights every n episodes, -1 means never regenerate
     )
 
     # -- number of chemicals
