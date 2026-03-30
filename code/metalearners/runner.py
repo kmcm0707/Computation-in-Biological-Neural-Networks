@@ -681,11 +681,74 @@ class Runner:
                 with open(self.result_directory + "/params.txt", "a") as f:
                     f.writelines(line + "\n")
 
+            # --- helper: clone params dict ---
+            def clone_params(params):
+                return {k: v.clone() for k, v in params.items()}
+
+            # --- random direction ---
+            def random_direction(params):
+                return {k: torch.randn_like(v) for k, v in params.items()}
+
+            # --- layer-wise normalization ---
+            def normalize_direction(direction, params, eps=1e-10):
+                new_dir = {}
+                for k in direction:
+                    d = direction[k]
+                    w = params[k]
+
+                    d_norm = torch.norm(d)
+                    w_norm = torch.norm(w)
+
+                    if d_norm > 0:
+                        new_dir[k] = d * (w_norm / (d_norm + eps))
+                    else:
+                        new_dir[k] = d
+                return new_dir
+
+            # --- add directions ---
+            def add_direction(params, d1, d2, a, b):
+                return {k: params[k] + a * d1[k] + b * d2[k] for k in params}
+
+            # --- evaluate loss on query set (stable choice) ---
+            def eval_loss(params):
+                self.model.eval()
+
+                with torch.no_grad():
+                    if self.options.trainFeedback or self.options.trainSameFeedback:
+                        _, logits = torch.func.functional_call(self.model, (params, h_parameters, feedback_params), x_qry_1)
+                    else:
+                        _, logits = torch.func.functional_call(self.model, (params, h_parameters), x_qry_1)
+
+                    loss = self.loss_func(logits, y_qry_1.ravel())
+                    return loss.item()
+
+            # --- base params (FINAL adapted params from last episode) ---
+            base_params = clone_params(parameters)
+
+            # --- directions ---
+            d1 = normalize_direction(random_direction(base_params), base_params)
+            d2 = normalize_direction(random_direction(base_params), base_params)
+
+            # --- grid ---
+            alphas = np.linspace(-0.5, 0.5, 25)
+            betas = np.linspace(-0.5, 0.5, 25)
+
+            loss_grid = np.zeros((len(alphas), len(betas)))
+
+            for i, a in enumerate(alphas):
+                for j, b in enumerate(betas):
+                    new_params = add_direction(base_params, d1, d2, a, b)
+                    loss_grid[i, j] = eval_loss(new_params)
+
+            with open(self.result_directory + "/loss_landscape.npy", "ab") as f:
+                np.save(f, loss_grid)
+
         # -- plot
         if self.save_results:
             # self.summary_writer.close()
             self.plot()
 
+        
         print("Runner complete.")
 
 
@@ -794,7 +857,7 @@ def run(
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
-    queryDataPerClass = 20
+    queryDataPerClass = 50
     dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
@@ -1003,7 +1066,7 @@ def run(
         ),  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" else None,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
@@ -1152,23 +1215,25 @@ def runner_main():
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-063034",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-071109",
         # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-075035",
-        #os.getcwd() + "/results_3/mode_9_gating_no_W/0/20260324-210116",
-        #os.getcwd() + "/results_3/mode_9_gating_lr/1/20260326-004813",
-        #os.getcwd() + "/results_3/mode_9_gating_lr_DFA_grad_log/1/20260326-032731",
-        #os.getcwd() + "/results_3/mode_9_gating_lr_DFA_grad/1/20260326-032555",
-        #os.getcwd() + "/results_3/mode_9_gating_lr_h_DFA_grad/1/20260326-032449",
-        os.getcwd() + "/results_3/mode_9_gating_lr_h_scalar/1/20260326-025622",
-
+        # os.getcwd() + "/results_3/mode_9_gating_no_W/0/20260324-210116",
+        # os.getcwd() + "/results_3/mode_9_gating_lr/1/20260326-004813",
+        # os.getcwd() + "/results_3/mode_9_gating_lr_DFA_grad_log/1/20260326-032731",
+        # os.getcwd() + "/results_3/mode_9_gating_lr_DFA_grad/1/20260326-032555",
+        # os.getcwd() + "/results_3/mode_9_gating_lr_h_DFA_grad/1/20260326-032449",
+        # os.getcwd()
+        # + "/results_3/mode_9_gating_lr_h_scalar/1/20260326-025622",
+        os.getcwd()
+        + "/results_3/mode_9_rand/0/20251105-152312"
     ]
     for i in range(len(modelPath_s)):
         for index_outer in range(0, 25):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_9_gating_lr_h_scalar_same"][i],
+                result_subdirectory=["runner_mode_9_loss_landscape"][i],
                 index=index_outer,
-                typeOfFeedback=[typeOfFeedbackEnum.scalar][i],
+                typeOfFeedback=[typeOfFeedbackEnum.DFA_grad][i],
                 modelPath=modelPath_s[i],
                 numberOfChemicals=5,
-                gating=[gatingEnum.learning_rule_gating_h][i],
+                gating=[gatingEnum.no_gating][i],
             )
