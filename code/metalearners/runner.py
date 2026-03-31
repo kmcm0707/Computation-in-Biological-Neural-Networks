@@ -772,7 +772,8 @@ class Runner:
 
                 for i, a in enumerate(alphas):
                     for j, b in enumerate(betas):
-                        new_params = add_direction(base_params_forward, d1, d2, a, b)
+                        base_params_forward_temp = {k: v.clone() for k, v in base_params_forward.items()}
+                        new_params = add_direction(base_params_forward_temp, d1, d2, a, b)
                         loss_grid[i, j] = eval_loss(new_params)
 
                 with open(self.result_directory + "/loss_landscape.npy", "ab") as f:
