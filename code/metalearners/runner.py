@@ -772,8 +772,8 @@ class Runner:
                 alphas = np.linspace(min_traj[0] - 5, max_traj[0] + 5, 100)
                 betas = np.linspace(min_traj[1] - 5, max_traj[1] + 5, 100)
 
-                alpha_0_index = np.argmin(np.abs(alphas.cpu().numpy()))
-                beta_0_index = np.argmin(np.abs(betas.cpu().numpy()))
+                #alpha_0_index = np.argmin(np.abs(alphas.cpu().numpy()))
+                #beta_0_index = np.argmin(np.abs(betas.cpu().numpy()))
 
                 loss_grid = np.zeros((len(alphas), len(betas)))
 
@@ -782,8 +782,8 @@ class Runner:
                         base_params_forward_temp = {k: v.clone() for k, v in base_params_forward.items()}
                         new_params = add_direction(base_params_forward_temp, d1, d2, a, b)
                         loss_grid[i, j] = eval_loss(new_params)
-                        if i == alpha_0_index and j == beta_0_index:
-                            print("Loss at final point (0, 0):", loss_grid[i, j])
+                        #if i == alpha_0_index and j == beta_0_index:
+                        #    print("Loss at final point (0, 0):", loss_grid[i, j])
 
                 with open(self.result_directory + "/loss_landscape.npy", "ab") as f:
                     np.save(f, loss_grid)
