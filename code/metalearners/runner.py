@@ -758,15 +758,15 @@ class Runner:
                 d1 = vector_to_params(pc1.to(self.device), base_params_forward)
                 d2 = vector_to_params(pc2.to(self.device), base_params_forward)
 
-                # --- directions --- not NEEDED if PCA is used, as PCA directions are already normalized
-                # d1 = normalize_direction(d1, base_params_forward)
-                # d2 = normalize_direction(d2, base_params_forward)
+                # --- directions ---
+                d1 = normalize_direction(d1, base_params_forward)
+                d2 = normalize_direction(d2, base_params_forward)
 
                 # --- grid ---
                 min_traj = torch.min(trajectory_centered, dim=0).values
                 max_traj = torch.max(trajectory_centered, dim=0).values
-                alphas = np.linspace(min_traj[0], max_traj[0], 500)
-                betas = np.linspace(min_traj[1], max_traj[1], 500)
+                alphas = np.linspace(min_traj[0] - 5, max_traj[0] + 5, 1000)
+                betas = np.linspace(min_traj[1] - 5, max_traj[1] + 5, 1000)
 
                 loss_grid = np.zeros((len(alphas), len(betas)))
 
