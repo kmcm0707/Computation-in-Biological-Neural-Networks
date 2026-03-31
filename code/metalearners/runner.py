@@ -763,10 +763,17 @@ class Runner:
                 d2 = normalize_direction(d2, base_params_forward)
 
                 # --- grid ---
-                min_traj = torch.min(trajectory_centered, dim=0).values
-                max_traj = torch.max(trajectory_centered, dim=0).values
-                alphas = np.linspace(min_traj[0] - 5, max_traj[0] + 5, 1000)
-                betas = np.linspace(min_traj[1] - 5, max_traj[1] + 5, 1000)
+                proj_x = torch.matmul(trajectory_centered, pc1)
+                proj_y = torch.matmul(trajectory_centered, pc2)
+
+                traj_2d = torch.stack([proj_x, proj_y], dim=1).numpy()
+                min_traj = traj_2d.min(axis=0)
+                max_traj = traj_2d.max(axis=0)
+                alphas = np.linspace(min_traj[0] - 5, max_traj[0] + 5, 100)
+                betas = np.linspace(min_traj[1] - 5, max_traj[1] + 5, 100)
+
+                alpha_0_index = np.argmin(np.abs(alphas.cpu().numpy()))
+                beta_0_index = np.argmin(np.abs(betas.cpu().numpy()))
 
                 loss_grid = np.zeros((len(alphas), len(betas)))
 
@@ -775,14 +782,11 @@ class Runner:
                         base_params_forward_temp = {k: v.clone() for k, v in base_params_forward.items()}
                         new_params = add_direction(base_params_forward_temp, d1, d2, a, b)
                         loss_grid[i, j] = eval_loss(new_params)
+                        if i == alpha_0_index and j == beta_0_index:
+                            print("Loss at final point (0, 0):", loss_grid[i, j])
 
                 with open(self.result_directory + "/loss_landscape.npy", "ab") as f:
                     np.save(f, loss_grid)
-
-                proj_x = torch.matmul(trajectory_centered, pc1)
-                proj_y = torch.matmul(trajectory_centered, pc2)
-
-                traj_2d = torch.stack([proj_x, proj_y], dim=1).numpy()
 
                 with open(self.result_directory + "/trajectory_pca.npy", "ab") as f:
                     np.save(f, traj_2d)
