@@ -357,6 +357,9 @@ class Runner:
             self.model.train()
             parameters, h_parameters, feedback_params = self.reinitialize()
 
+            if self.options.trajectory_analysis:
+                trajectory = []
+
             if (
                 self.options.chemicalInitialization != chemicalEnum.zero
                 and self.modelOptions.operator != operatorEnum.mode_3
@@ -589,6 +592,14 @@ class Runner:
                         # -- update feedback time index
                         self.UpdateFeedbackWeights.update_time_index()
 
+                    if self.options.trajectory_analysis:
+
+                        def flatten_params(params):
+                            return torch.cat([p.flatten() for p in params.values()])
+
+                        forward_params = flatten_params({k: v for k, v in parameters.items() if "forward" in k})
+                        trajectory.append(forward_params.detach().cpu())
+
             """ meta test"""
             # -- predict
             self.model.eval()
@@ -681,74 +692,103 @@ class Runner:
                 with open(self.result_directory + "/params.txt", "a") as f:
                     f.writelines(line + "\n")
 
-            # --- helper: clone params dict ---
-            def clone_params(params):
-                return {k: v.clone() for k, v in params.items()}
+            if self.options.trajectory_analysis:
+                # --- helper: clone params dict ---
+                def clone_params(params):
+                    return {k: v.clone() for k, v in params.items()}
 
-            # --- random direction ---
-            def random_direction(params):
-                return {k: torch.randn_like(v) for k, v in params.items()}
+                # --- layer-wise normalization ---
+                def normalize_direction(direction, params, eps=1e-10):
+                    new_dir = {}
+                    for k in direction:
+                        d = direction[k]
+                        w = params[k]
 
-            # --- layer-wise normalization ---
-            def normalize_direction(direction, params, eps=1e-10):
-                new_dir = {}
-                for k in direction:
-                    d = direction[k]
-                    w = params[k]
+                        d_norm = torch.norm(d)
+                        w_norm = torch.norm(w)
 
-                    d_norm = torch.norm(d)
-                    w_norm = torch.norm(w)
+                        if d_norm > 0:
+                            new_dir[k] = d * (w_norm / (d_norm + eps))
+                        else:
+                            new_dir[k] = d
+                    return new_dir
 
-                    if d_norm > 0:
-                        new_dir[k] = d * (w_norm / (d_norm + eps))
-                    else:
-                        new_dir[k] = d
-                return new_dir
+                def vector_to_params(vec, reference_params):
+                    new_params = {}
+                    idx = 0
+                    for k, v in reference_params.items():
+                        numel = v.numel()
+                        new_params[k] = vec[idx : idx + numel].view_as(v)
+                        idx += numel
+                    return new_params
 
-            # --- add directions ---
-            def add_direction(params, d1, d2, a, b):
-                return {k: params[k] + a * d1[k] + b * d2[k] for k in params}
+                # --- add directions ---
+                def add_direction(params, d1, d2, a, b):
+                    return {k: params[k] + a * d1[k] + b * d2[k] for k in params}
 
-            # --- evaluate loss on query set (stable choice) ---
-            def eval_loss(params):
-                self.model.eval()
+                # --- evaluate loss on query set (stable choice) ---
+                def eval_loss(params):
+                    self.model.eval()
 
-                with torch.no_grad():
-                    if self.options.trainFeedback or self.options.trainSameFeedback:
-                        _, logits = torch.func.functional_call(self.model, (params, h_parameters, feedback_params), x_qry_1)
-                    else:
-                        _, logits = torch.func.functional_call(self.model, (params, h_parameters), x_qry_1)
+                    with torch.no_grad():
+                        if self.options.trainFeedback or self.options.trainSameFeedback:
+                            _, logits = torch.func.functional_call(
+                                self.model, (params, h_parameters, feedback_params), x_qry_1
+                            )
+                        else:
+                            _, logits = torch.func.functional_call(self.model, (params, h_parameters), x_qry_1)
 
-                    loss = self.loss_func(logits, y_qry_1.ravel())
-                    return loss.item()
+                        loss = self.loss_func(logits, y_qry_1.ravel())
+                        return loss.item()
 
-            # --- base params (FINAL adapted params from last episode) ---
-            base_params = clone_params(parameters)
+                # --- base params (FINAL adapted params from last episode) ---
+                base_params = clone_params(parameters)
 
-            # --- directions ---
-            d1 = normalize_direction(random_direction(base_params), base_params)
-            d2 = normalize_direction(random_direction(base_params), base_params)
+                trajectory = torch.stack(trajectory)  # [T, D]
+                # --- center trajectory ---
+                mean = trajectory.mean(dim=0, keepdim=True)
+                trajectory_centered = trajectory - mean
+                # --- PCA via SVD ---
+                U, S, Vh = torch.linalg.svd(trajectory_centered, full_matrices=False)
+                # top 2 principal directions
+                pc1 = Vh[0]
+                pc2 = Vh[1]
 
-            # --- grid ---
-            alphas = np.linspace(-0.5, 0.5, 25)
-            betas = np.linspace(-0.5, 0.5, 25)
+                base_params_forward = {k: v for k, v in base_params.items() if "forward" in k}
+                d1 = vector_to_params(pc1.to(self.device), base_params_forward)
+                d2 = vector_to_params(pc2.to(self.device), base_params_forward)
 
-            loss_grid = np.zeros((len(alphas), len(betas)))
+                # --- directions ---
+                d1 = normalize_direction(d1, base_params_forward)
+                d2 = normalize_direction(d2, base_params_forward)
 
-            for i, a in enumerate(alphas):
-                for j, b in enumerate(betas):
-                    new_params = add_direction(base_params, d1, d2, a, b)
-                    loss_grid[i, j] = eval_loss(new_params)
+                # --- grid ---
+                alphas = np.linspace(-0.5, 0.5, 25)
+                betas = np.linspace(-0.5, 0.5, 25)
 
-            with open(self.result_directory + "/loss_landscape.npy", "ab") as f:
-                np.save(f, loss_grid)
+                loss_grid = np.zeros((len(alphas), len(betas)))
+
+                for i, a in enumerate(alphas):
+                    for j, b in enumerate(betas):
+                        new_params = add_direction(base_params_forward, d1, d2, a, b)
+                        loss_grid[i, j] = eval_loss(new_params)
+
+                with open(self.result_directory + "/loss_landscape.npy", "ab") as f:
+                    np.save(f, loss_grid)
+
+                proj_x = torch.matmul(trajectory_centered, pc1)
+                proj_y = torch.matmul(trajectory_centered, pc2)
+
+                traj_2d = torch.stack([proj_x, proj_y], dim=1).numpy()
+
+                with open(self.result_directory + "/trajectory_pca.npy", "ab") as f:
+                    np.save(f, traj_2d)
 
         # -- plot
         if self.save_results:
             # self.summary_writer.close()
             self.plot()
 
-        
         print("Runner complete.")
 
 
@@ -789,7 +829,7 @@ def run(
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    trainingDataPerClass = [
+    """trainingDataPerClass = [
         0,
         5,
         10,
@@ -819,8 +859,8 @@ def run(
         # 325,
         # 350,
         # 375,
-    ]
-    # trainingDataPerClass = [20]
+    ]"""
+    trainingDataPerClass = [250]
     if index >= len(trainingDataPerClass):
         return
     """ trainingDataPerClass = [
@@ -1086,6 +1126,7 @@ def run(
         split=False,
         split_min_number_of_tasks=5,
         split_max_number_of_tasks=5,
+        trajectory_analysis=True,
     )
 
     #   -- number of chemicals
@@ -1230,7 +1271,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_9_loss_landscape"][i],
+                result_subdirectory=["runner_mode_9_trajectory_analysis"][i],
                 index=index_outer,
                 typeOfFeedback=[typeOfFeedbackEnum.DFA_grad][i],
                 modelPath=modelPath_s[i],
