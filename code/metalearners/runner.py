@@ -746,8 +746,8 @@ class Runner:
 
                 trajectory = torch.stack(trajectory)  # [T, D]
                 # --- center trajectory ---
-                mean = trajectory.mean(dim=0, keepdim=True)
-                trajectory_centered = trajectory - mean
+                final_point = trajectory[-1:].clone()  # shape [1, D]
+                trajectory_centered = trajectory - final_point
                 # --- PCA via SVD ---
                 U, S, Vh = torch.linalg.svd(trajectory_centered, full_matrices=False)
                 # top 2 principal directions
@@ -763,8 +763,8 @@ class Runner:
                 d2 = normalize_direction(d2, base_params_forward)
 
                 # --- grid ---
-                alphas = np.linspace(-0.5, 0.5, 25)
-                betas = np.linspace(-0.5, 0.5, 25)
+                alphas = np.linspace(-10, 10, 500)
+                betas = np.linspace(-10, 10, 500)
 
                 loss_grid = np.zeros((len(alphas), len(betas)))
 
