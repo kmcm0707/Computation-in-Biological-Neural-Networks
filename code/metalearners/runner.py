@@ -911,7 +911,6 @@ def run(
             dimensionOfImage=28,
         )
         dimOut = 47
-        epochs = 20
     elif dataset_name == "FASHION-MNIST":
         numberOfClasses = 10
         dataset = FashionMnistDataset(
