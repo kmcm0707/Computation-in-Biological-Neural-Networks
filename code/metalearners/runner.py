@@ -781,6 +781,8 @@ class Runner:
                     for j, b in enumerate(betas):
                         base_params_forward_temp = {k: v.clone() for k, v in base_params_forward.items()}
                         new_params = add_direction(base_params_forward_temp, d1, d2, a, b)
+                        originial_final_layer = base_params["forward5.weight"]
+                        new_params["forward5.weight"] = originial_final_layer.clone()
                         loss_grid[i, j] = eval_loss(new_params)
                         #if i == alpha_0_index and j == beta_0_index:
                         #    print("Loss at final point (0, 0):", loss_grid[i, j])
@@ -874,9 +876,7 @@ def run(
         250,
     ]"""
     """trainingDataPerClass = [
-        10,
-        # 20,
-        # 30,
+        10,       # 30,
         # 40,
         50,
         100,
@@ -1277,7 +1277,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_9_trajectory_analysis"][i],
+                result_subdirectory=["runner_mode_9_trajectory_analysis_2"][i],
                 index=index_outer,
                 typeOfFeedback=[typeOfFeedbackEnum.DFA_grad][i],
                 modelPath=modelPath_s[i],
