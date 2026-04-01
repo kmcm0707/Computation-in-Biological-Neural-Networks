@@ -697,20 +697,19 @@ class Runner:
                 def clone_params(params):
                     return {k: v.clone() for k, v in params.items()}
 
-                # --- layer-wise normalization ---
+                # --- filter-wise normalization ---
                 def normalize_direction(direction, params, eps=1e-10):
                     new_dir = {}
                     for k in direction:
                         d = direction[k]
                         w = params[k]
 
-                        d_norm = torch.norm(d)
-                        w_norm = torch.norm(w)
+                        w_norm = torch.norm(w, dim=1, keepdim=True)
+                        d_norm = torch.norm(d, dim=1, keepdim=True)
+                        
 
-                        if d_norm > 0:
-                            new_dir[k] = d * (w_norm / (d_norm + eps))
-                        else:
-                            new_dir[k] = d
+                        new_dir[k] = d * (w_norm / (d_norm + eps))
+                        
                     return new_dir
 
                 def vector_to_params(vec, reference_params):
@@ -781,8 +780,6 @@ class Runner:
                     for j, b in enumerate(betas):
                         base_params_forward_temp = {k: v.clone() for k, v in base_params_forward.items()}
                         new_params = add_direction(base_params_forward_temp, d1, d2, a, b)
-                        originial_final_layer = base_params["forward5.weight"]
-                        new_params["forward5.weight"] = originial_final_layer.clone()
                         loss_grid[i, j] = eval_loss(new_params)
                         #if i == alpha_0_index and j == beta_0_index:
                         #    print("Loss at final point (0, 0):", loss_grid[i, j])
@@ -1277,7 +1274,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_9_trajectory_analysis_2"][i],
+                result_subdirectory=["runner_mode_9_trajectory_analysis_4"][i],
                 index=index_outer,
                 typeOfFeedback=[typeOfFeedbackEnum.DFA_grad][i],
                 modelPath=modelPath_s[i],
