@@ -539,7 +539,7 @@ def jax_runner(index: int):
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_rnn_DSEF_2",
+        results_subdir="runner_jax_rnn_DFA_2_layer",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
@@ -559,9 +559,10 @@ def jax_runner(index: int):
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=numberOfTimeSteps,
         load_model=runner,
-        error_type=JaxErrorTypeEnum.DSEF,
+        error_type=JaxErrorTypeEnum.DFA,
         low_dim_DFA=-1,
         permutation=False,
+        two_layer_RNN=True,
     )
 
     metalearning_model = JaxMetaLearnerRNN(

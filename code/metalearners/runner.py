@@ -343,6 +343,11 @@ class Runner:
         if self.options.trainFeedback:
             self.UpdateFeedbackWeights.eval()
 
+        """if self.options.symbolic_analysis:
+            all_updates = []
+            all_activations = []
+            all_errors = []"""
+
         for eps, data in enumerate(
             self.metatrain_dataset_1
             if self.metatrain_dataset_2 is None
@@ -360,6 +365,12 @@ class Runner:
             if self.options.trajectory_analysis:
                 trajectory = []
 
+            """if self.options.symbolic_analysis:
+                symbolic_updates = []
+                symbolic_activations = []
+                symbolic_errors = []
+                """
+            
             if (
                 self.options.chemicalInitialization != chemicalEnum.zero
                 and self.modelOptions.operator != operatorEnum.mode_3
@@ -550,6 +561,7 @@ class Runner:
                     else:
                         raise ValueError("Invalid type of feedback")
                     activations_and_output = [*activations, functional.softmax(output, dim=1)]
+
 
                     # -- update network params
                     self.UpdateWeights(

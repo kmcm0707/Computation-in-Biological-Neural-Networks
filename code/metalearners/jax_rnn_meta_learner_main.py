@@ -57,6 +57,7 @@ class JaxMetaLearnerRNN:
             recurrent_activation=self.jaxMetaLearnerOptions.recurrent_activation,
             error_type=self.jaxMetaLearnerOptions.error_type,
             low_dim_DFA=self.jaxMetaLearnerOptions.low_dim_DFA,
+            two_layer_RNN=self.jaxMetaLearnerOptions.two_layer_RNN,
         )
         self.save_results = self.jaxMetaLearnerOptions.save_results
         self.metaTrainingDataset = metaTrainingDataset
@@ -148,15 +149,13 @@ class JaxMetaLearnerRNN:
         self.synaptic_weights = tuple(self.synaptic_weights)
 
     def inner_loop_per_image(self, carry, input):
-        synaptic_weights, parameters, rnn, hidden_state, metaOptimizer, past_h_new_pre_tau = carry
+        synaptic_weights, parameters, rnn, hidden_state, metaOptimizer = carry
         x, labels = input
 
         if self.jaxMetaLearnerOptions.dataset_name != "ADDBERNOULLI":
             labels = jax.nn.one_hot(labels, num_classes=self.jaxMetaLearnerOptions.output_size)
 
-        y, hidden_state, past_h_new_pre_tau, activations_arr, errors_arr = rnn(
-            x, hidden_state, labels, past_h_new_pre_tau
-        )
+        y, hidden_state, activations_arr, errors_arr = rnn(x, hidden_state, labels)
 
         def update_layer(w, p, act, err):
             return metaOptimizer(w, p, act, err)
@@ -180,13 +179,11 @@ class JaxMetaLearnerRNN:
             new_rnn,
             hidden_state,
             metaOptimizer,
-            past_h_new_pre_tau,
         ), y
 
     def full_inner_loop(self, carry, input) -> jnp.ndarray:
         synaptic_weights, parameters, rnn, metaOptimizer = carry
         hidden_state = rnn.initialise_hidden_state(batch_size=1)
-        past_h_new_pre_tau = rnn.initialise_hidden_state(batch_size=1)
         x, label = input
 
         if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
@@ -211,19 +208,17 @@ class JaxMetaLearnerRNN:
                 label, repeats=self.jaxMetaLearnerOptions.number_of_time_steps, axis=0
             )  # (time_steps, output_size)
 
-        (new_synaptic_weights, new_parameters, new_rnn, hidden_state, metaOptimizer, past_h_new_pre_tau), y = (
-            jax.lax.scan(
-                self.inner_loop_per_image,
-                (synaptic_weights, parameters, rnn, hidden_state, metaOptimizer, past_h_new_pre_tau),
-                (x, label),
-            )
+        (new_synaptic_weights, new_parameters, new_rnn, hidden_state, metaOptimizer), y = jax.lax.scan(
+            self.inner_loop_per_image,
+            (synaptic_weights, parameters, rnn, hidden_state, metaOptimizer),
+            (x, label),
         )
         return (new_synaptic_weights, new_parameters, new_rnn, metaOptimizer), (y, hidden_state)
 
     def inner_loop_per_image_no_update(self, carry, input):
         hidden_state, rnn = carry
         x = input
-        y, hidden_state, _, _, _ = rnn(x, hidden_state, None, None)
+        y, hidden_state, _, _ = rnn(x, hidden_state, None)
         return (hidden_state, rnn), y
 
     def full_inner_loop_no_update(self, input) -> jnp.ndarray:
@@ -465,7 +460,7 @@ def main_jax_rnn_meta_learner():
 
         # -- load data
         numWorkers = 2
-        epochs = 1000
+        epochs = 5000
 
         dataset_name = "EMNIST"
         minTrainingDataPerClass = 5
@@ -550,7 +545,7 @@ def main_jax_rnn_meta_learner():
         metaLearnerOptions = JaxRnnMetaLearnerOptions(
             seed=42,
             save_results=True,
-            results_subdir="jax_rnn_low_dim_{}".format([20][index]),
+            results_subdir="jax_rnn_2_layer_DFA",
             metatrain_dataset=dataset_name,
             display=True,
             metaLearningRate=0.0001,
@@ -571,7 +566,8 @@ def main_jax_rnn_meta_learner():
             number_of_time_steps=7,
             load_model=continue_training,
             error_type=JaxErrorTypeEnum.DFA,
-            low_dim_DFA=[20][index],
+            low_dim_DFA=-1,
+            two_layer_RNN=True,
         )
 
         metalearning_model = JaxMetaLearnerRNN(
@@ -583,3 +579,4 @@ def main_jax_rnn_meta_learner():
         )
 
         metalearning_model.train()
+        exit()
