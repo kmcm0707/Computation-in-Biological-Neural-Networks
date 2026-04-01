@@ -764,11 +764,11 @@ class Runner:
                 def flatten_dict(d):
                     return torch.cat([v.flatten() for v in d.values()])
 
-                d1_vec = flatten_dict(d1)
-                d2_vec = flatten_dict(d2)
+                d1_vec = flatten_dict(d1).cpu()
+                d2_vec = flatten_dict(d2).cpu()
 
-                proj_x = torch.matmul(trajectory_centered, d1_vec) / torch.dot(d1_vec, d1_vec)
-                proj_y = torch.matmul(trajectory_centered, d2_vec) / torch.dot(d2_vec, d2_vec)
+                proj_x = torch.matmul(trajectory_centered.cpu(), d1_vec) / torch.dot(d1_vec, d1_vec)
+                proj_y = torch.matmul(trajectory_centered.cpu(), d2_vec) / torch.dot(d2_vec, d2_vec)
 
                 traj_2d = torch.stack([proj_x, proj_y], dim=1).numpy()
                 min_traj = traj_2d.min(axis=0)
