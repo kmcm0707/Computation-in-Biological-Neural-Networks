@@ -773,8 +773,8 @@ class Runner:
                 traj_2d = torch.stack([proj_x, proj_y], dim=1).numpy()
                 min_traj = traj_2d.min(axis=0)
                 max_traj = traj_2d.max(axis=0)
-                alphas = np.linspace(min_traj[0] - 5, max_traj[0] + 5, 100)
-                betas = np.linspace(min_traj[1] - 5, max_traj[1] + 5, 100)
+                alphas = np.linspace(min_traj[0] - 0.4, max_traj[0] + 0.4, 500)
+                betas = np.linspace(min_traj[1] - 0.4, max_traj[1] + 0.4, 500)
 
                 # alpha_0_index = np.argmin(np.abs(alphas.cpu().numpy()))
                 # beta_0_index = np.argmin(np.abs(betas.cpu().numpy()))
@@ -869,7 +869,7 @@ def run(
         # 350,
         # 375,
     ]"""
-    trainingDataPerClass = [250]
+    trainingDataPerClass = [80, 100, 250]
     if index >= len(trainingDataPerClass):
         return
     """ trainingDataPerClass = [
@@ -1277,7 +1277,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_9_trajectory_analysis_5"][i],
+                result_subdirectory=["runner_mode_9_trajectory_analysis_true"][i],
                 index=index_outer,
                 typeOfFeedback=[typeOfFeedbackEnum.DFA_grad][i],
                 modelPath=modelPath_s[i],
