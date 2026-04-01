@@ -114,9 +114,9 @@ class JaxMetaLearnerRNN:
         self.loss_function = optax.safe_softmax_cross_entropy
 
         # -- log params
-        self.result_directory = os.getcwd() + "/results_2"
+        self.result_directory = os.getcwd() + "/results_3"
         if self.save_results:
-            self.result_directory = os.getcwd() + "/results_2"
+            self.result_directory = os.getcwd() + "/results_3"
             os.makedirs(self.result_directory, exist_ok=True)
             self.result_directory += (
                 "/"
@@ -168,11 +168,24 @@ class JaxMetaLearnerRNN:
         new_synaptic_weights = tuple(res[1] for res in results)
 
         # new_synaptic_weights = tuple(new_synaptic_weights)
-        new_rnn = eqx.tree_at(
-            lambda r: (r.layers, r.forward1, r.forward2, r.forward3),
-            rnn,
-            (new_parameters, new_parameters[0], new_parameters[1], new_parameters[2]),
-        )
+        if not self.jaxMetaLearnerOptions.two_layer_RNN:
+            new_rnn = eqx.tree_at(
+                lambda r: (r.layers, r.forward1, r.forward2, r.forward3),
+                rnn,
+                (new_parameters, new_parameters[0], new_parameters[1], new_parameters[2]),
+            )
+        else:
+            new_rnn = eqx.tree_at(
+                lambda r: (r.layers, r.forward1, r.forward2, r.forward3, r.forward4),
+                rnn,
+                (
+                    new_parameters,
+                    new_parameters[0],
+                    new_parameters[1],
+                    new_parameters[2],
+                    new_parameters[3],
+                ),
+            )
         return (
             new_synaptic_weights,
             new_parameters,
@@ -388,11 +401,24 @@ class JaxMetaLearnerRNN:
                 new_parameters[idx] = new_parameter
             self.synaptic_weights = tuple(new_synaptic_weights)
             self.new_parameters = tuple(new_parameters)
-            self.rnn = eqx.tree_at(
-                lambda r: (r.layers, r.forward1, r.forward2, r.forward3),
-                self.rnn,
-                (self.new_parameters, self.new_parameters[0], self.new_parameters[1], self.new_parameters[2]),
-            )
+            if not self.jaxMetaLearnerOptions.two_layer_RNN:
+                self.rnn = eqx.tree_at(
+                    lambda r: (r.layers, r.forward1, r.forward2, r.forward3),
+                    self.rnn,
+                    (self.new_parameters, self.new_parameters[0], self.new_parameters[1], self.new_parameters[2]),
+                )
+            else:
+                self.rnn = eqx.tree_at(
+                    lambda r: (r.layers, r.forward1, r.forward2, r.forward3, r.forward4),
+                    self.rnn,
+                    (
+                        self.new_parameters,
+                        self.new_parameters[0],
+                        self.new_parameters[1],
+                        self.new_parameters[2],
+                        self.new_parameters[3],
+                    ),
+                )
 
             # -- meta-optimization --
             trainable_mask = self.get_trainable_mask(self.metaOptimizer)
@@ -539,7 +565,7 @@ def main_jax_rnn_meta_learner():
         # device = "cpu"
         current_dir = os.getcwd()
         continue_training = (
-            current_dir + "/results_2/jax_rnn_12/20260121-024411"  # 20260121-024411"
+            current_dir + "/results_3/jax_rnn_12/20260121-024411"  # 20260121-024411"
         )  # "/results_2/jax_rnn_7_DSEF_fixed/20260217-174916" # "/results_2/jax_rnn_12/20260121-024411"#"/results_2/jax_rnn_12_28/20260126-043934"
         # -- meta-learner options
         metaLearnerOptions = JaxRnnMetaLearnerOptions(

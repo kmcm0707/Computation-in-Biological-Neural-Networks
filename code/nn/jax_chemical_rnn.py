@@ -20,6 +20,7 @@ class JAXChemicalRNN(eqx.Module):
     forward4: eqx.nn.Linear
     pre_feedback1: eqx.nn.Linear
     pre_feedback2: eqx.nn.Linear
+    pre_feedback3: eqx.nn.Linear
     recurrent_feedback: eqx.nn.Linear
     recurrent_feedback2: eqx.nn.Linear
     layers: tuple[eqx.nn.Linear]
@@ -75,8 +76,10 @@ class JAXChemicalRNN(eqx.Module):
         self.pre_feedback2 = eqx.nn.Linear(error_size, hidden_size, key=key5, use_bias=False)
         self.recurrent_feedback = eqx.nn.Linear(error_size, hidden_size, key=key6, use_bias=False)
         if self.two_layer_RNN:
-            key6_2 = jax.random.split(key6, 2)[1]
-            self.recurrent_feedback2 = eqx.nn.Linear(error_size, hidden_size, key=key6_2, use_bias=False)
+            key6_2, key6_3 = jax.random.split(key6, 2)
+            self.pre_feedback3 = eqx.nn.Linear(error_size, hidden_size, key=key6_2, use_bias=False)
+            self.recurrent_feedback2 = eqx.nn.Linear(error_size, hidden_size, key=key6_3, use_bias=False)
+
 
         if not self.two_layer_RNN:
             self.feedback_layers = (self.pre_feedback1, self.pre_feedback2, self.recurrent_feedback)
@@ -181,6 +184,19 @@ class JAXChemicalRNN(eqx.Module):
 
             new_self = eqx.tree_at(lambda r: r.recurrent_feedback2, new_self, new_recurrent_feedback2)
 
+            new_pre_feedback3 = eqx.nn.Linear(
+                self.pre_feedback3.in_features, self.pre_feedback3.out_features, key=key, use_bias=False
+            )
+            if self.low_dim_DFA > 0:
+                new_pre_feedback3 = eqx.tree_at(
+                    lambda r: r.weight,
+                    new_pre_feedback3,
+                    self.low_dim_feedback_initialization(
+                        key, self.pre_feedback3.in_features, self.pre_feedback3.out_features
+                    ),
+                )
+            new_self = eqx.tree_at(lambda r: r.pre_feedback3, new_self, new_pre_feedback3)
+
         new_linear1 = eqx.nn.Linear(self.forward1.in_features, self.forward1.out_features, key=key, use_bias=False)
         new_self = eqx.tree_at(lambda r: r.forward1, new_self, new_linear1)
         new_linear2 = eqx.nn.Linear(self.forward2.in_features, self.forward2.out_features, key=key, use_bias=False)
@@ -239,7 +255,7 @@ class JAXChemicalRNN(eqx.Module):
                 self.recurrent_activation(recurrent_input2) if self.recurrent_activation else recurrent_input2
             )
 
-            h_new_pre_tau2 = h_new_pre_tau_activated1 + recurrent_input_activated2
+            h_new_pre_tau2 = h_new1 + recurrent_input_activated2
             h_new_pre_tau_activated2 = (
                 self.outer_activation(h_new_pre_tau2) if self.outer_activation else h_new_pre_tau2
             )
@@ -267,6 +283,7 @@ class JAXChemicalRNN(eqx.Module):
         w_pre2 = jax.lax.stop_gradient(self.pre_feedback2.weight)
         w_rec = jax.lax.stop_gradient(self.recurrent_feedback.weight)
         if self.two_layer_RNN:
+            w_pre3 = jax.lax.stop_gradient(self.pre_feedback3.weight)
             w_rec2 = jax.lax.stop_gradient(self.recurrent_feedback2.weight)
 
         # Use the stopped weights for the feedback calculation
@@ -274,6 +291,7 @@ class JAXChemicalRNN(eqx.Module):
         pre_feedback_hidden = jnp.dot(w_pre2, error)
         recurrent_feedback_hidden = jnp.dot(w_rec, error)
         if self.two_layer_RNN:
+            pre_feedback_hidden2 = jnp.dot(w_pre3, error)
             recurrent_feedback_hidden2 = jnp.dot(w_rec2, error)
 
         if self.error_type == JaxErrorTypeEnum.DSEF:
@@ -285,7 +303,7 @@ class JAXChemicalRNN(eqx.Module):
             "forward3": (recurrent_feedback_hidden, error),
         }
         if self.two_layer_RNN:
-            errors["forward3"] = (recurrent_feedback_hidden, recurrent_feedback_hidden2)
+            errors["forward3"] = (pre_feedback_hidden2, recurrent_feedback_hidden2)
             errors["forward4"] = (recurrent_feedback_hidden2, error)
 
         """activations = {
