@@ -869,7 +869,7 @@ def run(
         # 350,
         # 375,
     ]"""
-    trainingDataPerClass = [80, 100, 250]
+    trainingDataPerClass = [30, 50, 80, 100, 250]
     if index >= len(trainingDataPerClass):
         return
     """ trainingDataPerClass = [
@@ -1073,28 +1073,6 @@ def run(
     feedbackModel = model
     feedbackModelOptions = modelOptions
 
-    # -- path to load model
-
-    # modelPath = os.getcwd() + "/results/DFA_test/1/20250301-165653"
-    # modelPath = (
-    # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_ind_v_diff_lr\0\0.0009"
-    # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\Mode_1\baselines\0\3"
-    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\varied_training\1\20250213-134357"
-    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\longer_train_test\1\20250213-154422"
-    # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\super_varied_longer_train_test\1\20250213-180025"
-    # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_0\0\20250203-234503"
-    # r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\individual_no_bias\1\individual_no_bias_recreate\1\20250211-010125"
-    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\rosenbaum_recreate\1\20250215-003840"
-    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\rosenbaum_recreate\1\20250215-010641"
-    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\attention_test\0\20250215-204423"
-    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_extra_long\0\20250216-035231"
-    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_4_extra_long\100_max_tau"
-    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_3_extra_long\1\20250216-185131"
-    # r"C:\Users\Kyle\Desktop\Computation-in-Biological-Neural-Networks\results\y0_3_extra_long\1\20250217-005224"
-    # )
-    # list_of_files = os.listdir(modelPath)
-    # modelPath = r"C:\Users\Kyle\Desktop\Results-Computation-In-Biological-NNs\results\different_y_0\100_200_max_tau\y0_5_extra_long_200\500_epochs"
-
     # -- runner options
     runnerOptions = RunnerOptions(
         model=model,
@@ -1168,100 +1146,6 @@ def runner_main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [
-        # os.getcwd() + "/results/mode_6_1_chem_1/0/20250910-221744",
-        # os.getcwd() + "/results/mode_6_3_chem_1/0/20250910-204609",
-        # os.getcwd() + "/results/mode_6_5_chem_1/0/20250910-204750",
-        # os.getcwd() + "/results/mode_6_5_chem_lr_6/0/20250715-172436"
-        # os.getcwd()
-        # + "/results/DFA_5_chem_longer/2/20251014-003536"
-        # #"/results/mode_6_7_chem_1/0/20250910-222310",
-        # s.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-184038",
-        # os.getcwd() + "/results/rl_error_scalar_grad_longer_1/0/20251007-195827",
-        # os.getcwd() + "/results/rl_error_scalar_grad_longer_5/0/20251007-143025",
-        # os.getcwd() + "/results/rl_error_scalar_grad_longer_7/0/20251007-180458",
-        # os.getcwd() + "/results/DFA_longer_7/0/20251008-023234/"
-        # os.getcwd() + "/results/DFA_longer_1/0/20251008-021457"
-        # os.getcwd()
-        # + "/results/DFA_longer_5/0/20251008-023058"
-        # os.getcwd()+ "/results/DFA_longer_2/0/20251008-052203"
-        # os.getcwd()
-        # + "/results/error_5_fixed/0/20251011-194736"
-        # os.getcwd() + "/results/error_1_fixed/0/20251009-194350"
-        # os.getcwd()
-        # + "/results/scalar_3_5/2/20251012-171341"
-        # os.getcwd()
-        # + "/results/DFA_20_chem/0/20251020-002002"
-        # os.getcwd()
-        # + "/results_2/mode_9_longer_post_train_fashion_2/1/20251212-015802"
-        # os.getcwd() + "/results/no_z_all_ones/0/max_tau_10",
-        # os.getcwd() + "/results/no_z_all_ones/0/max_tau_20",
-        # os.getcwd() + "/results/no_z_all_ones/0/max_tau_50",
-        # os.getcwd() + "/results_2/mode_9_scalar_clip/1/20251204-195612",
-        # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312"
-        # os.getcwd() + "/results_2/mode_9_scalar_9_chems/1/20251210-183207"
-        # os.getcwd() + "/results_2/error_1_fixed/0/20251009-194350",
-        # os.getcwd()
-        # + "/results_2/mode_6_CB/1/20251111-151155" 20251111-203959
-        # os.getcwd()
-        # + "/results_2/mode_6_CB/1/20251111-203959"
-        # os.getcwd() + "/results_2/20251103-183210",
-        # os.getcwd() + "/results_2/mode_9_scalar_clip/1/20251204-195612",
-        # os.getcwd() + "/results_2/mode_9_5_scalar_all_ones/0/2251120-191135"
-        # os.getcwd()
-        # + "/results_2/mode_9_scalar_10/1/20251124-002143"
-        # os.getcwd() + "/results_2/mode_9_CB/5/20251112-001951"
-        # os.getcwd()
-        # + "/results_2/mode_6_5_chem_scalar_CB/1/20260216-033236"
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA/0/20260219-011142",
-        # os.getcwd() + "/results_/mode_9_low_dim_DFA_2/0/20260219-012932",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_2/0/20260219-012932",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_3/0/20260219-013111",
-        # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
-        # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
-        # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
-        # os.getcwd() + "/results_2/mode_9_rand/0/20251105-152312",
-        # os.getcwd() + "/results_2/20251103-214650",
-        # os.getcwd() + "/results_2/DFA_longer_1/0/20251008-021457",
-        # + "/results_2/mode_7_7_chems/0/20260121-182419"
-        # + "/results_2/20251103-214650"
-        # + "/results_2/mode_10_5_chem_scalar/1/20260211-154427"
-        # + "/results_2/mode_9_5_chem_scalar_minus_one/1/20260213-141251"
-        # + "/results_2/mode_10_5_chem/1/20260212-015727"
-        # + "/results_2/scalar_only/1/20260125-180711",
-        # + "/results_2/mode_7_5_chems/2/20260124-215926" #0/20260124-200247"
-        # os.getcwd() + "/results_2/mode_9_scalar_10/1/20251124-005417"
-        # os.getcwd()
-        # + "/results_2/mode_9_11_chems/0/20260122-054815"
-        # os.getcwd() + "/results_2/rosenbaum_recreate/1/20250215-010641",
-        # os.getcwd() + "/results_2/mode_9_split_FM/0/20260225-172302",
-        # os.getcwd() + "/results_2/mode_9_split_FM/0/20260225-153348",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-022843",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-030724",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-025145",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-031022",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-032859",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_300/0/20260223-034740",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-052052",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-055947",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_1_chems_900/0/20260223-063849",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-022126",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-031941",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-041805",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-051547",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-061038",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-070539",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-080041",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-085544",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_900/0/20260223-095108",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-022702",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-030726",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-034803",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-042836",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-050912",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-054952",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-063034",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-071109",
-        # os.getcwd() + "/results_2/mode_9_low_dim_DFA_trained_3_chems_900/0/20260223-075035",
         # os.getcwd() + "/results_3/mode_9_gating_no_W/0/20260324-210116",
         # os.getcwd() + "/results_3/mode_9_gating_lr/1/20260326-004813",
         # os.getcwd() + "/results_3/mode_9_gating_lr_DFA_grad_log/1/20260326-032731",
@@ -1269,18 +1153,23 @@ def runner_main():
         # os.getcwd() + "/results_3/mode_9_gating_lr_h_DFA_grad/1/20260326-032449",
         # os.getcwd()
         # + "/results_3/mode_9_gating_lr_h_scalar/1/20260326-025622",
-        os.getcwd()
-        + "/results_3/mode_9_rand/0/20251105-152312"
+        os.getcwd() + "/results_3/mode_9_rand/0/20251105-152312",
+        os.getcwd() + "/results_3/20251103-214650",
+        os.getcwd() + "/results_3/mode_7_1_chem/1/20260125-202838",
     ]
     for i in range(len(modelPath_s)):
         for index_outer in range(0, 25):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_mode_9_trajectory_analysis_true"][i],
+                result_subdirectory=[
+                    "runner_mode_9_trajectory_analysis_5_chems",
+                    "runner_mode_9_trajectory_analysis_true_3_chems",
+                    "runner_mode_9_trajectory_analysis_true_1_chems",
+                ][i],
                 index=index_outer,
-                typeOfFeedback=[typeOfFeedbackEnum.DFA_grad][i],
+                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=5,
-                gating=[gatingEnum.no_gating][i],
+                numberOfChemicals=[5, 3, 1][i],
+                gating=gatingEnum.no_gating,
             )
