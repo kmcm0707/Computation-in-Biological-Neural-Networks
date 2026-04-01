@@ -1098,7 +1098,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_9,  # _pre_activation,
+            operator=operatorEnum.mode_6,  # _pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1233,8 +1233,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.non_linear_DFA,
+        continueTraining=None, #continue_training,
+        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
         hrm_discount=-1,
         error_control=False,
@@ -1249,7 +1249,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         split_min_number_of_tasks=1,
         split_max_number_of_tasks=5,
         split_only_one_task_evaluation=0,  # starts from 0
-        regenerate_feedback_weights=1,  # regenerate feedback weights every n episodes, -1 means never regenerate
+        regenerate_feedback_weights=-1,  # regenerate feedback weights every n episodes, -1 means never regenerate
     )
 
     # -- number of chemicals
@@ -1283,4 +1283,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=1, display=True, result_subdirectory="mode_9_regenerate_low_dim_2", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_6_NAO", index=i)
