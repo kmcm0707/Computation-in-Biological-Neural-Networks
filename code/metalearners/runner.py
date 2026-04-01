@@ -669,6 +669,29 @@ class Runner:
                         calculate_only_acc=True,
                     )
 
+            if self.options.chemical_accuracy:
+                for chem_index in range(self.numberOfChemicals):
+                    forward_params = {k: v.clone() for k, v in parameters.items() if "forward" in k}
+                    for k in forward_params:
+                        forward_params[k] = h_parameters[k.replace("forward", "chemical").split(".")[0]][
+                            chem_index, :, :
+                        ].clone()
+                        forward_params[k] = torch.nn.functional.normalize(forward_params[k], p=2, dim=0)
+                    _, logits = torch.func.functional_call(self.model, (forward_params, h_parameters), x_qry_1)
+                    meta_stats(
+                        logits,
+                        parameters,
+                        y_qry_1.ravel(),
+                        y_1,
+                        self.model.beta,
+                        self.result_directory,
+                        self.save_results,
+                        typeOfFeedback=self.options.typeOfFeedback,
+                        dimOut=self.options.dimOut,
+                        save_index="_chem_" + str(chem_index),
+                        calculate_only_acc=True,
+                    )
+
             # -- log
             if self.save_results:
                 log([loss_meta_1.item()], self.result_directory + "/loss_meta.txt")
@@ -1110,7 +1133,8 @@ def run(
         split=False,
         split_min_number_of_tasks=5,
         split_max_number_of_tasks=5,
-        trajectory_analysis=True,
+        trajectory_analysis=False,
+        chemical_accuracy=True,
     )
 
     #   -- number of chemicals
@@ -1153,9 +1177,10 @@ def runner_main():
         # os.getcwd() + "/results_3/mode_9_gating_lr_h_DFA_grad/1/20260326-032449",
         # os.getcwd()
         # + "/results_3/mode_9_gating_lr_h_scalar/1/20260326-025622",
-        os.getcwd() + "/results_3/mode_9_rand/0/20251105-152312",
-        os.getcwd() + "/results_3/20251103-214650",
-        os.getcwd() + "/results_3/mode_7_1_chem/1/20260125-202838",
+        # os.getcwd() + "/results_3/mode_9_rand/0/20251105-152312",
+        # os.getcwd() + "/results_3/20251103-214650",
+        os.getcwd()
+        + "/results_3/mode_7_1_chem/1/20260125-202838",
     ]
     for i in range(len(modelPath_s)):
         for index_outer in range(0, 25):
@@ -1170,6 +1195,6 @@ def runner_main():
                 index=index_outer,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=[5, 3, 1][i],
+                numberOfChemicals=[1][i],
                 gating=gatingEnum.no_gating,
             )

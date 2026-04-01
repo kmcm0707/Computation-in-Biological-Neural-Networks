@@ -50,6 +50,7 @@ class RunnerOptions:
         split_min_number_of_tasks=2,
         split_max_number_of_tasks=5,
         trajectory_analysis=False,
+        chemical_accuracy=False,
     ):
 
         self.model = model
@@ -86,6 +87,7 @@ class RunnerOptions:
         self.split_min_number_of_tasks = split_min_number_of_tasks
         self.split_max_number_of_tasks = split_max_number_of_tasks
         self.trajectory_analysis = trajectory_analysis
+        self.chemical_accuracy = chemical_accuracy
 
     def __str__(self):
         string = ""
