@@ -44,6 +44,7 @@ class RosenbaumRNN(nn.Module):
         output_nonlinearity: nonLinearEnum = nonLinearEnum.tanh,
         hidden_size: int = 128,
         update_after_time_step: bool = False,
+        two_layer_RNN: bool = False,
     ):
 
         # Initialize the parent class
@@ -60,6 +61,7 @@ class RosenbaumRNN(nn.Module):
         self.biological_max_tau = biological_max_tau
         self.hidden_size = hidden_size
         self.update_after_time_step = update_after_time_step
+        self.two_layer_RNN = two_layer_RNN
 
         if biological_nonlinearity == nonLinearEnum.softplus:
             self.beta = 10
@@ -99,6 +101,8 @@ class RosenbaumRNN(nn.Module):
             # self.z_vector = nn.Parameter(self.z_vector)
 
             self.recurrent1 = nn.Linear(self.hidden_size, self.hidden_size, bias=False)
+            if self.two_layer_RNN:
+                self.recurrent2 = nn.Linear(self.hidden_size, self.hidden_size, bias=False)
 
             self.forward2 = nn.Linear(self.hidden_size, dim_out, bias=False)
 
@@ -123,24 +127,36 @@ class RosenbaumRNN(nn.Module):
                     self.biological_nonlinearity(self.out1) + self.recurrent_nonlinearity(self.recurrent1(self.hx1))
                 )
             )
-
-            # -- compute output
-            output = self.forward2(self.hx1)
+            if self.two_layer_RNN:
+                self.hx2 = self.y_vector * self.hx2 + self.z_vector * (
+                    self.output_nonlinearity(self.hx1 + self.recurrent_nonlinearity(self.recurrent2(self.hx2)))
+                )
+                output = self.forward2(self.hx2)
+            else:
+                output = self.forward2(self.hx1)
 
             if self.update_after_time_step:
                 self.hx1 = self.hx1.detach()
+                if self.two_layer_RNN:
+                    self.hx2 = self.hx2.detach()
 
             # return (x, self.hx1), output
-            return (x, self.hx1), output
+            if self.two_layer_RNN:
+                return (x, self.hx1, self.hx2), output
+            else:
+                return (x, self.hx1), output
 
     def reset_hidden(self, batch_size):
         # -- hidden states
         self.hx1 = torch.zeros(batch_size, self.hidden_size).to(self.device)
+        if self.two_layer_RNN:
+            self.hx2 = torch.zeros(batch_size, self.hidden_size).to(self.device)
         # self.hx2 = torch.zeros(batch_size, 128).to(self.device)
 
     def detach_hidden(self):
         self.hx1 = self.hx1.detach()
-        # self.hx2 = self.hx2.detach()
+        if self.two_layer_RNN:
+            self.hx2 = self.hx2.detach()
 
 
 class RnnMetaLearner:
@@ -174,6 +190,7 @@ class RnnMetaLearner:
         update_after_time_step: bool = False,
         manually_update_after_time_step: int = 5,
         learning_rate: float = 1e-3,
+        two_layer_RNN: bool = False,
     ):
 
         # -- processor params
@@ -191,6 +208,7 @@ class RnnMetaLearner:
         self.hidden_size = hidden_size
         self.update_after_time_step = update_after_time_step
         self.manually_update_after_time_step = manually_update_after_time_step
+        self.two_layer_RNN = two_layer_RNN
 
         # -- data params
         self.trainingDataPerClass = trainingDataPerClass
@@ -243,9 +261,9 @@ class RnnMetaLearner:
         # -- log params
         self.save_results = save_results
         self.display = True
-        self.result_directory = os.getcwd() + "/results"
+        self.result_directory = os.getcwd() + "/results_3"
         if self.save_results:
-            self.result_directory = os.getcwd() + "/results"
+            self.result_directory = os.getcwd() + "/results_3"
             os.makedirs(self.result_directory, exist_ok=True)
             self.result_directory += "/" + result_subdirectory + "/" + str(seed) + "/" + str(self.trainingDataPerClass)
             try:
@@ -305,6 +323,7 @@ class RnnMetaLearner:
             output_nonlinearity=self.output_nonlinearity,
             hidden_size=self.hidden_size,
             update_after_time_step=self.update_after_time_step,
+            two_layer_RNN=self.two_layer_RNN,
         )
         return model
 
@@ -601,11 +620,12 @@ def run(
         trainingDataPerClass=trainingDataPerClass,
         dimOut=dimOut,
         dimIn=dimIn,
-        permutation=True,
+        permutation=False,
+        two_layer_RNN=True,
         # -- model params
         biological=True,
         biological_min_tau=1,
-        biological_max_tau=28,
+        biological_max_tau=7,
         biological_nonlinearity=nonLinearEnum.softplus,
         recurrent_nonlinearity=nonLinearEnum.softplus,
         output_nonlinearity=nonLinearEnum.tanh,
@@ -632,7 +652,7 @@ def rnn_backprop_main():
     :return: None
     """
     # -- run
-    dimIn = [28]
+    dimIn = [112, 28]
     trainingDataPerClass = [
         10,
         20,
@@ -698,7 +718,7 @@ def rnn_backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="backprop_emnsit_permutation/{}".format(dim),
+                result_subdirectory="backprop_emnist_2_layer/{}".format(dim),
                 trainingDataPerClass=trainingData,
                 dimIn=dim,
             )
