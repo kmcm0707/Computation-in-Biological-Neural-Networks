@@ -105,7 +105,7 @@ class JaxMetaLearnerRNN:
         dynamic, static = eqx.partition(self.metaOptimizer, trainable_mask)
         self.opt_state = self.optimizer.init(dynamic)
         self.metaOptimizer = eqx.combine(dynamic, static)
-        if self.jaxMetaLearnerOptions.load_model is not None:
+        if self.jaxMetaLearnerOptions.load_model is not None and self.jaxMetaLearnerOptions.load_optimizer:
             self.opt_state = eqx.tree_deserialise_leaves(
                 self.jaxMetaLearnerOptions.load_model + "/meta_learner_optimizer.eqx", self.opt_state
             )
@@ -591,6 +591,7 @@ def main_jax_rnn_meta_learner():
             recurrent_activation=JaxActivationNonLinearEnum.softplus,
             number_of_time_steps=7,
             load_model=continue_training,
+            load_optimizer=False,
             error_type=JaxErrorTypeEnum.DFA,
             low_dim_DFA=-1,
             two_layer_RNN=True,
