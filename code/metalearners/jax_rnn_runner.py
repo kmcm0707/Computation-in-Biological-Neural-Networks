@@ -55,6 +55,7 @@ class JaxMetaLearnerRNN:
             recurrent_activation=self.jaxMetaLearnerOptions.recurrent_activation,
             error_type=self.jaxMetaLearnerOptions.error_type,
             low_dim_DFA=self.jaxMetaLearnerOptions.low_dim_DFA,
+            two_layer_RNN=self.jaxMetaLearnerOptions.two_layer_RNN,
         )
         self.save_results = self.jaxMetaLearnerOptions.save_results
         self.metaTrainingDataset = metaTrainingDataset
@@ -96,9 +97,9 @@ class JaxMetaLearnerRNN:
         self.loss_function = optax.safe_softmax_cross_entropy
 
         # -- log params
-        self.result_directory = os.getcwd() + "/results_2"
+        self.result_directory = os.getcwd() + "/results_3"
         if self.save_results:
-            self.result_directory = os.getcwd() + "/results_2"
+            self.result_directory = os.getcwd() + "/results_3"
             os.makedirs(self.result_directory, exist_ok=True)
             self.result_directory += (
                 "/"
@@ -131,48 +132,53 @@ class JaxMetaLearnerRNN:
         self.synaptic_weights = tuple(self.synaptic_weights)
 
     def inner_loop_per_image(self, carry, input):
-        synaptic_weights, parameters, rnn, hidden_state, metaOptimizer, past_h_new_pre_tau = carry
+        synaptic_weights, parameters, rnn, hidden_state, metaOptimizer = carry
         x, labels = input
+
         if self.jaxMetaLearnerOptions.dataset_name != "ADDBERNOULLI":
             labels = jax.nn.one_hot(labels, num_classes=self.jaxMetaLearnerOptions.output_size)
 
-        y, hidden_state, past_h_new_pre_tau, activations_arr, errors_arr = rnn(
-            x, hidden_state, labels, past_h_new_pre_tau
-        )
+        y, hidden_state, activations_arr, errors_arr = rnn(x, hidden_state, labels)
 
-        new_parameters = list(parameters)
-        new_synaptic_weights = list(synaptic_weights)
-        for idx, parameter in enumerate(parameters):
-            synaptic_weight = synaptic_weights[idx]
-            activations_tuple = activations_arr[idx]
-            errors_tuple = errors_arr[idx]
-            new_parameter, new_synaptic_weight = metaOptimizer(
-                synaptic_weight, parameter, activations_tuple, errors_tuple
+        def update_layer(w, p, act, err):
+            return metaOptimizer(w, p, act, err)
+
+        activations_arr = tuple(activations_arr)
+        errors_arr = tuple(errors_arr)
+
+        results = jax.tree_util.tree_map(update_layer, synaptic_weights, parameters, activations_arr, errors_arr)
+        new_parameters = tuple(res[0] for res in results)
+        new_synaptic_weights = tuple(res[1] for res in results)
+
+        if not self.jaxMetaLearnerOptions.two_layer_RNN:
+            new_rnn = eqx.tree_at(
+                lambda r: (r.layers, r.forward1, r.forward2, r.forward3),
+                rnn,
+                (new_parameters, new_parameters[0], new_parameters[1], new_parameters[2]),
             )
-            new_synaptic_weights[idx] = new_synaptic_weight
-            new_parameters[idx] = new_parameter
-
-        new_parameters_tuple = tuple(new_parameters)
-        new_synaptic_weights_tuple = tuple(new_synaptic_weights)
-
-        new_rnn = eqx.tree_at(
-            lambda r: (r.layers, r.forward1, r.forward2, r.forward3),
-            rnn,
-            (new_parameters_tuple, new_parameters_tuple[0], new_parameters_tuple[1], new_parameters_tuple[2]),
-        )
+        else:
+            new_rnn = eqx.tree_at(
+                lambda r: (r.layers, r.forward1, r.forward2, r.forward3, r.forward4),
+                rnn,
+                (
+                    new_parameters,
+                    new_parameters[0],
+                    new_parameters[1],
+                    new_parameters[2],
+                    new_parameters[3],
+                ),
+            )
         return (
-            new_synaptic_weights_tuple,
-            new_parameters_tuple,
+            new_synaptic_weights,
+            new_parameters,
             new_rnn,
             hidden_state,
             metaOptimizer,
-            past_h_new_pre_tau,
         ), y
 
     def full_inner_loop(self, carry, input) -> jnp.ndarray:
         synaptic_weights, parameters, rnn, metaOptimizer = carry
         hidden_state = rnn.initialise_hidden_state(batch_size=1)
-        past_h_new_pre_tau = rnn.initialise_hidden_state(batch_size=1)
         x, label = input
 
         if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
@@ -197,19 +203,17 @@ class JaxMetaLearnerRNN:
                 label, repeats=self.jaxMetaLearnerOptions.number_of_time_steps, axis=0
             )  # (time_steps, output_size)
 
-        (new_synaptic_weights, new_parameters, new_rnn, hidden_state, metaOptimizer, past_h_new_pre_tau), y = (
-            jax.lax.scan(
-                self.inner_loop_per_image,
-                (synaptic_weights, parameters, rnn, hidden_state, metaOptimizer, past_h_new_pre_tau),
-                (x, label),
-            )
+        (new_synaptic_weights, new_parameters, new_rnn, hidden_state, metaOptimizer), y = jax.lax.scan(
+            self.inner_loop_per_image,
+            (synaptic_weights, parameters, rnn, hidden_state, metaOptimizer),
+            (x, label),
         )
         return (new_synaptic_weights, new_parameters, new_rnn, metaOptimizer), (y, hidden_state)
 
     def inner_loop_per_image_no_update(self, carry, input):
         hidden_state, rnn = carry
         x = input
-        y, hidden_state, _, _, _ = rnn(x, hidden_state, None, None)
+        y, hidden_state, _, _ = rnn(x, hidden_state, None)
         return (hidden_state, rnn), y
 
     def full_inner_loop_no_update(self, input) -> jnp.ndarray:
@@ -359,12 +363,24 @@ class JaxMetaLearnerRNN:
                 new_parameters[idx] = new_parameter
             self.synaptic_weights = tuple(new_synaptic_weights)
             self.new_parameters = tuple(new_parameters)
-            self.rnn = eqx.tree_at(
-                lambda r: (r.layers, r.forward1, r.forward2, r.forward3),
-                self.rnn,
-                (self.new_parameters, self.new_parameters[0], self.new_parameters[1], self.new_parameters[2]),
-            )
-
+            if not self.jaxMetaLearnerOptions.two_layer_RNN:
+                self.rnn = eqx.tree_at(
+                    lambda r: (r.layers, r.forward1, r.forward2, r.forward3),
+                    self.rnn,
+                    (self.new_parameters, self.new_parameters[0], self.new_parameters[1], self.new_parameters[2]),
+                )
+            else:
+                self.rnn = eqx.tree_at(
+                    lambda r: (r.layers, r.forward1, r.forward2, r.forward3, r.forward4),
+                    self.rnn,
+                    (
+                        self.new_parameters,
+                        self.new_parameters[0],
+                        self.new_parameters[1],
+                        self.new_parameters[2],
+                        self.new_parameters[3],
+                    ),
+                )
             # -- meta-optimization --
             loss, acc = self.make_step(
                 self.metaOptimizer,
@@ -524,17 +540,7 @@ def jax_runner(index: int):
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    # runner = current_dir + "/results_2/jax_rnn_12/20260121-004412"
-    runner = current_dir + "/results_2/jax_rnn_7_DSEF_fixed/20260217-235558"
-    # runner = current_dir + "/results_2/jax_rnn_12_28/20260126-043934"
-    # unner = current_dir + "/results_2/jax_rnn_Low_dim_DFA_3/20260219-193948"
-    # runner = [
-    #    current_dir + "/results_2/jax_rnn_low_dim_6/20260225-183751",
-    #    current_dir + "/results_2/jax_rnn_low_dim_8/20260225-200334",
-    #    current_dir + "/results_2/jax_rnn_low_dim_10/20260225-212923",
-    # runner = current_dir + "/results_2/jax_rnn_low_dim_30/20260226-014817"
-    # ][index2]
-    # runner = current_dir + "/results_2/jax_rnn_DFA_3_chems/20260221-195452"
+    runner = current_dir + "/results_3/jax_rnn_12/20260121-024411"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
