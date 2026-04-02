@@ -479,7 +479,7 @@ class JaxMetaLearnerRNN:
 
 
 def main_jax_rnn_meta_learner():
-    os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
+    #os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
     for index in range(6):
         key = jax.random.PRNGKey(42)
         # jax.config.update("jax_enable_x64", False)
@@ -574,7 +574,7 @@ def main_jax_rnn_meta_learner():
             results_subdir="jax_rnn_2_layer_DFA",
             metatrain_dataset=dataset_name,
             display=True,
-            metaLearningRate=0.0001,
+            metaLearningRate=0.001,
             numberOfClasses=numberOfClasses,
             dataset_name=dataset_name,
             chemicalInitialization=chemicalEnum.same,
