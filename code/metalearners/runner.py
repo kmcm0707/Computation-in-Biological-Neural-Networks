@@ -1125,7 +1125,7 @@ def run(
         ),  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" else None,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
@@ -1145,8 +1145,8 @@ def run(
         split=False,
         split_min_number_of_tasks=5,
         split_max_number_of_tasks=5,
-        trajectory_analysis=False,
-        chemical_accuracy=True,
+        trajectory_analysis=True,
+        chemical_accuracy=False,
     )
 
     #   -- number of chemicals
@@ -1191,8 +1191,9 @@ def runner_main():
         # + "/results_3/mode_9_gating_lr_h_scalar/1/20260326-025622",
         # os.getcwd() + "/results_3/mode_9_rand/0/20251105-152312",
         # os.getcwd() + "/results_3/20251103-214650",
-        os.getcwd()
-        + "/results_3/mode_7_1_chem/1/20260125-202838",
+        #os.getcwd()
+        #+ "/results_3/mode_7_1_chem/1/20260125-202838",
+        os.getcwd() + "/results_3/mode_9_scalar_10/1/20251124-005417"
     ]
     for i in range(len(modelPath_s)):
         for index_outer in range(0, 25):
@@ -1200,13 +1201,13 @@ def runner_main():
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    "runner_mode_9_trajectory_analysis_5_chems",
-                    "runner_mode_9_trajectory_analysis_true_3_chems",
-                    "runner_mode_9_trajectory_analysis_true_1_chems",
+                    "runner_mode_9_trajectory_analysis_true_5_chems_scalar_2",
+                    #"runner_mode_9_trajectory_analysis_true_3_chems",
+                    #"runner_mode_9_trajectory_analysis_true_1_chems",
                 ][i],
                 index=index_outer,
-                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+                typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=[1][i],
+                numberOfChemicals=[5][i],
                 gating=gatingEnum.no_gating,
             )

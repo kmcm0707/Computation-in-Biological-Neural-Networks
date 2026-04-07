@@ -625,7 +625,7 @@ def run(
         # -- model params
         biological=True,
         biological_min_tau=1,
-        biological_max_tau=7,
+        biological_max_tau=28,
         biological_nonlinearity=nonLinearEnum.softplus,
         recurrent_nonlinearity=nonLinearEnum.softplus,
         output_nonlinearity=nonLinearEnum.tanh,
@@ -652,7 +652,7 @@ def rnn_backprop_main():
     :return: None
     """
     # -- run
-    dimIn = [112, 28]
+    dimIn = [28]
     trainingDataPerClass = [
         10,
         20,
