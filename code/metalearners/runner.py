@@ -370,7 +370,7 @@ class Runner:
                 symbolic_activations = []
                 symbolic_errors = []
                 """
-            
+
             if (
                 self.options.chemicalInitialization != chemicalEnum.zero
                 and self.modelOptions.operator != operatorEnum.mode_3
@@ -561,7 +561,6 @@ class Runner:
                     else:
                         raise ValueError("Invalid type of feedback")
                     activations_and_output = [*activations, functional.softmax(output, dim=1)]
-
 
                     # -- update network params
                     self.UpdateWeights(
@@ -845,6 +844,7 @@ def run(
     modelPath=None,
     numberOfChemicals=1,
     gating=gatingEnum.no_gating,
+    operator=operatorEnum.mode_1,
 ) -> None:
     """
         Main function for Meta-learning the plasticity rule.
@@ -1021,7 +1021,7 @@ def run(
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_9,  # _pre_activation,
+            operator=operator,  # _pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1191,9 +1191,12 @@ def runner_main():
         # + "/results_3/mode_9_gating_lr_h_scalar/1/20260326-025622",
         # os.getcwd() + "/results_3/mode_9_rand/0/20251105-152312",
         # os.getcwd() + "/results_3/20251103-214650",
-        #os.getcwd()
-        #+ "/results_3/mode_7_1_chem/1/20260125-202838",
-        os.getcwd() + "/results_3/mode_9_scalar_10/1/20251124-005417"
+        # os.getcwd()
+        # + "/results_3/mode_7_1_chem/1/20260125-202838",
+        # os.getcwd() + "/results_3/mode_9_scalar_10/1/20251124-005417"
+        os.getcwd() + "/results_3/mode_6_scalar_not_all_ones_same/2/20251123-235027",
+        os.getcwd() + "/results_3/mode_9_scalar_clip/1/20251204-195612",
+        os.getcwd() + "/results_3/error_1_fixed/0/20251009-194350",
     ]
     for i in range(len(modelPath_s)):
         for index_outer in range(0, 25):
@@ -1201,13 +1204,14 @@ def runner_main():
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    "runner_mode_9_trajectory_analysis_true_5_chems_scalar_2",
-                    #"runner_mode_9_trajectory_analysis_true_3_chems",
-                    #"runner_mode_9_trajectory_analysis_true_1_chems",
+                    "runner_mode_6_trajectory_analysis_true_5_chems_scalar",
+                    "runner_mode_9_trajectory_analysis_true_3_chems_scalar",
+                    "runner_mode_9_trajectory_analysis_true_1_chems_scalar",
                 ][i],
                 index=index_outer,
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=[5][i],
+                numberOfChemicals=[5, 3, 1][i],
                 gating=gatingEnum.no_gating,
+                operator=[operatorEnum.mode_6, operatorEnum.mode_9, operatorEnum.mode_9][i],
             )
