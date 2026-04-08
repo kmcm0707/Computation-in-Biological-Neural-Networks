@@ -869,7 +869,7 @@ def run(
 
     # -- load data
     numWorkers = 4
-    epochs = 1
+    epochs = 5
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
