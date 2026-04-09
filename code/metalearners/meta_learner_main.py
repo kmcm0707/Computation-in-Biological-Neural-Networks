@@ -1098,7 +1098,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_6,  # _pre_activation,
+            operator=operatorEnum.mode_9,  # _pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1109,7 +1109,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
             scale_chemical_weights=False,
-            gating=gatingEnum.no_gating,
+            gating=gatingEnum.learning_rule_gating,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -1195,14 +1195,14 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    continue_training = current_dir + "/results_3/mode_9_rand/0/20251105-152312"
+    #continue_training = current_dir + "/results_3/mode_9_rand/0/20251105-152312"
 
     # continue_training = current_dir + "/results_3/mode_9_CB/5/20251112-001951"
     # continue_training = (
     #   current_dir + "/results_3/20251103-214650"
     # )
 
-    # continue_training = current_dir + "/results_3/mode_9_scalar_10/1/20251124-005417"
+    continue_training = current_dir + "/results_3/mode_9_scalar_10/1/20251124-005417"
     # continue_training = (
     #    current_dir + "/results_3/mode_9_rand/0/20251105-152312"
     # )  # "/results_3/mode_9/0/20251107-172732"
@@ -1233,8 +1233,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=None, #continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+        continueTraining=continue_training,
+        typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
         hrm_discount=-1,
         error_control=False,
@@ -1244,7 +1244,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         wta=False,
         shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" else 0,
         scalar_variance_reduction=-1,  # -1 means no scalar variance reduction
-        low_rank_feedback=2,  # [1, 2, 4, 6, 8, 10, 15, 20, 30][index],
+        low_rank_feedback=-1,  # [1, 2, 4, 6, 8, 10, 15, 20, 30][index],
         split=False,
         split_min_number_of_tasks=1,
         split_max_number_of_tasks=5,
@@ -1283,4 +1283,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=0, display=True, result_subdirectory="mode_6_NAO", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_scalar_lr_gating", index=i)
