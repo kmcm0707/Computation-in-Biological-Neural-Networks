@@ -1189,14 +1189,13 @@ def runner_main():
         # os.getcwd() + "/results_3/mode_9_gating_lr_h_DFA_grad/1/20260326-032449",
         # os.getcwd()
         # + "/results_3/mode_9_gating_lr_h_scalar/1/20260326-025622",
-        # os.getcwd() + "/results_3/mode_9_rand/0/20251105-152312",
-        # os.getcwd() + "/results_3/20251103-214650",
-        # os.getcwd()
-        # + "/results_3/mode_7_1_chem/1/20260125-202838",
-        os.getcwd() + "/results_3/mode_9_scalar_10/1/20251124-005417"
-        #os.getcwd() + "/results_3/mode_6_scalar_not_all_ones_same/2/20251123-235027",
-        #os.getcwd() + "/results_3/mode_9_scalar_clip/1/20251204-195612",
-        #os.getcwd() + "/results_3/error_1_fixed/0/20251009-194350",
+        os.getcwd() + "/results_3/mode_9_rand/0/20251105-152312",
+        os.getcwd() + "/results_3/20251103-214650",
+        os.getcwd() + "/results_3/mode_7_1_chem/1/20260125-202838",
+        # os.getcwd() + "/results_3/mode_9_scalar_10/1/20251124-005417"
+        # os.getcwd() + "/results_3/mode_6_scalar_not_all_ones_same/2/20251123-235027",
+        # os.getcwd() + "/results_3/mode_9_scalar_clip/1/20251204-195612",
+        # os.getcwd() + "/results_3/error_1_fixed/0/20251009-194350",
     ]
     for i in range(len(modelPath_s)):
         for index_outer in range(0, 25):
@@ -1204,12 +1203,12 @@ def runner_main():
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    "runner_mode_9_trajectory_analysis_true_5_chems_scalar_4",
-                    "runner_mode_9_trajectory_analysis_true_3_chems_scalar_4",
-                    "runner_mode_9_trajectory_analysis_true_1_chems_scalar_4",
+                    "runner_mode_9_trajectory_analysis_true_5_chems_4",
+                    "runner_mode_9_trajectory_analysis_true_3_chems_4",
+                    "runner_mode_9_trajectory_analysis_true_1_chems_4",
                 ][i],
                 index=index_outer,
-                typeOfFeedback=typeOfFeedbackEnum.scalar,
+                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=[5, 3, 1][i],
                 gating=gatingEnum.no_gating,
