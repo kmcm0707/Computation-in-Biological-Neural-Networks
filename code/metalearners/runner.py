@@ -807,8 +807,8 @@ class Runner:
                 traj_2d = torch.stack([proj_x, proj_y], dim=1).numpy()
                 min_traj = traj_2d.min(axis=0)
                 max_traj = traj_2d.max(axis=0)
-                alphas = np.linspace(min_traj[0] - 0.4, max_traj[0] + 0.4, 500)
-                betas = np.linspace(min_traj[1] - 0.4, max_traj[1] + 0.4, 500)
+                alphas = np.linspace(-4, 4, 500)
+                betas = np.linspace(-4, 4, 500)
 
                 # alpha_0_index = np.argmin(np.abs(alphas.cpu().numpy()))
                 # beta_0_index = np.argmin(np.abs(betas.cpu().numpy()))
@@ -1193,10 +1193,10 @@ def runner_main():
         # os.getcwd() + "/results_3/20251103-214650",
         # os.getcwd()
         # + "/results_3/mode_7_1_chem/1/20260125-202838",
-        # os.getcwd() + "/results_3/mode_9_scalar_10/1/20251124-005417"
-        os.getcwd() + "/results_3/mode_6_scalar_not_all_ones_same/2/20251123-235027",
-        os.getcwd() + "/results_3/mode_9_scalar_clip/1/20251204-195612",
-        os.getcwd() + "/results_3/error_1_fixed/0/20251009-194350",
+        os.getcwd() + "/results_3/mode_9_scalar_10/1/20251124-005417"
+        #os.getcwd() + "/results_3/mode_6_scalar_not_all_ones_same/2/20251123-235027",
+        #os.getcwd() + "/results_3/mode_9_scalar_clip/1/20251204-195612",
+        #os.getcwd() + "/results_3/error_1_fixed/0/20251009-194350",
     ]
     for i in range(len(modelPath_s)):
         for index_outer in range(0, 25):
@@ -1204,14 +1204,14 @@ def runner_main():
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    "runner_mode_6_trajectory_analysis_true_5_chems_scalar",
-                    "runner_mode_9_trajectory_analysis_true_3_chems_scalar",
-                    "runner_mode_9_trajectory_analysis_true_1_chems_scalar",
+                    "runner_mode_9_trajectory_analysis_true_5_chems_scalar_4",
+                    "runner_mode_9_trajectory_analysis_true_3_chems_scalar_4",
+                    "runner_mode_9_trajectory_analysis_true_1_chems_scalar_4",
                 ][i],
                 index=index_outer,
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=[5, 3, 1][i],
                 gating=gatingEnum.no_gating,
-                operator=[operatorEnum.mode_6, operatorEnum.mode_9, operatorEnum.mode_9][i],
+                operator=[operatorEnum.mode_9, operatorEnum.mode_9, operatorEnum.mode_9][i],
             )
