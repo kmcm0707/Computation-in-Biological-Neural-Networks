@@ -468,7 +468,7 @@ def jax_runner(index: int):
     minTrainingDataPerClass = training_data[index]
     maxTrainingDataPerClass = training_data[index]
     queryDataPerClass = 20
-    numberOfTimeSteps = 7
+    numberOfTimeSteps = 28
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -540,7 +540,8 @@ def jax_runner(index: int):
     # cuda:1
     # device = "cpu"
     current_dir = os.getcwd()
-    runner = current_dir + "/results_3/jax_rnn_12/20260121-024411"
+    # runner = current_dir + "/results_3/jax_rnn_12/20260121-024411"
+    runner = current_dir + "/results_3/jax_rnn_12_28/20260126-043934"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
@@ -559,7 +560,7 @@ def jax_runner(index: int):
         hidden_size=128,
         output_size=dimOut,
         biological_min_tau=1,
-        biological_max_tau=7,
+        biological_max_tau=28,
         gradient=True,
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
