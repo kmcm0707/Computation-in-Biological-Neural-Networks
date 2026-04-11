@@ -546,7 +546,7 @@ def jax_runner(index: int):
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_rnn_DFA_2_layer",
+        results_subdir="runner_jax_rnn_DFA_2_layer_28",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
