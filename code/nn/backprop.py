@@ -2,7 +2,6 @@ import copy
 import datetime
 import os
 import random
-import warnings
 from typing import Literal
 
 import numpy as np
@@ -221,6 +220,7 @@ class MetaLearner:
         queryDataPerClass: int = 20,
         trajectory_analysis: bool = False,
         optimizer: optimizerEnum = optimizerEnum.adam,
+        lr: float = 1e-3,
     ):
 
         # -- processor params
@@ -277,7 +277,7 @@ class MetaLearner:
 
         self.loss_func = nn.CrossEntropyLoss()
 
-        self.lr = 1e-3
+        self.lr = lr
 
         # -- log params
         self.save_results = save_results
@@ -298,37 +298,27 @@ class MetaLearner:
                     else self.trainingDataPerClass_1
                 )
             )
-            try:
-                os.makedirs(self.result_directory, exist_ok=False)
-                with open(self.result_directory + "/arguments.txt", "w") as f:
-                    f.writelines("Seed: {}\n".format(seed))
-                    f.writelines("Model: {}\n".format("backprop"))
-                    f.writelines("Number of training data per class 1: {}\n".format(self.trainingDataPerClass_1))
-                    f.writelines("Number of classes 1: {}\n".format(self.number_of_classes_1))
-                    if self.trainingDataPerClass_2 is not None:
-                        f.writelines("Number of training data per class 2: {}\n".format(self.trainingDataPerClass_2))
-                        f.writelines("Number of classes 2: {}\n".format(self.number_of_classes_2))
-                    f.writelines("Number of query data per class: {}\n".format(self.queryDataPerClass))
-                    f.writelines("Dimension of output: {}\n".format(self.dimOut))
-                    f.writelines("Size: {}\n".format(self.size))
-                    f.writelines("Elastic Weight Consolidation: {}\n".format(self.elastic_weight_consolidation))
-                    f.writelines("EWC Lambda: {}\n".format(self.ewc_lambda))
-                    f.writelines("Split: {}\n".format(self.split))
-                    f.writelines("Split min number of tasks: {}\n".format(self.split_min_number_of_tasks))
-            except FileExistsError:
-                warnings.warn("The directory already exists. The results will be overwritten.")
 
-                answer = input("Proceed? (y/n): ")
-                while answer.lower() not in ["y", "n"]:
-                    answer = input("Please enter 'y' or 'n': ")
-
-                if answer.lower() == "n":
-                    exit()
-                else:
-                    os.rmdir(self.result_directory)
-                    os.makedirs(self.result_directory, exist_ok=False)
-                    with open(self.result_directory + "/arguments.txt", "w") as f:
-                        f.writelines("Seed: {}\n".format(seed))
+            os.makedirs(self.result_directory, exist_ok=False)
+            with open(self.result_directory + "/arguments.txt", "w") as f:
+                f.writelines("Seed: {}\n".format(seed))
+                f.writelines("Model: {}\n".format("backprop"))
+                f.writelines("Number of training data per class 1: {}\n".format(self.trainingDataPerClass_1))
+                f.writelines("Number of classes 1: {}\n".format(self.number_of_classes_1))
+                if self.trainingDataPerClass_2 is not None:
+                    f.writelines("Number of training data per class 2: {}\n".format(self.trainingDataPerClass_2))
+                    f.writelines("Number of classes 2: {}\n".format(self.number_of_classes_2))
+                f.writelines("Number of query data per class: {}\n".format(self.queryDataPerClass))
+                f.writelines("Dimension of output: {}\n".format(self.dimOut))
+                f.writelines("Size: {}\n".format(self.size))
+                f.writelines("Elastic Weight Consolidation: {}\n".format(self.elastic_weight_consolidation))
+                f.writelines("EWC Lambda: {}\n".format(self.ewc_lambda))
+                f.writelines("Split: {}\n".format(self.split))
+                f.writelines("Split min number of tasks: {}\n".format(self.split_min_number_of_tasks))
+                f.writelines("Split max number of tasks: {}\n".format(self.split_max_number_of_tasks))
+                f.writelines("Trajectory analysis: {}\n".format(self.trajectory_analysis))
+                f.writelines("Optimizer: {}\n".format(self.optimizer))
+                f.writelines("Learning rate: {}\n".format(self.lr))
 
             self.average_window = 10
             self.summary_writer = SummaryWriter(log_dir=self.result_directory)
@@ -387,7 +377,7 @@ class MetaLearner:
             if self.optimizer == optimizerEnum.adam:
                 self.UpdateParameters = optim.Adam(self.model.parameters(), lr=self.lr)
             elif self.optimizer == optimizerEnum.sgd:
-                self.UpdateParameters = optim.SGD(self.model.parameters(), lr=self.lr)
+                self.UpdateParameters = optim.SGD(self.model.parameters(), lr=self.lr, momentum=0.9)
 
             # -- training data
             (
@@ -419,8 +409,12 @@ class MetaLearner:
                 fim_n_all_taks = None
                 saved_params = None
                 for current_task in range(current_number_of_tasks_1):
-                    min_current_task_range = current_task * current_training_data_per_class * 2
-                    max_current_task_range = (current_task + 1) * current_training_data_per_class * 2
+                    if self.split:
+                        min_current_task_range = current_task * current_training_data_per_class * 2
+                        max_current_task_range = (current_task + 1) * current_training_data_per_class * 2
+                    else:
+                        min_current_task_range = 0
+                        max_current_task_range = len(x_trn_1)
                     for itr_adapt, (x, label) in enumerate(
                         zip(
                             x_trn_1[min_current_task_range:max_current_task_range],
@@ -806,6 +800,7 @@ def run(
         queryDataPerClass=queryDataPerClass,
         trajectory_analysis=True,
         optimizer=optimizer,
+        lr=1e-3,
     )
     metalearning_model.train()
 
@@ -898,7 +893,7 @@ def backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_backprop_trajectory_analysis_{}".format(["adam", "sgd"][i]),
+                result_subdirectory="runner_backprop_trajectory_analysis_{}_fixed".format(["adam", "sgd"][i]),
                 trainingDataPerClass=trainingData,
                 optimizer=[optimizerEnum.adam, optimizerEnum.sgd][i],
             )
