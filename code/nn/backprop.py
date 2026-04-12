@@ -653,9 +653,9 @@ class MetaLearner:
 
                 for i, a in enumerate(alphas):
                     for j, b in enumerate(betas):
-
+                        cloned_refs = {k: v.clone() for k, v in reference_params.items()}
                         # --- build perturbed weights ---
-                        new_state = add_direction(reference_params, d1, d2, a, b)
+                        new_state = add_direction(cloned_refs, d1, d2, a, b)
 
                         # --- load into model ---
                         temp_state = base_state.copy()
