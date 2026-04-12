@@ -622,7 +622,7 @@ class MetaLearner:
                 pc2 = Vh[1]
 
                 # --- only use trainable params ---
-                reference_params = {k: v for k, v in self.model.state_dict().items() if "weight" in k or "bias" in k}
+                reference_params = {k: v.detach() for k, v in self.model.named_parameters() if v.requires_grad}
 
                 d1 = vector_to_params(pc1.to(self.device), reference_params)
                 d2 = vector_to_params(pc2.to(self.device), reference_params)
