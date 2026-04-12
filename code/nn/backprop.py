@@ -431,10 +431,6 @@ class MetaLearner:
                         # -- predict
                         y, logits = self.model(x.unsqueeze(0).unsqueeze(0))
 
-                        # -- trajectory analysis
-                        if self.trajectory_analysis:
-                            trajectory.append(self.flatten_params(self.model).detach().cpu())
-
                         # -- update network params
                         loss_adapt = self.loss_func(logits, label)
                         if self.elastic_weight_consolidation and fim_n_all_taks is not None:
@@ -449,6 +445,10 @@ class MetaLearner:
                         self.UpdateParameters.zero_grad()
                         loss_adapt.backward()
                         self.UpdateParameters.step()
+
+                        # -- trajectory analysis
+                        if self.trajectory_analysis:
+                            trajectory.append(self.flatten_params(self.model).detach().cpu())
 
                     fim = {}
                     if self.elastic_weight_consolidation:
@@ -509,9 +509,6 @@ class MetaLearner:
                         loss_adapt.backward()
                         self.UpdateParameters.step()
 
-            if self.trajectory_analysis:
-                trajectory.append(self.flatten_params(self.model).detach().cpu())
-
             # -- predict
             self.model.eval()
             y_1, logits_1 = self.model(x_qry_1)
@@ -562,121 +559,123 @@ class MetaLearner:
                 with open(self.result_directory + "/params.txt", "a") as f:
                     f.writelines(line + "\n")
 
-            if self.trajectory_analysis:
-                # --- helper: clone model weights ---
-                def clone_model(model):
-                    return {k: v.detach().clone() for k, v in model.state_dict().items()}
+            with torch.no_grad():
+                if self.trajectory_analysis:
+                    # --- helper: clone model weights ---
+                    def clone_model(model):
+                        return {k: v.detach().clone() for k, v in model.state_dict().items()}
 
-                def load_model(model, state_dict):
-                    model.load_state_dict(state_dict, strict=True)
+                    def load_model(model, state_dict):
+                        model.load_state_dict(state_dict, strict=True)
 
-                # --- filter-wise normalization ---
-                def normalize_direction(direction, params, eps=1e-10):
-                    new_dir = {}
-                    for k in direction:
-                        d = direction[k]
-                        w = params[k]
+                    # --- filter-wise normalization ---
+                    def normalize_direction(direction, params, eps=1e-10):
+                        new_dir = {}
+                        for k in direction:
+                            d = direction[k]
+                            w = params[k]
 
-                        w_norm = torch.norm(w, dim=1, keepdim=True)
-                        d_norm = torch.norm(d, dim=1, keepdim=True)
+                            w_norm = torch.norm(w, dim=1, keepdim=True)
+                            d_norm = torch.norm(d, dim=1, keepdim=True)
 
-                        new_dir[k] = d * (w_norm / (d_norm + eps))
+                            new_dir[k] = d * (w_norm / (d_norm + eps))
 
-                    return new_dir
+                        return new_dir
 
-                # --- vector → param dict ---
-                def vector_to_params(vec, reference_params):
-                    new_params = {}
-                    idx = 0
-                    for k, v in reference_params.items():
-                        numel = v.numel()
-                        new_params[k] = vec[idx : idx + numel].view_as(v)
-                        idx += numel
-                    return new_params
+                    # --- vector → param dict ---
+                    def vector_to_params(vec, reference_params):
+                        new_params = {}
+                        idx = 0
+                        for k, v in reference_params.items():
+                            numel = v.numel()
+                            new_params[k] = vec[idx : idx + numel].view_as(v)
+                            idx += numel
+                        return new_params
 
-                # --- add directions ---
-                def add_direction(base, d1, d2, a, b):
-                    return {k: base[k] + a * d1[k] + b * d2[k] for k in base}
+                    # --- add directions ---
+                    def add_direction(base, d1, d2, a, b):
+                        return {k: base[k] + a * d1[k] + b * d2[k] for k in base}
 
-                # --- evaluate loss (standard forward pass) ---
-                def eval_loss(model):
-                    model.eval()
-                    with torch.no_grad():
-                        _, logits = model(x_qry_1)
-                        loss = self.loss_func(logits, y_qry_1.ravel())
-                    return loss.item()
+                    # --- evaluate loss (standard forward pass) ---
+                    def eval_loss(model):
+                        model.eval()
+                        with torch.no_grad():
+                            _, logits = model(x_qry_1)
+                            loss = self.loss_func(logits, y_qry_1.ravel())
+                        return loss.item()
 
-                # =========================
-                # --- BASE MODEL STATE ---
-                # =========================
-                base_state = clone_model(self.model)
-                # =========================
-                trajectory = torch.stack(trajectory)  # [T, D]
+                    # =========================
+                    # --- BASE MODEL STATE ---
+                    # =========================
+                    self.model = self.model._orig_mod if hasattr(self.model, "_orig_mod") else self.model
+                    base_state = clone_model(self.model)
+                    # =========================
+                    trajectory = torch.stack(trajectory)  # [T, D]
 
-                final_point = trajectory[-1:].clone()
-                trajectory_centered = trajectory - final_point
+                    final_point = trajectory[-1:].clone()
+                    trajectory_centered = trajectory - final_point
 
-                U, S, Vh = torch.linalg.svd(trajectory_centered, full_matrices=False)
+                    U, S, Vh = torch.linalg.svd(trajectory_centered, full_matrices=False)
 
-                pc1 = Vh[0]
-                pc2 = Vh[1]
+                    pc1 = Vh[0]
+                    pc2 = Vh[1]
 
-                # --- only use trainable params ---
-                reference_params = {k: v.detach() for k, v in self.model.named_parameters() if v.requires_grad}
+                    # --- only use trainable params ---
+                    reference_params = {
+                        k: v.detach().clone() for k, v in self.model.named_parameters() if v.requires_grad
+                    }
 
-                d1 = vector_to_params(pc1.to(self.device), reference_params)
-                d2 = vector_to_params(pc2.to(self.device), reference_params)
+                    d1 = vector_to_params(pc1.to(self.device), reference_params)
+                    d2 = vector_to_params(pc2.to(self.device), reference_params)
 
-                # --- normalize directions ---
-                d1 = normalize_direction(d1, reference_params)
-                d2 = normalize_direction(d2, reference_params)
+                    # --- normalize directions ---
+                    d1 = normalize_direction(d1, reference_params)
+                    d2 = normalize_direction(d2, reference_params)
 
-                # --- flatten helper ---
-                def flatten_dict(d):
-                    return torch.cat([v.flatten() for v in d.values()])
+                    # --- flatten helper ---
+                    def flatten_dict(d):
+                        return torch.cat([v.flatten() for v in d.values()])
 
-                d1_vec = flatten_dict(d1).cpu()
-                d2_vec = flatten_dict(d2).cpu()
+                    d1_vec = flatten_dict(d1).cpu()
+                    d2_vec = flatten_dict(d2).cpu()
 
-                proj_x = torch.matmul(trajectory_centered.cpu(), d1_vec) / torch.dot(d1_vec, d1_vec)
-                proj_y = torch.matmul(trajectory_centered.cpu(), d2_vec) / torch.dot(d2_vec, d2_vec)
+                    proj_x = torch.matmul(trajectory_centered.cpu(), d1_vec) / torch.dot(d1_vec, d1_vec)
+                    proj_y = torch.matmul(trajectory_centered.cpu(), d2_vec) / torch.dot(d2_vec, d2_vec)
 
-                traj_2d = torch.stack([proj_x, proj_y], dim=1).numpy()
+                    traj_2d = torch.stack([proj_x, proj_y], dim=1).numpy()
 
-                # =========================
-                # --- GRID EVALUATION ---
-                # =========================
-                alphas = np.linspace(-4, 4, 500)
-                betas = np.linspace(-4, 4, 500)
+                    # =========================
+                    # --- GRID EVALUATION ---
+                    # =========================
+                    alphas = np.linspace(-4, 4, 500)
+                    betas = np.linspace(-4, 4, 500)
 
-                loss_grid = np.zeros((len(alphas), len(betas)))
+                    loss_grid = np.zeros((len(alphas), len(betas)))
 
-                for i, a in enumerate(alphas):
-                    for j, b in enumerate(betas):
-                        cloned_refs = {k: v.clone() for k, v in reference_params.items()}
-                        # --- build perturbed weights ---
-                        new_state = add_direction(cloned_refs, d1, d2, a, b)
+                    for i, a in enumerate(alphas):
+                        for j, b in enumerate(betas):
+                            cloned_refs = {k: v.clone() for k, v in reference_params.items()}
 
-                        # --- load into model ---
-                        temp_state = base_state.copy()
-                        temp_state.update(new_state)
+                            # --- build perturbed weights ---
+                            new_state = add_direction(cloned_refs, d1, d2, a, b)
 
-                        load_model(self.model, temp_state)
+                            # --- load into model ---
+                            temp_state = base_state.copy()
+                            temp_state.update(new_state)
 
-                        # --- evaluate ---
-                        loss_grid[i, j] = eval_loss(self.model)
+                            load_model(self.model, temp_state)
 
-                # --- restore original model ---
-                load_model(self.model, base_state)
+                            # --- evaluate ---
+                            loss_grid[i, j] = eval_loss(self.model)
 
-                # =========================
-                # --- SAVE ---
-                # =========================
-                with open(self.result_directory + "/loss_landscape.npy", "ab") as f:
-                    np.save(f, loss_grid)
+                    # =========================
+                    # --- SAVE ---
+                    # =========================
+                    with open(self.result_directory + "/loss_landscape.npy", "ab") as f:
+                        np.save(f, loss_grid)
 
-                with open(self.result_directory + "/trajectory_pca.npy", "ab") as f:
-                    np.save(f, traj_2d)
+                    with open(self.result_directory + "/trajectory_pca.npy", "ab") as f:
+                        np.save(f, traj_2d)
 
         # -- plot
         if self.save_results:
