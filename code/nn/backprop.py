@@ -9,7 +9,7 @@ import numpy as np
 import torch
 from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset
 from misc.utils import log
-from options.meta_learner_options import sizeEnum
+from options.meta_learner_options import optimizerEnum, sizeEnum
 from torch import nn, optim
 from torch.utils.data import DataLoader, RandomSampler
 from torch.utils.tensorboard import SummaryWriter
@@ -219,6 +219,8 @@ class MetaLearner:
         split_min_number_of_tasks=2,
         split_max_number_of_tasks=2,
         queryDataPerClass: int = 20,
+        trajectory_analysis: bool = False,
+        optimizer: optimizerEnum = optimizerEnum.adam,
     ):
 
         # -- processor params
@@ -263,6 +265,8 @@ class MetaLearner:
         self.numberOfDataRepetitions = numberOfDataRepetitions
         self.elastic_weight_consolidation = elastic_weight_consolidation
         self.ewc_lambda = ewc_lambda
+        self.trajectory_analysis = trajectory_analysis
+        self.optimizer = optimizer
 
         # -- model params
         if self.device == "cpu":  # Remove if using a newer GPU
@@ -273,15 +277,14 @@ class MetaLearner:
 
         self.loss_func = nn.CrossEntropyLoss()
 
-        lr = 1e-3
-        self.UpdateParameters = optim.Adam(self.model.parameters(), lr=lr)
+        self.lr = 1e-3
 
         # -- log params
         self.save_results = save_results
         self.display = True
-        self.result_directory = os.getcwd() + "/results"
+        self.result_directory = os.getcwd() + "/results_3"
         if self.save_results:
-            self.result_directory = os.getcwd() + "/results"
+            self.result_directory = os.getcwd() + "/results_3"
             os.makedirs(self.result_directory, exist_ok=True)
             self.result_directory += (
                 "/"
@@ -355,6 +358,9 @@ class MetaLearner:
             if modules.bias is not None:
                 nn.init.xavier_uniform_(modules.bias)
 
+    def flatten_params(self, model):
+        return torch.cat([p.detach().flatten() for p in model.parameters() if p.requires_grad])
+
     def train(self):
         """
             Perform Backprop
@@ -372,11 +378,16 @@ class MetaLearner:
             data_1 = data if self.metatrain_dataset_2 is None else data[0]
             data_2 = None if self.metatrain_dataset_2 is None else data[1]
             fim = {}
+            if self.trajectory_analysis:
+                trajectory = []
 
             # -- re initialize model
             self.model.train()
             self.model.apply(self.weights_init)
-            self.UpdateParameters = optim.Adam(self.model.parameters(), lr=1e-3)
+            if self.optimizer == optimizerEnum.adam:
+                self.UpdateParameters = optim.Adam(self.model.parameters(), lr=self.lr)
+            elif self.optimizer == optimizerEnum.sgd:
+                self.UpdateParameters = optim.SGD(self.model.parameters(), lr=self.lr)
 
             # -- training data
             (
@@ -419,6 +430,10 @@ class MetaLearner:
 
                         # -- predict
                         y, logits = self.model(x.unsqueeze(0).unsqueeze(0))
+
+                        # -- trajectory analysis
+                        if self.trajectory_analysis:
+                            trajectory.append(self.flatten_params(self.model).detach().cpu())
 
                         # -- update network params
                         loss_adapt = self.loss_func(logits, label)
@@ -463,7 +478,7 @@ class MetaLearner:
                                         fim[n] += p.grad.data.clone().pow(2)
                         for n, p in self.model.named_parameters():
                             if p.requires_grad:
-                                fim[n] = fim[n] / float(len(x_trn_1))
+                                fim[n] = fim[n] / float(len(x_trn_1[min_current_task_range:max_current_task_range]))
                         if fim_n_all_taks is None:
                             fim_n_all_taks = copy.deepcopy(fim)
                         else:
@@ -493,6 +508,9 @@ class MetaLearner:
                         self.UpdateParameters.zero_grad()
                         loss_adapt.backward()
                         self.UpdateParameters.step()
+
+            if self.trajectory_analysis:
+                trajectory.append(self.flatten_params(self.model).detach().cpu())
 
             # -- predict
             self.model.eval()
@@ -544,6 +562,122 @@ class MetaLearner:
                 with open(self.result_directory + "/params.txt", "a") as f:
                     f.writelines(line + "\n")
 
+            if self.trajectory_analysis:
+                # --- helper: clone model weights ---
+                def clone_model(model):
+                    return {k: v.detach().clone() for k, v in model.state_dict().items()}
+
+                def load_model(model, state_dict):
+                    model.load_state_dict(state_dict, strict=True)
+
+                # --- filter-wise normalization ---
+                def normalize_direction(direction, params, eps=1e-10):
+                    new_dir = {}
+                    for k in direction:
+                        d = direction[k]
+                        w = params[k]
+
+                        w_norm = torch.norm(w, dim=1, keepdim=True)
+                        d_norm = torch.norm(d, dim=1, keepdim=True)
+
+                        new_dir[k] = d * (w_norm / (d_norm + eps))
+
+                    return new_dir
+
+                # --- vector → param dict ---
+                def vector_to_params(vec, reference_params):
+                    new_params = {}
+                    idx = 0
+                    for k, v in reference_params.items():
+                        numel = v.numel()
+                        new_params[k] = vec[idx : idx + numel].view_as(v)
+                        idx += numel
+                    return new_params
+
+                # --- add directions ---
+                def add_direction(base, d1, d2, a, b):
+                    return {k: base[k] + a * d1[k] + b * d2[k] for k in base}
+
+                # --- evaluate loss (standard forward pass) ---
+                def eval_loss(model):
+                    model.eval()
+                    with torch.no_grad():
+                        _, logits = model(x_qry_1)
+                        loss = self.loss_func(logits, y_qry_1.ravel())
+                    return loss.item()
+
+                # =========================
+                # --- BASE MODEL STATE ---
+                # =========================
+                base_state = clone_model(self.model)
+                # =========================
+                trajectory = torch.stack(trajectory)  # [T, D]
+
+                final_point = trajectory[-1:].clone()
+                trajectory_centered = trajectory - final_point
+
+                U, S, Vh = torch.linalg.svd(trajectory_centered, full_matrices=False)
+
+                pc1 = Vh[0]
+                pc2 = Vh[1]
+
+                # --- only use trainable params ---
+                reference_params = {k: v for k, v in self.model.state_dict().items() if "weight" in k or "bias" in k}
+
+                d1 = vector_to_params(pc1.to(self.device), reference_params)
+                d2 = vector_to_params(pc2.to(self.device), reference_params)
+
+                # --- normalize directions ---
+                d1 = normalize_direction(d1, reference_params)
+                d2 = normalize_direction(d2, reference_params)
+
+                # --- flatten helper ---
+                def flatten_dict(d):
+                    return torch.cat([v.flatten() for v in d.values()])
+
+                d1_vec = flatten_dict(d1).cpu()
+                d2_vec = flatten_dict(d2).cpu()
+
+                proj_x = torch.matmul(trajectory_centered.cpu(), d1_vec) / torch.dot(d1_vec, d1_vec)
+                proj_y = torch.matmul(trajectory_centered.cpu(), d2_vec) / torch.dot(d2_vec, d2_vec)
+
+                traj_2d = torch.stack([proj_x, proj_y], dim=1).numpy()
+
+                # =========================
+                # --- GRID EVALUATION ---
+                # =========================
+                alphas = np.linspace(-4, 4, 500)
+                betas = np.linspace(-4, 4, 500)
+
+                loss_grid = np.zeros((len(alphas), len(betas)))
+
+                for i, a in enumerate(alphas):
+                    for j, b in enumerate(betas):
+
+                        # --- build perturbed weights ---
+                        new_state = add_direction(reference_params, d1, d2, a, b)
+
+                        # --- load into model ---
+                        temp_state = base_state.copy()
+                        temp_state.update(new_state)
+
+                        load_model(self.model, temp_state)
+
+                        # --- evaluate ---
+                        loss_grid[i, j] = eval_loss(self.model)
+
+                # --- restore original model ---
+                load_model(self.model, base_state)
+
+                # =========================
+                # --- SAVE ---
+                # =========================
+                with open(self.result_directory + "/loss_landscape.npy", "ab") as f:
+                    np.save(f, loss_grid)
+
+                with open(self.result_directory + "/trajectory_pca.npy", "ab") as f:
+                    np.save(f, traj_2d)
+
         # -- plot
         if self.save_results:
             self.summary_writer.close()
@@ -562,8 +696,8 @@ def run(
     seed: int,
     display: bool = True,
     result_subdirectory: str = "testing",
-    trainingDataPerClass: int = "50",
-    min_tasks: int = 1,
+    trainingDataPerClass: int = 50,
+    optimizer: optimizerEnum = optimizerEnum.adam,
 ) -> None:
     """
         Main function for Meta-learning the plasticity rule.
@@ -588,19 +722,19 @@ def run(
 
     # -- load data
     numWorkers = 3
-    epochs = 20
-    numberOfClasses = 5
-    trainingDataPerClass_1 = 20
+    epochs = 5
+    trainingDataPerClass_1 = None
     trainingDataPerClass_2 = None
     dimOut = 47
-    dataset_name = "FASHION-MNIST"
+    dataset_name = "EMNIST"
+    queryDataPerClass = 50
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
         dataset = EmnistDataset(
             minTrainingDataPerClass=trainingDataPerClass,
             maxTrainingDataPerClass=trainingDataPerClass,
-            queryDataPerClass=20,
+            queryDataPerClass=queryDataPerClass,
             dimensionOfImage=28,
         )
         dimOut = 47
@@ -609,7 +743,7 @@ def run(
         dataset = FashionMnistDataset(
             minTrainingDataPerClass=trainingDataPerClass,
             maxTrainingDataPerClass=trainingDataPerClass,
-            queryDataPerClass=100,
+            queryDataPerClass=queryDataPerClass,
             dimensionOfImage=28,
             all_classes=True,
         )
@@ -665,12 +799,14 @@ def run(
         dimOut=dimOut,
         numberOfDataRepetitions=1,
         size=sizeEnum.normal,
-        elastic_weight_consolidation=True,
-        ewc_lambda=10000.0,
-        split=True,
-        split_min_number_of_tasks=min_tasks,
-        split_max_number_of_tasks=min_tasks,
-        queryDataPerClass=100,
+        elastic_weight_consolidation=False,
+        ewc_lambda=0.0,
+        split=False,
+        split_min_number_of_tasks=5,
+        split_max_number_of_tasks=5,
+        queryDataPerClass=queryDataPerClass,
+        trajectory_analysis=True,
+        optimizer=optimizer,
     )
     metalearning_model.train()
 
@@ -702,15 +838,15 @@ def backprop_main():
         # 8,
         # 9,
         # 10,
-        20,
-        # 30,
+        # 20,
+        30,
         # 40,
-        # 50,
+        50,
         # 60,
         # 70,
-        # 80,
+        80,
         # 90,
-        # 100,
+        100,
         # 110,
         # 120,
         # 130,
@@ -722,7 +858,7 @@ def backprop_main():
         # 190,
         # 200,
         # 225,
-        # 250,
+        250,
         # 275,
         # 300,
         # 325,
@@ -758,12 +894,12 @@ def backprop_main():
         # 1250,
         # 1300,
     ]"""
-    for min_tasks in [1, 2, 3, 4, 5]:
+    for i in range(2):
         for trainingData in trainingDataPerClass:
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_backprop_split_EWC_FMI_66_{}".format(min_tasks),
+                result_subdirectory="runner_backprop_trajectory_analysis_{}".format(["adam", "sgd"][i]),
                 trainingDataPerClass=trainingData,
-                min_tasks=min_tasks,
+                optimizer=[optimizerEnum.adam, optimizerEnum.sgd][i],
             )

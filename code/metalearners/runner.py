@@ -604,10 +604,8 @@ class Runner:
                         self.UpdateFeedbackWeights.update_time_index()
 
                     if self.options.trajectory_analysis:
-
                         def flatten_params(params):
                             return torch.cat([p.flatten() for p in params.values()])
-
                         forward_params = flatten_params({k: v for k, v in parameters.items() if "forward" in k})
                         trajectory.append(forward_params.detach().cpu())
 
