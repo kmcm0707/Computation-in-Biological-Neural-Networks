@@ -867,11 +867,11 @@ def run(
 
     # -- load data
     numWorkers = 4
-    epochs = 5
+    epochs = 20
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    """trainingDataPerClass = [
+    trainingDataPerClass = [
         0,
         5,
         10,
@@ -901,8 +901,8 @@ def run(
         # 325,
         # 350,
         # 375,
-    ]"""
-    trainingDataPerClass = [30, 50, 80, 100, 250]
+    ]
+    #trainingDataPerClass = [30, 50, 80, 100, 250]
     if index >= len(trainingDataPerClass):
         return
     """ trainingDataPerClass = [
@@ -937,7 +937,7 @@ def run(
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
-    queryDataPerClass = 50
+    queryDataPerClass = 20
     dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
@@ -1143,7 +1143,7 @@ def run(
         split=False,
         split_min_number_of_tasks=5,
         split_max_number_of_tasks=5,
-        trajectory_analysis=True,
+        trajectory_analysis=False,
         chemical_accuracy=False,
     )
 
@@ -1187,7 +1187,8 @@ def runner_main():
         # os.getcwd() + "/results_3/mode_9_gating_lr_h_DFA_grad/1/20260326-032449",
         # os.getcwd()
         # + "/results_3/mode_9_gating_lr_h_scalar/1/20260326-025622",
-        os.getcwd() + "/results_3/mode_9_rand/0/20251105-152312",
+        os.getcwd() + "/results_3/mode_9_scalar_lr_gating/0/20260409-025205"
+        #"/results_3/mode_9_rand/0/20251105-152312",
         #os.getcwd() + "/results_3/20251103-214650",
         #os.getcwd() + "/results_3/mode_7_1_chem/1/20260125-202838",
         # os.getcwd() + "/results_3/mode_9_scalar_10/1/20251124-005417"
@@ -1201,14 +1202,14 @@ def runner_main():
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    "runner_mode_9_trajectory_analysis_true_5_chems_4_2_diff_no_8",
+                    "runner_mode_9_gating_scalar_lr",
                     #"runner_mode_9_trajectory_analysis_true_3_chems_4_2_diff",
                     #"runner_mode_9_trajectory_analysis_true_1_chems_4_2_diff",
                 ][i],
                 index=index_outer,
-                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+                typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=[5][i],
-                gating=gatingEnum.no_gating,
+                gating=gatingEnum.learning_rule_gating,
                 operator=[operatorEnum.mode_9, operatorEnum.mode_9, operatorEnum.mode_9][i],
             )
