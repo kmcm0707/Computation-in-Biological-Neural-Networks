@@ -800,7 +800,7 @@ def run(
         queryDataPerClass=queryDataPerClass,
         trajectory_analysis=True,
         optimizer=optimizer,
-        lr=1e-2,
+        lr=5e-3,
     )
     metalearning_model.train()
 
@@ -893,7 +893,7 @@ def backprop_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_backprop_trajectory_analysis_{}_fixed_2".format(["sgd", "sgd"][i]),
+                result_subdirectory="runner_backprop_trajectory_analysis_{}_fixed_3".format(["sgd", "sgd"][i]),
                 trainingDataPerClass=trainingData,
                 optimizer=[optimizerEnum.sgd, optimizerEnum.sgd][i],
             )
