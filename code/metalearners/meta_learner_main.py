@@ -1019,8 +1019,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     numWorkers = 2
     epochs = 2000
 
-    dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
-    minTrainingDataPerClass = 5
+    dataset_name = "FASHION-MNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
+    minTrainingDataPerClass = 30
     maxTrainingDataPerClass = 80
     queryDataPerClass = 20
     dataset_1 = None
@@ -1202,7 +1202,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     #   current_dir + "/results_3/20251103-214650"
     # )
 
-    continue_training = current_dir + "/results_3/mode_9_11_chems_200/0/20260416-163005" #mode_9_scalar_11_chems_200/0/20260416-155307"
+    continue_training = current_dir + "/results_3/mode_9_11_chems_200/1/20260416-184141" #mode_9_scalar_11_chems_200/0/20260416-155307"
     # continue_training = (
     #    current_dir + "/results_3/mode_9_rand/0/20251105-152312"
     # )  # "/results_3/mode_9/0/20251107-172732"
@@ -1236,7 +1236,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
-        hrm_discount=-1,
+        hrm_discount=200,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1283,4 +1283,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=1, display=True, result_subdirectory="mode_9_11_chems_200", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_11_chems_200_fashion", index=i)
