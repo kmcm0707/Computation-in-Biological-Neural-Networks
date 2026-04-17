@@ -364,7 +364,9 @@ class ComplexSynapse(nn.Module):
                 )
             elif self.options.gating == gatingEnum.learning_rule_gating_h:
                 self.weight_gate = nn.Parameter(
-                    torch.nn.init.zeros_(torch.empty(size=(self.number_chemicals, 10 + self.number_chemicals), device=self.device))
+                    torch.nn.init.zeros_(
+                        torch.empty(size=(self.number_chemicals, 10 + self.number_chemicals), device=self.device)
+                    )
                 )
             # self.all_meta_parameters = nn.ParameterList([])
             self.all_meta_parameters.append(self.weight_gate)
@@ -605,6 +607,7 @@ class ComplexSynapse(nn.Module):
                     or self.operator == operatorEnum.mode_8
                     or self.operator == operatorEnum.mode_9
                     or self.operator == operatorEnum.mode_9_pre_activation
+                    or self.operator == operatorEnum.mode_10
                     or self.operator == operatorEnum.compressed_full_attention
                     or self.operator == operatorEnum.v_linear
                     or self.operator == operatorEnum.compressed_v_linear
@@ -654,9 +657,7 @@ class ComplexSynapse(nn.Module):
                         elif self.options.gating == gatingEnum.learning_rule_gating:
                             gate_input = update_vector
                         elif self.options.gating == gatingEnum.learning_rule_gating_h:
-                            gate_input = torch.cat(
-                                [chemical, update_vector], dim=0
-                            ) 
+                            gate_input = torch.cat([chemical, update_vector], dim=0)
                         else:
                             raise ValueError("Invalid gating option")
 
@@ -885,6 +886,7 @@ class ComplexSynapse(nn.Module):
                     or self.operator == operatorEnum.mode_8
                     or self.operator == operatorEnum.mode_9
                     or self.operator == operatorEnum.mode_9_pre_activation
+                    or self.operator == operatorEnum.mode_10
                 ):
                     v_vector_softmax = torch.nn.functional.softmax(self.v_vector, dim=1)
                     new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)
@@ -914,6 +916,8 @@ class ComplexSynapse(nn.Module):
                         chemical = h_parameters[h_name]
                         new_chemical = chemical / (normalizer[:, None] + 1e-12)
                         h_parameters[h_name] = new_chemical
+                    elif self.operator == operatorEnum.mode_10:
+                        new_value = torch.nn.functional.normalize(new_value, p=2, dim=0)
                 else:
                     new_value = torch.einsum("ci,ijk->cjk", self.v_vector, h_parameters[h_name]).squeeze(0)
 
@@ -962,6 +966,7 @@ class ComplexSynapse(nn.Module):
                     or self.operator == operatorEnum.mode_7_no_h_norm
                     or self.operator == operatorEnum.mode_9
                     or self.operator == operatorEnum.mode_9_pre_activation
+                    or self.operator == operatorEnum.mode_10
                 ):
                     parameter_norm = self.saved_norm[h_name]
                     current_norm = torch.norm(new_value, p=2)
