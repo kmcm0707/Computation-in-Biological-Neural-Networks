@@ -1202,7 +1202,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     #   current_dir + "/results_3/20251103-214650"
     # )
 
-    continue_training = current_dir + "/results_3/mode_9_9_chems_100/0/20260415-224843"
+    continue_training = current_dir + "/results_3/mode_9_11_chems_200/0/20260416-163005" #mode_9_scalar_11_chems_200/0/20260416-155307"
     # continue_training = (
     #    current_dir + "/results_3/mode_9_rand/0/20251105-152312"
     # )  # "/results_3/mode_9/0/20251107-172732"
@@ -1222,10 +1222,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.0003,
+        lr=0.0001,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,
         trainSeparateFeedback=False,
         feedbackSeparateModel=feedbackModel,
         trainSameFeedback=False,
@@ -1233,7 +1233,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=None, #continue_training,
+        continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
         hrm_discount=-1,
@@ -1283,4 +1283,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=0, display=True, result_subdirectory="mode_9_11_chems_200", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_9_11_chems_200", index=i)
