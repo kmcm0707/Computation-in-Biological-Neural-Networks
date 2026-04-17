@@ -1017,10 +1017,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 1000
+    epochs = 4000
 
     dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
-    minTrainingDataPerClass = 30
+    minTrainingDataPerClass = 5
     maxTrainingDataPerClass = 80
     queryDataPerClass = 20
     dataset_1 = None
@@ -1098,7 +1098,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=150,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_9,  # _pre_activation,
+            operator=operatorEnum.mode_6,  # _pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1212,7 +1212,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P and K matrices (check 1.5)
         biasLossRegularization=0,
-        optimizer=optimizerEnum.sgd,
+        optimizer=optimizerEnum.adam,
         model=model,
         results_subdir=result_subdirectory,
         seed=seed,
@@ -1222,7 +1222,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
         display=display,
-        lr=0.0007,
+        lr=0.0002,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.different,
@@ -1233,10 +1233,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=continue_training,
+        continueTraining=None, #continue_training,
         typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
-        hrm_discount=300,
+        hrm_discount=200,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1283,4 +1283,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=2, display=True, result_subdirectory="mode_9_scalar_11_chems_200", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_6_scalar_11_chems_200", index=i)
