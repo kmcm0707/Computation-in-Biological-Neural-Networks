@@ -1,0 +1,5 @@
+Runner Episode: 1	Loss: 0.395751	Accuracy: 0.880 	 Current Training Data Per Class: 140
+Runner Episode: 2	Loss: 1.079546	Accuracy: 0.630 	 Current Training Data Per Class: 140
+Runner Episode: 3	Loss: 1.398877	Accuracy: 0.350 	 Current Training Data Per Class: 140
+Runner Episode: 4	Loss: 0.768003	Accuracy: 0.790 	 Current Training Data Per Class: 140
+Runner Episode: 5	Loss: 0.643786	Accuracy: 0.800 	 Current Training Data Per Class: 140
