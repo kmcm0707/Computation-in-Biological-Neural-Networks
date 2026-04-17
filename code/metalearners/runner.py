@@ -1123,7 +1123,7 @@ def run(
         ),  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" else None,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
@@ -1202,7 +1202,7 @@ def runner_main():
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    "runner_mode_9_scalar_11_chems",
+                    "runner_mode_9_scalar_11_chems_diff",
                     #"runner_mode_9_trajectory_analysis_true_3_chems_4_2_diff",
                     #"runner_mode_9_trajectory_analysis_true_1_chems_4_2_diff",
                 ][i],
