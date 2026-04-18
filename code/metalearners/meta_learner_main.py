@@ -1110,6 +1110,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             train_tau=False,
             scale_chemical_weights=False,
             gating=gatingEnum.no_gating,
+            disagreement_regularization=True,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -1202,7 +1203,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     #   current_dir + "/results_3/20251103-214650"
     # )
 
-    continue_training = current_dir + "/results_3/mode_9_scalar_11_chems_200/1/20260416-180301"
+    continue_training = current_dir + "/results_3/mode_10_scalar_11_chems_200/0/20260417-193142" #"/results_3/mode_9_scalar_11_chems_200/1/20260416-180301"
     # continue_training = (
     #    current_dir + "/results_3/mode_9_rand/0/20251105-152312"
     # )  # "/results_3/mode_9/0/20251107-172732"
@@ -1283,4 +1284,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=0, display=True, result_subdirectory="mode_10_scalar_11_chems_200", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_10_scalar_11_chems_200_disagreement", index=i)

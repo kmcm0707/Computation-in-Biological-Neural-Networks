@@ -371,6 +371,11 @@ class ComplexSynapse(nn.Module):
             # self.all_meta_parameters = nn.ParameterList([])
             self.all_meta_parameters.append(self.weight_gate)
 
+        ## Disagreement regularization
+        if self.options.disagreement_regularization:
+            self.lambda_param = nn.Parameter(torch.tensor(0.0))  # init ~0.7 after softplus
+            self.all_meta_parameters.append(self.lambda_param)
+
         ## Attention mechanism
         """if self.operator == operatorEnum.attention:
             self.A = nn.Parameter(
@@ -890,9 +895,23 @@ class ComplexSynapse(nn.Module):
                 ):
                     v_vector_softmax = torch.nn.functional.softmax(self.v_vector, dim=1)
                     new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)
+
+                    if self.options.disagreement_regularization:
+                        mean_chemical = torch.mean(h_parameters[h_name], dim=0, keepdim=True)
+                        variance_chemical = torch.mean((h_parameters[h_name] - mean_chemical) ** 2, dim=0)
+                        norm_chemical = torch.mean(h_parameters[h_name] ** 2, dim=0)
+                        u = variance_chemical / (norm_chemical + 1e-12)
+                        u_detached = u.detach()
+
+                        lambda_value = torch.nn.functional.softplus(self.lambda_param)
+                        new_value = new_value / (1.0 + lambda_value * u_detached[None, :])
+
+                        
+
                     if self.options.scale_chemical_weights:
                         scale_factor = torch.sqrt(torch.tensor(new_value.shape[0], dtype=torch.float32))
                         new_value = new_value / scale_factor
+
                     if self.operator == operatorEnum.mode_6:
                         parameter_norm = self.saved_norm[h_name]
                         current_norm = torch.norm(new_value, p=2)
