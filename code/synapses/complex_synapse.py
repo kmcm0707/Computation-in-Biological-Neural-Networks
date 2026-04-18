@@ -904,9 +904,7 @@ class ComplexSynapse(nn.Module):
                         u_detached = u.detach()
 
                         lambda_value = torch.nn.functional.softplus(self.lambda_param)
-                        new_value = new_value / (1.0 + lambda_value * u_detached[None, :])
-
-                        
+                        new_value = new_value / (1.0 + lambda_value * u_detached)
 
                     if self.options.scale_chemical_weights:
                         scale_factor = torch.sqrt(torch.tensor(new_value.shape[0], dtype=torch.float32))

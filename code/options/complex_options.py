@@ -126,6 +126,7 @@ class complexOptions:
         train_tau: bool = False,
         scale_chemical_weights: bool = False,
         gating: gatingEnum = gatingEnum.no_gating,
+        disagreement_regularization: bool = False,
     ):
         self.nonLinear = nonLinear
         self.bias = bias
@@ -148,6 +149,7 @@ class complexOptions:
         self.train_tau = train_tau
         self.scale_chemical_weights = scale_chemical_weights
         self.gating = gating
+        self.disagreement_regularization = disagreement_regularization
 
     def __str__(self):
         string = ""
