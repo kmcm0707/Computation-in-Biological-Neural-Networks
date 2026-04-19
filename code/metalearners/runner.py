@@ -604,8 +604,10 @@ class Runner:
                         self.UpdateFeedbackWeights.update_time_index()
 
                     if self.options.trajectory_analysis:
+
                         def flatten_params(params):
                             return torch.cat([p.flatten() for p in params.values()])
+
                         forward_params = flatten_params({k: v for k, v in parameters.items() if "forward" in k})
                         trajectory.append(forward_params.detach().cpu())
 
@@ -902,7 +904,7 @@ def run(
         # 350,
         # 375,
     ]
-    #trainingDataPerClass = [30, 50, 80, 100, 250]
+    # trainingDataPerClass = [30, 50, 80, 100, 250]
     if index >= len(trainingDataPerClass):
         return
     """ trainingDataPerClass = [
@@ -1031,6 +1033,7 @@ def run(
             train_tau=False,
             scale_chemical_weights=False,
             gating=gating,
+            disagreement_regularization=True,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -1123,7 +1126,7 @@ def run(
         ),  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" else None,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
@@ -1187,10 +1190,13 @@ def runner_main():
         # os.getcwd() + "/results_3/mode_9_gating_lr_h_DFA_grad/1/20260326-032449",
         # os.getcwd()
         # + "/results_3/mode_9_gating_lr_h_scalar/1/20260326-025622",
-        os.getcwd() + "/results_3/mode_9_scalar_11_chems_200/2/20260417-014503"
-        #"/results_3/mode_9_rand/0/20251105-152312",
-        #os.getcwd() + "/results_3/20251103-214650",
-        #os.getcwd() + "/results_3/mode_7_1_chem/1/20260125-202838",
+        # os.getcwd()
+        # + "/results_3/mode_9_scalar_11_chems_200/2/20260417-014503",
+        os.getcwd()
+        + "/results_3/mode_10_scalar_11_chems_200_disagreement/0/20260418-182440"
+        # "/results_3/mode_9_rand/0/20251105-152312",
+        # os.getcwd() + "/results_3/20251103-214650",
+        # os.getcwd() + "/results_3/mode_7_1_chem/1/20260125-202838",
         # os.getcwd() + "/results_3/mode_9_scalar_10/1/20251124-005417"
         # os.getcwd() + "/results_3/mode_6_scalar_not_all_ones_same/2/20251123-235027",
         # os.getcwd() + "/results_3/mode_9_scalar_clip/1/20251204-195612",
@@ -1202,14 +1208,14 @@ def runner_main():
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    "runner_mode_9_scalar_11_chems_diff",
-                    #"runner_mode_9_trajectory_analysis_true_3_chems_4_2_diff",
-                    #"runner_mode_9_trajectory_analysis_true_1_chems_4_2_diff",
+                    "runner_mode_10_scalar_11_chems_disagreement",
+                    # "runner_mode_9_trajectory_analysis_true_3_chems_4_2_diff",
+                    # "runner_mode_9_trajectory_analysis_true_1_chems_4_2_diff",
                 ][i],
                 index=index_outer,
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=[11][i],
                 gating=gatingEnum.no_gating,
-                operator=[operatorEnum.mode_9][i],
+                operator=[operatorEnum.mode_10][i],
             )

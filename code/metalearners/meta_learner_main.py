@@ -1097,7 +1097,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=150,
+            maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
             operator=operatorEnum.mode_10,  # _pre_activation,
@@ -1112,7 +1112,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             train_tau=False,
             scale_chemical_weights=False,
             gating=gatingEnum.no_gating,
-            disagreement_regularization=True,
+            disagreement_regularization=False,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -1206,7 +1206,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     # )
 
     continue_training = (
-        current_dir + "/results_3/mode_10_scalar_11_chems_200/0/20260417-193142"
+        # current_dir + "/results_3/mode_10_scalar_11_chems_200/0/20260417-193142"
+        current_dir
+        + "/results_3/mode_9_scalar_converted_9_chems"
     )  # "/results_3/mode_9_scalar_11_chems_200/1/20260416-180301"
     # continue_training = (
     #    current_dir + "/results_3/mode_9_rand/0/20251105-152312"
@@ -1241,7 +1243,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
-        hrm_discount=200,
+        hrm_discount=-1,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1258,7 +1260,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 11
+    numberOfChemicals = 9
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1288,4 +1290,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=0, display=True, result_subdirectory="mode_10_scalar_11_chems_200_disagreement_grad_lin", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_scalar_9_chems_converted", index=i)
