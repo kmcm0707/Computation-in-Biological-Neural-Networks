@@ -1019,7 +1019,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 4000
+    epochs = 2000
 
     dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
     minTrainingDataPerClass = 5
@@ -1091,7 +1091,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
-            nonLinear=nonLinearEnum.tanh,
+            nonLinear=nonLinearEnum.pass_through,
             update_rules=[0, 1, 2, 3, 4, 6, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
@@ -1230,7 +1230,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         lr=0.0003,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         trainSeparateFeedback=False,
         feedbackSeparateModel=feedbackModel,
         trainSameFeedback=False,
@@ -1288,4 +1288,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=0, display=True, result_subdirectory="mode_10_scalar_11_chems_200_disagreement", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_10_scalar_11_chems_200_disagreement_grad_lin", index=i)

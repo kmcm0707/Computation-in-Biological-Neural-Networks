@@ -901,7 +901,7 @@ class ComplexSynapse(nn.Module):
                         variance_chemical = torch.mean((h_parameters[h_name] - mean_chemical) ** 2, dim=0)
                         norm_chemical = torch.mean(h_parameters[h_name] ** 2, dim=0)
                         u = variance_chemical / (norm_chemical + 1e-12)
-                        u_detached = u.detach()
+                        u_detached = u #.detach()
 
                         lambda_value = torch.nn.functional.softplus(self.lambda_param)
                         new_value = new_value / (1.0 + lambda_value * u_detached)
