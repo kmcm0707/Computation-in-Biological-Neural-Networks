@@ -499,7 +499,7 @@ class MetaLearner:
                         map_location=self.device,
                     )
                 )
-            #z = np.loadtxt(self.options.continueTraining + "/acc_meta.txt")
+            # z = np.loadtxt(self.options.continueTraining + "/acc_meta.txt")
             # last_trained_epoch = z.shape[0]
 
         # -- set model to training mode
@@ -652,6 +652,12 @@ class MetaLearner:
                             error.insert(
                                 0, torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-self.model.beta * y))
                             )
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_sign:
+                        for y, i in zip(reversed(activations), reversed(list(feedback))):
+                            error.insert(
+                                0,
+                                torch.sign(torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-self.model.beta * y))),
+                            )
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar:
                         # error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)[0]
                         # error_scalar = -error[0][0][label]
@@ -667,6 +673,15 @@ class MetaLearner:
                             error_scalar = error_scalar - scalar_running_mean  # TODO: Check if this works
                         for y, i in zip(reversed(activations), reversed(list(feedback))):
                             error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
+                    elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar_sign:
+                        if output[0][label] > 0.5:
+                            error_scalar = torch.tensor(0, device=self.device)
+                        else:
+                            error_scalar = torch.tensor(1.0, device=self.device)
+                        for y, i in zip(reversed(activations), reversed(list(feedback))):
+                            error.insert(
+                                0, torch.sign(error_scalar * feedback[i] * (1 - torch.exp(-self.model.beta * y)))
+                            )
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar_rate:
                         if logits[0][label] > 0.5:
                             error_scalar = torch.tensor(0, device=self.device)

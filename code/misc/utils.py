@@ -325,6 +325,9 @@ def meta_stats(
         elif typeOfFeedback == typeOfFeedbackEnum.DFA_grad:
             for y_, i in zip(reversed(y), reversed(list(B))):
                 e.insert(0, torch.matmul(e[-1], B[i]) * (1 - torch.exp(-Beta * y_)))
+        elif typeOfFeedback == typeOfFeedbackEnum.DFA_grad_sign:
+            for y_, i in zip(reversed(y), reversed(list(B))):
+                e.insert(0, torch.sign(torch.matmul(e[-1], B[i]) * (1 - torch.exp(-Beta * y_))))
         elif typeOfFeedback == typeOfFeedbackEnum.scalar:
             error_scalars = torch.ones((len(label), 1), device=logits.device)
             subset = torch.gather(output, 1, label.unsqueeze(1))
@@ -334,6 +337,15 @@ def meta_stats(
             error_scalars[indices_more_than_half] = 0.0
             for y_, i in zip(reversed(y), reversed(list(B))):
                 e.insert(0, error_scalars * B[i] * (1 - torch.exp(-Beta * y_)))
+        elif typeOfFeedback == typeOfFeedbackEnum.scalar_sign:
+            error_scalars = torch.ones((len(label), 1), device=logits.device)
+            subset = torch.gather(output, 1, label.unsqueeze(1))
+            mask = subset > 0.5
+            mask_indices = mask.nonzero(as_tuple=True)[0]
+            indices_more_than_half = mask_indices.squeeze()
+            error_scalars[indices_more_than_half] = 0.0
+            for y_, i in zip(reversed(y), reversed(list(B))):
+                e.insert(0, torch.sign(error_scalars * B[i] * (1 - torch.exp(-Beta * y_))))
         elif typeOfFeedback == typeOfFeedbackEnum.scalar_rate:
             error_scalars = torch.ones((len(label), 1), device=logits.device)
             subset = torch.gather(logits, 1, label.unsqueeze(1))
