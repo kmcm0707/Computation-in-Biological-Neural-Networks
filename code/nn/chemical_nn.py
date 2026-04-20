@@ -218,6 +218,7 @@ class ChemicalNN(nn.Module):
             or self.typeOfFeedback == typeOfFeedbackEnum.scalar_rate
             or self.typeOfFeedback == typeOfFeedbackEnum.scalar_rich
             or self.typeOfFeedback == typeOfFeedbackEnum.scalar_minus_one
+            or self.typeOfFeedback == typeOfFeedbackEnum.scalar_sign
         ):
             if self.size == sizeEnum.small:
                 self.feedback1 = nn.Linear(784, 1, bias=False)

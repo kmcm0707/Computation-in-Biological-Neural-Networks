@@ -656,7 +656,9 @@ class MetaLearner:
                         for y, i in zip(reversed(activations), reversed(list(feedback))):
                             error.insert(
                                 0,
-                                torch.sign(torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-self.model.beta * y))),
+                                torch.sign(
+                                    torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-self.model.beta * y))
+                                ),
                             )
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.scalar:
                         # error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)[0]
@@ -1115,7 +1117,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_10,  # _pre_activation,
+            operator=operatorEnum.mode_9,  # _pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1223,8 +1225,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     continue_training = (
         # current_dir + "/results_3/mode_10_scalar_11_chems_200/0/20260417-193142"
         current_dir
-        #+ "/results_3/mode_9_scalar_converted_9_chems"
-        +"/results_3/mode_9_scalar_9_chems_converted/0/20260419-173857"
+        # + "/results_3/mode_9_scalar_converted_9_chems"
+        + "/results_3/mode_9_scalar_9_chems_converted/0/20260419-173857"
     )  # "/results_3/mode_9_scalar_11_chems_200/1/20260416-180301"
     # continue_training = (
     #    current_dir + "/results_3/mode_9_rand/0/20251105-152312"
@@ -1257,7 +1259,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.scalar,
+        typeOfFeedback=typeOfFeedbackEnum.scalar_sign,
         dimOut=dimOut,
         hrm_discount=-1,
         error_control=False,
@@ -1306,4 +1308,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=0, display=True, result_subdirectory="mode_10_scalar_9_chems_converted", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_scalar_sign_9_chems_converted", index=i)
