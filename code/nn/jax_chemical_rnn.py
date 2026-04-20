@@ -60,6 +60,8 @@ class JAXChemicalRNN(eqx.Module):
             key3_2, key3_3 = jax.random.split(key3, 2)
             self.forward3 = eqx.nn.Linear(hidden_size, hidden_size, key=key3_2, use_bias=False)
             self.forward4 = eqx.nn.Linear(hidden_size, output_size, key=key3_3, use_bias=False)
+        else:
+            self.forward4 = None
 
         self.layers = (self.forward1, self.forward2, self.forward3)
         if self.two_layer_RNN:
@@ -79,7 +81,9 @@ class JAXChemicalRNN(eqx.Module):
             key6_2, key6_3 = jax.random.split(key6, 2)
             self.pre_feedback3 = eqx.nn.Linear(error_size, hidden_size, key=key6_2, use_bias=False)
             self.recurrent_feedback2 = eqx.nn.Linear(error_size, hidden_size, key=key6_3, use_bias=False)
-
+        else:
+            self.pre_feedback3 = None
+            self.recurrent_feedback2 = None
 
         if not self.two_layer_RNN:
             self.feedback_layers = (self.pre_feedback1, self.pre_feedback2, self.recurrent_feedback)

@@ -499,7 +499,7 @@ class MetaLearner:
                         map_location=self.device,
                     )
                 )
-            z = np.loadtxt(self.options.continueTraining + "/acc_meta.txt")
+            #z = np.loadtxt(self.options.continueTraining + "/acc_meta.txt")
             # last_trained_epoch = z.shape[0]
 
         # -- set model to training mode
@@ -1019,7 +1019,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 2000
+    epochs = 1000
 
     dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
     minTrainingDataPerClass = 5

@@ -571,10 +571,10 @@ def main_jax_rnn_meta_learner():
         metaLearnerOptions = JaxRnnMetaLearnerOptions(
             seed=42,
             save_results=True,
-            results_subdir="jax_rnn_2_layer_DFA",
+            results_subdir="jax_rnn_9_chems",
             metatrain_dataset=dataset_name,
             display=True,
-            metaLearningRate=0.001,
+            metaLearningRate=0.0005,
             numberOfClasses=numberOfClasses,
             dataset_name=dataset_name,
             chemicalInitialization=chemicalEnum.same,
@@ -590,18 +590,18 @@ def main_jax_rnn_meta_learner():
             outer_activation=JaxActivationNonLinearEnum.tanh,
             recurrent_activation=JaxActivationNonLinearEnum.softplus,
             number_of_time_steps=7,
-            load_model=continue_training,
+            load_model=None, #continue_training,
             load_optimizer=False,
             error_type=JaxErrorTypeEnum.DFA,
             low_dim_DFA=-1,
-            two_layer_RNN=True,
+            two_layer_RNN=False,
         )
 
         metalearning_model = JaxMetaLearnerRNN(
             modelOptions=modelOptions,
             jaxMetaLearnerOptions=metaLearnerOptions,
             key=key,
-            numberOfChemicals=5,
+            numberOfChemicals=9,
             metaTrainingDataset=metatrain_dataset,
         )
 
