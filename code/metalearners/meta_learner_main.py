@@ -1019,7 +1019,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 1000
+    epochs = 2000
 
     dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
     minTrainingDataPerClass = 5
@@ -1091,7 +1091,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
-            nonLinear=nonLinearEnum.pass_through,
+            nonLinear=nonLinearEnum.tanh,
             update_rules=[0, 1, 2, 3, 4, 6, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
@@ -1100,7 +1100,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_10,  # _pre_activation,
+            operator=operatorEnum.mode_9,  # _pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1214,7 +1214,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     #    current_dir + "/results_3/mode_9_rand/0/20251105-152312"
     # )  # "/results_3/mode_9/0/20251107-172732"
     # -- meta-learner options
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P and K matrices (check 1.5)
@@ -1290,4 +1290,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=0, display=True, result_subdirectory="mode_9_scalar_9_chems_converted", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_scalar_9_chems_converted_true", index=i)

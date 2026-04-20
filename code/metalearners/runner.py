@@ -1012,7 +1012,7 @@ def run(
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
-            nonLinear=nonLinearEnum.tanh,
+            nonLinear=nonLinearEnum.pass_through,
             update_rules=[0, 1, 2, 3, 4, 6, 9],  # 5
             bias=False,
             pMatrix=pMatrixEnum.first_col,
@@ -1209,7 +1209,7 @@ def runner_main():
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    "runner_mode_9_scalar_9_chems_converted",
+                    "runner_mode_10_scalar_9_chems_converted",
                     # "runner_mode_9_trajectory_analysis_true_3_chems_4_2_diff",
                     # "runner_mode_9_trajectory_analysis_true_1_chems_4_2_diff",
                 ][i],
@@ -1218,5 +1218,5 @@ def runner_main():
                 modelPath=modelPath_s[i],
                 numberOfChemicals=[9][i],
                 gating=gatingEnum.no_gating,
-                operator=[operatorEnum.mode_9][i],
+                operator=[operatorEnum.mode_10][i],
             )
