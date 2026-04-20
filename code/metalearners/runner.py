@@ -1033,7 +1033,7 @@ def run(
             train_tau=False,
             scale_chemical_weights=False,
             gating=gating,
-            disagreement_regularization=True,
+            disagreement_regularization=False,
         )
     elif model == modelEnum.reservoir:
         modelOptions = reservoirOptions(
@@ -1193,7 +1193,8 @@ def runner_main():
         # os.getcwd()
         # + "/results_3/mode_9_scalar_11_chems_200/2/20260417-014503",
         os.getcwd()
-        + "/results_3/mode_10_scalar_11_chems_200_disagreement/0/20260418-182440"
+        # + "/results_3/mode_10_scalar_11_chems_200_disagreement/0/20260418-182440"
+        + "/results_3/mode_9_scalar_9_chems_converted/0/20260419-173857"
         # "/results_3/mode_9_rand/0/20251105-152312",
         # os.getcwd() + "/results_3/20251103-214650",
         # os.getcwd() + "/results_3/mode_7_1_chem/1/20260125-202838",
@@ -1208,14 +1209,14 @@ def runner_main():
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    "runner_mode_10_scalar_11_chems_disagreement",
+                    "runner_mode_9_scalar_9_chems_converted",
                     # "runner_mode_9_trajectory_analysis_true_3_chems_4_2_diff",
                     # "runner_mode_9_trajectory_analysis_true_1_chems_4_2_diff",
                 ][i],
                 index=index_outer,
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=[11][i],
+                numberOfChemicals=[9][i],
                 gating=gatingEnum.no_gating,
-                operator=[operatorEnum.mode_10][i],
+                operator=[operatorEnum.mode_9][i],
             )

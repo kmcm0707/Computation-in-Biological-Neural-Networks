@@ -479,7 +479,7 @@ class JaxMetaLearnerRNN:
 
 
 def main_jax_rnn_meta_learner():
-    #os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
+    # os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
     for index in range(6):
         key = jax.random.PRNGKey(42)
         # jax.config.update("jax_enable_x64", False)
@@ -565,7 +565,9 @@ def main_jax_rnn_meta_learner():
         # device = "cpu"
         current_dir = os.getcwd()
         continue_training = (
-            current_dir + "/results_3/jax_rnn_12/20260121-024411"  # 20260121-024411"
+            # current_dir + "/results_3/jax_rnn_12/20260121-024411"  # 20260121-024411"
+            current_dir
+            + "/results_3/jax_rnn_9_chems/20260419-192638"
         )  # "/results_2/jax_rnn_7_DSEF_fixed/20260217-174916" # "/results_2/jax_rnn_12/20260121-024411"#"/results_2/jax_rnn_12_28/20260126-043934"
         # -- meta-learner options
         metaLearnerOptions = JaxRnnMetaLearnerOptions(
@@ -574,7 +576,7 @@ def main_jax_rnn_meta_learner():
             results_subdir="jax_rnn_9_chems",
             metatrain_dataset=dataset_name,
             display=True,
-            metaLearningRate=0.0005,
+            metaLearningRate=0.0006,
             numberOfClasses=numberOfClasses,
             dataset_name=dataset_name,
             chemicalInitialization=chemicalEnum.same,
@@ -590,7 +592,7 @@ def main_jax_rnn_meta_learner():
             outer_activation=JaxActivationNonLinearEnum.tanh,
             recurrent_activation=JaxActivationNonLinearEnum.softplus,
             number_of_time_steps=7,
-            load_model=None, #continue_training,
+            load_model=continue_training,
             load_optimizer=False,
             error_type=JaxErrorTypeEnum.DFA,
             low_dim_DFA=-1,
