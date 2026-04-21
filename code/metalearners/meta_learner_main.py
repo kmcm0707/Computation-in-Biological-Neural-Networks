@@ -1036,10 +1036,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 2000
+    epochs = 200
 
     dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
-    minTrainingDataPerClass = 5
+    minTrainingDataPerClass = 70
     maxTrainingDataPerClass = 80
     queryDataPerClass = 20
     dataset_1 = None
@@ -1117,7 +1117,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_9,  # _pre_activation,
+            operator=operatorEnum.mode_10,  # _pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1224,15 +1224,16 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     continue_training = (
         # current_dir + "/results_3/mode_10_scalar_11_chems_200/0/20260417-193142"
-        current_dir
+        current_dir + "/results_3/mode_10_scalar_9_chems_converted/0/20260420-190254"
+        #"/results_3/mode_9_scalar_10/1/20251124-005417"
         # + "/results_3/mode_9_scalar_converted_9_chems"
-        + "/results_3/mode_9_scalar_9_chems_converted/0/20260419-173857"
+        #+ "/results_3/mode_9_scalar_9_chems_converted/0/20260419-173857"
     )  # "/results_3/mode_9_scalar_11_chems_200/1/20260416-180301"
     # continue_training = (
     #    current_dir + "/results_3/mode_9_rand/0/20251105-152312"
     # )  # "/results_3/mode_9/0/20251107-172732"
     # -- meta-learner options
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P and K matrices (check 1.5)
@@ -1258,8 +1259,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=None, #continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.DFA_grad_sign,#scalar_sign,
+        continueTraining=continue_training,
+        typeOfFeedback=typeOfFeedbackEnum.scalar,#scalar_sign,
         dimOut=dimOut,
         hrm_discount=-1,
         error_control=False,
@@ -1278,7 +1279,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 9
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1308,4 +1309,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=0, display=True, result_subdirectory="mode_9_DFA_sign_5_chems", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_10_scalar_9_chems", index=i)
