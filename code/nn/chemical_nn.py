@@ -158,6 +158,7 @@ class ChemicalNN(nn.Module):
             self.typeOfFeedback == typeOfFeedbackEnum.DFA
             or self.typeOfFeedback == typeOfFeedbackEnum.DFA_grad
             or self.typeOfFeedback == typeOfFeedbackEnum.target_propagation
+            or self.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_sign
         ):
             if self.size == sizeEnum.small:
                 self.feedback1 = nn.Linear(784, self.dim_out, bias=False)

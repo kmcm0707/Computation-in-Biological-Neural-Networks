@@ -567,7 +567,7 @@ def main_jax_rnn_meta_learner():
         continue_training = (
             # current_dir + "/results_3/jax_rnn_12/20260121-024411"  # 20260121-024411"
             current_dir
-            + "/results_3/jax_rnn_9_chems/20260419-192638"
+            + "/results_3/jax_rnn_9_chems/20260420-043002"
         )  # "/results_2/jax_rnn_7_DSEF_fixed/20260217-174916" # "/results_2/jax_rnn_12/20260121-024411"#"/results_2/jax_rnn_12_28/20260126-043934"
         # -- meta-learner options
         metaLearnerOptions = JaxRnnMetaLearnerOptions(
