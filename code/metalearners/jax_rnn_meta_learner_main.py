@@ -486,7 +486,7 @@ def main_jax_rnn_meta_learner():
 
         # -- load data
         numWorkers = 2
-        epochs = 5000
+        epochs = 2500
 
         dataset_name = "EMNIST"
         minTrainingDataPerClass = 5
@@ -576,7 +576,7 @@ def main_jax_rnn_meta_learner():
             results_subdir="jax_rnn_9_chems",
             metatrain_dataset=dataset_name,
             display=True,
-            metaLearningRate=0.0003,
+            metaLearningRate=0.0001,
             numberOfClasses=numberOfClasses,
             dataset_name=dataset_name,
             chemicalInitialization=chemicalEnum.same,
