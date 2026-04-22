@@ -47,8 +47,12 @@ class JAXFastRnn(eqx.Module):
         # -- initialize tau vector --
         base = max_tau / min_tau
         tau_vector = min_tau * jnp.power(base, jnp.linspace(0, 1, self.numberOfChemicals))
-        self.z_vector = 1.0 / tau_vector
-        self.y_vector = 1.0 - self.z_vector
+        if self.numberOfChemicals == 1:
+            self.z_vector = jnp.array([1.0])
+            self.y_vector = jnp.array([1.0])
+        else:
+            self.z_vector = 1.0 / tau_vector
+            self.y_vector = 1.0 - self.z_vector
 
         if self.fastRnnOptions.z_vector == zVectorEnum.all_ones:
             self.z_vector = jnp.ones(self.numberOfChemicals)

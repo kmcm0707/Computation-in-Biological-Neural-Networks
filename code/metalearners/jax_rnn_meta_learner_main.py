@@ -91,9 +91,24 @@ class JaxMetaLearnerRNN:
         self.metaOptimizer = JAXFastRnn(numberOfChemicals, modelOptions)
         # -- load model if specified --
         if self.jaxMetaLearnerOptions.load_model is not None:
-            self.metaOptimizer = eqx.tree_deserialise_leaves(
-                self.jaxMetaLearnerOptions.load_model + "/meta_learner_model.eqx", self.metaOptimizer
-            )
+            if self.jaxMetaLearnerOptions.dont_load_z_y:
+                # load the model but keep v and y vectors as they are
+                loaded_metaOptimizer = eqx.tree_deserialise_leaves(
+                    self.jaxMetaLearnerOptions.load_model + "/meta_learner_model.eqx", self.metaOptimizer
+                )
+                self.metaOptimizer = eqx.tree_at(
+                    lambda m: (m.Q_matrix, m.K_matrix, m.v_vector),
+                    self.metaOptimizer,
+                    (
+                        loaded_metaOptimizer.Q_matrix,
+                        loaded_metaOptimizer.K_matrix,
+                        loaded_metaOptimizer.v_vector,
+                    ),
+                )
+            else:
+                self.metaOptimizer = eqx.tree_deserialise_leaves(
+                    self.jaxMetaLearnerOptions.load_model + "/meta_learner_model.eqx", self.metaOptimizer
+                )
 
         # -- optimizer --
         trainable_mask = self.get_trainable_mask(self.metaOptimizer)
@@ -594,6 +609,7 @@ def main_jax_rnn_meta_learner():
             number_of_time_steps=7,
             load_model=continue_training,
             load_optimizer=False,
+            dont_load_z_y=True,
             error_type=JaxErrorTypeEnum.DFA,
             low_dim_DFA=-1,
             two_layer_RNN=False,

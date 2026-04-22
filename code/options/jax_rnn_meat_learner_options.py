@@ -45,6 +45,7 @@ class JaxRnnMetaLearnerOptions:
         number_of_time_steps: int = 10,
         load_model: str = None,
         load_optimizer: bool = False,
+        dont_load_z_y: bool = False,
         error_type: JaxErrorTypeEnum = JaxErrorTypeEnum.DFA,
         low_dim_DFA: int = -1,
         permutation: bool = False,
@@ -73,6 +74,7 @@ class JaxRnnMetaLearnerOptions:
         self.number_of_time_steps = number_of_time_steps
         self.load_model = load_model
         self.load_optimizer = load_optimizer
+        self.dont_load_z_y = dont_load_z_y
         self.error_type = error_type
         self.low_dim_DFA = low_dim_DFA
         self.permutation = permutation
