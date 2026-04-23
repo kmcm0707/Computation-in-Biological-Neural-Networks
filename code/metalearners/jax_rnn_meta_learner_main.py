@@ -507,7 +507,7 @@ def main_jax_rnn_meta_learner():
         minTrainingDataPerClass = 5
         maxTrainingDataPerClass = 70
         queryDataPerClass = 20
-        numberOfTimeSteps = 7
+        numberOfTimeSteps = 28
 
         if dataset_name == "EMNIST":
             numberOfClasses = 5
@@ -582,16 +582,17 @@ def main_jax_rnn_meta_learner():
         continue_training = (
             # current_dir + "/results_3/jax_rnn_12/20260121-024411"  # 20260121-024411"
             current_dir
-            + "/results_3/jax_rnn_9_chems/20260420-043002"
+            + "/results_3/jax_rnn_1_chem/20260423-005009"
+            #+ "/results_3/jax_rnn_9_chems_100/20260422-175900"
         )  # "/results_2/jax_rnn_7_DSEF_fixed/20260217-174916" # "/results_2/jax_rnn_12/20260121-024411"#"/results_2/jax_rnn_12_28/20260126-043934"
         # -- meta-learner options
         metaLearnerOptions = JaxRnnMetaLearnerOptions(
             seed=42,
             save_results=True,
-            results_subdir="jax_rnn_1_chem",
+            results_subdir="jax_rnn_1_chem_28",
             metatrain_dataset=dataset_name,
             display=True,
-            metaLearningRate=0.0001,
+            metaLearningRate=0.00006,
             numberOfClasses=numberOfClasses,
             dataset_name=dataset_name,
             chemicalInitialization=chemicalEnum.same,
@@ -602,13 +603,13 @@ def main_jax_rnn_meta_learner():
             hidden_size=128,
             output_size=dimOut,
             biological_min_tau=1,
-            biological_max_tau=7,
+            biological_max_tau=28,
             gradient=True,
             outer_activation=JaxActivationNonLinearEnum.tanh,
             recurrent_activation=JaxActivationNonLinearEnum.softplus,
-            number_of_time_steps=7,
-            load_model=None, #continue_training,
-            load_optimizer=False,
+            number_of_time_steps=28,
+            load_model=continue_training,
+            load_optimizer=True,
             dont_load_z_y=True,
             error_type=JaxErrorTypeEnum.DFA,
             low_dim_DFA=-1,
