@@ -472,8 +472,8 @@ class MetaLearner:
         # -- continue training
         last_trained_epoch = -1
         if self.options.continueTraining is not None:
-            # current_z_vector = self.UpdateWeights.z_vector.clone().detach()
-            # current_y_vector = self.UpdateWeights.y_vector.clone().detach()
+            current_z_vector = self.UpdateWeights.z_vector.clone().detach()
+            current_y_vector = self.UpdateWeights.y_vector.clone().detach()
             self.UpdateWeights.load_state_dict(
                 torch.load(
                     self.options.continueTraining + "/UpdateWeights.pth",
@@ -482,8 +482,8 @@ class MetaLearner:
                 ),
                 strict=False,
             )
-            # self.UpdateWeights.z_vector = torch.nn.Parameter(current_z_vector)
-            # self.UpdateWeights.y_vector = torch.nn.Parameter(current_y_vector)
+            self.UpdateWeights.z_vector = torch.nn.Parameter(current_z_vector)
+            self.UpdateWeights.y_vector = torch.nn.Parameter(current_y_vector)
             # self.UpdateMetaParameters.load_state_dict(
             #  torch.load(
             #      self.options.continueTraining + "/UpdateMetaParameters.pth",
@@ -1036,10 +1036,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 200
+    epochs = 2000
 
     dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
-    minTrainingDataPerClass = 70
+    minTrainingDataPerClass = 5
     maxTrainingDataPerClass = 80
     queryDataPerClass = 20
     dataset_1 = None
@@ -1114,7 +1114,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=50,
+            maxTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
             operator=operatorEnum.mode_10,  # _pre_activation,
@@ -1309,4 +1309,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=1, display=True, result_subdirectory="mode_10_scalar_9_chems", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_10_scalar_9_chems_100", index=i)

@@ -494,14 +494,14 @@ class JaxMetaLearnerRNN:
 
 
 def main_jax_rnn_meta_learner():
-    # os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
+    #os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
     for index in range(6):
         key = jax.random.PRNGKey(42)
         # jax.config.update("jax_enable_x64", False)
 
         # -- load data
         numWorkers = 2
-        epochs = 2500
+        epochs = 5000
 
         dataset_name = "EMNIST"
         minTrainingDataPerClass = 5
@@ -571,7 +571,7 @@ def main_jax_rnn_meta_learner():
             nonLinear=JaxActivationNonLinearEnum.tanh,
             update_rules=[0, 1, 2, 4, 9, 12],  # 4
             minSlowTau=2,
-            maxSlowTau=50,
+            maxSlowTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
             operator=operatorEnum.mode_9,
@@ -588,7 +588,7 @@ def main_jax_rnn_meta_learner():
         metaLearnerOptions = JaxRnnMetaLearnerOptions(
             seed=42,
             save_results=True,
-            results_subdir="jax_rnn_9_chems",
+            results_subdir="jax_rnn_1_chem",
             metatrain_dataset=dataset_name,
             display=True,
             metaLearningRate=0.0001,
@@ -607,7 +607,7 @@ def main_jax_rnn_meta_learner():
             outer_activation=JaxActivationNonLinearEnum.tanh,
             recurrent_activation=JaxActivationNonLinearEnum.softplus,
             number_of_time_steps=7,
-            load_model=continue_training,
+            load_model=None, #continue_training,
             load_optimizer=False,
             dont_load_z_y=True,
             error_type=JaxErrorTypeEnum.DFA,
@@ -619,7 +619,7 @@ def main_jax_rnn_meta_learner():
             modelOptions=modelOptions,
             jaxMetaLearnerOptions=metaLearnerOptions,
             key=key,
-            numberOfChemicals=9,
+            numberOfChemicals=1,
             metaTrainingDataset=metatrain_dataset,
         )
 

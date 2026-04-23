@@ -59,9 +59,8 @@ class JAXFastRnn(eqx.Module):
         elif self.fastRnnOptions.z_vector == zVectorEnum.default:
             pass
 
-        if self.numberOfChemicals == 1:
-            self.y_vector[0] = 1
-        elif self.fastRnnOptions.y_vector == yVectorEnum.last_one:
+
+        if self.fastRnnOptions.y_vector == yVectorEnum.last_one:
             self.y_vector[-1] = 1
         elif self.fastRnnOptions.y_vector == yVectorEnum.none:
             pass
