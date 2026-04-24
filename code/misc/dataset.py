@@ -343,7 +343,7 @@ class MnistDataset(Dataset):
         """
         # -- create directory
         s_dir = os.getcwd()
-        self.mnist_dir = os.path.join(s_dir, "/data/mnist/")
+        self.mnist_dir = s_dir + "/data/mnist/"
         os.makedirs(self.mnist_dir, exist_ok=True)
 
         self.minTrainingDataPerClass = minTrainingDataPerClass

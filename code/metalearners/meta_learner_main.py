@@ -1199,6 +1199,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             dimensionOfImage=28,
             all_classes=True,
         )
+        shift_labels_2 = 47  # EMNIST has 47 classes
+        shift_labels_3 = 57  # EMNIST + Fashion-MNIST has 57 classes
+        dimOut = 67
 
     if dataset_name != "COMBINED" and dataset_name != "COMBINED_2":
         sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
@@ -1378,12 +1381,16 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         size=sizeEnum.normal,
         raytune=False,
         save_results=True,
-        metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
-        metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
+        metatrain_dataset_1=(
+            metatrain_dataset_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else metatrain_dataset
+        ),
+        metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         metatrain_dataset_3=metatrain_dataset_3 if dataset_name == "COMBINED_2" else None,
         display=display,
         lr=0.0008,  # 0.0005,
-        numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
+        numberOfClasses=(
+            numberOfClasses_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else numberOfClasses
+        ),
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
         trainSeparateFeedback=False,
@@ -1403,6 +1410,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         train_RCN=True,
         wta=False,
         shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" else 0,
+        shift_labels_3=shift_labels_3 if dataset_name == "COMBINED_2" else 0,
         scalar_variance_reduction=-1,  # -1 means no scalar variance reduction
         low_rank_feedback=-1,  # [1, 2, 4, 6, 8, 10, 15, 20, 30][index],
         split=False,

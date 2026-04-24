@@ -88,6 +88,7 @@ class MetaLearnerOptions:
         save_results: bool = True,
         metatrain_dataset_1: str = None,
         metatrain_dataset_2: str = None,
+        metatrain_dataset_3: str = None,
         display: bool = True,
         lr: float = 1e-3,
         numberOfClasses: int = 5,
@@ -111,6 +112,7 @@ class MetaLearnerOptions:
         train_RCN: bool = False,
         wta: bool = False,
         shift_labels_2: int = 0,
+        shift_labels_3: int = 0,
         scalar_variance_reduction: int = -1,
         low_rank_feedback: int = -1,
         split: bool = False,
@@ -136,6 +138,7 @@ class MetaLearnerOptions:
         self.results_subdir = results_subdir
         self.metatrain_dataset_1 = metatrain_dataset_1
         self.metatrain_dataset_2 = metatrain_dataset_2
+        self.metatrain_dataset_3 = metatrain_dataset_3
         self.display = display
         self.lr = lr
         self.numberOfClasses = numberOfClasses
@@ -159,6 +162,7 @@ class MetaLearnerOptions:
         self.train_RCN = train_RCN
         self.wta = wta
         self.shift_labels_2 = shift_labels_2
+        self.shift_labels_3 = shift_labels_3
         self.scalar_variance_reduction = scalar_variance_reduction
         self.low_rank_feedback = low_rank_feedback
         self.split = split
