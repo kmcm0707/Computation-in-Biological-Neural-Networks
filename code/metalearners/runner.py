@@ -1195,7 +1195,8 @@ def runner_main():
         os.getcwd()
         # + "/results_3/mode_10_scalar_11_chems_200_disagreement/0/20260418-182440"
         #+ "/results_3/mode_10_scalar_5_chems/0/20260421-035915"
-        + "/results_3/mode_10_scalar_9_chems_100/1/20260423-004818"
+        +"/results_3/mode_10_scalar_9_chems_200/2/20260423-180418"
+        #+ "/results_3/mode_10_scalar_9_chems_100/2/20260423-233504"
         #+ "/results_3/mode_10_scalar_9_chems/1/20260421-040313"
         # + "/results_3/mode_10_scalar_9_chems_converted/0/20260420-190254"  # 20260419-173857"
         # "/results_3/mode_9_rand/0/20251105-152312",
@@ -1212,7 +1213,7 @@ def runner_main():
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    "runner_mode_10_scalar_9_chems_100",
+                    "runner_mode_10_scalar_9_chems_200",
                     # "runner_mode_9_trajectory_analysis_true_3_chems_4_2_diff",
                     # "runner_mode_9_trajectory_analysis_true_1_chems_4_2_diff",
                 ][i],

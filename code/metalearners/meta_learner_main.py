@@ -1114,10 +1114,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=200,
+            maxTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_10,  # _pre_activation,
+            operator=operatorEnum.mode_9,  # _pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1128,7 +1128,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
             scale_chemical_weights=False,
-            gating=gatingEnum.no_gating,
+            gating=gatingEnum.learning_rule_gating_h,
             disagreement_regularization=False,
         )
     elif model == modelEnum.reservoir:
@@ -1309,4 +1309,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=2, display=True, result_subdirectory="mode_10_scalar_9_chems_200", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_scalar_9_chems_100_gating", index=i)
