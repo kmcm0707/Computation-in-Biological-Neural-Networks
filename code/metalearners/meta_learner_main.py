@@ -6,7 +6,7 @@ from typing import Literal, Union
 
 import numpy as np
 import torch
-from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset
+from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset, MnistDataset
 from misc.utils import Plot, log, meta_stats
 from nn.chemical_nn import ChemicalNN
 from options.benna_options import bennaOptions
@@ -77,7 +77,11 @@ class MetaLearner:
         self.queryDataPerClass = metaLearnerOptions.queryDataPerClass
         self.metatrain_dataset_1 = metaLearnerOptions.metatrain_dataset_1
         self.metatrain_dataset_2 = metaLearnerOptions.metatrain_dataset_2
+        self.metatrain_dataset_3 = metaLearnerOptions.metatrain_dataset_3
+
         self.shift_labels_2 = metaLearnerOptions.shift_labels_2
+        self.shift_labels_3 = metaLearnerOptions.shift_labels_3
+
         self.data_process_1 = DataProcess(
             minTrainingDataPerClass=metaLearnerOptions.minTrainingDataPerClass,
             maxTrainingDataPerClass=metaLearnerOptions.maxTrainingDataPerClass,
@@ -91,6 +95,18 @@ class MetaLearner:
         )
         if self.metatrain_dataset_2 is not None:
             self.data_process_2 = DataProcess(
+                minTrainingDataPerClass=metaLearnerOptions.minTrainingDataPerClass,
+                maxTrainingDataPerClass=metaLearnerOptions.maxTrainingDataPerClass,
+                queryDataPerClass=self.queryDataPerClass,
+                dimensionOfImage=28,
+                device=torch.device(self.options.datasetDevice),
+                split=metaLearnerOptions.split,
+                split_min_number_of_tasks=metaLearnerOptions.split_min_number_of_tasks,
+                split_max_number_of_tasks=metaLearnerOptions.split_max_number_of_tasks,
+                split_only_one_task_evaluation=metaLearnerOptions.split_only_one_task_evaluation,
+            )
+        if self.metatrain_dataset_3 is not None:
+            self.data_process_3 = DataProcess(
                 minTrainingDataPerClass=metaLearnerOptions.minTrainingDataPerClass,
                 maxTrainingDataPerClass=metaLearnerOptions.maxTrainingDataPerClass,
                 queryDataPerClass=self.queryDataPerClass,
@@ -512,8 +528,11 @@ class MetaLearner:
         y_qry_1 = None
         x_qry_2 = None
         y_qry_2 = None
+        x_qry_3 = None
+        y_qry_3 = None
         current_training_data_per_class_1 = None
         current_training_data_per_class_2 = None
+        current_training_data_per_class_3 = None
 
         # scaler = torch.amp.GradScaler("cuda", enabled=True)
 
@@ -524,7 +543,11 @@ class MetaLearner:
         for eps, data in enumerate(
             self.metatrain_dataset_1
             if self.metatrain_dataset_2 is None
-            else zip(self.metatrain_dataset_1, self.metatrain_dataset_2)
+            else (
+                zip(self.metatrain_dataset_1, self.metatrain_dataset_2)
+                if self.metatrain_dataset_3 is None
+                else zip(self.metatrain_dataset_1, self.metatrain_dataset_2, self.metatrain_dataset_3)
+            )
         ):
 
             # -- continue training
@@ -556,11 +579,13 @@ class MetaLearner:
             # -- training data
             data_1 = data if self.metatrain_dataset_2 is None else data[0]
             data_2 = None if self.metatrain_dataset_2 is None else data[1]
+            data_3 = None if self.metatrain_dataset_3 is None else data[2]
+
             x_trn_1, y_trn_1, x_qry_1, y_qry_1, current_training_data_per_class_1, current_number_of_tasks = (
                 self.data_process_1(data_1, self.options.numberOfClasses)
             )
             current_training_data_per_class = current_training_data_per_class_1
-            if self.metatrain_dataset_2 is not None:
+            if self.metatrain_dataset_2 is not None and self.metatrain_dataset_3 is None:
                 x_trn_2, y_trn_2, x_qry_2, y_qry_2, current_training_data_per_class_2, current_number_of_tasks_2 = (
                     self.data_process_2(data_2, self.options.numberOfClasses)
                 )
@@ -573,6 +598,33 @@ class MetaLearner:
                 else:
                     x_trn, y_trn = torch.cat((x_trn_2, x_trn_1), dim=0), torch.cat((y_trn_2, y_trn_1), dim=0)
                     y_trn = y_trn.to(torch.int64)
+            elif self.metatrain_dataset_3 is not None:
+                x_trn_2, y_trn_2, x_qry_2, y_qry_2, current_training_data_per_class_2, current_number_of_tasks_2 = (
+                    self.data_process_2(data_2, self.options.numberOfClasses)
+                )
+                x_trn_3, y_trn_3, x_qry_3, y_qry_3, current_training_data_per_class_3, current_number_of_tasks_3 = (
+                    self.data_process_3(data_3, self.options.numberOfClasses)
+                )
+                y_trn_2 = y_trn_2 + self.shift_labels_2
+                y_qry_2 = y_qry_2 + self.shift_labels_2
+                y_trn_3 = y_trn_3 + self.shift_labels_3
+                y_qry_3 = y_qry_3 + self.shift_labels_3
+                current_training_data_per_class = (
+                    current_training_data_per_class_1
+                    + current_training_data_per_class_2
+                    + current_training_data_per_class_3
+                )
+
+                datasets_x = [x_trn_1, x_trn_2, x_trn_3]
+                datasets_y = [y_trn_1, y_trn_2, y_trn_3]
+
+                # 2. Generate the random order
+                order = torch.randperm(3)
+
+                # 3. Reorder the lists based on 'order' and concatenate everything at once
+                x_trn = torch.cat([datasets_x[i] for i in order], dim=0)
+                y_trn = torch.cat([datasets_y[i] for i in order], dim=0).to(torch.int64)
+
             else:
                 x_trn = x_trn_1
                 y_trn = y_trn_1
@@ -815,6 +867,8 @@ class MetaLearner:
                 x_qry_1, y_qry_1 = x_qry_1.to(self.device), y_qry_1.to(self.device)
                 if self.metatrain_dataset_2 is not None:
                     x_qry_2, y_qry_2 = x_qry_2.to(self.device), y_qry_2.to(self.device)
+                if self.metatrain_dataset_3 is not None:
+                    x_qry_3, y_qry_3 = x_qry_3.to(self.device), y_qry_3.to(self.device)
 
             # -- predict
             y_1, logits_1 = None, None
@@ -837,6 +891,17 @@ class MetaLearner:
                     y_2, logits_2 = torch.func.functional_call(self.model, (parameters, h_parameters), x_qry_2)
                 loss_meta_2 = self.loss_func(logits_2, y_qry_2.ravel())
                 loss_meta = (loss_meta_1 + loss_meta_2) / 2
+
+            if self.metatrain_dataset_3 is not None:
+                y_3, logits_3 = None, None
+                if self.options.trainSeparateFeedback or self.options.trainSameFeedback:
+                    y_3, logits_3 = torch.func.functional_call(
+                        self.model, (parameters, h_parameters, feedback_params), x_qry_3
+                    )
+                else:
+                    y_3, logits_3 = torch.func.functional_call(self.model, (parameters, h_parameters), x_qry_3)
+                loss_meta_3 = self.loss_func(logits_3, y_qry_3.ravel())
+                loss_meta = (loss_meta_1 + loss_meta_2 + loss_meta_3) / 3
 
             if loss_meta > 1e5 or torch.isnan(loss_meta):
                 print(y)
@@ -870,10 +935,26 @@ class MetaLearner:
                     save_index="_2",
                     calculate_only_acc=True,
                 )
+            if self.metatrain_dataset_3 is not None:
+                acc_3 = meta_stats(
+                    logits_3,
+                    parameters,
+                    y_qry_3.ravel(),
+                    y_3,
+                    self.model.beta,
+                    self.result_directory,
+                    self.save_results,
+                    self.options.typeOfFeedback,
+                    self.options.dimOut,
+                    save_index="_3",
+                    calculate_only_acc=True,
+                )
 
             acc = acc_1
             if self.metatrain_dataset_2 is not None:
                 acc = (acc_1 + acc_2) / 2
+            if self.metatrain_dataset_3 is not None:
+                acc = (acc_1 + acc_2 + acc_3) / 3
 
             # -- l1 regularization
             if self.metaLossRegularization > 0:
@@ -921,18 +1002,30 @@ class MetaLearner:
             if self.save_results:
                 log([loss_meta.item()], self.result_directory + "/loss_meta.txt")
                 if self.metatrain_dataset_2 is not None:
-                    log([acc_2], self.result_directory + "/acc_meta_total.txt")
+                    log([acc], self.result_directory + "/acc_meta_total.txt")
                     log([loss_meta_1.item()], self.result_directory + "/loss_meta_1.txt")
                     log([loss_meta_2.item()], self.result_directory + "/loss_meta_2.txt")
+                if self.metatrain_dataset_3 is not None:
+                    log([loss_meta_3.item()], self.result_directory + "/loss_meta_3.txt")
 
             line = "Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}\tCurrent Training Data: {}\tNumber of Tasks: {}".format(
                 eps + 1, loss_meta_1.item(), acc_1, current_training_data_per_class_1, current_number_of_tasks
             )
-            if self.metatrain_dataset_2 is not None:
+            if self.metatrain_dataset_2 is not None and self.metatrain_dataset_3 is None:
                 line += "\tLoss 2: {:.6f}\tAccuracy 2: {:.3f}\tCurrent Training Data Per Class 2: {} \tNumber of Tasks 2: {}".format(
                     loss_meta_2.item(), acc_2, current_training_data_per_class_2, current_number_of_tasks_2
                 )
                 line += "\t Total loss: {:.6f}\t Total Accuracy: {:.3f}".format(loss_meta.item(), (acc_1 + acc_2) / 2)
+            if self.metatrain_dataset_3 is not None:
+                line += "\tLoss 2: {:.6f}\tAcc 2: {:.3f}\tCTD \ Class 2: {} \tNumber of Tasks 2: {}".format(
+                    loss_meta_2.item(), acc_2, current_training_data_per_class_2, current_number_of_tasks_2
+                )
+                line += "\tLoss 3: {:.6f}\tAcc 3: {:.3f}\tCTD \ Class 3: {} \tNumber of Tasks 3: {}".format(
+                    loss_meta_3.item(), acc_3, current_training_data_per_class_3, current_number_of_tasks_3
+                )
+                line += "\t Total loss: {:.6f}\t Total Acc: {:.3f}".format(
+                    loss_meta.item(), (acc_1 + acc_2 + acc_3) / 3
+                )
             if self.display:
                 print(line)
 
@@ -1038,9 +1131,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     numWorkers = 2
     epochs = 2000
 
-    dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED"
+    dataset_name = "COMBINED_2"  # "EMNIST", "FASHION-MNIST", "COMBINED", "COMBINED_2"
     minTrainingDataPerClass = 5
-    maxTrainingDataPerClass = 80
+    maxTrainingDataPerClass = 40
     queryDataPerClass = 20
     dataset_1 = None
     dataset_2 = None
@@ -1082,13 +1175,37 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         )
         shift_labels_2 = 47  # EMNIST has 47 classes
         dimOut = 57
+    elif dataset_name == "COMBINED_2":
+        numberOfClasses_1 = 5
+        numberOfClasses_2 = 5
+        numberOfClasses_3 = 5
+        dataset_1 = EmnistDataset(
+            minTrainingDataPerClass=minTrainingDataPerClass,
+            maxTrainingDataPerClass=maxTrainingDataPerClass,
+            queryDataPerClass=queryDataPerClass,
+            dimensionOfImage=28,
+        )
+        dataset_2 = FashionMnistDataset(
+            minTrainingDataPerClass=minTrainingDataPerClass,
+            maxTrainingDataPerClass=maxTrainingDataPerClass,
+            queryDataPerClass=queryDataPerClass,
+            dimensionOfImage=28,
+            all_classes=True,
+        )
+        dataset_3 = MnistDataset(
+            minTrainingDataPerClass=minTrainingDataPerClass,
+            maxTrainingDataPerClass=maxTrainingDataPerClass,
+            queryDataPerClass=queryDataPerClass,
+            dimensionOfImage=28,
+            all_classes=True,
+        )
 
-    if dataset_name != "COMBINED":
+    if dataset_name != "COMBINED" and dataset_name != "COMBINED_2":
         sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
         metatrain_dataset = DataLoader(
             dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True, num_workers=numWorkers
         )
-    else:
+    elif dataset_name == "COMBINED":
         sampler_1 = RandomSampler(data_source=dataset_1, replacement=True, num_samples=epochs * numberOfClasses_1)
         sampler_2 = RandomSampler(data_source=dataset_2, replacement=True, num_samples=epochs * numberOfClasses_2)
         metatrain_dataset_1 = DataLoader(
@@ -1096,6 +1213,19 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         )
         metatrain_dataset_2 = DataLoader(
             dataset=dataset_2, sampler=sampler_2, batch_size=numberOfClasses_2, drop_last=True, num_workers=numWorkers
+        )
+    elif dataset_name == "COMBINED_2":
+        sampler_1 = RandomSampler(data_source=dataset_1, replacement=True, num_samples=epochs * numberOfClasses_1)
+        sampler_2 = RandomSampler(data_source=dataset_2, replacement=True, num_samples=epochs * numberOfClasses_2)
+        sampler_3 = RandomSampler(data_source=dataset_3, replacement=True, num_samples=epochs * numberOfClasses_3)
+        metatrain_dataset_1 = DataLoader(
+            dataset=dataset_1, sampler=sampler_1, batch_size=numberOfClasses_1, drop_last=True, num_workers=numWorkers
+        )
+        metatrain_dataset_2 = DataLoader(
+            dataset=dataset_2, sampler=sampler_2, batch_size=numberOfClasses_2, drop_last=True, num_workers=numWorkers
+        )
+        metatrain_dataset_3 = DataLoader(
+            dataset=dataset_3, sampler=sampler_3, batch_size=numberOfClasses_3, drop_last=True, num_workers=numWorkers
         )
 
     # -- options
@@ -1114,10 +1244,10 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=200,
+            maxTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_10,  # _pre_activation,
+            operator=operatorEnum.mode_9,  # _pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1225,7 +1355,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     continue_training = (
         # current_dir + "/results_3/mode_10_scalar_11_chems_200/0/20260417-193142"
         current_dir
-        + "/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"
+        + "/results_3/mode_9_CB/5/20251112-001951"
+        # + "/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"
         # current_dir + "/results_3/mode_10_scalar_9_chems_100/1/20260423-004818"# "/results_3/mode_10_scalar_9_chems_converted/0/20260420-190254"
         # "/results_3/mode_9_scalar_10/1/20251124-005417"
         # + "/results_3/mode_9_scalar_converted_9_chems"
@@ -1234,7 +1365,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     # continue_training = (
     #    current_dir + "/results_3/mode_9_rand/0/20251105-152312"
     # )  # "/results_3/mode_9/0/20251107-172732"
-    #-- meta-learner options
+    # -- meta-learner options
     device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
@@ -1249,8 +1380,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         save_results=True,
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
+        metatrain_dataset_3=metatrain_dataset_3 if dataset_name == "COMBINED_2" else None,
         display=display,
-        lr=0.0005,
+        lr=0.0008,  # 0.0005,
         numberOfClasses=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
@@ -1262,7 +1394,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.scalar,  # scalar_sign,
+        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,  # scalar_sign,
         dimOut=dimOut,
         hrm_discount=-1,
         error_control=False,
@@ -1281,7 +1413,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemical
-    numberOfChemicals = 13
+    numberOfChemicals = 5
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1311,4 +1443,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=2, display=True, result_subdirectory="mode_10_scalar_13_chems_200", index=i)
+        run(seed=2, display=True, result_subdirectory="mode_9_3_datasets", index=i)

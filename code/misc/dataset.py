@@ -316,6 +316,108 @@ class FashionMnistDataset(Dataset):
         )
 
 
+class MnistDataset(Dataset):
+    """
+    MNIST Dataset class for meta-learning.
+
+    Each data point represents samples from a single class, containing
+    training (support) and query data from that category.
+    """
+
+    def __init__(
+        self,
+        minTrainingDataPerClass: int,
+        maxTrainingDataPerClass: int,
+        queryDataPerClass: int,
+        dimensionOfImage: int,
+        all_classes: bool = False,
+    ):
+        """
+        Initialize the MnistDataset class.
+
+        :param minTrainingDataPerClass: (int) Minimum training data per class.
+        :param maxTrainingDataPerClass: (int) Maximum training data per class.
+        :param queryDataPerClass: (int) Number of query data per class.
+        :param dimensionOfImage: (int) Dimension size to resize images to.
+        :param all_classes: (bool) If True, iterates through classes sequentially.
+        """
+        # -- create directory
+        s_dir = os.getcwd()
+        self.mnist_dir = os.path.join(s_dir, "/data/mnist/")
+        os.makedirs(self.mnist_dir, exist_ok=True)
+
+        self.minTrainingDataPerClass = minTrainingDataPerClass
+        self.maxTrainingDataPerClass = maxTrainingDataPerClass
+        self.queryDataPerClass = queryDataPerClass
+        self.all_classes = all_classes
+        self.current_idx = 0
+
+        # -- process data (Resize only, normalization handled manually below)
+        self.transform = transforms.Compose(
+            [
+                transforms.Resize((dimensionOfImage, dimensionOfImage)),
+            ]
+        )
+
+        # -- download MNIST data
+        self.train_dataset = torchvision.datasets.MNIST(root=self.mnist_dir, download=True, train=True, transform=None)
+        self.test_dataset = torchvision.datasets.MNIST(root=self.mnist_dir, download=True, train=False, transform=None)
+
+    def __len__(self):
+        """
+        Returns the number of classes in MNIST.
+        """
+        return 10
+
+    def __getitem__(self, index: int):
+        """
+        Get support and query tensors for a given class index.
+        """
+        if self.all_classes:
+            index = self.current_idx
+            self.current_idx += 1
+            if self.current_idx == 10:
+                self.current_idx = 0
+
+        # -- Filter indices for the specific class
+        train_idx = self.train_dataset.targets == torch.tensor(index)
+        train_idx = np.where(train_idx)[0]
+        query_idx = self.test_dataset.targets == index
+        query_idx = np.where(query_idx)[0]
+
+        # -- Randomly sample support and query sets
+        sampled_train_idx = np.random.choice(train_idx, self.maxTrainingDataPerClass, replace=False)
+        sampled_query_idx = np.random.choice(query_idx, self.queryDataPerClass, replace=False)
+
+        # -- Process support (training) data
+        transformed_data = []
+        for idx in sampled_train_idx:
+            # Scale to [0, 1], add channel dim, and apply resize
+            img = self.train_dataset.data[idx].float().unsqueeze(0) / 255.0
+            transformed_data.append(self.transform(img))
+
+        if self.maxTrainingDataPerClass > 0:
+            transformed_data = torch.cat(transformed_data)
+        else:
+            # Handle case for zero support samples
+            transformed_data = torch.empty((0, 1, 28, 28))
+
+        # -- Process query data
+        q_transformed_data = []
+        for idx in sampled_query_idx:
+            img = self.test_dataset.data[idx].float().unsqueeze(0) / 255.0
+            q_transformed_data.append(self.transform(img))
+
+        q_transformed_data = torch.cat(q_transformed_data)
+
+        return (
+            transformed_data,
+            torch.tensor([index] * self.maxTrainingDataPerClass),
+            q_transformed_data,
+            torch.tensor([index] * self.queryDataPerClass),
+        )
+
+
 class SplitFashionMnistDataset(Dataset):
     """
         Split Fashion MNIST Dataset class.
@@ -1239,7 +1341,10 @@ class DataProcess:
             x_qry = x_qry[y_qry_indicies_of_split_classes]
             y_qry = y_qry[y_qry_indicies_of_split_classes]
 
-            if self.split_only_one_task_evaluation >= 0 and self.split_only_one_task_evaluation < current_number_of_tasks:
+            if (
+                self.split_only_one_task_evaluation >= 0
+                and self.split_only_one_task_evaluation < current_number_of_tasks
+            ):
                 selected_task = split_tasks[self.split_only_one_task_evaluation]
                 x_qry = x_qry[torch.isin(y_qry.squeeze(), selected_task)]
                 y_qry = y_qry[torch.isin(y_qry.squeeze(), selected_task)]
