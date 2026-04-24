@@ -1117,7 +1117,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_9,  # _pre_activation,
+            operator=operatorEnum.mode_10,  # _pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1128,7 +1128,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
             scale_chemical_weights=False,
-            gating=gatingEnum.learning_rule_gating_h,
+            gating=gatingEnum.no_gating,
             disagreement_regularization=False,
         )
     elif model == modelEnum.reservoir:
@@ -1224,10 +1224,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     continue_training = (
         # current_dir + "/results_3/mode_10_scalar_11_chems_200/0/20260417-193142"
-        current_dir + "/results_3/mode_10_scalar_9_chems_100/1/20260423-004818"# "/results_3/mode_10_scalar_9_chems_converted/0/20260420-190254"
-        #"/results_3/mode_9_scalar_10/1/20251124-005417"
+        current_dir
+        + "/results_3/mode_9_scalar_converted_13_chems"
+        # current_dir + "/results_3/mode_10_scalar_9_chems_100/1/20260423-004818"# "/results_3/mode_10_scalar_9_chems_converted/0/20260420-190254"
+        # "/results_3/mode_9_scalar_10/1/20251124-005417"
         # + "/results_3/mode_9_scalar_converted_9_chems"
-        #+ "/results_3/mode_9_scalar_9_chems_converted/0/20260419-173857"
+        # + "/results_3/mode_9_scalar_9_chems_converted/0/20260419-173857"
     )  # "/results_3/mode_9_scalar_11_chems_200/1/20260416-180301"
     # continue_training = (
     #    current_dir + "/results_3/mode_9_rand/0/20251105-152312"
@@ -1260,7 +1262,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.scalar,#scalar_sign,
+        typeOfFeedback=typeOfFeedbackEnum.scalar,  # scalar_sign,
         dimOut=dimOut,
         hrm_discount=-1,
         error_control=False,
@@ -1278,8 +1280,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         regenerate_feedback_weights=-1,  # regenerate feedback weights every n episodes, -1 means never regenerate
     )
 
-    # -- number of chemicals
-    numberOfChemicals = 9
+    # -- number of chemical
+    numberOfChemicals = 13
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1309,4 +1311,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=0, display=True, result_subdirectory="mode_9_scalar_9_chems_100_gating", index=i)
+        run(seed=1, display=True, result_subdirectory="mode_10_scalar_13_chems_100", index=i)
