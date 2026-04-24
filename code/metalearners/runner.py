@@ -1195,7 +1195,8 @@ def runner_main():
         os.getcwd()
         # + "/results_3/mode_10_scalar_11_chems_200_disagreement/0/20260418-182440"
         #+ "/results_3/mode_10_scalar_5_chems/0/20260421-035915"
-        +"/results_3/mode_10_scalar_9_chems_200/2/20260423-180418"
+        # "/results_3/mode_9_scalar_9_chems_100/0/20260423-234050"
+        #+"/results_3/mode_10_scalar_9_chems_200/2/20260423-180418"
         #+ "/results_3/mode_10_scalar_9_chems_100/2/20260423-233504"
         #+ "/results_3/mode_10_scalar_9_chems/1/20260421-040313"
         # + "/results_3/mode_10_scalar_9_chems_converted/0/20260420-190254"  # 20260419-173857"
@@ -1206,6 +1207,7 @@ def runner_main():
         # os.getcwd() + "/results_3/mode_6_scalar_not_all_ones_same/2/20251123-235027",
         # os.getcwd() + "/results_3/mode_9_scalar_clip/1/20251204-195612",
         # os.getcwd() + "/results_3/error_1_fixed/0/20251009-194350",
+        +"/results_3/mode_9_scalar_9_chems_100_gating/0/20260423-235530"
     ]
     for i in range(len(modelPath_s)):
         for index_outer in range(0, 25):
@@ -1213,7 +1215,7 @@ def runner_main():
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    "runner_mode_10_scalar_9_chems_200",
+                    "runner_mode_9_scalar_9_chems_100_fixed_gate_h_lr",
                     # "runner_mode_9_trajectory_analysis_true_3_chems_4_2_diff",
                     # "runner_mode_9_trajectory_analysis_true_1_chems_4_2_diff",
                 ][i],
@@ -1221,6 +1223,6 @@ def runner_main():
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
                 numberOfChemicals=[9][i],
-                gating=gatingEnum.no_gating,
-                operator=[operatorEnum.mode_10][i],
+                gating=gatingEnum.learning_rule_gating_h,
+                operator=[operatorEnum.mode_9][i],
             )
