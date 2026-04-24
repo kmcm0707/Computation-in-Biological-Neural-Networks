@@ -1207,7 +1207,8 @@ def runner_main():
         # os.getcwd() + "/results_3/mode_6_scalar_not_all_ones_same/2/20251123-235027",
         # os.getcwd() + "/results_3/mode_9_scalar_clip/1/20251204-195612",
         # os.getcwd() + "/results_3/error_1_fixed/0/20251009-194350",
-        +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
+        +"/results_3/mode_10_scalar_13_chems_200/2/20260424-130001"
+        #+"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
     ]
     for i in range(len(modelPath_s)):
         for index_outer in range(0, 25):
@@ -1215,7 +1216,7 @@ def runner_main():
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    "runner_mode_10_scalar_13_chems_100",
+                    "runner_mode_10_scalar_13_chems_200",
                     # "runner_mode_9_trajectory_analysis_true_3_chems_4_2_diff",
                     # "runner_mode_9_trajectory_analysis_true_1_chems_4_2_diff",
                 ][i],
