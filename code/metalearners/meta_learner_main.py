@@ -1358,7 +1358,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     continue_training = (
         # current_dir + "/results_3/mode_10_scalar_11_chems_200/0/20260417-193142"
         current_dir
-        + "/results_3/mode_9_CB/5/20251112-001951"
+        + "/results_3/mode_9_CB_converted_9_chems"  # "/results_3/mode_9_CB/5/20251112-001951"
         # + "/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"
         # current_dir + "/results_3/mode_10_scalar_9_chems_100/1/20260423-004818"# "/results_3/mode_10_scalar_9_chems_converted/0/20260420-190254"
         # "/results_3/mode_9_scalar_10/1/20251124-005417"
@@ -1387,7 +1387,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         metatrain_dataset_3=metatrain_dataset_3 if dataset_name == "COMBINED_2" else None,
         display=display,
-        lr=0.002,  # 0.0005,
+        lr=0.0005,  # 0.0005,
         numberOfClasses=(
             numberOfClasses_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else numberOfClasses
         ),
@@ -1420,8 +1420,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         regenerate_feedback_weights=-1,  # regenerate feedback weights every n episodes, -1 means never regenerate
     )
 
-    # -- number of chemical
-    numberOfChemicals = 5
+    # -- number of chemica
+    numberOfChemicals = 9
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1451,4 +1451,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=2, display=True, result_subdirectory="mode_9_3_datasets", index=i)
+        run(seed=2, display=True, result_subdirectory="mode_9_3_datasets_9_chems", index=i)
