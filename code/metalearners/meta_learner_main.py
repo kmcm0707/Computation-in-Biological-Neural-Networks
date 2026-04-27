@@ -1129,11 +1129,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 1000
+    epochs = 2000
 
-    dataset_name = "FASHION-MNIST" #"EMNIST", "FASHION-MNIST", "COMBINED", "COMBINED_2"
+    dataset_name = "COMBINED_2" #"EMNIST", "FASHION-MNIST", "COMBINED", "COMBINED_2"
     minTrainingDataPerClass = 5
-    maxTrainingDataPerClass = 80
+    maxTrainingDataPerClass = 40
     queryDataPerClass = 20
     dataset_1 = None
     dataset_2 = None
@@ -1247,7 +1247,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=50,
+            maxTau=200,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
             operator=operatorEnum.mode_9,  # _pre_activation,
@@ -1357,7 +1357,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     continue_training = (
         # current_dir + "/results_3/mode_10_scalar_11_chems_200/0/20260417-193142"
-        #current_dir
+        current_dir
+        +"/results_3/mode_9_3_datasets_9_chems/2/20260426-204647"
         #+ "/results_3/mode_9_CB_converted_9_chems"  # "/results_3/mode_9_CB/5/20251112-001951"
         # + "/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"
         # current_dir + "/results_3/mode_10_scalar_9_chems_100/1/20260423-004818"# "/results_3/mode_10_scalar_9_chems_converted/0/20260420-190254"
@@ -1365,11 +1366,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         # + "/results_3/mode_9_scalar_converted_9_chems"
         # + "/results_3/mode_9_scalar_9_chems_converted/0/20260419-173857"
     )  # "/results_3/mode_9_scalar_11_chems_200/1/20260416-180301"
-    continue_training = (
-       current_dir + "/results_3/mode_9_rand/0/20251105-152312"
-    )  # "/results_3/mode_9/0/20251107-172732"
+    #continue_training = (
+    #  current_dir + "/results_3/mode_9_rand/0/20251105-152312"
+    #)  # "/results_3/mode_9/0/20251107-172732"
     # -- meta-learner options
-    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P and K matrices (check 1.5)
@@ -1401,7 +1402,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.zero,  # scalar_sign,
+        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,  # scalar_sign,
         dimOut=dimOut,
         hrm_discount=-1,
         error_control=False,
@@ -1420,8 +1421,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         regenerate_feedback_weights=-1,  # regenerate feedback weights every n episodes, -1 means never regenerate
     )
 
-    # -- number of chemica
-    numberOfChemicals = 5
+    # -- number of chemicals
+    numberOfChemicals = 9
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1451,4 +1452,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=0, display=True, result_subdirectory="mode_9_zero_error_fashion", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_3_datasets_9_200", index=i)
