@@ -1131,7 +1131,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     numWorkers = 2
     epochs = 2000
 
-    dataset_name = "COMBINED_2" #"EMNIST", "FASHION-MNIST", "COMBINED", "COMBINED_2"
+    dataset_name = "COMBINED_2"  # "EMNIST", "FASHION-MNIST", "COMBINED", "COMBINED_2"
     minTrainingDataPerClass = 5
     maxTrainingDataPerClass = 40
     queryDataPerClass = 20
@@ -1358,17 +1358,17 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     continue_training = (
         # current_dir + "/results_3/mode_10_scalar_11_chems_200/0/20260417-193142"
         current_dir
-        +"/results_3/mode_9_3_datasets_9_chems/2/20260426-204647"
-        #+ "/results_3/mode_9_CB_converted_9_chems"  # "/results_3/mode_9_CB/5/20251112-001951"
+        # +"/results_3/mode_9_3_datasets_9_chems/2/20260426-204647"
+        + "/results_3/mode_9_CB_converted_13_chems"  # "/results_3/mode_9_CB/5/20251112-001951"
         # + "/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"
         # current_dir + "/results_3/mode_10_scalar_9_chems_100/1/20260423-004818"# "/results_3/mode_10_scalar_9_chems_converted/0/20260420-190254"
         # "/results_3/mode_9_scalar_10/1/20251124-005417"
         # + "/results_3/mode_9_scalar_converted_9_chems"
         # + "/results_3/mode_9_scalar_9_chems_converted/0/20260419-173857"
     )  # "/results_3/mode_9_scalar_11_chems_200/1/20260416-180301"
-    #continue_training = (
+    # continue_training = (
     #  current_dir + "/results_3/mode_9_rand/0/20251105-152312"
-    #)  # "/results_3/mode_9/0/20251107-172732"
+    # )  # "/results_3/mode_9/0/20251107-172732"
     # -- meta-learner options
     device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
@@ -1410,7 +1410,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         train_feedback_weights=False,
         train_RCN=True,
         wta=False,
-        shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" or  dataset_name == "COMBINED_2" else 0,
+        shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else 0,
         shift_labels_3=shift_labels_3 if dataset_name == "COMBINED_2" else 0,
         scalar_variance_reduction=-1,  # -1 means no scalar variance reduction
         low_rank_feedback=-1,  # [1, 2, 4, 6, 8, 10, 15, 20, 30][index],
@@ -1422,7 +1422,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 9
+    numberOfChemicals = 13
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1452,4 +1452,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=0, display=True, result_subdirectory="mode_9_3_datasets_9_chems", index=i)
+        run(seed=2, display=True, result_subdirectory="mode_9_3_datasets_13_chems", index=i)
