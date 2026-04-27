@@ -1410,7 +1410,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         train_feedback_weights=False,
         train_RCN=True,
         wta=False,
-        shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" else 0,
+        shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" or  dataset_name == "COMBINED_2" else 0,
         shift_labels_3=shift_labels_3 if dataset_name == "COMBINED_2" else 0,
         scalar_variance_reduction=-1,  # -1 means no scalar variance reduction
         low_rank_feedback=-1,  # [1, 2, 4, 6, 8, 10, 15, 20, 30][index],
