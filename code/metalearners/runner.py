@@ -4,7 +4,7 @@ from typing import Literal, Union
 
 import numpy as np
 import torch
-from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset
+from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset, MnistDataset
 from misc.utils import ChemicalAnalysis, Plot, log, meta_stats
 from nn.chemical_nn import ChemicalNN
 from options.benna_options import bennaOptions
@@ -70,6 +70,7 @@ class Runner:
         self.queryDataPerClass = self.options.queryDataPerClass
         self.metatrain_dataset_1 = self.options.metatrain_dataset_1
         self.metatrain_dataset_2 = self.options.metatrain_dataset_2
+        self.metatrain_dataset_3 = self.options.metatrain_dataset_3
 
         self.data_process_1 = DataProcess(
             minTrainingDataPerClass=self.options.minTrainingDataPerClass_1,
@@ -86,6 +87,18 @@ class Runner:
             self.data_process_2 = DataProcess(
                 minTrainingDataPerClass=self.options.minTrainingDataPerClass_2,
                 maxTrainingDataPerClass=self.options.maxTrainingDataPerClass_2,
+                queryDataPerClass=self.queryDataPerClass,
+                dimensionOfImage=28,
+                device=self.device,
+                split=self.options.split,
+                split_min_number_of_tasks=self.options.split_min_number_of_tasks,
+                split_max_number_of_tasks=self.options.split_max_number_of_tasks,
+                split_eval=True,
+            )
+        if self.metatrain_dataset_3 is not None:
+            self.data_process_3 = DataProcess(
+                minTrainingDataPerClass=self.options.minTrainingDataPerClass_3,
+                maxTrainingDataPerClass=self.options.maxTrainingDataPerClass_3,
                 queryDataPerClass=self.queryDataPerClass,
                 dimensionOfImage=28,
                 device=self.device,
@@ -153,9 +166,13 @@ class Runner:
                 + str(self.options.seed)
                 + "/"
                 + str(
-                    self.options.minTrainingDataPerClass_2
-                    if self.metatrain_dataset_2 is not None
-                    else self.options.minTrainingDataPerClass_1
+                    self.options.minTrainingDataPerClass_1
+                    if self.options.metatrain_dataset_2 is None
+                    else (
+                        self.options.minTrainingDataPerClass_2
+                        if self.options.metatrain_dataset_3 is None
+                        else self.options.minTrainingDataPerClass_2 + self.options.minTrainingDataPerClass_3
+                    )
                 )
             )
             os.makedirs(self.result_directory, exist_ok=False)
@@ -351,13 +368,18 @@ class Runner:
         for eps, data in enumerate(
             self.metatrain_dataset_1
             if self.metatrain_dataset_2 is None
-            else zip(self.metatrain_dataset_1, self.metatrain_dataset_2)
+            else (
+                zip(self.metatrain_dataset_1, self.metatrain_dataset_2)
+                if self.metatrain_dataset_3 is None
+                else zip(self.metatrain_dataset_1, self.metatrain_dataset_2, self.metatrain_dataset_3)
+            )
         ):
             # -- initialize
             # Using a clone of the model parameters to allow for in-place operations
             # Maintains the computational graph for the model as .detach() is not used
             data_1 = data if self.metatrain_dataset_2 is None else data[0]
             data_2 = None if self.metatrain_dataset_2 is None else data[1]
+            data_3 = None if self.metatrain_dataset_3 is None else data[2]
 
             self.model.train()
             parameters, h_parameters, feedback_params = self.reinitialize()
@@ -412,6 +434,22 @@ class Runner:
                 x_trn = torch.cat((x_trn_1, x_trn_2), dim=0)
                 y_trn = torch.cat((y_trn_1, y_trn_2), dim=0)
                 y_trn = y_trn.to(torch.int64)
+                if self.metatrain_dataset_3 is not None:
+                    (
+                        x_trn_3,
+                        y_trn_3,
+                        x_qry_3,
+                        y_qry_3,
+                        current_training_data_per_class_3,
+                        current_number_of_tasks_3,
+                        y_qry_task_indices_3,
+                    ) = self.data_process_3(data_3, self.options.numberOfClasses_3)
+                    y_trn_3 = y_trn_3 + self.options.shift_labels_3
+                    y_qry_3 = y_qry_3 + self.options.shift_labels_3
+
+                    x_trn = torch.cat((x_trn, x_trn_3), dim=0)
+                    y_trn = torch.cat((y_trn, y_trn_3), dim=0)
+                    y_trn = y_trn.to(torch.int64)
             else:
                 x_trn = x_trn_1
                 y_trn = y_trn_1
@@ -633,6 +671,16 @@ class Runner:
                     y_2, logits_2 = torch.func.functional_call(self.model, (parameters, h_parameters), x_qry_2)
                 loss_meta_2 = self.loss_func(logits_2, y_qry_2.ravel())
 
+            if self.metatrain_dataset_3 is not None:
+                y_3, logits_3 = None, None
+                if self.options.trainFeedback or self.options.trainSameFeedback:
+                    y_3, logits_3 = torch.func.functional_call(
+                        self.model, (parameters, h_parameters, feedback_params), x_qry_3
+                    )
+                else:
+                    y_3, logits_3 = torch.func.functional_call(self.model, (parameters, h_parameters), x_qry_3)
+                loss_meta_3 = self.loss_func(logits_3, y_qry_3.ravel())
+
             # -- compute and store meta stats
             acc_1 = meta_stats(
                 logits_1,
@@ -660,6 +708,19 @@ class Runner:
                     typeOfFeedback=self.options.typeOfFeedback,
                     dimOut=self.options.dimOut,
                     save_index="_2",
+                )
+            if self.metatrain_dataset_3 is not None:
+                acc_3 = meta_stats(
+                    logits_3,
+                    parameters,
+                    y_qry_3.ravel(),
+                    y_3,
+                    self.model.beta,
+                    self.result_directory,
+                    self.save_results,
+                    typeOfFeedback=self.options.typeOfFeedback,
+                    dimOut=self.options.dimOut,
+                    save_index="_3",
                 )
 
             if self.options.split:
@@ -708,6 +769,8 @@ class Runner:
                 log([loss_meta_1.item()], self.result_directory + "/loss_meta.txt")
                 if self.metatrain_dataset_2 is not None:
                     log([loss_meta_2.item()], self.result_directory + "/loss_meta_2.txt")
+                    if self.metatrain_dataset_3 is not None:
+                        log([loss_meta_3.item()], self.result_directory + "/loss_meta_3.txt")
 
             line = "Runner Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f} \t Current Training Data Per Class: {}".format(
                 eps + 1, loss_meta_1.item(), acc_1, current_training_data_per_class_1
@@ -716,6 +779,10 @@ class Runner:
                 line += "\tLoss_2: {:.6f}\tAccuracy_2: {:.3f}\t Current Training Data Per Class_2: {}".format(
                     loss_meta_2.item(), acc_2, current_training_data_per_class_2
                 )
+                if self.metatrain_dataset_3 is not None:
+                    line += "\tLoss_3: {:.6f}\tAccuracy_3: {:.3f}\t Current Training Data Per Class_3: {}".format(
+                        loss_meta_3.item(), acc_3, current_training_data_per_class_3
+                    )
             if self.display:
                 print(line)
 
@@ -873,40 +940,45 @@ def run(
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    trainingDataPerClass = [
-        0,
-        5,
-        10,
-        20,
-        30,
-        40,
-        50,
-        60,
-        70,
-        80,
-        90,
-        100,
-        110,
-        120,
-        130,
-        140,
-        150,
-        160,
-        170,
-        180,
-        190,
-        200,
-        225,
-        250,
-        # 275,
-        # 300,
-        # 325,
-        # 350,
-        # 375,
-    ]
+    # trainingDataPerClass = [
+    # 0,
+    # 5,
+    # 10,
+    # 20,
+    # 30,
+    # 40,
+    # 50,
+    # 60,
+    # 70,
+    # 80,
+    # 90,
+    # 100,
+    # 110,
+    # 120,
+    # 130,
+    # 140,
+    # 150,
+    # 160,
+    # 170,
+    # 180,
+    # 190,
+    # 200,
+    # 225,
+    # 250,
+    # 275,
+    # 300,
+    # 325,
+    # 350,
+    # 375,
+    # ]
+    # if index >= len(trainingDataPerClass):
+    #    return
+    trainingDataPerClass_1 = 20
+    trainingDataPerClass_2 = [0, 20, 20][index]
+    trainingDataPerClass_3 = [0, 0, 20][index]
+
     # trainingDataPerClass = [30, 50, 80, 100, 250]
-    if index >= len(trainingDataPerClass):
-        return
+
     """ trainingDataPerClass = [
         250,
     ]"""
@@ -937,10 +1009,10 @@ def run(
     ]"""
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
-    minTrainingDataPerClass = trainingDataPerClass[index]
-    maxTrainingDataPerClass = trainingDataPerClass[index]
+    minTrainingDataPerClass = 0  # trainingDataPerClass[index]
+    maxTrainingDataPerClass = 0  # trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "EMNIST"
+    dataset_name = "COMBINED_2"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -967,6 +1039,8 @@ def run(
         numberOfClasses_2 = 5
         minTrainingDataPerClass_1 = 40
         maxTrainingDataPerClass_1 = 40
+        minTrainingDataPerClass_2 = minTrainingDataPerClass
+        maxTrainingDataPerClass_2 = maxTrainingDataPerClass
         dataset_1 = EmnistDataset(
             minTrainingDataPerClass=minTrainingDataPerClass_1,
             maxTrainingDataPerClass=maxTrainingDataPerClass_1,
@@ -982,13 +1056,46 @@ def run(
         )
         shift_labels_2 = 47  # EMNIST has 47 classes
         dimOut = 57
+    elif dataset_name == "COMBINED_2":
+        numberOfClasses_1 = 5
+        numberOfClasses_2 = 5
+        numberOfClasses_3 = 5
+        minTrainingDataPerClass_1 = trainingDataPerClass_1
+        maxTrainingDataPerClass_1 = trainingDataPerClass_1
+        minTrainingDataPerClass_2 = trainingDataPerClass_2
+        maxTrainingDataPerClass_2 = trainingDataPerClass_2
+        minTrainingDataPerClass_3 = trainingDataPerClass_3
+        maxTrainingDataPerClass_3 = trainingDataPerClass_3
+        dataset_1 = EmnistDataset(
+            minTrainingDataPerClass=minTrainingDataPerClass_1,
+            maxTrainingDataPerClass=maxTrainingDataPerClass_1,
+            queryDataPerClass=queryDataPerClass,
+            dimensionOfImage=28,
+        )
+        dataset_2 = FashionMnistDataset(
+            minTrainingDataPerClass=minTrainingDataPerClass,
+            maxTrainingDataPerClass=maxTrainingDataPerClass,
+            queryDataPerClass=queryDataPerClass,
+            dimensionOfImage=28,
+            all_classes=True,
+        )
+        dataset_3 = MnistDataset(
+            minTrainingDataPerClass=minTrainingDataPerClass,
+            maxTrainingDataPerClass=maxTrainingDataPerClass,
+            queryDataPerClass=queryDataPerClass,
+            dimensionOfImage=28,
+            all_classes=True,
+        )
+        dimOut = 67
+        shift_labels_2 = 47  # EMNIST has 47 classes
+        shift_labels_3 = 57  # EMNIST + FashionMNIST has 57 classes
 
-    if dataset_name != "COMBINED":
+    if dataset_name != "COMBINED" and dataset_name != "COMBINED_2":
         sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
         metatrain_dataset = DataLoader(
             dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True, num_workers=numWorkers
         )
-    else:
+    elif dataset_name == "COMBINED":
         sampler_1 = RandomSampler(data_source=dataset_1, replacement=True, num_samples=epochs * numberOfClasses_1)
         sampler_2 = RandomSampler(data_source=dataset_2, replacement=True, num_samples=epochs * numberOfClasses_2)
         metatrain_dataset_1 = DataLoader(
@@ -1002,6 +1109,31 @@ def run(
             dataset=dataset_2,
             sampler=sampler_2,
             batch_size=numberOfClasses_2,
+            drop_last=True,
+            num_workers=numWorkers,
+        )
+    elif dataset_name == "COMBINED_2":
+        sampler_1 = RandomSampler(data_source=dataset_1, replacement=True, num_samples=epochs * numberOfClasses_1)
+        sampler_2 = RandomSampler(data_source=dataset_2, replacement=True, num_samples=epochs * numberOfClasses_2)
+        sampler_3 = RandomSampler(data_source=dataset_3, replacement=True, num_samples=epochs * numberOfClasses_3)
+        metatrain_dataset_1 = DataLoader(
+            dataset=dataset_1,
+            sampler=sampler_1,
+            batch_size=numberOfClasses_1,
+            drop_last=True,
+            num_workers=numWorkers,
+        )
+        metatrain_dataset_2 = DataLoader(
+            dataset=dataset_2,
+            sampler=sampler_2,
+            batch_size=numberOfClasses_2,
+            drop_last=True,
+            num_workers=numWorkers,
+        )
+        metatrain_dataset_3 = DataLoader(
+            dataset=dataset_3,
+            sampler=sampler_3,
+            batch_size=numberOfClasses_3,
             drop_last=True,
             num_workers=numWorkers,
         )
@@ -1118,13 +1250,16 @@ def run(
         size=sizeEnum.normal,
         save_results=True,
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
-        metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
-        shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" else 0,
+        metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
+        metatrain_dataset_3=metatrain_dataset_3 if dataset_name == "COMBINED_3" else None,
+        shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else 0,
+        shift_labels_3=shift_labels_3 if dataset_name == "COMBINED_3" else 0,
         display=display,
         numberOfClasses_1=(
             numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses
         ),  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
-        numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" else None,
+        numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
+        numberOfClasses_3=numberOfClasses_3 if dataset_name == "COMBINED_3" else None,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
         trainFeedback=False,
@@ -1132,8 +1267,14 @@ def run(
         feedbackModel=feedbackModel,
         minTrainingDataPerClass_1=minTrainingDataPerClass_1 if dataset_name == "COMBINED" else minTrainingDataPerClass,
         maxTrainingDataPerClass_1=maxTrainingDataPerClass_1 if dataset_name == "COMBINED" else maxTrainingDataPerClass,
-        minTrainingDataPerClass_2=minTrainingDataPerClass if dataset_name == "COMBINED" else None,
-        maxTrainingDataPerClass_2=maxTrainingDataPerClass if dataset_name == "COMBINED" else None,
+        minTrainingDataPerClass_2=(
+            minTrainingDataPerClass_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None
+        ),
+        maxTrainingDataPerClass_2=(
+            maxTrainingDataPerClass_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None
+        ),
+        minTrainingDataPerClass_3=minTrainingDataPerClass_3 if dataset_name == "COMBINED_3" else None,
+        maxTrainingDataPerClass_3=maxTrainingDataPerClass_3 if dataset_name == "COMBINED_3" else None,
         queryDataPerClass=queryDataPerClass,
         typeOfFeedback=typeOfFeedback,
         dimOut=dimOut,
@@ -1193,12 +1334,13 @@ def runner_main():
         # os.getcwd()
         # + "/results_3/mode_9_scalar_11_chems_200/2/20260417-014503",
         os.getcwd()
+        + "/results_3/mode_9_3_datasets_9_chems/0/20260427-125628"
         # + "/results_3/mode_10_scalar_11_chems_200_disagreement/0/20260418-182440"
-        #+ "/results_3/mode_10_scalar_5_chems/0/20260421-035915"
+        # + "/results_3/mode_10_scalar_5_chems/0/20260421-035915"
         # "/results_3/mode_9_scalar_9_chems_100/0/20260423-234050"
-        #+"/results_3/mode_10_scalar_9_chems_200/2/20260423-180418"
-        #+ "/results_3/mode_10_scalar_9_chems_100/2/20260423-233504"
-        #+ "/results_3/mode_10_scalar_9_chems/1/20260421-040313"
+        # +"/results_3/mode_10_scalar_9_chems_200/2/20260423-180418"
+        # + "/results_3/mode_10_scalar_9_chems_100/2/20260423-233504"
+        # + "/results_3/mode_10_scalar_9_chems/1/20260421-040313"
         # + "/results_3/mode_10_scalar_9_chems_converted/0/20260420-190254"  # 20260419-173857"
         # "/results_3/mode_9_rand/0/20251105-152312",
         # os.getcwd() + "/results_3/20251103-214650",
@@ -1207,8 +1349,8 @@ def runner_main():
         # os.getcwd() + "/results_3/mode_6_scalar_not_all_ones_same/2/20251123-235027",
         # os.getcwd() + "/results_3/mode_9_scalar_clip/1/20251204-195612",
         # os.getcwd() + "/results_3/error_1_fixed/0/20251009-194350",
-        +"/results_3/mode_10_scalar_13_chems_200/2/20260424-130001"
-        #+"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
+        # + "/results_3/mode_10_scalar_13_chems_200/2/20260424-130001"
+        # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
     ]
     for i in range(len(modelPath_s)):
         for index_outer in range(0, 25):
@@ -1216,14 +1358,14 @@ def runner_main():
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    "runner_mode_10_scalar_13_chems_200",
+                    "runner_mode_9_3_datasets_9_chems",
                     # "runner_mode_9_trajectory_analysis_true_3_chems_4_2_diff",
                     # "runner_mode_9_trajectory_analysis_true_1_chems_4_2_diff",
                 ][i],
                 index=index_outer,
-                typeOfFeedback=typeOfFeedbackEnum.scalar,
+                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=[13][i],
+                numberOfChemicals=[9][i],
                 gating=gatingEnum.no_gating,
-                operator=[operatorEnum.mode_10][i],
+                operator=[operatorEnum.mode_9][i],
             )

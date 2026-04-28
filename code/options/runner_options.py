@@ -24,10 +24,13 @@ class RunnerOptions:
         save_results: bool = True,
         metatrain_dataset_1: str = None,
         metatrain_dataset_2: str = None,
+        metatrain_dataset_3: str = None,
         shift_labels_2: int = 0,
+        shift_labels_3: int = 0,
         display: bool = True,
         numberOfClasses_1: int = 5,
         numberOfClasses_2: int = 5,
+        numberOfClasses_3: int = 5,
         dataset_name: Literal["EMNIST", "FASHION-MNIST", "COMBINED"] = "FASHION-MNIST",
         chemicalInitialization: chemicalEnum = chemicalEnum.same,
         trainFeedback: bool = False,
@@ -37,6 +40,8 @@ class RunnerOptions:
         maxTrainingDataPerClass_1: int = 60,
         minTrainingDataPerClass_2: int = 40,
         maxTrainingDataPerClass_2: int = 60,
+        minTrainingDataPerClass_3: int = 40,
+        maxTrainingDataPerClass_3: int = 60,
         queryDataPerClass: int = 10,
         typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
         dimOut: int = 47,
@@ -61,10 +66,13 @@ class RunnerOptions:
         self.results_subdir = results_subdir
         self.metatrain_dataset_1 = metatrain_dataset_1
         self.metatrain_dataset_2 = metatrain_dataset_2
+        self.metatrain_dataset_3 = metatrain_dataset_3
         self.shift_labels_2 = shift_labels_2
+        self.shift_labels_3 = shift_labels_3
         self.display = display
         self.numberOfClasses_1 = numberOfClasses_1
         self.numberOfClasses_2 = numberOfClasses_2
+        self.numberOfClasses_3 = numberOfClasses_3
         self.dataset_name = dataset_name
         self.chemicalInitialization = chemicalInitialization
         self.trainFeedback = trainFeedback
@@ -74,6 +82,8 @@ class RunnerOptions:
         self.maxTrainingDataPerClass_1 = maxTrainingDataPerClass_1
         self.minTrainingDataPerClass_2 = minTrainingDataPerClass_2
         self.maxTrainingDataPerClass_2 = maxTrainingDataPerClass_2
+        self.minTrainingDataPerClass_3 = minTrainingDataPerClass_3
+        self.maxTrainingDataPerClass_3 = maxTrainingDataPerClass_3
         self.queryDataPerClass = queryDataPerClass
         self.typeOfFeedback = typeOfFeedback
         self.dimOut = dimOut
