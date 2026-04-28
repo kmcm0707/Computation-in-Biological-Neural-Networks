@@ -6,7 +6,7 @@ from typing import Literal
 
 import numpy as np
 import torch
-from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset
+from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset, MnistDataset
 from misc.utils import log
 from options.meta_learner_options import optimizerEnum, sizeEnum
 from torch import nn, optim
@@ -203,12 +203,16 @@ class MetaLearner:
         save_results: bool = True,
         metatrain_dataset_1=None,
         metatrain_dataset_2=None,
+        metatrain_dataset_3=None,
         seed: int = 0,
         number_of_classes_1: int = 5,
         number_of_classes_2: int = None,
+        number_of_classes_3: int = None,
         shift_class_2: int = 47,
+        shift_class_3: int = 57,
         trainingDataPerClass_1: int = 50,
         trainingDataPerClass_2: int = 50,
+        trainingDataPerClass_3: int = 50,
         dimOut: int = 47,
         numberOfDataRepetitions: int = 1,
         size: sizeEnum = sizeEnum.normal,
@@ -231,9 +235,11 @@ class MetaLearner:
         # -- data params
         self.trainingDataPerClass_1 = trainingDataPerClass_1
         self.trainingDataPerClass_2 = trainingDataPerClass_2
+        self.trainingDataPerClass_3 = trainingDataPerClass_3
         self.queryDataPerClass = queryDataPerClass
         self.metatrain_dataset_1 = metatrain_dataset_1
         self.metatrain_dataset_2 = metatrain_dataset_2
+        self.metatrain_dataset_3 = metatrain_dataset_3
         self.split_min_number_of_tasks = split_min_number_of_tasks
         self.split_max_number_of_tasks = split_max_number_of_tasks
         self.split = split
@@ -259,9 +265,22 @@ class MetaLearner:
             split_max_number_of_tasks=self.split_max_number_of_tasks,
             split_eval=True,
         )
+        self.data_process_3 = DataProcess(
+            minTrainingDataPerClass=self.trainingDataPerClass_3,
+            maxTrainingDataPerClass=self.trainingDataPerClass_3,
+            queryDataPerClass=self.queryDataPerClass,
+            dimensionOfImage=28,
+            device=self.device,
+            split=self.split,
+            split_min_number_of_tasks=self.split_min_number_of_tasks,
+            split_max_number_of_tasks=self.split_max_number_of_tasks,
+            split_eval=True,
+        )
         self.number_of_classes_1 = number_of_classes_1
         self.number_of_classes_2 = number_of_classes_2
         self.shift_class_2 = shift_class_2
+        self.number_of_classes_3 = number_of_classes_3
+        self.shift_class_3 = shift_class_3
         self.numberOfDataRepetitions = numberOfDataRepetitions
         self.elastic_weight_consolidation = elastic_weight_consolidation
         self.ewc_lambda = ewc_lambda
@@ -308,6 +327,9 @@ class MetaLearner:
                 if self.trainingDataPerClass_2 is not None:
                     f.writelines("Number of training data per class 2: {}\n".format(self.trainingDataPerClass_2))
                     f.writelines("Number of classes 2: {}\n".format(self.number_of_classes_2))
+                if self.trainingDataPerClass_3 is not None:
+                    f.writelines("Number of training data per class 3: {}\n".format(self.trainingDataPerClass_3))
+                    f.writelines("Number of classes 3: {}\n".format(self.number_of_classes_3))
                 f.writelines("Number of query data per class: {}\n".format(self.queryDataPerClass))
                 f.writelines("Dimension of output: {}\n".format(self.dimOut))
                 f.writelines("Size: {}\n".format(self.size))
@@ -362,11 +384,17 @@ class MetaLearner:
         for eps, data in enumerate(
             self.metatrain_dataset_1
             if self.metatrain_dataset_2 is None
-            else zip(self.metatrain_dataset_1, self.metatrain_dataset_2)
+            else (
+                zip(self.metatrain_dataset_1, self.metatrain_dataset_2)
+                if self.metatrain_dataset_3 is not None
+                else zip(self.metatrain_dataset_1, self.metatrain_dataset_2, self.metatrain_dataset_3)
+            )
         ):
 
             data_1 = data if self.metatrain_dataset_2 is None else data[0]
             data_2 = None if self.metatrain_dataset_2 is None else data[1]
+            data_3 = None if self.metatrain_dataset_3 is None else data[2]
+
             fim = {}
             if self.trajectory_analysis:
                 trajectory = []
@@ -401,6 +429,27 @@ class MetaLearner:
                 ) = self.data_process_2(data_2, self.number_of_classes_2)
                 y_trn_2 = y_trn_2 + self.shift_class_2
                 y_qry_2 = y_qry_2 + self.shift_class_2
+
+                current_number_of_tasks_1 = 2
+                all_data = [x_trn_1, x_trn_2]
+                all_labels = [y_trn_1, y_trn_2]
+                if self.metatrain_dataset_3 is not None:
+                    (
+                        x_trn_3,
+                        y_trn_3,
+                        x_qry_3,
+                        y_qry_3,
+                        current_training_data_per_class_3,
+                        current_number_of_tasks_3,
+                        y_qry_task_indices_3,
+                    ) = self.data_process_3(data_3, self.number_of_classes_3)
+                    y_trn_3 = y_trn_3 + self.shift_class_3
+                    y_qry_3 = y_qry_3 + self.shift_class_3
+
+                    current_number_of_tasks_1 = 3
+
+                    all_data = [x_trn_1, x_trn_2, x_trn_3]
+                    all_labels = [y_trn_1, y_trn_2, y_trn_3]
             # x_trn_copy = x_trn.clone()
             # y_trn_copy = y_trn.clone()
 
@@ -409,19 +458,24 @@ class MetaLearner:
                 fim_n_all_taks = None
                 saved_params = None
                 for current_task in range(current_number_of_tasks_1):
-                    if self.split:
-                        min_current_task_range = current_task * current_training_data_per_class * 2
-                        max_current_task_range = (current_task + 1) * current_training_data_per_class * 2
+                    if self.metatrain_dataset_2 is not None:
+                        current_trn_data = all_data[current_task]
+                        current_trn_labels = all_labels[current_task]
                     else:
-                        min_current_task_range = 0
-                        max_current_task_range = len(x_trn_1)
+                        current_trn_data = x_trn_1
+                        current_trn_labels = y_trn_1
+                        if self.split:
+                            min_current_task_range = current_task * current_training_data_per_class * 2
+                            max_current_task_range = (current_task + 1) * current_training_data_per_class * 2
+                            current_trn_data = x_trn_1[min_current_task_range:max_current_task_range]
+                            current_trn_labels = y_trn_1[min_current_task_range:max_current_task_range]
+
                     for itr_adapt, (x, label) in enumerate(
                         zip(
-                            x_trn_1[min_current_task_range:max_current_task_range],
-                            y_trn_1[min_current_task_range:max_current_task_range],
+                            current_trn_data,
+                            current_trn_labels,
                         )
                     ):
-
                         # -- predict
                         y, logits = self.model(x.unsqueeze(0).unsqueeze(0))
 
@@ -450,8 +504,8 @@ class MetaLearner:
 
                         for itr_fim, (x, label) in enumerate(
                             zip(
-                                x_trn_1[min_current_task_range:max_current_task_range],
-                                y_trn_1[min_current_task_range:max_current_task_range],
+                                current_trn_data,
+                                current_trn_labels,
                             )
                         ):
                             # -- predict
@@ -481,28 +535,6 @@ class MetaLearner:
                                     fim_n_all_taks[n] = fim_n_all_taks[n] + fim[n]
                         saved_params = copy.deepcopy(self.model.state_dict())
 
-                    for itr_adapt, (x, label) in (
-                        enumerate(zip(x_trn_2, y_trn_2)) if self.metatrain_dataset_2 is not None else []
-                    ):
-
-                        # -- predict
-                        y, logits = self.model(x.unsqueeze(0).unsqueeze(0))
-
-                        # -- update network params
-                        loss_adapt = self.loss_func(logits, label)
-                        if self.elastic_weight_consolidation:
-                            # -- EWC penalty
-                            ewc_loss = 0
-                            for n, p in self.model.named_parameters():
-                                if p.requires_grad:
-                                    ewc_loss += (fim[n] * (p - saved_params[n]).pow(2)).flatten().sum(dim=-1)
-                            loss_adapt += ewc_loss * self.ewc_lambda
-
-                        # -- backprop
-                        self.UpdateParameters.zero_grad()
-                        loss_adapt.backward()
-                        self.UpdateParameters.step()
-
             # -- predict
             self.model.eval()
             y_1, logits_1 = self.model(x_qry_1)
@@ -520,17 +552,32 @@ class MetaLearner:
                 acc_2 = torch.eq(pred, y_qry_2.ravel()).sum().item() / len(y_qry_2.ravel())
                 loss_meta_2 = self.loss_func(logits_2, y_qry_2.ravel())
 
+            if self.metatrain_dataset_3 is not None:
+                y_3, logits_3 = self.model(x_qry_3)
+
+                # -- compute and store stats
+                pred = torch.argmax(logits_3, dim=1)
+                acc_3 = torch.eq(pred, y_qry_3.ravel()).sum().item() / len(y_qry_3.ravel())
+                loss_meta_3 = self.loss_func(logits_3, y_qry_3.ravel())
+
             # -- log
             if self.save_results:
                 log([loss_meta.item()], self.result_directory + "/loss_meta.txt")
+                log([acc], self.result_directory + "/acc_meta.txt")
                 if self.metatrain_dataset_2 is not None:
                     log([loss_meta_2.item()], self.result_directory + "/loss_meta_2.txt")
+                    log([acc_2], self.result_directory + "/acc_meta_2.txt")
+                if self.metatrain_dataset_3 is not None:
+                    log([loss_meta_3.item()], self.result_directory + "/loss_meta_3.txt")
+                    log([acc_3], self.result_directory + "/acc_meta_3.txt")
 
             line = "Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}\t Current training data per class: {}".format(
                 eps + 1, loss_meta.item(), acc, current_training_data_per_class
             )
             if self.metatrain_dataset_2 is not None:
                 line += "\tLoss 2: {:.6f}\tAccuracy 2: {:.3f}".format(loss_meta_2.item(), acc_2)
+            if self.metatrain_dataset_3 is not None:
+                line += "\tLoss 3: {:.6f}\tAccuracy 3: {:.3f}".format(loss_meta_3.item(), acc_3)
             if self.display:
                 print(line)
 
@@ -543,7 +590,7 @@ class MetaLearner:
                     ).sum().item() / torch.sum(task_indices_1)
                     log(
                         [acc_current_task_1.cpu()],
-                        self.result_directory + "/accuracy__task_{}.txt".format(current_task),
+                        self.result_directory + "/acc__task_{}.txt".format(current_task),
                     )
 
             if self.save_results:
@@ -718,6 +765,7 @@ def run(
     epochs = 5
     trainingDataPerClass_1 = None
     trainingDataPerClass_2 = None
+    trainingDataPerClass_3 = None
     dimOut = 47
     dataset_name = "EMNIST"
     queryDataPerClass = 50
@@ -758,13 +806,38 @@ def run(
             all_classes=False,
         )
         dimOut = 57
+    elif dataset_name == "COMBINED_2":
+        numberOfClasses_1 = 5
+        numberOfClasses_2 = 5
+        numberOfClasses_3 = 5
+        dataset_1 = EmnistDataset(
+            minTrainingDataPerClass=trainingDataPerClass_1,
+            maxTrainingDataPerClass=trainingDataPerClass_1,
+            queryDataPerClass=20,
+            dimensionOfImage=28,
+        )
+        dataset_2 = FashionMnistDataset(
+            minTrainingDataPerClass=trainingDataPerClass_2,
+            maxTrainingDataPerClass=trainingDataPerClass_2,
+            queryDataPerClass=20,
+            dimensionOfImage=28,
+            all_classes=False,
+        )
+        dataset_3 = MnistDataset(
+            minTrainingDataPerClass=trainingDataPerClass_3,
+            maxTrainingDataPerClass=trainingDataPerClass_3,
+            queryDataPerClass=20,
+            dimensionOfImage=28,
+            all_classes=False,
+        )
+        dimOut = 67
 
-    if dataset_name != "COMBINED":
+    if dataset_name != "COMBINED" and dataset_name != "COMBINED_2":
         sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
         metatrain_dataset = DataLoader(
             dataset=dataset, sampler=sampler, batch_size=numberOfClasses, drop_last=True, num_workers=numWorkers
         )
-    else:
+    elif dataset_name == "COMBINED":
         sampler_1 = RandomSampler(data_source=dataset_1, replacement=True, num_samples=epochs * numberOfClasses_1)
         sampler_2 = RandomSampler(data_source=dataset_2, replacement=True, num_samples=epochs * numberOfClasses_2)
         metatrain_dataset_1 = DataLoader(
@@ -776,19 +849,47 @@ def run(
         metatrain_dataset_2 = DataLoader(
             dataset=dataset_2, sampler=sampler_2, batch_size=numberOfClasses_2, drop_last=True
         )
+    elif dataset_name == "COMBINED_2":
+        sampler_1 = RandomSampler(data_source=dataset_1, replacement=True, num_samples=epochs * numberOfClasses_1)
+        sampler_2 = RandomSampler(data_source=dataset_2, replacement=True, num_samples=epochs * numberOfClasses_2)
+        sampler_3 = RandomSampler(data_source=dataset_3, replacement=True, num_samples=epochs * numberOfClasses_3)
+        metatrain_dataset_1 = DataLoader(
+            dataset=dataset_1,
+            sampler=sampler_1,
+            batch_size=numberOfClasses_1,
+            drop_last=True,
+        )
+        metatrain_dataset_2 = DataLoader(
+            dataset=dataset_2, sampler=sampler_2, batch_size=numberOfClasses_2, drop_last=True
+        )
+        metatrain_dataset_3 = DataLoader(
+            dataset=dataset_3, sampler=sampler_3, batch_size=numberOfClasses_3, drop_last=True
+        )
 
     metalearning_model = MetaLearner(
         device="cuda:1" if torch.cuda.is_available() else "cpu",
         result_subdirectory=result_subdirectory,
         save_results=True,
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
-        metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" else None,
+        metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
+        metatrain_dataset_3=metatrain_dataset_3 if dataset_name == "COMBINED_2" else None,
         seed=seed,
-        number_of_classes_1=numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses,
-        number_of_classes_2=numberOfClasses_2 if dataset_name == "COMBINED" else None,
-        shift_class_2=47 if dataset_name == "COMBINED" else 0,
-        trainingDataPerClass_1=trainingDataPerClass_1 if dataset_name == "COMBINED" else trainingDataPerClass,
-        trainingDataPerClass_2=trainingDataPerClass_2 if dataset_name == "COMBINED" else None,
+        number_of_classes_1=(
+            numberOfClasses_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else numberOfClasses
+        ),
+        number_of_classes_2=numberOfClasses_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
+        number_of_classes_3=numberOfClasses_3 if dataset_name == "COMBINED_2" else None,
+        shift_class_2=47 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else 0,
+        shift_class_3=57 if dataset_name == "COMBINED_2" else 0,
+        trainingDataPerClass_1=(
+            trainingDataPerClass_1
+            if dataset_name == "COMBINED" or dataset_name == "COMBINED_2"
+            else trainingDataPerClass
+        ),
+        trainingDataPerClass_2=(
+            trainingDataPerClass_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None
+        ),
+        trainingDataPerClass_3=trainingDataPerClass_3 if dataset_name == "COMBINED_2" else None,
         dimOut=dimOut,
         numberOfDataRepetitions=1,
         size=sizeEnum.normal,
