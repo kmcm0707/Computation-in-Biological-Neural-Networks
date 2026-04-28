@@ -708,6 +708,7 @@ class Runner:
                     typeOfFeedback=self.options.typeOfFeedback,
                     dimOut=self.options.dimOut,
                     save_index="_2",
+                    calculate_only_acc=True,
                 )
             if self.metatrain_dataset_3 is not None:
                 acc_3 = meta_stats(
@@ -721,6 +722,7 @@ class Runner:
                     typeOfFeedback=self.options.typeOfFeedback,
                     dimOut=self.options.dimOut,
                     save_index="_3",
+                    calculate_only_acc=True,
                 )
 
             if self.options.split:
@@ -1249,17 +1251,17 @@ def run(
         seed=seed,
         size=sizeEnum.normal,
         save_results=True,
-        metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
+        metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
-        metatrain_dataset_3=metatrain_dataset_3 if dataset_name == "COMBINED_3" else None,
+        metatrain_dataset_3=metatrain_dataset_3 if dataset_name == "COMBINED_2" else None,
         shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else 0,
-        shift_labels_3=shift_labels_3 if dataset_name == "COMBINED_3" else 0,
+        shift_labels_3=shift_labels_3 if dataset_name == "COMBINED_2" else 0,
         display=display,
         numberOfClasses_1=(
-            numberOfClasses_1 if dataset_name == "COMBINED" else numberOfClasses
+            numberOfClasses_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else numberOfClasses
         ),  # Number of classes in each task (5 for EMNIST, 10 for fashion MNIST)
         numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
-        numberOfClasses_3=numberOfClasses_3 if dataset_name == "COMBINED_3" else None,
+        numberOfClasses_3=numberOfClasses_3 if dataset_name == "COMBINED_2" else None,
         dataset_name=dataset_name,
         chemicalInitialization=chemicalEnum.same,
         trainFeedback=False,
@@ -1273,8 +1275,8 @@ def run(
         maxTrainingDataPerClass_2=(
             maxTrainingDataPerClass_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None
         ),
-        minTrainingDataPerClass_3=minTrainingDataPerClass_3 if dataset_name == "COMBINED_3" else None,
-        maxTrainingDataPerClass_3=maxTrainingDataPerClass_3 if dataset_name == "COMBINED_3" else None,
+        minTrainingDataPerClass_3=minTrainingDataPerClass_3 if dataset_name == "COMBINED_2" else None,
+        maxTrainingDataPerClass_3=maxTrainingDataPerClass_3 if dataset_name == "COMBINED_2" else None,
         queryDataPerClass=queryDataPerClass,
         typeOfFeedback=typeOfFeedback,
         dimOut=dimOut,
@@ -1358,7 +1360,7 @@ def runner_main():
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    "runner_mode_9_3_datasets_9_chems",
+                    "runner_mode_9_3_datasets_9_chems_3",
                     # "runner_mode_9_trajectory_analysis_true_3_chems_4_2_diff",
                     # "runner_mode_9_trajectory_analysis_true_1_chems_4_2_diff",
                 ][i],
