@@ -1075,15 +1075,15 @@ def run(
             dimensionOfImage=28,
         )
         dataset_2 = FashionMnistDataset(
-            minTrainingDataPerClass=minTrainingDataPerClass,
-            maxTrainingDataPerClass=maxTrainingDataPerClass,
+            minTrainingDataPerClass=minTrainingDataPerClass_2,
+            maxTrainingDataPerClass=maxTrainingDataPerClass_2,
             queryDataPerClass=queryDataPerClass,
             dimensionOfImage=28,
             all_classes=True,
         )
         dataset_3 = MnistDataset(
-            minTrainingDataPerClass=minTrainingDataPerClass,
-            maxTrainingDataPerClass=maxTrainingDataPerClass,
+            minTrainingDataPerClass=minTrainingDataPerClass_3,
+            maxTrainingDataPerClass=maxTrainingDataPerClass_3,
             queryDataPerClass=queryDataPerClass,
             dimensionOfImage=28,
             all_classes=True,
@@ -1251,7 +1251,9 @@ def run(
         seed=seed,
         size=sizeEnum.normal,
         save_results=True,
-        metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else metatrain_dataset,
+        metatrain_dataset_1=(
+            metatrain_dataset_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else metatrain_dataset
+        ),
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         metatrain_dataset_3=metatrain_dataset_3 if dataset_name == "COMBINED_2" else None,
         shift_labels_2=shift_labels_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else 0,
