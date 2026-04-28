@@ -1269,8 +1269,8 @@ def run(
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
-        minTrainingDataPerClass_1=minTrainingDataPerClass_1 if dataset_name == "COMBINED" else minTrainingDataPerClass,
-        maxTrainingDataPerClass_1=maxTrainingDataPerClass_1 if dataset_name == "COMBINED" else maxTrainingDataPerClass,
+        minTrainingDataPerClass_1=minTrainingDataPerClass_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else minTrainingDataPerClass,
+        maxTrainingDataPerClass_1=maxTrainingDataPerClass_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else maxTrainingDataPerClass,
         minTrainingDataPerClass_2=(
             minTrainingDataPerClass_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None
         ),
@@ -1362,7 +1362,7 @@ def runner_main():
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    "runner_mode_9_3_datasets_9_chems_3",
+                    "runner_mode_9_3_datasets_9_chems",
                     # "runner_mode_9_trajectory_analysis_true_3_chems_4_2_diff",
                     # "runner_mode_9_trajectory_analysis_true_1_chems_4_2_diff",
                 ][i],
