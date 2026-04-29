@@ -1250,7 +1250,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=50,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_9,  # _pre_activation,
+            operator=operatorEnum.mode_6,  # _pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1357,8 +1357,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     continue_training = (
         # current_dir + "/results_3/mode_10_scalar_11_chems_200/0/20260417-193142"
-        current_dir
-        + "/results_3/mode_9_CB/5/20251112-220930"
+        current_dir + "/results_3/20251111-203959"
+        #+ "/results_3/mode_9_CB/5/20251112-220930"
         # +"/results_3/mode_9_3_datasets_9_chems/2/20260426-204647"
         # + "/results_3/mode_9_3_datasets_13_chems/2/20260427-203241" #mode_9_CB_converted_13_chems"  # "/results_3/mode_9_CB/5/20251112-001951"
         # + "/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"
@@ -1423,7 +1423,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 3
+    numberOfChemicals = 1
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1453,4 +1453,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=0, display=True, result_subdirectory="mode_9_3_datasets_13_chems_200", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_3_datasets_1_chems", index=i)
