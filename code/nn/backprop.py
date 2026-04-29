@@ -312,7 +312,9 @@ class MetaLearner:
                 + str(seed)
                 + "/"
                 + str(
-                    self.trainingDataPerClass_2
+                    self.trainingDataPerClass_2 + self.trainingDataPerClass_3
+                    if self.trainingDataPerClass_3 is not None
+                    else self.trainingDataPerClass_2
                     if self.trainingDataPerClass_2 is not None
                     else self.trainingDataPerClass_1
                 )
@@ -737,6 +739,7 @@ def run(
     display: bool = True,
     result_subdirectory: str = "testing",
     trainingDataPerClass: int = 50,
+    index: int = 0,
     optimizer: optimizerEnum = optimizerEnum.adam,
 ) -> None:
     """
@@ -762,13 +765,13 @@ def run(
 
     # -- load data
     numWorkers = 3
-    epochs = 5
-    trainingDataPerClass_1 = None
-    trainingDataPerClass_2 = None
-    trainingDataPerClass_3 = None
+    epochs = 20
+    trainingDataPerClass_1 = 20
+    trainingDataPerClass_2 = [0, 20, 20][index]
+    trainingDataPerClass_3 = [0, 0, 20][index]
     dimOut = 47
-    dataset_name = "EMNIST"
-    queryDataPerClass = 50
+    dataset_name = "COMBINED_2"
+    queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -899,9 +902,9 @@ def run(
         split_min_number_of_tasks=5,
         split_max_number_of_tasks=5,
         queryDataPerClass=queryDataPerClass,
-        trajectory_analysis=True,
+        trajectory_analysis=False,
         optimizer=optimizer,
-        lr=5e-3,
+        lr=1e-3,
     )
     metalearning_model.train()
 
@@ -989,12 +992,13 @@ def backprop_main():
         # 1250,
         # 1300,
     ]"""
-    for i in range(2):
-        for trainingData in trainingDataPerClass:
-            run(
-                seed=0,
-                display=True,
-                result_subdirectory="runner_backprop_trajectory_analysis_{}_fixed_3".format(["sgd", "sgd"][i]),
-                trainingDataPerClass=trainingData,
-                optimizer=[optimizerEnum.sgd, optimizerEnum.sgd][i],
-            )
+    for i in range(3):
+        #for trainingData in trainingDataPerClass:
+        run(
+            seed=0,
+            display=True,
+            result_subdirectory="runner_backprop_three_datasets",
+            trainingDataPerClass=None,
+            index=i,
+            optimizer=optimizerEnum.adam,
+        )
