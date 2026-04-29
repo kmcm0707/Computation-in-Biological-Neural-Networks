@@ -1347,7 +1347,7 @@ def runner_main():
         # + "/results_3/mode_9_gating_lr_h_scalar/1/20260326-025622",
         # os.getcwd()
         # + "/results_3/mode_9_scalar_11_chems_200/2/20260417-014503",
-        os.getcwd() + "/results_3/mode_9_3_datasets_13_chems_200/0/20260428-205628",
+        os.getcwd() + "/results_3/mode_9_3_datasets_13_chems_200/0/20260428-233306", #20260428-205628",
         os.getcwd() + "/results_3/mode_9_3_datasets/2/20260426-171458",
         # + "/results_3/mode_9_3_datasets_9_chems/0/20260427-125628"
         # + "/results_3/mode_10_scalar_11_chems_200_disagreement/0/20260418-182440"
@@ -1368,13 +1368,12 @@ def runner_main():
         # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
     ]
     for i in range(len(modelPath_s)):
-        i=1
         for index_outer in range(0, 25):
             run(
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    "runner_mode_9_3_datasets_13_chems",
+                    "runner_mode_9_3_datasets_3_chems",
                     "runner_mode_9_3_datasets_5_chems",
                     # "runner_mode_9_trajectory_analysis_true_3_chems_4_2_diff",
                     # "runner_mode_9_trajectory_analysis_true_1_chems_4_2_diff",
@@ -1382,7 +1381,7 @@ def runner_main():
                 index=index_outer,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=[13, 5][i],
+                numberOfChemicals=[3, 5][i],
                 gating=gatingEnum.no_gating,
                 operator=operatorEnum.mode_9,
             )
