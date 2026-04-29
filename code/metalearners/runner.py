@@ -1368,6 +1368,7 @@ def runner_main():
         # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
     ]
     for i in range(len(modelPath_s)):
+        i=1
         for index_outer in range(0, 25):
             run(
                 seed=0,
@@ -1383,5 +1384,5 @@ def runner_main():
                 modelPath=modelPath_s[i],
                 numberOfChemicals=[13, 5][i],
                 gating=gatingEnum.no_gating,
-                operator=[operatorEnum.mode_9][i],
+                operator=operatorEnum.mode_9,
             )
