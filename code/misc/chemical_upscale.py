@@ -19,8 +19,8 @@ from synapses.complex_synapse import ComplexSynapse
 
 def chemical_upscale():
     load_model = (
-        os.getcwd()
-        + "/results_3/mode_9_3_datasets_9_chems/0/20260427-125628"
+        os.getcwd() + "/results_3/mode_9_scalar_9_chems_100/0/20260423-234050"
+        #+ "/results_3/mode_9_3_datasets_9_chems/0/20260427-125628"
         # + "/results_3/mode_9_3_datasets/2/20260426-171458"  # "/results_3/mode_9_scalar_9_chems_100/0/20260423-234050"
     )  # "/results_3/mode_9_scalar_10/1/20251124-005417"
     oldModelOptions = complexOptions(
@@ -67,7 +67,7 @@ def chemical_upscale():
         pMatrix=pMatrixEnum.first_col,
         kMatrix=kMatrixEnum.zero,
         minTau=2,
-        maxTau=100,
+        maxTau=700,
         y_vector=yVectorEnum.none,
         z_vector=zVectorEnum.default,
         operator=operatorEnum.mode_9,  # _pre_activation,
@@ -93,7 +93,7 @@ def chemical_upscale():
     )
     print(new_model.y_vector)
 
-    indices_converter = [0, 1, 3, 4, 6, 7, 9, 10, 12]  # [0, 2, 4, 6, 8]  # [0, 1, 3, 4, 6, 7, 9, 10, 12]
+    indices_converter = [0, 1, 2, 3, 4 ,5, 6, 7, 8]  # [0, 1, 3, 4, 6, 7, 9, 10, 12]  # [0, 2, 4, 6, 8]  # [0, 1, 3, 4, 6, 7, 9, 10, 12]
     new_model_state_dict = new_model.state_dict()
 
     new_model_state_dict["K_matrix"][np.ix_(indices_converter, indices_converter)] = old_state_dict["K_matrix"]
@@ -107,7 +107,7 @@ def chemical_upscale():
     new_model_state_dict["all_meta_parameters.1"] = new_model_state_dict["P_matrix"]
     new_model_state_dict["all_meta_parameters.2"] = new_model_state_dict["v_vector"]
 
-    save_model_path = os.getcwd() + "/results_3/mode_9_CB_converted_13_chems"
+    save_model_path = os.getcwd() + "/results_3/mode_9_extended_13_chems"
 
     os.makedirs(save_model_path, exist_ok=True)
     torch.save(new_model_state_dict, save_model_path + "/UpdateWeights.pth")
