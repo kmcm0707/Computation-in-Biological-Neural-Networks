@@ -19,7 +19,7 @@ from synapses.complex_synapse import ComplexSynapse
 
 def chemical_upscale():
     load_model = (
-        os.getcwd() + "/results_3/mode_9_scalar_9_chems_100/0/20260423-234050"
+        os.getcwd() + "/results_3/mode_10_scalar_9_chems_100/1/20260423-004818"#"/results_3/mode_9_scalar_9_chems_100/0/20260423-234050"
         #+ "/results_3/mode_9_3_datasets_9_chems/0/20260427-125628"
         # + "/results_3/mode_9_3_datasets/2/20260426-171458"  # "/results_3/mode_9_scalar_9_chems_100/0/20260423-234050"
     )  # "/results_3/mode_9_scalar_10/1/20251124-005417"
@@ -107,7 +107,7 @@ def chemical_upscale():
     new_model_state_dict["all_meta_parameters.1"] = new_model_state_dict["P_matrix"]
     new_model_state_dict["all_meta_parameters.2"] = new_model_state_dict["v_vector"]
 
-    save_model_path = os.getcwd() + "/results_3/mode_9_extended_13_chems"
+    save_model_path = os.getcwd() + "/results_3/mode_10_extended_13_chems"
 
     os.makedirs(save_model_path, exist_ok=True)
     torch.save(new_model_state_dict, save_model_path + "/UpdateWeights.pth")

@@ -1131,7 +1131,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     numWorkers = 2
     epochs = 2000
 
-    dataset_name = "COMBINED_2"  # "EMNIST", "FASHION-MNIST", "COMBINED", "COMBINED_2"
+    dataset_name = "COMBINED"  # "EMNIST", "FASHION-MNIST", "COMBINED", "COMBINED_2"
     minTrainingDataPerClass = 5
     maxTrainingDataPerClass = 40
     queryDataPerClass = 20
@@ -1357,7 +1357,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     continue_training = (
         # current_dir + "/results_3/mode_10_scalar_11_chems_200/0/20260417-193142"
-        current_dir + "/results_3/20251111-203959"
+        current_dir + "/results_3/mode_9_3_datasets_9_chems/0/20260427-125628" 
+        # +"/results_3/mode_10_extended_13_chems"
+        #"/results_3/20251111-203959"
         #+ "/results_3/mode_9_CB/5/20251112-220930"
         # +"/results_3/mode_9_3_datasets_9_chems/2/20260426-204647"
         # + "/results_3/mode_9_3_datasets_13_chems/2/20260427-203241" #mode_9_CB_converted_13_chems"  # "/results_3/mode_9_CB/5/20251112-001951"
@@ -1389,7 +1391,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         metatrain_dataset_3=metatrain_dataset_3 if dataset_name == "COMBINED_2" else None,
         display=display,
-        lr=9e-5,#0.0005,  # 0.0005,
+        lr=0.0005,#0.0005,  # 0.0005,
         numberOfClasses=(
             numberOfClasses_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else numberOfClasses
         ),
@@ -1402,7 +1404,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=None, #continue_training,
+        continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.DFA_grad,  # scalar_sign,
         dimOut=dimOut,
         hrm_discount=-1,
@@ -1423,7 +1425,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     # -- number of chemicals
-    numberOfChemicals = 1
+    numberOfChemicals = 9
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1453,4 +1455,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for i in range(1):
-        run(seed=0, display=True, result_subdirectory="mode_9_3_datasets_1_chems", index=i)
+        run(seed=0, display=True, result_subdirectory="mode_9_CB_9_chems", index=i)
