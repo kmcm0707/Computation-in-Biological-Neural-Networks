@@ -1249,7 +1249,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             minTau=2,  # + 1 / 50,
             maxTau=50,
             y_vector=yVectorEnum.none,
-            z_vector=zVectorEnum.default,
+            z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_6,  # _pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
@@ -1389,7 +1389,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         metatrain_dataset_3=metatrain_dataset_3 if dataset_name == "COMBINED_2" else None,
         display=display,
-        lr=0.0005,  # 0.0005,
+        lr=9e-5,#0.0005,  # 0.0005,
         numberOfClasses=(
             numberOfClasses_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else numberOfClasses
         ),
@@ -1402,7 +1402,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=continue_training,
+        continueTraining=None, #continue_training,
         typeOfFeedback=typeOfFeedbackEnum.DFA_grad,  # scalar_sign,
         dimOut=dimOut,
         hrm_discount=-1,

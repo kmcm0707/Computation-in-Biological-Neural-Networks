@@ -388,7 +388,7 @@ class MetaLearner:
             if self.metatrain_dataset_2 is None
             else (
                 zip(self.metatrain_dataset_1, self.metatrain_dataset_2)
-                if self.metatrain_dataset_3 is not None
+                if self.metatrain_dataset_3 is None
                 else zip(self.metatrain_dataset_1, self.metatrain_dataset_2, self.metatrain_dataset_3)
             )
         ):
@@ -501,7 +501,7 @@ class MetaLearner:
                             trajectory.append(self.flatten_params(self.model).detach().cpu())
 
                     fim = {}
-                    if self.elastic_weight_consolidation:
+                    if self.elastic_weight_consolidation and len(current_trn_data) > 0:
                         # -- compute Fisher Information Matrix
 
                         for itr_fim, (x, label) in enumerate(
@@ -528,13 +528,13 @@ class MetaLearner:
                                         fim[n] += p.grad.data.clone().pow(2)
                         for n, p in self.model.named_parameters():
                             if p.requires_grad:
-                                fim[n] = fim[n] / float(len(x_trn_1[min_current_task_range:max_current_task_range]))
+                                fim[n] = fim[n] / float(len(current_trn_data))
                         if fim_n_all_taks is None:
                             fim_n_all_taks = copy.deepcopy(fim)
                         else:
                             for n, p in self.model.named_parameters():
                                 if p.requires_grad:
-                                    fim_n_all_taks[n] = fim_n_all_taks[n] + fim[n]
+                                    fim_n_all_taks[n] = fim_n_all_taks[n] + copy.deepcopy(fim[n])
                         saved_params = copy.deepcopy(self.model.state_dict())
 
             # -- predict
@@ -741,6 +741,7 @@ def run(
     trainingDataPerClass: int = 50,
     index: int = 0,
     optimizer: optimizerEnum = optimizerEnum.adam,
+    ewc: int = 0,
 ) -> None:
     """
         Main function for Meta-learning the plasticity rule.
@@ -873,7 +874,7 @@ def run(
         device="cuda:1" if torch.cuda.is_available() else "cpu",
         result_subdirectory=result_subdirectory,
         save_results=True,
-        metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" else metatrain_dataset,
+        metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else metatrain_dataset,
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         metatrain_dataset_3=metatrain_dataset_3 if dataset_name == "COMBINED_2" else None,
         seed=seed,
@@ -896,8 +897,8 @@ def run(
         dimOut=dimOut,
         numberOfDataRepetitions=1,
         size=sizeEnum.normal,
-        elastic_weight_consolidation=False,
-        ewc_lambda=0.0,
+        elastic_weight_consolidation=True,
+        ewc_lambda=ewc,
         split=False,
         split_min_number_of_tasks=5,
         split_max_number_of_tasks=5,
@@ -992,13 +993,16 @@ def backprop_main():
         # 1250,
         # 1300,
     ]"""
+    ewc=[200000, 500000, 1000000, 1500000]#[500, 1000, 2000, 2500, 3000, 4000, 5000, 7500, 10000]
     for i in range(3):
         #for trainingData in trainingDataPerClass:
-        run(
-            seed=0,
-            display=True,
-            result_subdirectory="runner_backprop_three_datasets",
-            trainingDataPerClass=None,
-            index=i,
-            optimizer=optimizerEnum.adam,
-        )
+        for ewc_x in ewc:
+            run(
+                seed=0,
+                display=True,
+                result_subdirectory="runner_backprop_three_datasets_ewc_4_{}".format(ewc_x),
+                trainingDataPerClass=None,
+                index=i,
+                optimizer=optimizerEnum.adam,
+                ewc=ewc_x
+            )
