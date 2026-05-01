@@ -498,8 +498,8 @@ class MetaLearner:
                 ),
                 strict=False,
             )
-            #self.UpdateWeights.z_vector = torch.nn.Parameter(current_z_vector)
-            #self.UpdateWeights.y_vector = torch.nn.Parameter(current_y_vector)
+            self.UpdateWeights.z_vector = torch.nn.Parameter(current_z_vector)
+            self.UpdateWeights.y_vector = torch.nn.Parameter(current_y_vector)
             # self.UpdateMetaParameters.load_state_dict(
             #  torch.load(
             #      self.options.continueTraining + "/UpdateMetaParameters.pth",
@@ -1129,7 +1129,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 2000
+    epochs = 1000
 
     dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED", "COMBINED_2"
     minTrainingDataPerClass = 5
@@ -1247,7 +1247,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=700,
+            maxTau=[200, 300, 400, 500, 600, 700, 800, 900, 10000][index],
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_10,  # _pre_activation,
@@ -1454,5 +1454,5 @@ def main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    for i in range(1):
-        run(seed=0, display=True, result_subdirectory="mode_10_scalar_13_chems_extended", index=i)
+    for i in range(10):
+        run(seed=0, display=True, result_subdirectory="mode_10_scalar_13_chems_extended_sweep", index=i)
