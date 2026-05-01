@@ -1247,7 +1247,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=2,  # + 1 / 50,
-            maxTau=[200, 300, 400, 500, 600, 700, 800, 900, 10000][index],
+            maxTau=[10, 25, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 10000][index],
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.all_ones,
             operator=operatorEnum.mode_10,  # _pre_activation,
@@ -1357,8 +1357,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     continue_training = (
         # current_dir + "/results_3/mode_10_scalar_11_chems_200/0/20260417-193142"
-        current_dir #+ "/results_3/mode_9_3_datasets_9_chems/0/20260427-125628" 
-        +"/results_3/mode_10_extended_13_chems"
+        current_dir + "/results_3/mode_9_scalar_converted_13_chems" #+ "/results_3/mode_9_3_datasets_9_chems/0/20260427-125628" 
+        #+"/results_3/mode_10_extended_13_chems"
         #"/results_3/20251111-203959"
         #+ "/results_3/mode_9_CB/5/20251112-220930"
         # +"/results_3/mode_9_3_datasets_9_chems/2/20260426-204647"
@@ -1454,5 +1454,5 @@ def main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    for i in range(10):
-        run(seed=0, display=True, result_subdirectory="mode_10_scalar_13_chems_extended_sweep", index=i)
+    for i in range(15):
+        run(seed=0, display=True, result_subdirectory="mode_10_scalar_13_chems_interleved_sweep", index=i)
