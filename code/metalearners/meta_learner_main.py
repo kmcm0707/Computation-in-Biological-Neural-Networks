@@ -1105,7 +1105,7 @@ class MetaLearner:
         print("Meta-training complete.")
 
 
-def run(seed: int, display: bool = True, result_subdirectory: str = "testing", index: int = 0) -> None:
+def run(seed: int, display: bool = True, result_subdirectory: str = "testing", index: int = 0, index_2: int = 0) -> None:
     """
         Main function for Meta-learning the plasticity rule.
 
@@ -1129,7 +1129,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 1000
+    epochs = 1500
 
     dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED", "COMBINED_2"
     minTrainingDataPerClass = 5
@@ -1238,6 +1238,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     # beta = [1, 0.1, 0.01, 0.001, 0.0001]
     # schedulerT0 = [10, 20, 30, 40][index]
     # minTau = [10, 20, 30, 40, 50, 60][index]
+    
+    if index >= len([[10, 25, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000]]):
+        return
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
@@ -1246,8 +1249,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=2,  # + 1 / 50,
-            maxTau=[10, 25, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 10000][index],
+            minTau=[1, 2, 3, 4, 5, 6, 7, 8, 9, 9.9][index_2],  # + 1 / 50,
+            maxTau=[10, 25, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000][index],
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
             operator=operatorEnum.mode_10,  # _pre_activation,
@@ -1454,5 +1457,6 @@ def main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    for i in range(15):
-        run(seed=0, display=True, result_subdirectory="mode_10_scalar_13_chems_extended_sweep_fixed", index=i)
+    for ii in range(10):
+        for i in range(17):
+            run(seed=0, display=True, result_subdirectory="mode_10_scalar_13_chems_extended_full_sweep/{}".format([1, 2, 3, 4, 5, 6, 7, 8, 9, 9.9][ii]), index=i, index_2=ii)
