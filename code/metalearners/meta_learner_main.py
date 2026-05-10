@@ -1238,7 +1238,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     # schedulerT0 = [10, 20, 30, 40][index]
     # minTau = [10, 20, 30, 40, 50, 60][index]
     
-    if index >= len([10, 25, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000]):
+    if index >= len([10, 25, 50, 100, 200, 400, 600, 800, 900, 1000, 2000]):
         return
 
     if model == modelEnum.complex or model == modelEnum.individual:
@@ -1449,6 +1449,6 @@ def main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    for ii in range(10):
-        for true_i in range(1,17):
+    for ii in range(1, 10):
+        for true_i in range(0,17):
             run(seed=0, display=True, result_subdirectory="mode_9_scalar_5_chems_full_sweep/{}".format([1, 2, 4, 6, 8, 9.9][ii]), index=true_i, index_2=ii)
