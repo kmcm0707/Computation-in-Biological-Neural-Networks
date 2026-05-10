@@ -1,7 +1,5 @@
 # A reservoir Synapse Model
-# https://martinuzzifrancesco.github.io/posts/a-brief-introduction-to-reservoir-computing/
 import networkx as nx
-import numpy as np
 import torch
 from options.reservoir_options import (
     modeReservoirEnum,
@@ -10,7 +8,6 @@ from options.reservoir_options import (
     yReservoirEnum,
 )
 from torch import nn
-from torch.nn import functional
 
 
 class ReservoirSynapse(nn.Module):

@@ -1253,7 +1253,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             maxTau=[10, 25, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000][index],
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_10,  # _pre_activation,
+            operator=operatorEnum.mode_9,  # _pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1351,27 +1351,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     feedbackModel = model
     feedbackModelOptions = modelOptions
     current_dir = os.getcwd()
-    # continue_training = current_dir + "/results_3/mode_9_rand/0/20251105-152312"
-
-    # continue_training = current_dir + "/results_3/mode_9_CB/5/20251112-001951"
-    # continue_training = (
-    #   current_dir + "/results_3/20251103-214650"
-    # )
-
     continue_training = (
-        # current_dir + "/results_3/mode_10_scalar_11_chems_200/0/20260417-193142"
-        current_dir #+ "/results_3/mode_9_scalar_converted_13_chems" #+ "/results_3/mode_9_3_datasets_9_chems/0/20260427-125628" 
-        +"/results_3/mode_10_extended_13_chems"
-        #"/results_3/20251111-203959"
-        #+ "/results_3/mode_9_CB/5/20251112-220930"
-        # +"/results_3/mode_9_3_datasets_9_chems/2/20260426-204647"
-        # + "/results_3/mode_9_3_datasets_13_chems/2/20260427-203241" #mode_9_CB_converted_13_chems"  # "/results_3/mode_9_CB/5/20251112-001951"
-        # + "/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"
-        # current_dir + "/results_3/mode_10_scalar_9_chems_100/1/20260423-004818"# "/results_3/mode_10_scalar_9_chems_converted/0/20260420-190254"
-        # "/results_3/mode_9_scalar_10/1/20251124-005417"
-        # + "/results_3/mode_9_scalar_converted_9_chems"
-        # + "/results_3/mode_9_scalar_9_chems_converted/0/20260419-173857"
-    )  # "/results_3/mode_9_scalar_11_chems_200/1/20260416-180301"
+        current_dir + "/results_3/mode_9_scalar_converted_13_chems"
+    )
     # continue_training = (
     #  current_dir + "/results_3/mode_9_rand/0/20251105-152312"
     # )  # "/results_3/mode_9/0/20251107-172732"
@@ -1458,5 +1440,5 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for ii in range(10):
-        for i in range(17):
-            run(seed=0, display=True, result_subdirectory="mode_10_scalar_13_chems_extended_full_sweep/{}".format([1, 2, 3, 4, 5, 6, 7, 8, 9, 9.9][ii]), index=i, index_2=ii)
+        for true_i in range(1, 17):
+            run(seed=0, display=True, result_subdirectory="mode_9_scalar_13_chems_extended_full_sweep/{}".format([1, 2, 3, 4, 5, 6, 7, 8, 9, 9.9][ii]), index=true_i, index_2=ii)

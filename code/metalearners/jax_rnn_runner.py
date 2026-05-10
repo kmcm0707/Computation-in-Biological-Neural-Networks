@@ -541,12 +541,12 @@ def jax_runner(index: int):
     # device = "cpu"
     current_dir = os.getcwd()
     # runner = current_dir + "/results_3/jax_rnn_12/20260121-024411"
-    runner = current_dir + "/results_3/jax_rnn_12_28/20260126-043934"
+    runner = current_dir + "/results_2/jax_rnn_DFA_3_chems/20260221-195452"#"/results_3/jax_rnn_1_chem/20260423-005009"#jax_rnn_12_28/20260126-043934"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_rnn_DFA_2_layer_28",
+        results_subdir="runner_jax_rnn_3_chem_28",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
@@ -569,14 +569,14 @@ def jax_runner(index: int):
         error_type=JaxErrorTypeEnum.DFA,
         low_dim_DFA=-1,
         permutation=False,
-        two_layer_RNN=True,
+        two_layer_RNN=False,
     )
 
     metalearning_model = JaxMetaLearnerRNN(
         modelOptions=modelOptions,
         jaxMetaLearnerOptions=metaLearnerOptions,
         key=key,
-        numberOfChemicals=5,
+        numberOfChemicals=3,
         metaTrainingDataset=metatrain_dataset,
     )
 
