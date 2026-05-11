@@ -1129,7 +1129,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 1500
+    epochs = 2000
 
     dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED", "COMBINED_2"
     minTrainingDataPerClass = 5
@@ -1239,7 +1239,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     # schedulerT0 = [10, 20, 30, 40][index]
     # minTau = [10, 20, 30, 40, 50, 60][index]
     
-    if index >= len([10, 25, 50, 100, 200, 400, 600, 800, 900, 1000, 2000]):
+    if index >= len([10, 25, 50, 100, 200, 400, 600, 800, 1000, 2000]):
         return
 
     if model == modelEnum.complex or model == modelEnum.individual:
@@ -1250,7 +1250,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
             minTau=[1, 2, 4, 6, 8, 9.9][index_2],  # + 1 / 50,
-            maxTau=[10, 25, 50, 100, 200, 400, 600, 800, 900, 1000, 2000][index],
+            maxTau=[10, 25, 50, 100, 200, 400, 600, 800, 1000, 2000][index],
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
             operator=operatorEnum.mode_9,  # _pre_activation,
@@ -1368,7 +1368,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         # + "/results_3/mode_9_3_datasets_13_chems/2/20260427-203241" #mode_9_CB_converted_13_chems"  # "/results_3/mode_9_CB/5/20251112-001951"
         # + "/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"
         # current_dir + "/results_3/mode_10_scalar_9_chems_100/1/20260423-004818"# "/results_3/mode_10_scalar_9_chems_converted/0/20260420-190254"
-        "/results_3/mode_9_scalar_10/1/20251124-005417"
+        "/results_3/mode_9_scalar_5_chems_full_sweep/2/0/100"
+        #"/results_3/mode_9_scalar_10/1/20251124-005417"
         # + "/results_3/mode_9_scalar_converted_9_chems"
         # + "/results_3/mode_9_scalar_9_chems_converted/0/20260419-173857"
     )  # "/results_3/mode_9_scalar_11_chems_200/1/20260416-180301"
@@ -1394,7 +1395,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         metatrain_dataset_3=metatrain_dataset_3 if dataset_name == "COMBINED_2" else None,
         display=display,
-        lr=0.0005,#0.0005,  # 0.0005,
+        lr=0.0007,#0.0005,  # 0.0005,
         numberOfClasses=(
             numberOfClasses_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else numberOfClasses
         ),
@@ -1410,7 +1411,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.scalar,  # scalar_sign,
         dimOut=dimOut,
-        hrm_discount=-1,
+        hrm_discount=300,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1459,4 +1460,4 @@ def main():
     # torch.autograd.set_detect_anomaly(True)
     for ii in range(1, 10):
         for true_i in range(0,17):
-            run(seed=0, display=True, result_subdirectory="mode_9_scalar_5_chems_full_sweep/{}".format([1, 2, 4, 6, 8, 9.9][ii]), index=true_i, index_2=ii)
+            run(seed=0, display=True, result_subdirectory="mode_9_scalar_5_chems_full_sweep_2/{}".format([1, 2, 4, 6, 8, 9.9][ii]), index=true_i, index_2=ii)
