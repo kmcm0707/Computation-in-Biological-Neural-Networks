@@ -1496,3 +1496,5 @@ Train Episode: 1495	Loss: 0.529401	Accuracy: 0.860	Current Training Data: 57	Num
 Train Episode: 1496	Loss: 0.789855	Accuracy: 0.720	Current Training Data: 38	Number of Tasks: 1
 Train Episode: 1497	Loss: 0.812061	Accuracy: 0.690	Current Training Data: 38	Number of Tasks: 1
 Train Episode: 1498	Loss: 0.365494	Accuracy: 0.900	Current Training Data: 57	Number of Tasks: 1
+Train Episode: 1499	Loss: 0.826353	Accuracy: 0.670	Current Training Data: 65	Number of Tasks: 1
+Train Episode: 1500	Loss: 0.450852	Accuracy: 0.860	Current Training Data: 54	Number of Tasks: 1
