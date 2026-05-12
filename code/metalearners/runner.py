@@ -942,37 +942,37 @@ def run(
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-    # trainingDataPerClass = [
-    # 0,
-    # 5,
-    # 10,
-    # 20,
-    # 30,
-    # 40,
-    # 50,
-    # 60,
-    # 70,
-    # 80,
-    # 90,
-    # 100,
-    # 110,
-    # 120,
-    # 130,
-    # 140,
-    # 150,
-    # 160,
-    # 170,
-    # 180,
-    # 190,
-    # 200,
-    # 225,
-    # 250,
-    # 275,
+    trainingDataPerClass = [
+        0,
+        5,
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        70,
+        80,
+        90,
+        100,
+        110,
+        120,
+        130,
+        140,
+        150,
+        160,
+        170,
+        180,
+        190,
+        200,
+        225,
+        250,
+        275,
     # 300,
     # 325,
     # 350,
     # 375,
-    # ]
+    ]
     # if index >= len(trainingDataPerClass):
     #    return
     trainingDataPerClass_1 = 20
@@ -981,7 +981,7 @@ def run(
     trainingDataPerClass_2 = [0, 20, 20][index]
     trainingDataPerClass_3 = [0, 0, 20][index]
 
-    trainingDataPerClass = [0, 10, 20, 30, 40, 50, 60]
+    #trainingDataPerClass = [30, 40, 50, 60]
 
     """ trainingDataPerClass = [
         250,
@@ -1016,7 +1016,7 @@ def run(
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "COMBINED_2"
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -1338,7 +1338,35 @@ def runner_main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     modelPath_s = [
-        os.getcwd() + "/results_3/mode_9_3_datasets_1_chems/0/20260429-191854"
+        # os.getcwd() + "/results_3/mode_9_gating_no_W/0/20260324-210116",
+        # os.getcwd() + "/results_3/mode_9_gating_lr/1/20260326-004813",
+        # os.getcwd() + "/results_3/mode_9_gating_lr_DFA_grad_log/1/20260326-032731",
+        # os.getcwd() + "/results_3/mode_9_gating_lr_DFA_grad/1/20260326-032555",
+        # os.getcwd() + "/results_3/mode_9_gating_lr_h_DFA_grad/1/20260326-032449",
+        # os.getcwd()
+        # + "/results_3/mode_9_gating_lr_h_scalar/1/20260326-025622",
+        # os.getcwd()
+        # + "/results_3/mode_9_scalar_11_chems_200/2/20260417-014503",
+        os.getcwd() + "/results_3/mode_9_scalar_5_chems_full_sweep/2/0/25"
+        #"/results_3/mode_9_CB_9_chems/0/20260430-170419"#mode_9_3_datasets_13_chems_200/0/20260428-233306", #20260428-205628",
+        #os.getcwd() + "/results_3/mode_9_3_datasets/2/20260426-171458",
+        # + "/results_3/mode_9_3_datasets_9_chems/0/20260427-125628"
+        # + "/results_3/mode_10_scalar_11_chems_200_disagreement/0/20260418-182440"
+        # + "/results_3/mode_10_scalar_5_chems/0/20260421-035915"
+        # "/results_3/mode_9_scalar_9_chems_100/0/20260423-234050"
+        # +"/results_3/mode_10_scalar_9_chems_200/2/20260423-180418"
+        # + "/results_3/mode_10_scalar_9_chems_100/2/20260423-233504"
+        # + "/results_3/mode_10_scalar_9_chems/1/20260421-040313"
+        # + "/results_3/mode_10_scalar_9_chems_converted/0/20260420-190254"  # 20260419-173857"
+        # "/results_3/mode_9_rand/0/20251105-152312",
+        # os.getcwd() + "/results_3/20251103-214650",
+        # os.getcwd() + "/results_3/mode_7_1_chem/1/20260125-202838",
+        # os.getcwd() + "/results_3/mode_9_scalar_10/1/20251124-005417"
+        # os.getcwd() + "/results_3/mode_6_scalar_not_all_ones_same/2/20251123-235027",
+        # os.getcwd() + "/results_3/mode_9_scalar_clip/1/20251204-195612",
+        # os.getcwd() + "/results_3/error_1_fixed/0/20251009-194350",
+        # + "/results_3/mode_10_scalar_13_chems_200/2/20260424-130001"
+        # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
     ]
     for i in range(len(modelPath_s)):
         for index_outer in range(0, 25):
@@ -1346,15 +1374,15 @@ def runner_main():
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    "runner_mode_9_three_datasets_one_chem",
+                    "runner_mode_9_5_chems_25",
                     #"runner_mode_9_3_datasets_5_chems",
                     # "runner_mode_9_trajectory_analysis_true_3_chems_4_2_diff",
                     # "runner_mode_9_trajectory_analysis_true_1_chems_4_2_diff",
                 ][i],
                 index=index_outer,
-                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+                typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[i],
-                numberOfChemicals=[1][i],
+                numberOfChemicals=[5][i],
                 gating=gatingEnum.no_gating,
                 operator=operatorEnum.mode_6,
             )
