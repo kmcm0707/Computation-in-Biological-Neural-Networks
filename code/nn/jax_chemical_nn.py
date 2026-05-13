@@ -32,6 +32,7 @@ class JAXFeedforwardNN(eqx.Module):
     feedback_layers: tuple[eqx.nn.Linear, ...]
 
     gradient: bool = eqx.field(static=True)
+    beta: float = eqx.field(static=True)
     activation: Optional[Callable[[jnp.ndarray], jnp.ndarray]] = eqx.field(static=True)
     error_type: JaxErrorTypeEnum = eqx.field(static=True)
     low_dim_DFA: int = eqx.field(static=True)
@@ -79,6 +80,8 @@ class JAXFeedforwardNN(eqx.Module):
         self.activation = activation
         if self.activation is JaxActivationNonLinearEnum.softplus:
             self.activation = beta_softplus
+
+        self.beta = 10.0  # Default beta for softplus; can be made configurable if needed
 
         self.error_type = error_type
         self.low_dim_DFA = low_dim_DFA
@@ -185,20 +188,20 @@ class JAXFeedforwardNN(eqx.Module):
             if self.activation:
                 # Calculate scalar derivative element-wise
                 if self.activation == JaxActivationNonLinearEnum.softplus:
-                    act_grad_fn = jax.vmap(lambda x: 1.0 - jnp.exp(-self.model.beta * x))
+                    act_grad_fn = jax.vmap(lambda x: 1.0 - jnp.exp(-self.beta * x))
                 else:
                     act_grad_fn = jax.vmap(jax.grad(self.activation))
                 grad1 = act_grad_fn(x)
-                grad2 = act_grad_fn(a1)
-                grad3 = act_grad_fn(a2)
-                grad4 = act_grad_fn(a3)
-                grad5 = act_grad_fn(a4)
+                grad2 = act_grad_fn(h1)
+                grad3 = act_grad_fn(h2)
+                grad4 = act_grad_fn(h3)
+                grad5 = act_grad_fn(h4)
             else:
                 grad1 = jnp.ones_like(x)
-                grad2 = jnp.ones_like(a1)
-                grad3 = jnp.ones_like(a2)
-                grad4 = jnp.ones_like(a3)
-                grad5 = jnp.ones_like(a4)
+                grad2 = jnp.ones_like(h1)
+                grad3 = jnp.ones_like(h2)
+                grad4 = jnp.ones_like(h3)
+                grad5 = jnp.ones_like(h4)
 
             # Modulate DFA direct error with local activation gradient
             err1 = fb_err1 * grad1
