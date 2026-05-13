@@ -893,6 +893,8 @@ class ComplexSynapse(nn.Module):
                     or self.operator == operatorEnum.mode_9_pre_activation
                     or self.operator == operatorEnum.mode_10
                 ):
+                    print(h_parameters[h_name].shape)
+                    exit(0)
                     v_vector_softmax = torch.nn.functional.softmax(self.v_vector, dim=1)
                     new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)
 

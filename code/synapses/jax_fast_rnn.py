@@ -102,6 +102,7 @@ class JAXFastRnn(eqx.Module):
                 + jnp.einsum("ic,ijk->cjk", self.K_matrix, synaptic_weight)
             ),
         )
+
         if self.fastRnnOptions.operator == operatorEnum.mode_7:
             new_synaptic_norms = jnp.linalg.norm(
                 new_synaptic_weight, axis=1, ord=2
@@ -109,17 +110,17 @@ class JAXFastRnn(eqx.Module):
             new_synaptic_weight = new_synaptic_weight / (new_synaptic_norms[:, None, :] + 1e-8)
 
         v_vector_softmax = jax.nn.softmax(self.v_vector)
-        new_parameter_weight = jnp.einsum("c,cjk->jk", v_vector_softmax, new_synaptic_weight)
+        new_parameter_weight = jnp.einsum("c,cjk->kj", v_vector_softmax, new_synaptic_weight)
 
         if self.fastRnnOptions.operator == operatorEnum.mode_7:
             new_parameter_norms = jnp.linalg.norm(new_parameter_weight, axis=0, ord=2)  # TODO check axis
             new_parameter_weight = new_parameter_weight / (new_parameter_norms + 1e-8)
         elif self.fastRnnOptions.operator == operatorEnum.mode_9:
             new_parameter_norms = jnp.linalg.norm(new_parameter_weight, axis=0, ord=2)  # TODO check axis
-            new_parameter_weight = new_parameter_weight / new_parameter_norms
-            new_synaptic_weight = new_synaptic_weight / new_parameter_norms[None, :]
+            new_parameter_weight = new_parameter_weight / (new_parameter_norms + 1e-12)
+            new_synaptic_weight = new_synaptic_weight / (new_parameter_norms[None, :, None] + 1e-12)
 
-        new_layer = eqx.tree_at(lambda p: p.weight, parameter, new_parameter_weight.T)
+        new_layer = eqx.tree_at(lambda p: p.weight, parameter, new_parameter_weight)
         return new_layer, new_synaptic_weight
 
     def initialize_parameters(
@@ -130,7 +131,7 @@ class JAXFastRnn(eqx.Module):
         v_vector_softmax = jax.nn.softmax(self.v_vector)
         new_parameter_weight = jnp.einsum("c,cjk->jk", v_vector_softmax, synaptic_weight)
         parameter_norm = jnp.linalg.norm(new_parameter_weight, axis=0, ord=2)
-        new_parameter_weight = new_parameter_weight / parameter_norm
+        new_parameter_weight = new_parameter_weight / (parameter_norm + 1e-12)
         new_layer = eqx.tree_at(lambda p: p.weight, parameter, new_parameter_weight.T)
         return new_synaptic_weight, new_layer
 
@@ -156,7 +157,7 @@ class JAXFastRnn(eqx.Module):
             update_vector = update_vector.at[i].set(-jnp.outer(post_synaptic_error, pre_synaptic_error).T)
             i += 1
         if self.update_rules[3]:
-            update_vector = update_vector.at[i].set(-parameter.weight)
+            update_vector = update_vector.at[i].set(-parameter.weight.T)
             i += 1
         if self.update_rules[4]:
             update_vector = update_vector.at[i].set(-jnp.outer(jnp.ones(parameter.out_features), pre_synaptic_error).T)

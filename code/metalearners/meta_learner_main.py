@@ -1452,4 +1452,4 @@ def main():
     # torch.autograd.set_detect_anomaly(True)
     for ii in range(1, 10):
         for true_i in range(0,17):
-            run(seed=0, display=True, result_subdirectory="mode_9_scalar_5_chems_full_sweep_2/{}".format([1, 2, 4, 6, 8, 9.9][ii]), index=true_i, index_2=ii)
+            run(seed=0, display=True, result_subdirectory="mode_9_scalar_5_chems_full_sweep_4/{}".format([1, 2, 4, 6, 8, 9.9][ii]), index=true_i, index_2=ii)

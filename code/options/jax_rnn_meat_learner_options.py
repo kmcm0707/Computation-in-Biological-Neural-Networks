@@ -50,6 +50,7 @@ class JaxRnnMetaLearnerOptions:
         low_dim_DFA: int = -1,
         permutation: bool = False,
         two_layer_RNN: bool = False,
+        feedforward: bool = False,
     ):
         self.seed = seed
         self.save_results = save_results
@@ -79,6 +80,7 @@ class JaxRnnMetaLearnerOptions:
         self.low_dim_DFA = low_dim_DFA
         self.permutation = permutation
         self.two_layer_RNN = two_layer_RNN
+        self.feedforward = feedforward
 
     def __str__(self):
         string = ""
