@@ -781,7 +781,7 @@ class MetaLearner:
                         DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
                         feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
                         DFA_error = [
-                            functional.softmax(output, dim=1)
+                            output
                             - functional.one_hot(label, num_classes=self.options.dimOut)
                         ]
                         for y, i in zip(reversed(activations), reversed(list(DFA_feedback))):
@@ -813,7 +813,7 @@ class MetaLearner:
                     # for i in range(len(current_errors)):
                     #    current_errors[i] = self.options.leaky_error_alpha * current_errors[i] + error[i]
 
-                    activations_and_output = [*activations, functional.softmax(output, dim=1)]
+                    activations_and_output = [*activations, output]
 
                     # -- update network params
                     self.UpdateWeights(

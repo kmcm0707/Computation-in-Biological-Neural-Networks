@@ -413,13 +413,13 @@ class JaxMetaLearnerRNN:
             self.chemicals_init()
             new_parameters = list(self.rnn.layers)
             new_synaptic_weights = list(self.synaptic_weights)
-            """for idx, parameter in enumerate(self.rnn.layers):
+            for idx, parameter in enumerate(self.rnn.layers):
                 synaptic_weight = self.synaptic_weights[idx]
                 new_synaptic_weight, new_parameter = self.metaOptimizer.initialize_parameters(
                     synaptic_weight, parameter
                 )
                 new_synaptic_weights[idx] = new_synaptic_weight
-                new_parameters[idx] = new_parameter"""
+                new_parameters[idx] = new_parameter
             self.synaptic_weights = tuple(new_synaptic_weights)
             self.new_parameters = tuple(new_parameters)
 
@@ -503,7 +503,7 @@ def main_jax_rnn_meta_learner():
 
         dataset_name = "EMNIST"
         minTrainingDataPerClass = 5
-        maxTrainingDataPerClass = 10
+        maxTrainingDataPerClass = 80
         queryDataPerClass = 20
         numberOfTimeSteps = 1
 
@@ -593,7 +593,7 @@ def main_jax_rnn_meta_learner():
             metaLearningRate=0.00005,
             numberOfClasses=numberOfClasses,
             dataset_name=dataset_name,
-            chemicalInitialization=chemicalEnum.different,
+            chemicalInitialization=chemicalEnum.same,
             minTrainingDataPerClass=minTrainingDataPerClass,
             maxTrainingDataPerClass=maxTrainingDataPerClass,
             queryDataPerClass=queryDataPerClass,

@@ -10,7 +10,7 @@ from options.jax_rnn_meat_learner_options import (
 
 
 def beta_softplus(x: jnp.ndarray, beta: float = 10) -> jnp.ndarray:
-    return (1.0 / beta) * jnp.log1p(jnp.exp(beta * x))
+    return jax.nn.softplus(beta * x) / beta
 
 
 class JAXFeedforwardNN(eqx.Module):
@@ -121,6 +121,7 @@ class JAXFeedforwardNN(eqx.Module):
         new_self = eqx.tree_at(lambda r: r.feedback2, new_self, _reset_fb(self.feedback2, keys[6]))
         new_self = eqx.tree_at(lambda r: r.feedback3, new_self, _reset_fb(self.feedback3, keys[7]))
         new_self = eqx.tree_at(lambda r: r.feedback4, new_self, _reset_fb(self.feedback4, keys[8]))
+        new_self = eqx.tree_at(lambda r: r.feedback5, new_self, _reset_fb(self.feedback5, keys[9]))
 
         return new_self
     
@@ -135,22 +136,22 @@ class JAXFeedforwardNN(eqx.Module):
 
         # -- FNN Forward Pass --
         a1 = self.forward1(x)
-        h1 = self.activation(a1) if self.activation else a1
+        h1 = self.activation(a1)
 
         a2 = self.forward2(h1)
-        h2 = self.activation(a2) if self.activation else a2
+        h2 = self.activation(a2)
 
         a3 = self.forward3(h2)
-        h3 = self.activation(a3) if self.activation else a3
+        h3 = self.activation(a3)
 
         a4 = self.forward4(h3)
-        h4 = self.activation(a4) if self.activation else a4
+        h4 = self.activation(a4)
 
         y = self.forward5(h4)
 
         if label is None:
             return y, None, None, None
-
+        
         softmax_y = jax.nn.softmax(y)
 
         # -- Initial Error Logic --
@@ -173,11 +174,11 @@ class JAXFeedforwardNN(eqx.Module):
         w_fb5 = jax.lax.stop_gradient(self.feedback5.weight)
 
         # -- Feedback Connections --
-        fb_err1 = jnp.dot(w_fb1, error)
-        fb_err2 = jnp.dot(w_fb2, error)
-        fb_err3 = jnp.dot(w_fb3, error)
-        fb_err4 = jnp.dot(w_fb4, error)
-        fb_err5 = jnp.dot(w_fb5, error)
+        fb_err1 = jnp.dot(error, w_fb1.T)
+        fb_err2 = jnp.dot(error, w_fb2.T)
+        fb_err3 = jnp.dot(error, w_fb3.T)
+        fb_err4 = jnp.dot(error, w_fb4.T)
+        fb_err5 = jnp.dot(error, w_fb5.T)
 
         # Reset DSEF error to match final standard mapping requirement
         if self.error_type == JaxErrorTypeEnum.DSEF:
@@ -185,23 +186,12 @@ class JAXFeedforwardNN(eqx.Module):
 
         # -- Compile Returns --
         if self.gradient:
-            if self.activation:
-                # Calculate scalar derivative element-wise
-                if self.activation == JaxActivationNonLinearEnum.softplus:
-                    act_grad_fn = jax.vmap(lambda x: 1.0 - jnp.exp(-self.beta * x))
-                else:
-                    act_grad_fn = jax.vmap(jax.grad(self.activation))
-                grad1 = act_grad_fn(x)
-                grad2 = act_grad_fn(h1)
-                grad3 = act_grad_fn(h2)
-                grad4 = act_grad_fn(h3)
-                grad5 = act_grad_fn(h4)
-            else:
-                grad1 = jnp.ones_like(x)
-                grad2 = jnp.ones_like(h1)
-                grad3 = jnp.ones_like(h2)
-                grad4 = jnp.ones_like(h3)
-                grad5 = jnp.ones_like(h4)
+            # Calculate scalar derivative element-wise
+            grad1 = -jnp.expm1(-self.beta * x)
+            grad2 = -jnp.expm1(-self.beta * h1)
+            grad3 = -jnp.expm1(-self.beta * h2)
+            grad4 = -jnp.expm1(-self.beta * h3)
+            grad5 = -jnp.expm1(-self.beta * h4)
 
             # Modulate DFA direct error with local activation gradient
             err1 = fb_err1 * grad1
@@ -219,7 +209,7 @@ class JAXFeedforwardNN(eqx.Module):
             (h1, h2),
             (h2, h3),
             (h3, h4),
-            (h4, y)
+            (h4, softmax_y),
         ]
 
         errors_arr = [(err1, err2), (err2, err3), (err3, err4), (err4, err5), (err5, err6)]

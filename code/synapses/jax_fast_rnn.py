@@ -110,17 +110,17 @@ class JAXFastRnn(eqx.Module):
             new_synaptic_weight = new_synaptic_weight / (new_synaptic_norms[:, None, :] + 1e-8)
 
         v_vector_softmax = jax.nn.softmax(self.v_vector)
-        new_parameter_weight = jnp.einsum("c,cjk->kj", v_vector_softmax, new_synaptic_weight)
+        new_parameter_weight = jnp.einsum("c,cjk->jk", v_vector_softmax, new_synaptic_weight)
 
         if self.fastRnnOptions.operator == operatorEnum.mode_7:
             new_parameter_norms = jnp.linalg.norm(new_parameter_weight, axis=0, ord=2)  # TODO check axis
             new_parameter_weight = new_parameter_weight / (new_parameter_norms + 1e-8)
         elif self.fastRnnOptions.operator == operatorEnum.mode_9:
-            new_parameter_norms = jnp.linalg.norm(new_parameter_weight, axis=0, ord=2)  # TODO check axis
-            new_parameter_weight = new_parameter_weight / (new_parameter_norms + 1e-12)
+            new_parameter_norms = jnp.linalg.norm(new_parameter_weight, axis=1, ord=2)  # TODO check axis
+            new_parameter_weight = new_parameter_weight / (new_parameter_norms[:, None] + 1e-12)
             new_synaptic_weight = new_synaptic_weight / (new_parameter_norms[None, :, None] + 1e-12)
 
-        new_layer = eqx.tree_at(lambda p: p.weight, parameter, new_parameter_weight)
+        new_layer = eqx.tree_at(lambda p: p.weight, parameter, new_parameter_weight.T)
         return new_layer, new_synaptic_weight
 
     def initialize_parameters(
@@ -151,7 +151,7 @@ class JAXFastRnn(eqx.Module):
             update_vector = update_vector.at[i].set(-jnp.outer(post_synaptic_error, pre_synaptic_activation).T)
             i += 1
         if self.update_rules[1]:
-            update_vector = update_vector.at[i].set(-jnp.outer(post_synaptic_error, pre_synaptic_activation).T)
+            update_vector = update_vector.at[i].set(-jnp.outer(post_synaptic_activation, pre_synaptic_error).T)
             i += 1
         if self.update_rules[2]:
             update_vector = update_vector.at[i].set(-jnp.outer(post_synaptic_error, pre_synaptic_error).T)

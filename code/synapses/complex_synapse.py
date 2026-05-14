@@ -593,6 +593,7 @@ class ComplexSynapse(nn.Module):
                 if "conv" in name:
                     parameter = parameter.view(parameter.shape[0], -1)
                 update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i, h_name)
+                    #print(update_vector[:, :5, :5])
                 # update_vector = update_vector / (torch.amax(update_vector, dim=(1, 2)) + 1e-5)[:, None, None]
                 # update_vector = update_vector / (torch.norm(update_vector, dim=(1, 2), p=2) + 1e-5)[:, None, None]
 
@@ -893,8 +894,6 @@ class ComplexSynapse(nn.Module):
                     or self.operator == operatorEnum.mode_9_pre_activation
                     or self.operator == operatorEnum.mode_10
                 ):
-                    print(h_parameters[h_name].shape)
-                    exit(0)
                     v_vector_softmax = torch.nn.functional.softmax(self.v_vector, dim=1)
                     new_value = torch.einsum("ci,ijk->cjk", v_vector_softmax, h_parameters[h_name]).squeeze(0)
 

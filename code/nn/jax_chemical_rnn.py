@@ -326,7 +326,7 @@ class JAXChemicalRNN(eqx.Module):
                 "forward1": (x, h1_activated),
                 "forward2": (h[0], recurrent_input_activated1),  # (recurrent_input_activated1, recurrent_input1),
                 "forward3": (h[1], recurrent_input_activated2),  # (recurrent_input_activated2, recurrent_input2),
-                "forward4": (h_new2, y),
+                "forward4": (h_new2, y), #TODO: y or softmax_y?
             }
 
         if self.gradient:
