@@ -51,6 +51,7 @@ class JaxRnnMetaLearnerOptions:
         permutation: bool = False,
         two_layer_RNN: bool = False,
         feedforward: bool = False,
+        sofo: bool = False,
     ):
         self.seed = seed
         self.save_results = save_results
@@ -81,6 +82,7 @@ class JaxRnnMetaLearnerOptions:
         self.permutation = permutation
         self.two_layer_RNN = two_layer_RNN
         self.feedforward = feedforward
+        self.sofo = sofo
 
     def __str__(self):
         string = ""

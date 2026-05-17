@@ -1,18 +1,26 @@
 {
     "cSpell.words": [
         "adamw",
+        "ADDBERNOULLI",
         "backpropagation",
         "checkpointed",
+        "chems",
+        "deserialise",
+        "DSEF",
         "Fusi",
         "Hebb",
+        "IMDB",
         "metalearners",
         "metatrain",
         "nadam",
+        "nans",
+        "PRNG",
         "radam",
         "rosenbaum",
         "serialise",
         "Unoptimized",
         "unsqeezed",
+        "vmap",
         "xaiver"
     ],
     "[python]": {

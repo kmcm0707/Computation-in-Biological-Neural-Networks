@@ -17,6 +17,7 @@ from misc.dataset import (
     IMDBWord2VecDataProcess,
     IMDBWord2VecMetaDataset,
 )
+from misc.sofo_api import ggn_ce, jmp, sample_v
 from misc.utils import Plot, accuracy, log
 from nn.jax_chemical_nn import JAXFeedforwardNN
 from nn.jax_chemical_rnn import JAXChemicalRNN
@@ -125,10 +126,15 @@ class JaxMetaLearnerRNN:
 
         # -- optimizer --
         trainable_mask = self.get_trainable_mask(self.metaOptimizer)
-        self.optimizer = optax.chain(
-            optax.clip_by_global_norm(1.0),  # Max norm of 1.0
-            optax.adam(learning_rate=self.jaxMetaLearnerOptions.metaLearningRate),
-        )
+        if not self.jaxMetaLearnerOptions.sofo:
+            self.optimizer = optax.chain(
+                #optax.clip_by_global_norm(1.0),  # Max norm of 1.0
+                optax.adam(learning_rate=self.jaxMetaLearnerOptions.metaLearningRate),
+            )
+        else:
+            self.optimizer = optax.chain(
+                optax.sgd(learning_rate=self.jaxMetaLearnerOptions.metaLearningRate),
+            )
 
         dynamic, static = eqx.partition(self.metaOptimizer, trainable_mask)
         self.opt_state = self.optimizer.init(dynamic)
@@ -137,7 +143,7 @@ class JaxMetaLearnerRNN:
             self.opt_state = eqx.tree_deserialise_leaves(
                 self.jaxMetaLearnerOptions.load_model + "/meta_learner_optimizer.eqx", self.opt_state
             )
-
+        
         # -- loss function --
         self.loss_function = optax.safe_softmax_cross_entropy
 
@@ -288,7 +294,6 @@ class JaxMetaLearnerRNN:
         )(hidden_state, rnn, x)
         return y
 
-    # @eqx.filter_jit
     def compute_meta_loss(
         self,
         trainable_metaOptimizer,
@@ -338,6 +343,9 @@ class JaxMetaLearnerRNN:
             losses = self.loss_function(qry_predictions, one_hot_targets)
             avg_loss = jnp.mean(losses)
             acc = accuracy(qry_predictions, y_qry.ravel(), use_jax=True)
+
+        if self.jaxMetaLearnerOptions.sofo:
+            return qry_predictions, acc
         return avg_loss, acc
 
     def get_trainable_mask(self, model):
@@ -365,12 +373,52 @@ class JaxMetaLearnerRNN:
         opt_state,
     ):
 
-        (loss, acc), grads = jax.value_and_grad(self.compute_meta_loss, has_aux=True)(
-            dynamic_model, static_model, synaptic_weights_tuple, rnn_layers, rnn, x_trn, y_trn, x_qry, y_qry
-        )
+        if not self.jaxMetaLearnerOptions.sofo:
+            (loss, acc), grads = jax.value_and_grad(self.compute_meta_loss, has_aux=True)(
+                dynamic_model, static_model, synaptic_weights_tuple, rnn_layers, rnn, x_trn, y_trn, x_qry, y_qry
+            )
+        else:
+            rng, key = jax.random.split(self.key2)
+            v = sample_v(100, dynamic_model, key)
+            damping = 1e-5
+
+            def f_active(active_params):
+                d_model = active_params
+                return self.compute_meta_loss(
+                    d_model, static_model, synaptic_weights_tuple, rnn_layers, rnn, 
+                    x_trn, y_trn, x_qry, y_qry
+                )
+
+            one_hot_targets = jax.nn.one_hot(y_qry.flatten(), num_classes=self.jaxMetaLearnerOptions.output_size)
+
+            def sofo_loss_fn(logits):
+                return optax.safe_softmax_cross_entropy(logits, one_hot_targets).mean()
+
+            outs, tangents_out = jmp(f_active, dynamic_model, v)
+            predictions_tangent = tangents_out[0]
+            print("predictions_tangent: ", predictions_tangent.shape)
+            print("outs: ", outs[0].shape)
+            
+            losses, vg = jmp(sofo_loss_fn, outs[0][0], predictions_tangent)
+
+            vggv = jnp.mean(
+                    jax.vmap(ggn_ce, in_axes=(1, 0))(predictions_tangent, jax.nn.softmax(outs[0][0], axis=-1)),
+                    axis=0
+                )
+            u, s, _ = jnp.linalg.svd(vggv)
+            damped_s = s + damping * jnp.max(s)
+            vggv_vg = (u / damped_s) @ (u.T @ vg)
+            grads = jax.tree_map(lambda vs: jnp.dot(jnp.moveaxis(vs,0,-1), vggv_vg), v)
+
+            loss = losses[0] # take the scalar loss for logging
+            acc = outs[1][0] # take the accuracy for logging
 
         grads_filtered = eqx.filter(grads, eqx.is_array)
-        grad_norm = optax.global_norm(grads_filtered)
+
+        if self.jaxMetaLearnerOptions.sofo:
+            grad_norm = jnp.max(s)
+        else:
+            grad_norm = optax.global_norm(grads_filtered)
 
         updates, new_opt_state = self.optimizer.update(grads_filtered, opt_state, dynamic_model)
         new_dynamic_model = optax.apply_updates(dynamic_model, updates)
@@ -492,7 +540,7 @@ class JaxMetaLearnerRNN:
 
 def main_jax_rnn_meta_learner():
     #os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
-    jax.config.update("jax_debug_nans", True)
+    #jax.config.update("jax_debug_nans", True)
     for index in range(6):
         key = jax.random.PRNGKey(42)
         # jax.config.update("jax_enable_x64", False)
@@ -587,7 +635,7 @@ def main_jax_rnn_meta_learner():
         metaLearnerOptions = JaxRnnMetaLearnerOptions(
             seed=42,
             save_results=True,
-            results_subdir="jax_ff_test",
+            results_subdir="jax_ff_sofo_test",
             metatrain_dataset=dataset_name,
             display=True,
             metaLearningRate=0.00005,
@@ -613,6 +661,7 @@ def main_jax_rnn_meta_learner():
             low_dim_DFA=-1,
             two_layer_RNN=False,
             feedforward=True,
+            sofo=True,
         )
 
         metalearning_model = JaxMetaLearnerRNN(

@@ -574,8 +574,7 @@ class Runner:
                         DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
                         feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
                         DFA_error = [
-                            functional.softmax(output, dim=1)
-                            - functional.one_hot(label, num_classes=self.options.dimOut)
+                            output - functional.one_hot(label, num_classes=self.options.dimOut)
                         ]
                         for y, i in zip(reversed(activations), reversed(list(DFA_feedback))):
                             DFA_error.insert(
@@ -598,7 +597,7 @@ class Runner:
                                 error[i] = (error[i] + DFA_error[i]) / np.sqrt(2)"""
                     else:
                         raise ValueError("Invalid type of feedback")
-                    activations_and_output = [*activations, functional.softmax(output, dim=1)]
+                    activations_and_output = [*activations, output]
 
                     # -- update network params
                     self.UpdateWeights(
