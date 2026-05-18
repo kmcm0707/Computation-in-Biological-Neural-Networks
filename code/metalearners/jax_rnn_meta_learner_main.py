@@ -545,13 +545,13 @@ def main_jax_rnn_meta_learner():
 
         # -- load data
         numWorkers = 2
-        epochs = 5000
+        epochs = 1000
 
         dataset_name = "EMNIST"
         minTrainingDataPerClass = 5
         maxTrainingDataPerClass = 80
         queryDataPerClass = 20
-        numberOfTimeSteps = 1
+        numberOfTimeSteps = 7
 
         if dataset_name == "EMNIST":
             numberOfClasses = 5
@@ -613,7 +613,7 @@ def main_jax_rnn_meta_learner():
         modelOptions = None
         modelOptions = fastRnnOptions(
             nonLinear=JaxActivationNonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4, 9, 12],  # 4
+            update_rules=[0, 1, 2, 4, 9, 12],  # 4
             minSlowTau=2,
             maxSlowTau=50,
             y_vector=yVectorEnum.none,
@@ -633,10 +633,10 @@ def main_jax_rnn_meta_learner():
         metaLearnerOptions = JaxRnnMetaLearnerOptions(
             seed=42,
             save_results=True,
-            results_subdir="jax_ff_sofo_train",
+            results_subdir="jax_rnn_fixed",
             metatrain_dataset=dataset_name,
             display=True,
-            metaLearningRate=0.003,
+            metaLearningRate=0.0002,
             numberOfClasses=numberOfClasses,
             dataset_name=dataset_name,
             chemicalInitialization=chemicalEnum.same,
@@ -649,17 +649,17 @@ def main_jax_rnn_meta_learner():
             biological_min_tau=1,
             biological_max_tau=7,
             gradient=True,
-            outer_activation=JaxActivationNonLinearEnum.softplus, ##FF uses this for the feedforward activation, RNN uses it for outer activation
+            outer_activation=JaxActivationNonLinearEnum.tanh, ##FF uses this for the feedforward activation, RNN uses it for outer activation
             recurrent_activation=JaxActivationNonLinearEnum.softplus,
             number_of_time_steps=numberOfTimeSteps,
-            load_model=None, #continue_training,
+            load_model=continue_training,
             load_optimizer=False,
             dont_load_z_y=False,
             error_type=JaxErrorTypeEnum.DFA,
             low_dim_DFA=-1,
             two_layer_RNN=False,
-            feedforward=True,
-            sofo=True,
+            feedforward=False,
+            sofo=False,
         )
 
         metalearning_model = JaxMetaLearnerRNN(
