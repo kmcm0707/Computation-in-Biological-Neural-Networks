@@ -379,7 +379,7 @@ class JaxMetaLearnerRNN:
             )
         else:
             rng, key = jax.random.split(self.key2)
-            v = sample_v(100, dynamic_model, key)
+            v = sample_v(20, dynamic_model, key)
             damping = 1e-5
 
             def f_active(active_params):
@@ -396,9 +396,7 @@ class JaxMetaLearnerRNN:
 
             outs, tangents_out = jmp(f_active, dynamic_model, v)
             predictions_tangent = tangents_out[0]
-            print("predictions_tangent: ", predictions_tangent.shape)
-            print("outs: ", outs[0].shape)
-            
+                       
             losses, vg = jmp(sofo_loss_fn, outs[0][0], predictions_tangent)
 
             vggv = jnp.mean(
@@ -408,7 +406,7 @@ class JaxMetaLearnerRNN:
             u, s, _ = jnp.linalg.svd(vggv)
             damped_s = s + damping * jnp.max(s)
             vggv_vg = (u / damped_s) @ (u.T @ vg)
-            grads = jax.tree_map(lambda vs: jnp.dot(jnp.moveaxis(vs,0,-1), vggv_vg), v)
+            grads = jax.tree.map(lambda vs: jnp.dot(jnp.moveaxis(vs,0,-1), vggv_vg), v)
 
             loss = losses[0] # take the scalar loss for logging
             acc = outs[1][0] # take the accuracy for logging
@@ -539,7 +537,7 @@ class JaxMetaLearnerRNN:
 
 
 def main_jax_rnn_meta_learner():
-    #os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
     #jax.config.update("jax_debug_nans", True)
     for index in range(6):
         key = jax.random.PRNGKey(42)
@@ -626,8 +624,8 @@ def main_jax_rnn_meta_learner():
         # device = "cpu"
         current_dir = os.getcwd()
         continue_training = (
-            # current_dir + "/results_3/jax_rnn_12/20260121-024411"  # 20260121-024411"
-            current_dir + "/results_3/mode_9_rand_converted"
+            current_dir + "/results_3/jax_rnn_12/20260121-024411"  # 20260121-024411"
+            #current_dir + "/results_3/mode_9_rand_converted"
             #+ "/results_3/jax_rnn_1_chem/20260423-005009"
             #+ "/results_3/jax_rnn_9_chems_100/20260422-175900"
         )  # "/results_2/jax_rnn_7_DSEF_fixed/20260217-174916" # "/results_2/jax_rnn_12/20260121-024411"#"/results_2/jax_rnn_12_28/20260126-043934"
@@ -635,10 +633,10 @@ def main_jax_rnn_meta_learner():
         metaLearnerOptions = JaxRnnMetaLearnerOptions(
             seed=42,
             save_results=True,
-            results_subdir="jax_ff_sofo_test",
+            results_subdir="jax_ff_sofo_train",
             metatrain_dataset=dataset_name,
             display=True,
-            metaLearningRate=0.00005,
+            metaLearningRate=0.003,
             numberOfClasses=numberOfClasses,
             dataset_name=dataset_name,
             chemicalInitialization=chemicalEnum.same,
@@ -649,12 +647,12 @@ def main_jax_rnn_meta_learner():
             hidden_size=128,
             output_size=dimOut,
             biological_min_tau=1,
-            biological_max_tau=28,
+            biological_max_tau=7,
             gradient=True,
             outer_activation=JaxActivationNonLinearEnum.softplus, ##FF uses this for the feedforward activation, RNN uses it for outer activation
             recurrent_activation=JaxActivationNonLinearEnum.softplus,
             number_of_time_steps=numberOfTimeSteps,
-            load_model=continue_training,
+            load_model=None, #continue_training,
             load_optimizer=False,
             dont_load_z_y=False,
             error_type=JaxErrorTypeEnum.DFA,
