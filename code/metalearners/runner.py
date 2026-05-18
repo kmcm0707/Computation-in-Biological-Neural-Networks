@@ -942,18 +942,18 @@ def run(
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
     trainingDataPerClass = [
-        0,
-        5,
-        10,
-        20,
-        30,
+        #0,
+        #5,
+        #10,
+        #20,
+        #30,
         40,
-        50,
-        60,
-        70,
+        #50,
+        #60,
+        #70,
         80,
-        90,
-        100,
+        #90,
+        """100,
         110,
         120,
         130,
@@ -966,11 +966,11 @@ def run(
         200,
         225,
         250,
-        275,
+        275,""",
     # 300,
     # 325,
     # 350,
-    # 375,
+        375,
     ]
     # if index >= len(trainingDataPerClass):
     #    return
@@ -1346,7 +1346,7 @@ def runner_main():
         # + "/results_3/mode_9_gating_lr_h_scalar/1/20260326-025622",
         # os.getcwd()
         # + "/results_3/mode_9_scalar_11_chems_200/2/20260417-014503",
-        os.getcwd() + "/results_3/mode_9_scalar_5_chems_full_sweep/2/0/25"
+        #os.getcwd() + "/results_3/mode_9_scalar_5_chems_full_sweep/2/0/25"
         #"/results_3/mode_9_CB_9_chems/0/20260430-170419"#mode_9_3_datasets_13_chems_200/0/20260428-233306", #20260428-205628",
         #os.getcwd() + "/results_3/mode_9_3_datasets/2/20260426-171458",
         # + "/results_3/mode_9_3_datasets_9_chems/0/20260427-125628"
@@ -1367,21 +1367,29 @@ def runner_main():
         # + "/results_3/mode_10_scalar_13_chems_200/2/20260424-130001"
         # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
     ]
-    for i in range(len(modelPath_s)):
-        for index_outer in range(0, 25):
-            run(
-                seed=0,
-                display=True,
-                result_subdirectory=[
-                    "runner_mode_9_5_chems_25",
-                    #"runner_mode_9_3_datasets_5_chems",
-                    # "runner_mode_9_trajectory_analysis_true_3_chems_4_2_diff",
-                    # "runner_mode_9_trajectory_analysis_true_1_chems_4_2_diff",
-                ][i],
-                index=index_outer,
-                typeOfFeedback=typeOfFeedbackEnum.scalar,
-                modelPath=modelPath_s[i],
-                numberOfChemicals=[5][i],
-                gating=gatingEnum.no_gating,
-                operator=operatorEnum.mode_6,
-            )
+    outer = os.getcwd() + "/results_3/mode_10_scalar_13_chems_interleved_full_sweep"
+    outer_dir = os.listdir(outer)
+
+    for i in range(len(outer_dir)):
+        if outer_dir[i] == "9.9":
+            tau_min = 99
+        else:
+            tau_min = int(outer_dir[i])
+        modelPath_s = os.path.join(outer, outer_dir[i])
+        modelPath_s = os.path.join(modelPath_s, "0")
+        inner_dir = os.listdir(modelPath_s)
+        for inner_d in inner_dir:
+            tau_max = int(inner_d)
+            current_path = os.path.join(modelPath_s, inner_d)
+            for index_outer in range(0, 25):
+                run(
+                    seed=0,
+                    display=True,
+                    result_subdirectory=f"runner_mode_10_13_chems_interleaved/{tau_min}/{tau_max}",
+                    index=index_outer,
+                    typeOfFeedback=typeOfFeedbackEnum.scalar,
+                    modelPath=current_path,
+                    numberOfChemicals=13,
+                    gating=gatingEnum.no_gating,
+                    operator=operatorEnum.mode_10,
+                )

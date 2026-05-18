@@ -9,12 +9,12 @@ optimizer: optimizerEnum.adam
 seed: 0
 raytune: False
 save_results: True
-results_subdir: mode_9_scalar_5_chems_full_sweep_2/2
-metatrain_dataset_1: <torch.utils.data.dataloader.DataLoader object at 0x7d3994c2c400>
+results_subdir: mode_9_scalar_5_chems_full_sweep/2
+metatrain_dataset_1: <torch.utils.data.dataloader.DataLoader object at 0x719c724c43d0>
 metatrain_dataset_2: None
 metatrain_dataset_3: None
 display: True
-lr: 0.0007
+lr: 0.0005
 numberOfClasses: 5
 dataset_name: EMNIST
 chemicalInitialization: chemicalEnum.same
@@ -25,11 +25,11 @@ minTrainingDataPerClass: 5
 maxTrainingDataPerClass: 80
 queryDataPerClass: 20
 datasetDevice: cuda:1
-continueTraining: /homes/kcm40/kcm40/Computation-in-Biological-Neural-Networks/results_3/mode_9_scalar_5_chems_full_sweep/2/0/100
+continueTraining: /homes/kcm40/kcm40/Computation-in-Biological-Neural-Networks/results_3/mode_9_scalar_10/1/20251124-005417
 typeOfFeedback: typeOfFeedbackEnum.scalar
 dimOut: 47
 loadModel: None
-hrm_discount: 300
+hrm_discount: -1
 error_control: False
 leaky_error_alpha: 0.0
 train_feedback_weights: False
@@ -44,7 +44,7 @@ split_min_number_of_tasks: 1
 split_max_number_of_tasks: 5
 split_only_one_task_evaluation: 0
 regenerate_feedback_weights: -1
-nonLinear: <function tanh at 0x7d39f3d48430>
+nonLinear: <function tanh at 0x719cd1568430>
 bias: False
 update_rules: [0, 1, 2, 3, 4, 6, 9]
 pMatrix: pMatrixEnum.first_col
