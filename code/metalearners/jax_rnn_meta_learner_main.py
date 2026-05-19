@@ -379,7 +379,7 @@ class JaxMetaLearnerRNN:
             )
         else:
             rng, key = jax.random.split(self.key2)
-            v = sample_v(20, dynamic_model, key)
+            v = sample_v(60, dynamic_model, key)
             damping = 1e-3
 
             def f_active(active_params):
