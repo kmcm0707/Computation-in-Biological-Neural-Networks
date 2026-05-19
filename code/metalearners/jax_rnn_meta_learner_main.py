@@ -379,8 +379,7 @@ class JaxMetaLearnerRNN:
             )
         else:
             rng, key = jax.random.split(self.key2)
-            v = sample_v(60, dynamic_model, key)
-            damping = 1e-3
+            v = sample_v(self.jaxMetaLearnerOptions.sofo_samples, dynamic_model, key)
 
             def f_active(active_params):
                 d_model = active_params
@@ -404,7 +403,7 @@ class JaxMetaLearnerRNN:
                     axis=0
                 )
             u, s, _ = jnp.linalg.svd(vggv)
-            damped_s = s + damping * jnp.max(s)
+            damped_s = s + self.jaxMetaLearnerOptions.sofo_damping * jnp.max(s)
             vggv_vg = (u / damped_s) @ (u.T @ vg)
             grads = jax.tree.map(lambda vs: jnp.dot(jnp.moveaxis(vs,0,-1), vggv_vg), v)
 
@@ -634,7 +633,7 @@ def main_jax_rnn_meta_learner():
         metaLearnerOptions = JaxRnnMetaLearnerOptions(
             seed=42,
             save_results=True,
-            results_subdir="jax_sofo_train_damping",
+            results_subdir="jax_sofo_train_params",
             metatrain_dataset=dataset_name,
             display=True,
             metaLearningRate=0.003,
@@ -661,6 +660,8 @@ def main_jax_rnn_meta_learner():
             two_layer_RNN=False,
             feedforward=True,
             sofo=True,
+            sofo_samples=60,
+            sofo_damping=1e-8,
         )
 
         metalearning_model = JaxMetaLearnerRNN(

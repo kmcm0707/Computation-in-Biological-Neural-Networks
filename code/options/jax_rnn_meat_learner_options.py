@@ -52,6 +52,8 @@ class JaxRnnMetaLearnerOptions:
         two_layer_RNN: bool = False,
         feedforward: bool = False,
         sofo: bool = False,
+        sofo_samples: int = 60,
+        sofo_damping: float = 1e-5,
     ):
         self.seed = seed
         self.save_results = save_results
@@ -83,6 +85,8 @@ class JaxRnnMetaLearnerOptions:
         self.two_layer_RNN = two_layer_RNN
         self.feedforward = feedforward
         self.sofo = sofo
+        self.sofo_samples = sofo_samples
+        self.sofo_damping = sofo_damping
 
     def __str__(self):
         string = ""

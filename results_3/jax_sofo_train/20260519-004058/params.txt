@@ -3938,33 +3938,6 @@ Train Episode: 3937	Loss: 2.637797	Accuracy: 0.400	Grad Norm: 4926.659668	Traini
 Train Episode: 3938	Loss: 1.894096	Accuracy: 0.200	Grad Norm: 194181.187500	Training/Class: 22
 Train Episode: 3939	Loss: 1.434033	Accuracy: 0.450	Grad Norm: 2072137.500000	Training/Class: 23
 Train Episode: 3940	Loss: 1.904195	Accuracy: 0.200	Grad Norm: 11937.215820	Training/Class: 9
-<<<<<<< HEAD
-Train Episode: 4577	Loss: 2.784578	Accuracy: 0.200	Grad Norm: 67573768.000000	Training/Class: 45
-Train Episode: 4578	Loss: 1.725003	Accuracy: 0.180	Grad Norm: 2660046.000000	Training/Class: 32
-Train Episode: 4579	Loss: 3.287704	Accuracy: 0.200	Grad Norm: 150477.640625	Training/Class: 73
-Train Episode: 4580	Loss: 2.550113	Accuracy: 0.400	Grad Norm: 72450100428800.000000	Training/Class: 52
-Train Episode: 4581	Loss: 1.126239	Accuracy: 0.610	Grad Norm: 727843.687500	Training/Class: 19
-Train Episode: 4582	Loss: 3.265553	Accuracy: 0.200	Grad Norm: 180885584.000000	Training/Class: 73
-Train Episode: 4583	Loss: 2.067921	Accuracy: 0.200	Grad Norm: 4000888064.000000	Training/Class: 37
-Train Episode: 4584	Loss: 1.754713	Accuracy: 0.200	Grad Norm: 54829.558594	Training/Class: 35
-Train Episode: 4585	Loss: 2.282347	Accuracy: 0.170	Grad Norm: 128106561536.000000	Training/Class: 47
-Train Episode: 4586	Loss: 2.331146	Accuracy: 0.630	Grad Norm: 6009.498047	Training/Class: 5
-Train Episode: 4587	Loss: 3.178739	Accuracy: 0.400	Grad Norm: 43611.039062	Training/Class: 61
-Train Episode: 4588	Loss: 1.573037	Accuracy: 0.310	Grad Norm: 15641118.000000	Training/Class: 27
-Train Episode: 4589	Loss: 3.200237	Accuracy: 0.200	Grad Norm: 333.030182	Training/Class: 72
-Train Episode: 4590	Loss: 2.362070	Accuracy: 0.150	Grad Norm: 2113.148682	Training/Class: 5
-Train Episode: 4591	Loss: 0.890866	Accuracy: 0.750	Grad Norm: 65192861696.000000	Training/Class: 31
-Train Episode: 4592	Loss: 3.321773	Accuracy: 0.200	Grad Norm: 21554.988281	Training/Class: 78
-Train Episode: 4593	Loss: 0.875404	Accuracy: 0.680	Grad Norm: 302838720.000000	Training/Class: 29
-Train Episode: 4594	Loss: 3.558527	Accuracy: 0.200	Grad Norm: 413773.343750	Training/Class: 78
-Train Episode: 4595	Loss: 3.197015	Accuracy: 0.200	Grad Norm: 624.035583	Training/Class: 70
-Train Episode: 4596	Loss: 1.563789	Accuracy: 0.400	Grad Norm: 8892358656.000000	Training/Class: 40
-Train Episode: 4597	Loss: 1.870498	Accuracy: 0.250	Grad Norm: 37569156.000000	Training/Class: 34
-Train Episode: 4598	Loss: 3.378524	Accuracy: 0.400	Grad Norm: 1154629.125000	Training/Class: 55
-Train Episode: 4599	Loss: 1.469521	Accuracy: 0.200	Grad Norm: 1350863104.000000	Training/Class: 36
-Train Episode: 4600	Loss: 2.346803	Accuracy: 0.200	Grad Norm: 3942.667236	Training/Class: 7
-Train Episode: 4601	Loss: 2.561454	Accuracy: 0.200	Grad Norm: 780940672.000000	Training/Class: 47
-=======
 Train Episode: 3941	Loss: 3.308417	Accuracy: 0.200	Grad Norm: 1384.887451	Training/Class: 68
 Train Episode: 3942	Loss: 3.291270	Accuracy: 0.200	Grad Norm: 3994014.000000	Training/Class: 73
 Train Episode: 3943	Loss: 3.330238	Accuracy: 0.200	Grad Norm: 113755.703125	Training/Class: 76
@@ -4601,4 +4574,3 @@ Train Episode: 4573	Loss: 2.837733	Accuracy: 0.220	Grad Norm: 67399.718750	Train
 Train Episode: 4574	Loss: 3.307629	Accuracy: 0.200	Grad Norm: 12752160.000000	Training/Class: 58
 Train Episode: 4575	Loss: 1.848147	Accuracy: 0.270	Grad Norm: 11845.133789	Training/Class: 8
 Train Episode: 4576	Loss: 1.812284	Accuracy: 0.450	Grad Norm: 223315.734375	Training/Class: 18
->>>>>>> accbdd3cc (res)
