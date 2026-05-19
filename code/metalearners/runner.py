@@ -1370,7 +1370,7 @@ def runner_main():
         # + "/results_3/mode_10_scalar_13_chems_200/2/20260424-130001"
         # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
     ]
-    outer = os.getcwd() + "/results_3/mode_10_scalar_13_chems_interleved_full_sweep"
+    outer = os.getcwd() + "/results_3/mode_10_scalar_13_chems_extended_sweep"
     outer_dir = os.listdir(outer)
 
     for i in range(len(outer_dir)):
@@ -1384,11 +1384,11 @@ def runner_main():
         for inner_d in inner_dir:
             tau_max = int(inner_d)
             current_path = os.path.join(modelPath_s, inner_d)
-            for index_outer in range(0, 25):
+            for index_outer in range(0, 3):
                 run(
                     seed=0,
                     display=True,
-                    result_subdirectory=f"runner_mode_10_13_chems_interleaved/{tau_min}/{tau_max}",
+                    result_subdirectory=f"runner_mode_10_13_chems_extended/{tau_min}/{tau_max}",
                     index=index_outer,
                     typeOfFeedback=typeOfFeedbackEnum.scalar,
                     modelPath=current_path,
