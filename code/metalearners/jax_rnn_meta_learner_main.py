@@ -708,7 +708,7 @@ def main_jax_rnn_meta_learner():
             results_subdir="jax_sofo_train_params",
             metatrain_dataset=dataset_name,
             display=True,
-            metaLearningRate=0.002,
+            metaLearningRate=0.0001,
             numberOfClasses=numberOfClasses,
             dataset_name=dataset_name,
             chemicalInitialization=chemicalEnum.different,
