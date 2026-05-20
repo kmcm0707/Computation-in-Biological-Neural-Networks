@@ -133,7 +133,7 @@ class JaxMetaLearnerRNN:
             )
         else:
             self.optimizer = optax.chain(
-                optax.clip(1.0), #_by_global_norm(1.0),
+                #optax.clip(1.0), #_by_global_norm(1.0),
                 optax.sgd(learning_rate=self.jaxMetaLearnerOptions.metaLearningRate),
             )
 
@@ -537,7 +537,7 @@ class JaxMetaLearnerRNN:
 
 
 def main_jax_rnn_meta_learner():
-    #os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
     #jax.config.update("jax_debug_nans", True)
     for index in range(6):
         key = jax.random.PRNGKey(42)
@@ -637,7 +637,7 @@ def main_jax_rnn_meta_learner():
             results_subdir="jax_sofo_train_params",
             metatrain_dataset=dataset_name,
             display=True,
-            metaLearningRate=0.001,
+            metaLearningRate=0.002,
             numberOfClasses=numberOfClasses,
             dataset_name=dataset_name,
             chemicalInitialization=chemicalEnum.different,
@@ -662,7 +662,7 @@ def main_jax_rnn_meta_learner():
             feedforward=True,
             sofo=True,
             sofo_samples=60,
-            sofo_damping=1e-4,
+            sofo_damping=1e-5,
         )
 
         metalearning_model = JaxMetaLearnerRNN(
