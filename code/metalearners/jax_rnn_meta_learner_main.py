@@ -649,7 +649,7 @@ def main_jax_rnn_meta_learner():
             results_subdir="jax_sofo_train_params",
             metatrain_dataset=dataset_name,
             display=True,
-            metaLearningRate=0.002,
+            metaLearningRate=0.0001,
             numberOfClasses=numberOfClasses,
             dataset_name=dataset_name,
             chemicalInitialization=chemicalEnum.different,
@@ -673,8 +673,8 @@ def main_jax_rnn_meta_learner():
             two_layer_RNN=False,
             feedforward=True,
             sofo=True,
-            sofo_samples=60,
-            sofo_damping=1e-5,
+            sofo_samples=30,
+            sofo_damping=1e-4,
         )
 
         metalearning_model = JaxMetaLearnerRNN(
