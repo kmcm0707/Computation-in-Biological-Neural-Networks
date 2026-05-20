@@ -132,9 +132,21 @@ class JaxMetaLearnerRNN:
                 optax.adam(learning_rate=self.jaxMetaLearnerOptions.metaLearningRate),
             )
         else:
+            constant_sched = optax.constant_schedule(self.jaxMetaLearnerOptions.metaLearningRate)
+            decay_sched = optax.exponential_decay(
+                init_value=self.jaxMetaLearnerOptions.metaLearningRate,
+                transition_steps=100,
+                decay_rate=0.95,
+                staircase=True,
+                end_value=self.jaxMetaLearnerOptions.metaLearningRate * 0.01 # Floor it at 1% of the initial LR
+            )
+            self.scheduler = optax.join_schedules(
+                schedules=[constant_sched, decay_sched],
+                boundaries=[1000]
+            )
             self.optimizer = optax.chain(
                 #optax.clip(1.0), #_by_global_norm(1.0),
-                optax.sgd(learning_rate=self.jaxMetaLearnerOptions.metaLearningRate),
+                optax.sgd(learning_rate=self.scheduler),
             )
 
         dynamic, static = eqx.partition(self.metaOptimizer, trainable_mask)
