@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
+        "accs",
         "adamw",
         "ADDBERNOULLI",
         "backpropagation",
@@ -16,6 +17,7 @@
         "nans",
         "PRNG",
         "radam",
+        "rnns",
         "rosenbaum",
         "serialise",
         "Unoptimized",

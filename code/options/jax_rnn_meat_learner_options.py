@@ -54,6 +54,7 @@ class JaxRnnMetaLearnerOptions:
         sofo: bool = False,
         sofo_samples: int = 60,
         sofo_damping: float = 1e-5,
+        batch_size: int = 1
     ):
         self.seed = seed
         self.save_results = save_results
@@ -87,6 +88,7 @@ class JaxRnnMetaLearnerOptions:
         self.sofo = sofo
         self.sofo_samples = sofo_samples
         self.sofo_damping = sofo_damping
+        self.batch_size = batch_size
 
     def __str__(self):
         string = ""

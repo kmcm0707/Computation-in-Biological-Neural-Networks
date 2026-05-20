@@ -34,7 +34,6 @@ from torch.utils.data import DataLoader, RandomSampler
 
 
 class JaxMetaLearnerRNN:
-
     def __init__(
         self,
         modelOptions,
@@ -44,13 +43,14 @@ class JaxMetaLearnerRNN:
         metaTrainingDataset: Optional[DataLoader] = None,
     ):
         self.jaxMetaLearnerOptions = jaxMetaLearnerOptions
-        key1, key2 = jax.random.split(key)
-        self.key1 = key1
-        self.key2 = key2
+        key1, key2, key3 = jax.random.split(key, num=3)
+        rnn_keys = jax.random.split(key1, num=self.jaxMetaLearnerOptions.batch_size)
+        self.key2_split = jax.random.split(key2, num=self.jaxMetaLearnerOptions.batch_size)
+        self.key3 = key3
         if not self.jaxMetaLearnerOptions.feedforward:
-            self.rnn = JAXChemicalRNN(
+            self.rnns = jax.vmap(lambda k: JAXChemicalRNN(
                 input_size=self.jaxMetaLearnerOptions.input_size,
-                key=key1,
+                key=k,
                 hidden_size=self.jaxMetaLearnerOptions.hidden_size,
                 output_size=self.jaxMetaLearnerOptions.output_size,
                 biological_min_tau=self.jaxMetaLearnerOptions.biological_min_tau,
@@ -61,17 +61,17 @@ class JaxMetaLearnerRNN:
                 error_type=self.jaxMetaLearnerOptions.error_type,
                 low_dim_DFA=self.jaxMetaLearnerOptions.low_dim_DFA,
                 two_layer_RNN=self.jaxMetaLearnerOptions.two_layer_RNN,
-            )
+            ))(rnn_keys)
         else:
-            self.rnn = JAXFeedforwardNN(
+            self.rnns =  jax.vmap(lambda k: JAXFeedforwardNN(
                 dim_out=self.jaxMetaLearnerOptions.output_size,
-                key=key1,
+                key=k,
                 input_size=self.jaxMetaLearnerOptions.input_size,
                 gradient=self.jaxMetaLearnerOptions.gradient,
                 activation=self.jaxMetaLearnerOptions.outer_activation,
                 error_type=self.jaxMetaLearnerOptions.error_type,
                 low_dim_DFA=self.jaxMetaLearnerOptions.low_dim_DFA,
-            )
+            ))(rnn_keys)
             
         self.save_results = self.jaxMetaLearnerOptions.save_results
         self.metaTrainingDataset = metaTrainingDataset
@@ -99,6 +99,7 @@ class JaxMetaLearnerRNN:
                 dimensionOfImage=28,
                 iid=True,
                 use_jax=True,
+                batch_size=self.jaxMetaLearnerOptions.batch_size,
             )
 
         self.numberOfChemicals = numberOfChemicals
@@ -179,21 +180,21 @@ class JaxMetaLearnerRNN:
             self.average_window = 10
             self.plot = Plot(self.result_directory, self.average_window)
 
-    def chemicals_init(self):
-        layers = self.rnn.layers
-        self.synaptic_weights = []
+    def chemicals_init(self, rnn, key2):
+        layers = rnn.layers
+        synaptic_weights = []
         for i in layers:
             # self.synaptic_weights.append(jnp.empty((numberOfChemicals, i.in_features, i.out_features)))
             ## Initialize to xavier initialization
             if self.jaxMetaLearnerOptions.chemicalInitialization == chemicalEnum.same:
-                temp = jax.nn.initializers.xavier_uniform()(self.key2, (i.in_features, i.out_features))
+                temp = jax.nn.initializers.xavier_uniform()(key2, (i.in_features, i.out_features))
                 holder = jnp.tile(temp, (self.numberOfChemicals, 1, 1))
             elif self.jaxMetaLearnerOptions.chemicalInitialization == chemicalEnum.different:
                 holder = jax.nn.initializers.xavier_uniform()(
-                    self.key2, (self.numberOfChemicals, i.in_features, i.out_features)
+                    key2, (self.numberOfChemicals, i.in_features, i.out_features)
                 )
-            self.synaptic_weights.append(holder)
-        self.synaptic_weights = tuple(self.synaptic_weights)
+            synaptic_weights.append(holder)
+        return tuple(synaptic_weights)
 
     def inner_loop_per_image(self, carry, input):
         synaptic_weights, parameters, rnn, hidden_state, metaOptimizer = carry
@@ -312,7 +313,6 @@ class JaxMetaLearnerRNN:
         trainable_metaOptimizer,
         fixed_metaOptimizer,
         synaptic_weights,
-        rnn_layers,
         rnn,
         x_trn,
         y_trn,
@@ -322,7 +322,7 @@ class JaxMetaLearnerRNN:
 
         metaOptimizer = eqx.combine(trainable_metaOptimizer, fixed_metaOptimizer)
         synaptic_weights_tuple = synaptic_weights
-        parameters_tuple = rnn_layers
+        parameters_tuple = rnn.layers
         rnn = rnn
 
         # -- inner loop --
@@ -377,7 +377,6 @@ class JaxMetaLearnerRNN:
         dynamic_model,
         static_model,
         synaptic_weights_tuple,
-        rnn_layers,
         rnn,
         x_trn,
         y_trn,
@@ -387,41 +386,94 @@ class JaxMetaLearnerRNN:
     ):
 
         if not self.jaxMetaLearnerOptions.sofo:
-            (loss, acc), grads = jax.value_and_grad(self.compute_meta_loss, has_aux=True)(
-                dynamic_model, static_model, synaptic_weights_tuple, rnn_layers, rnn, x_trn, y_trn, x_qry, y_qry
+            batched_val_and_grad = eqx.filter_vmap(
+                jax.value_and_grad(self.compute_meta_loss, has_aux=True),
+                in_axes=(
+                    None,                   # dynamic_model (Not batched)
+                    None,                   # static_model (Not batched)
+                    0,                      # synaptic_weights_tuple (Batched)
+                    0,                      # rnn (Batched)
+                    0,                      # x_trn (Batched)
+                    0,                      # y_trn (Batched)
+                    0,                      # x_qry (Batched)
+                    0,                      # y_qry (Batched)
+                )
             )
+            (losses, accs), grads = batched_val_and_grad(
+                dynamic_model, 
+                static_model, 
+                synaptic_weights_tuple,
+                rnn, 
+                x_trn, 
+                y_trn, 
+                x_qry, 
+                y_qry
+            )
+            grads = jax.tree.map(lambda g: jax.numpy.mean(g, axis=0), grads)
+            loss = jnp.mean(losses)
+            acc = jnp.mean(accs)
         else:
-            rng, key = jax.random.split(self.key2)
+            rng, key = jax.random.split(self.key3)
             v = sample_v(self.jaxMetaLearnerOptions.sofo_samples, dynamic_model, key)
 
-            def f_active(active_params):
-                d_model = active_params
-                return self.compute_meta_loss(
-                    d_model, static_model, synaptic_weights_tuple, rnn_layers, rnn, 
-                    x_trn, y_trn, x_qry, y_qry
+            def single_task_sofo_geometry(act_params, stat_model, syn_weights, rnn_instance, x_trn_batch, y_trn_batch, x_qry_batch, y_qry_batch):
+                def f_active(active_params):
+                    d_model = active_params
+                    return self.compute_meta_loss(
+                        d_model, stat_model, syn_weights, rnn_instance, 
+                        x_trn_batch, y_trn_batch, x_qry_batch, y_qry_batch
+                    )
+
+                one_hot_targets = jax.nn.one_hot(y_qry_batch.flatten(), num_classes=self.jaxMetaLearnerOptions.output_size)
+
+                def sofo_loss_fn(logits):
+                    return optax.safe_softmax_cross_entropy(logits, one_hot_targets).mean()
+
+                outs, tangents_out = jmp(f_active, act_params, v)
+                predictions_tangent = tangents_out[0]
+                        
+                losses, vg = jmp(sofo_loss_fn, outs[0][0], predictions_tangent)
+
+                vggv = jnp.mean(
+                        jax.vmap(ggn_ce, in_axes=(1, 0))(predictions_tangent, jax.nn.softmax(outs[0][0], axis=-1)),
+                        axis=0
+                    )
+                acc = outs[1][0]
+                return losses[0], acc, vg, vggv
+            
+            batched_sofo_geometry = eqx.filter_vmap(
+                single_task_sofo_geometry,
+                in_axes=(
+                    None,  # active_params (Not batched)
+                    None,  # stat_model (Not batched)
+                    0,  # synaptic_weights_tuple (Batched)
+                    0,  # rnn (Batched)
+                    0,  # x_trn (Batched)
+                    0,  # y_trn (Batched)
+                    0,  # x_qry (Batched)
+                    0,  # y_qry (Batched)
                 )
+            )
+            losses, accs, vgs, vggvs = batched_sofo_geometry(
+                dynamic_model,
+                static_model,
+                synaptic_weights_tuple,
+                rnn,
+                x_trn,
+                y_trn,
+                x_qry,
+                y_qry
+            )
 
-            one_hot_targets = jax.nn.one_hot(y_qry.flatten(), num_classes=self.jaxMetaLearnerOptions.output_size)
+            vg = jax.tree_map(lambda vg: jnp.mean(vg, axis=0), vgs)
+            vggv = jnp.mean(vggvs, axis=0)
+            loss = jnp.mean(losses)
+            acc = jnp.mean(accs)
 
-            def sofo_loss_fn(logits):
-                return optax.safe_softmax_cross_entropy(logits, one_hot_targets).mean()
-
-            outs, tangents_out = jmp(f_active, dynamic_model, v)
-            predictions_tangent = tangents_out[0]
-                       
-            losses, vg = jmp(sofo_loss_fn, outs[0][0], predictions_tangent)
-
-            vggv = jnp.mean(
-                    jax.vmap(ggn_ce, in_axes=(1, 0))(predictions_tangent, jax.nn.softmax(outs[0][0], axis=-1)),
-                    axis=0
-                )
             u, s, _ = jnp.linalg.svd(vggv)
             damped_s = s + self.jaxMetaLearnerOptions.sofo_damping * jnp.max(s)
             vggv_vg = (u / damped_s) @ (u.T @ vg)
             grads = jax.tree.map(lambda vs: jnp.dot(jnp.moveaxis(vs,0,-1), vggv_vg), v)
-
-            loss = losses[0] # take the scalar loss for logging
-            acc = outs[1][0] # take the accuracy for logging
 
         grads_filtered = eqx.filter(grads, eqx.is_array)
 
@@ -448,12 +500,21 @@ class JaxMetaLearnerRNN:
                 x_qry = jnp.expand_dims(x_qry, 0)
                 y_qry = jnp.expand_dims(y_qry, 0)
 
+                x_trn = jnp.expand_dims(x_trn, 0)
+                y_trn = jnp.expand_dims(y_trn, 0)
+                x_qry = jnp.expand_dims(x_qry, 0)
+                y_qry = jnp.expand_dims(y_qry, 0)
+
                 current_training_data_per_class = x_trn.shape[1]
             elif (
                 self.jaxMetaLearnerOptions.dataset_name == "IMDB"
                 or self.jaxMetaLearnerOptions.dataset_name == "IMDB_WORD2VEC"
             ):
                 x_trn, y_trn, x_qry, y_qry, current_training_data_per_class = self.data_process(data)
+                x_trn = jnp.expand_dims(x_trn, 0)
+                y_trn = jnp.expand_dims(y_trn, 0)
+                x_qry = jnp.expand_dims(x_qry, 0)
+                y_qry = jnp.expand_dims(y_qry, 0)
             else:
                 x_trn, y_trn, x_qry, y_qry, current_training_data_per_class, _ = self.data_process(
                     data, self.jaxMetaLearnerOptions.numberOfClasses
@@ -465,30 +526,28 @@ class JaxMetaLearnerRNN:
             y_qry = jnp.array(y_qry)
 
             # -- weight initialization --
-            self.rnn = self.rnn.reset_weights(self.key2)
-
-            # -- initialize chemicals --
-            self.chemicals_init()
-            new_parameters = list(self.rnn.layers)
-            new_synaptic_weights = list(self.synaptic_weights)
-            for idx, parameter in enumerate(self.rnn.layers):
-                synaptic_weight = self.synaptic_weights[idx]
-                new_synaptic_weight, new_parameter = self.metaOptimizer.initialize_parameters(
-                    synaptic_weight, parameter
+            def full_rnns_setup(rnn, key):
+                rnn = rnn.reset_weights(key)
+                synaptic_weights = self.chemicals_init(rnn, key)
+                new_parameters = list(rnn.layers)
+                new_synaptic_weights = list(synaptic_weights)
+                for idx, parameter in enumerate(rnn.layers):
+                    synaptic_weight = synaptic_weights[idx]
+                    new_synaptic_weight, new_parameter = self.metaOptimizer.initialize_parameters(
+                        synaptic_weight, parameter
+                    )
+                    new_synaptic_weights[idx] = new_synaptic_weight
+                    new_parameters[idx] = new_parameter
+                synaptic_weights = tuple(new_synaptic_weights)
+                new_parameters = tuple(new_parameters)
+                num_layers = len(new_parameters) 
+                rnn = eqx.tree_at(
+                    lambda r: (r.layers, *(getattr(r, f"forward{i+1}") for i in range(num_layers))),
+                    rnn,
+                    (new_parameters, *new_parameters),
                 )
-                new_synaptic_weights[idx] = new_synaptic_weight
-                new_parameters[idx] = new_parameter
-            self.synaptic_weights = tuple(new_synaptic_weights)
-            self.new_parameters = tuple(new_parameters)
-
-            num_layers = len(new_parameters)
-
-            # Dynamically fetch (r.forward1, r.forward2, ...) and pair them with new_parameters
-            self.rnn = eqx.tree_at(
-                lambda r: (r.layers, *(getattr(r, f"forward{i+1}") for i in range(num_layers))),
-                self.rnn,
-                (self.new_parameters, *self.new_parameters),
-            )
+                return rnn, synaptic_weights
+            self.rnns, self.synaptic_weights = eqx.filter_vmap(full_rnns_setup)(self.rnns, self.key2_split) 
 
             # -- meta-optimization --
             trainable_mask = self.get_trainable_mask(self.metaOptimizer)
@@ -497,8 +556,7 @@ class JaxMetaLearnerRNN:
                 dynamic_model,
                 static_model,
                 self.synaptic_weights,
-                self.rnn.layers,
-                self.rnn,
+                self.rnns,
                 x_trn,
                 y_trn,
                 x_qry,
@@ -564,6 +622,7 @@ def main_jax_rnn_meta_learner():
         maxTrainingDataPerClass = 80
         queryDataPerClass = 20
         numberOfTimeSteps = 1
+        batch_size = 2
 
         if dataset_name == "EMNIST":
             numberOfClasses = 5
@@ -611,11 +670,11 @@ def main_jax_rnn_meta_learner():
             numWorkers = 0
             dimIn = 300
 
-        sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses)
+        sampler = RandomSampler(data_source=dataset, replacement=True, num_samples=epochs * numberOfClasses * batch_size)
         metatrain_dataset = DataLoader(
             dataset=dataset,
             sampler=sampler,
-            batch_size=numberOfClasses,
+            batch_size=numberOfClasses * batch_size,
             drop_last=True,
             num_workers=numWorkers,
             persistent_workers=False,
@@ -675,6 +734,7 @@ def main_jax_rnn_meta_learner():
             sofo=True,
             sofo_samples=60,
             sofo_damping=1e-5,
+            batch_size=batch_size,
         )
 
         metalearning_model = JaxMetaLearnerRNN(

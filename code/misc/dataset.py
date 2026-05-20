@@ -1229,6 +1229,7 @@ class DataProcess:
         permutation: bool = False,
         split_eval: bool = False,
         split_only_one_task_evaluation: int = -1,
+        batch_size: int = None,
     ):
         """
             Initialize the DataProcess object.
@@ -1251,6 +1252,7 @@ class DataProcess:
         self.permutation = permutation
         self.split_eval = split_eval
         self.split_only_one_task_evaluation = split_only_one_task_evaluation
+        self.batch_size = batch_size
 
     def __call__(self, data, classes: int):
         """
@@ -1276,25 +1278,27 @@ class DataProcess:
         x_trn = x_trn[:, :current_training_data_per_class, :, :]
         y_trn = y_trn[:, :current_training_data_per_class]
 
+        current_batch = self.batch_size if self.batch_size is not None else 1
+
         # -- reshape
         if not self.use_jax:
-            x_trn = torch.reshape(x_trn, (classes * current_training_data_per_class, self.dimensionOfImage**2)).to(
+            x_trn = torch.reshape(x_trn, (current_batch, classes * current_training_data_per_class, self.dimensionOfImage**2)).to(
                 self.device
             )
-            y_trn = torch.reshape(y_trn, (classes * current_training_data_per_class, 1)).to(self.device)
-            x_qry = torch.reshape(x_qry, (classes * self.queryDataPerClass, self.dimensionOfImage**2)).to(self.device)
-            y_qry = torch.reshape(y_qry, (classes * self.queryDataPerClass, 1)).to(self.device)
+            y_trn = torch.reshape(y_trn, (current_batch, classes * current_training_data_per_class, 1)).to(self.device)
+            x_qry = torch.reshape(x_qry, (current_batch, classes * self.queryDataPerClass, self.dimensionOfImage**2)).to(self.device)
+            y_qry = torch.reshape(y_qry, (current_batch, classes * self.queryDataPerClass, 1)).to(self.device)
         else:
-            x_trn = np.reshape(x_trn, (classes * current_training_data_per_class, self.dimensionOfImage**2))
-            y_trn = np.reshape(y_trn, (classes * current_training_data_per_class, 1))
-            x_qry = np.reshape(x_qry, (classes * self.queryDataPerClass, self.dimensionOfImage**2))
-            y_qry = np.reshape(y_qry, (classes * self.queryDataPerClass, 1))
+            x_trn = np.reshape(x_trn, (current_batch, classes * current_training_data_per_class, self.dimensionOfImage**2))
+            y_trn = np.reshape(y_trn, (current_batch, classes * current_training_data_per_class, 1))
+            x_qry = np.reshape(x_qry, (current_batch, classes * self.queryDataPerClass, self.dimensionOfImage**2))
+            y_qry = np.reshape(y_qry, (current_batch, classes * self.queryDataPerClass, 1))
 
         # -- permutation
         if self.permutation:
             perm = np.random.permutation(self.dimensionOfImage**2)
-            x_trn = x_trn[:, perm]
-            x_qry = x_qry[:, perm]
+            x_trn = x_trn[:, :, perm]
+            x_qry = x_qry[:, :, perm]
 
         # -- shuffle
         if self.iid and not self.split:
@@ -1304,13 +1308,17 @@ class DataProcess:
                 False,
             )
 
-            x_trn = x_trn[perm]
-            y_trn = y_trn[perm]
+            x_trn = x_trn[:, perm]
+            y_trn = y_trn[:, perm]
 
         current_number_of_tasks = 1
         y_qry_task_indices = None
 
         if self.split:
+            x_trn = x_trn.squeeze(0)
+            y_trn = y_trn.squeeze(0)
+            x_qry = x_qry.squeeze(0)
+            y_qry = y_qry.squeeze(0)
             split_number = 2
             if self.split_max_number_of_tasks > classes * split_number:
                 raise ValueError(
@@ -1355,6 +1363,12 @@ class DataProcess:
                 for i, split_task in enumerate(split_tasks):
                     y_qry_task_indices[torch.isin(y_qry.squeeze(), split_task)] = i
 
+        if self.batch_size is None:
+            x_trn = x_trn.squeeze(0)
+            y_trn = y_trn.squeeze(0)
+            x_qry = x_qry.squeeze(0)
+            y_qry = y_qry.squeeze(0)
+
         if self.split_eval:
             return (
                 x_trn,
@@ -1365,5 +1379,7 @@ class DataProcess:
                 current_number_of_tasks,
                 y_qry_task_indices,
             )
+
+        
 
         return x_trn, y_trn, x_qry, y_qry, current_training_data_per_class, current_number_of_tasks
