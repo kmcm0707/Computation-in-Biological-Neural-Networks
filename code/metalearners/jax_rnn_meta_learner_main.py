@@ -607,7 +607,7 @@ class JaxMetaLearnerRNN:
 
 
 def main_jax_rnn_meta_learner():
-    os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
+    #os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
     #jax.config.update("jax_debug_nans", True)
     for index in range(6):
         key = jax.random.PRNGKey(42)
@@ -622,7 +622,7 @@ def main_jax_rnn_meta_learner():
         maxTrainingDataPerClass = 80
         queryDataPerClass = 20
         numberOfTimeSteps = 1
-        batch_size = 1
+        batch_size = 4
 
         if dataset_name == "EMNIST":
             numberOfClasses = 5
@@ -708,7 +708,7 @@ def main_jax_rnn_meta_learner():
             results_subdir="jax_sofo_train_params_batch",
             metatrain_dataset=dataset_name,
             display=True,
-            metaLearningRate=0.005,
+            metaLearningRate=0.003,
             numberOfClasses=numberOfClasses,
             dataset_name=dataset_name,
             chemicalInitialization=chemicalEnum.different,
@@ -733,7 +733,7 @@ def main_jax_rnn_meta_learner():
             feedforward=True,
             sofo=True,
             sofo_samples=60,
-            sofo_damping=1e-5,
+            sofo_damping=1e-6,
             batch_size=batch_size,
         )
 
