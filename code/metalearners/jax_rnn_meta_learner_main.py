@@ -143,7 +143,7 @@ class JaxMetaLearnerRNN:
             )
             self.scheduler = optax.join_schedules(
                 schedules=[constant_sched, decay_sched],
-                boundaries=[1000]
+                boundaries=[1500]
             )
             self.optimizer = optax.chain(
                 #optax.clip(1.0), #_by_global_norm(1.0),
@@ -414,7 +414,7 @@ class JaxMetaLearnerRNN:
             acc = jnp.mean(accs)
         else:
             rng, key = jax.random.split(self.key3)
-            v = sample_v(self.jaxMetaLearnerOptions.sofo_samples, dynamic_model, key)
+            v = sample_v(self.jaxMetaLearnerOptions.sofo_samples, dynamic_model, key, identity_sampling=self.jaxMetaLearnerOptions.sofo_identity_sampling)
 
             def single_task_sofo_geometry(act_params, stat_model, syn_weights, rnn_instance, x_trn_batch, y_trn_batch, x_qry_batch, y_qry_batch):
                 def f_active(active_params):
@@ -622,7 +622,7 @@ def main_jax_rnn_meta_learner():
         maxTrainingDataPerClass = 80
         queryDataPerClass = 20
         numberOfTimeSteps = 1
-        batch_size = 4
+        batch_size = 1
 
         if dataset_name == "EMNIST":
             numberOfClasses = 5
@@ -705,10 +705,10 @@ def main_jax_rnn_meta_learner():
         metaLearnerOptions = JaxRnnMetaLearnerOptions(
             seed=42,
             save_results=True,
-            results_subdir="jax_sofo_train_params_batch",
+            results_subdir="jax_sofo_train_65",
             metatrain_dataset=dataset_name,
             display=True,
-            metaLearningRate=0.003,
+            metaLearningRate=0.002,
             numberOfClasses=numberOfClasses,
             dataset_name=dataset_name,
             chemicalInitialization=chemicalEnum.different,
@@ -732,8 +732,9 @@ def main_jax_rnn_meta_learner():
             two_layer_RNN=False,
             feedforward=True,
             sofo=True,
-            sofo_samples=60,
-            sofo_damping=1e-6,
+            sofo_samples=65,
+            sofo_damping=1e-5,
+            sofo_identity_sampling=True,
             batch_size=batch_size,
         )
 

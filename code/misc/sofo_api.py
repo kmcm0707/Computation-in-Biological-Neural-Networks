@@ -3,7 +3,7 @@ from typing import Any, Callable, Optional
 import jax
 import jax.numpy as jnp
 from jax import random
-from jax.tree_util import tree_leaves, tree_map, tree_structure, tree_unflatten
+from jax.tree_util import tree_map, tree_structure, tree_unflatten
 
 
 def jmp(f, W, M, has_aux=False):
@@ -97,7 +97,7 @@ def random_split_like_tree(rng_key, target=None, treedef=None):
     keys = random.split(rng_key, treedef.num_leaves)
     return tree_unflatten(treedef, keys)
 
-def sample_v(tangent_size, params, rng):
+def sample_v(tangent_size, params, rng, identity_sampling=False):
     """
     Samples a batch of random, normalized tangent vectors matching the structure of `params`.
 
@@ -115,16 +115,37 @@ def sample_v(tangent_size, params, rng):
         PyTree: A pytree with the same structure as `params`, where each leaf is a tensor of
                 shape `(tangent_size, *leaf.shape)` representing a batch of normalized tangent vectors.
     """
-    keys_tree = random_split_like_tree(rng, params)
-    v = tree_map(
-        lambda x,k: random.normal(k, (tangent_size,) + x.shape, x.dtype),
-        params, keys_tree
-    )
-    # Normalize, tangent-wise
-    l2 = jnp.sqrt(sum(tree_leaves(
-            jax.vmap(lambda v: tree_map(lambda x: jnp.sum(jnp.square(x)),v))(v)
+    # Flatten parameters to discover global structure size
+    flat_params, unravel_fn = jax.flatten_util.ravel_pytree(params)
+    total_params = flat_params.shape[0]
+
+    if identity_sampling:
+        # Check 1: For a perfect full identity, tangent_size must equal total parameters
+        assert tangent_size == total_params, (
+            f"For identity sampling, tangent_size ({tangent_size}) "
+            f"must exactly equal total parameters ({total_params})."
+        )
+        
+        # Create a true deterministic identity matrix: (total_params, total_params)
+        eye_matrix = jnp.eye(total_params, dtype=flat_params.dtype)
+        
+        # Unflatten back into the exact PyTree layout along the tangent axis
+        v = jax.vmap(unravel_fn)(eye_matrix)   
+    else:
+        # Standard SOFO Random Gaussian Subspace Sampling
+
+        keys_tree = random_split_like_tree(rng, params)
+        v = jax.tree.map(
+            lambda x, k: random.normal(k, (tangent_size,) + x.shape, x.dtype),
+            params, keys_tree
+        )
+        
+        # Global Tangent-wise L2 Normalization
+        l2 = jnp.sqrt(sum(jax.tree.leaves(
+            jax.vmap(lambda vec: jax.tree.map(lambda x: jnp.sum(jnp.square(x)), vec))(v)
         )))
-    v = tree_map(lambda x: jax.vmap(lambda a,b:a/b)(x,l2), v)
+        v = jax.tree.map(lambda x: jax.vmap(lambda a, b: a / b)(x, l2), v)
+
     return v
 
 
