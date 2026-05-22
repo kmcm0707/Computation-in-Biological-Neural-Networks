@@ -5,6 +5,7 @@ from typing import Optional
 import equinox as eqx
 import jax
 import jax.numpy as jnp
+from jax_smi import initialise_tracking
 import numpy as np
 import optax
 from misc.dataset import (
@@ -607,7 +608,9 @@ class JaxMetaLearnerRNN:
 
 
 def main_jax_rnn_meta_learner():
-    #os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
+    os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
+    #initialise_tracking()
     #jax.config.update("jax_debug_nans", True)
     for index in range(6):
         key = jax.random.PRNGKey(42)
@@ -622,7 +625,7 @@ def main_jax_rnn_meta_learner():
         maxTrainingDataPerClass = 80
         queryDataPerClass = 20
         numberOfTimeSteps = 1
-        batch_size = 4
+        batch_size = 1
 
         if dataset_name == "EMNIST":
             numberOfClasses = 5
@@ -731,10 +734,10 @@ def main_jax_rnn_meta_learner():
             low_dim_DFA=-1,
             two_layer_RNN=False,
             feedforward=True,
-            sofo=True,
+            sofo=False,
             sofo_samples=65,
             sofo_damping=1e-6,
-            sofo_identity_sampling=True,
+            sofo_identity_sampling=False,
             batch_size=batch_size,
         )
 
