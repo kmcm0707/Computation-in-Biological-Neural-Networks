@@ -5,7 +5,6 @@ from typing import Optional
 import equinox as eqx
 import jax
 import jax.numpy as jnp
-from jax_smi import initialise_tracking
 import numpy as np
 import optax
 from misc.dataset import (
@@ -27,6 +26,8 @@ from options.fast_rnn_options import fastRnnOptions
 from options.jax_rnn_meat_learner_options import (
     JaxActivationNonLinearEnum,
     JaxErrorTypeEnum,
+    JaxMetaOptimizerEnum,
+    JaxOptimizerModeEnum,
     JaxRnnMetaLearnerOptions,
 )
 from options.meta_learner_options import chemicalEnum
@@ -128,12 +129,12 @@ class JaxMetaLearnerRNN:
 
         # -- optimizer --
         trainable_mask = self.get_trainable_mask(self.metaOptimizer)
-        if not self.jaxMetaLearnerOptions.sofo:
+        if self.jaxMetaLearnerOptions.meta_optimizer == JaxMetaOptimizerEnum.Adam:
             self.optimizer = optax.chain(
-                optax.clip(1.0), #clip_by_global_norm(1.0),  # Max norm of 1.0
+                #optax.clip(1.0), #clip_by_global_norm(1.0),  # Max norm of 1.0
                 optax.adam(learning_rate=self.jaxMetaLearnerOptions.metaLearningRate),
             )
-        else:
+        elif self.jaxMetaLearnerOptions.meta_optimizer == JaxMetaOptimizerEnum.SGD:
             constant_sched = optax.constant_schedule(self.jaxMetaLearnerOptions.metaLearningRate)
             decay_sched = optax.exponential_decay(
                 init_value=self.jaxMetaLearnerOptions.metaLearningRate,
@@ -358,7 +359,7 @@ class JaxMetaLearnerRNN:
             avg_loss = jnp.mean(losses)
             acc = accuracy(qry_predictions, y_qry.ravel(), use_jax=True)
 
-        if self.jaxMetaLearnerOptions.sofo:
+        if self.jaxMetaLearnerOptions.optimizer_mode == JaxOptimizerModeEnum.SOFO:
             return qry_predictions, acc
         return avg_loss, acc
 
@@ -386,7 +387,7 @@ class JaxMetaLearnerRNN:
         opt_state,
     ):
 
-        if not self.jaxMetaLearnerOptions.sofo:
+        if self.jaxMetaLearnerOptions.optimizer_mode == JaxOptimizerModeEnum.BPTT:
             batched_val_and_grad = eqx.filter_vmap(
                 jax.value_and_grad(self.compute_meta_loss, has_aux=True),
                 in_axes=(
@@ -413,7 +414,7 @@ class JaxMetaLearnerRNN:
             grads = jax.tree.map(lambda g: jax.numpy.mean(g, axis=0), grads)
             loss = jnp.mean(losses, axis=0)
             acc = jnp.mean(accs, axis=0)
-        else:
+        elif self.jaxMetaLearnerOptions.optimizer_mode == JaxOptimizerModeEnum.SOFO:
             rng, key = jax.random.split(self.key3)
             v = sample_v(self.jaxMetaLearnerOptions.sofo_samples, dynamic_model, key, identity_sampling=self.jaxMetaLearnerOptions.sofo_identity_sampling)
 
@@ -475,10 +476,55 @@ class JaxMetaLearnerRNN:
             damped_s = s + self.jaxMetaLearnerOptions.sofo_damping * jnp.max(s)
             vggv_vg = (u / damped_s) @ (u.T @ vg)
             grads = jax.tree.map(lambda vs: jnp.dot(jnp.moveaxis(vs,0,-1), vggv_vg), v)
+        elif self.jaxMetaLearnerOptions.optimizer_mode == JaxOptimizerModeEnum.RTRL:
+            def single_task_rtrl_geometry(act_params, stat_model, syn_weights, rnn_instance, x_trn_batch, y_trn_batch, x_qry_batch, y_qry_batch):
+                
+                def f_forward(active_params):
+                    d_model = active_params
+                    avg_loss, acc = self.compute_meta_loss(
+                        d_model, stat_model, syn_weights, rnn_instance, 
+                        x_trn_batch, y_trn_batch, x_qry_batch, y_qry_batch
+                    )
+                    return avg_loss, (avg_loss, acc)
+
+                grads, (loss, acc) = jax.jacfwd(f_forward, has_aux=True)(act_params)
+                
+                return loss, acc, grads
+
+            # 2. Vectorize across tasks using Equinox filter_vmap
+            batched_rtrl_geometry = eqx.filter_vmap(
+                single_task_rtrl_geometry,
+                in_axes=(
+                    None,  # active_params (Not batched)
+                    None,  # stat_model (Not batched)
+                    0,     # synaptic_weights_tuple (Batched)
+                    0,     # rnn (Batched)
+                    0,     # x_trn (Batched)
+                    0,     # y_trn (Batched)
+                    0,     # x_qry (Batched)
+                    0,     # y_qry (Batched)
+                )
+            )
+
+            losses, accs, task_grads = batched_rtrl_geometry(
+                dynamic_model,
+                static_model,
+                synaptic_weights_tuple,
+                rnn,
+                x_trn,
+                y_trn,
+                x_qry,
+                y_qry
+            )
+
+            # 3. Average across tasks to get the final update vectors
+            loss = jnp.mean(losses, axis=0)
+            acc = jnp.mean(accs, axis=0)
+            grads = jax.tree.map(lambda g: jnp.mean(g, axis=0), task_grads)
 
         grads_filtered = eqx.filter(grads, eqx.is_array)
 
-        if self.jaxMetaLearnerOptions.sofo:
+        if self.jaxMetaLearnerOptions.optimizer_mode == JaxOptimizerModeEnum.SOFO:
             grad_norm = jnp.max(s)
         else:
             grad_norm = optax.global_norm(grads_filtered)
@@ -609,7 +655,7 @@ class JaxMetaLearnerRNN:
 
 def main_jax_rnn_meta_learner():
     os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
-    os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
+    #os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
     #initialise_tracking()
     #jax.config.update("jax_debug_nans", True)
     for index in range(6):
@@ -708,10 +754,10 @@ def main_jax_rnn_meta_learner():
         metaLearnerOptions = JaxRnnMetaLearnerOptions(
             seed=42,
             save_results=True,
-            results_subdir="jax_sofo_train_65_batch",
+            results_subdir="RTRL_jax_test",
             metatrain_dataset=dataset_name,
             display=True,
-            metaLearningRate=0.004,
+            metaLearningRate=0.0007,
             numberOfClasses=numberOfClasses,
             dataset_name=dataset_name,
             chemicalInitialization=chemicalEnum.different,
@@ -734,7 +780,8 @@ def main_jax_rnn_meta_learner():
             low_dim_DFA=-1,
             two_layer_RNN=False,
             feedforward=True,
-            sofo=False,
+            meta_optimizer=JaxMetaOptimizerEnum.Adam,
+            optimizer_mode=JaxOptimizerModeEnum.RTRL,
             sofo_samples=65,
             sofo_damping=1e-6,
             sofo_identity_sampling=False,

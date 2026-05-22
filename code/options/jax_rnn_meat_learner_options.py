@@ -18,6 +18,15 @@ class JaxErrorTypeEnum(Enum):
     DFA = "DFA"
     DSEF = "DSEF"
 
+class JaxMetaOptimizerEnum(Enum):
+    Adam = "Adam"
+    SGD = "SGD"
+
+class JaxOptimizerModeEnum(Enum):
+    BPTT = "BPTT"
+    RTRL = "RTRL"
+    SOFO = "SOFO"
+
 
 class JaxRnnMetaLearnerOptions:
     def __init__(
@@ -51,7 +60,8 @@ class JaxRnnMetaLearnerOptions:
         permutation: bool = False,
         two_layer_RNN: bool = False,
         feedforward: bool = False,
-        sofo: bool = False,
+        meta_optimizer: JaxMetaOptimizerEnum = JaxMetaOptimizerEnum.Adam,
+        optimizer_mode: JaxOptimizerModeEnum = JaxOptimizerModeEnum.BPTT,
         sofo_samples: int = 60,
         sofo_damping: float = 1e-5,
         sofo_identity_sampling: bool = False,
@@ -86,7 +96,8 @@ class JaxRnnMetaLearnerOptions:
         self.permutation = permutation
         self.two_layer_RNN = two_layer_RNN
         self.feedforward = feedforward
-        self.sofo = sofo
+        self.meta_optimizer = meta_optimizer
+        self.optimizer_mode = optimizer_mode
         self.sofo_samples = sofo_samples
         self.sofo_damping = sofo_damping
         self.sofo_identity_sampling = sofo_identity_sampling
