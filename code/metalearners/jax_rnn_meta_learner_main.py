@@ -622,7 +622,7 @@ def main_jax_rnn_meta_learner():
         maxTrainingDataPerClass = 80
         queryDataPerClass = 20
         numberOfTimeSteps = 1
-        batch_size = 1
+        batch_size = 4
 
         if dataset_name == "EMNIST":
             numberOfClasses = 5
@@ -705,10 +705,10 @@ def main_jax_rnn_meta_learner():
         metaLearnerOptions = JaxRnnMetaLearnerOptions(
             seed=42,
             save_results=True,
-            results_subdir="jax_sofo_train_65",
+            results_subdir="jax_sofo_train_65_batch",
             metatrain_dataset=dataset_name,
             display=True,
-            metaLearningRate=0.002,
+            metaLearningRate=0.004,
             numberOfClasses=numberOfClasses,
             dataset_name=dataset_name,
             chemicalInitialization=chemicalEnum.different,
@@ -733,7 +733,7 @@ def main_jax_rnn_meta_learner():
             feedforward=True,
             sofo=True,
             sofo_samples=65,
-            sofo_damping=1e-5,
+            sofo_damping=1e-6,
             sofo_identity_sampling=True,
             batch_size=batch_size,
         )
