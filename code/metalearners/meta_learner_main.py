@@ -1401,9 +1401,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.scalar,  # scalar_sign,
+        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,  # scalar_sign,
         dimOut=dimOut,
-        hrm_discount=300,
+        hrm_discount=-1,
         error_control=False,
         leaky_error_alpha=0.0,
         train_feedback_weights=False,
@@ -1452,4 +1452,4 @@ def main():
     # torch.autograd.set_detect_anomaly(True)
     for ii in range(1, 10):
         for true_i in range(0,17):
-            run(seed=0, display=True, result_subdirectory="mode_9_scalar_5_chems_full_sweep_4/{}".format([1, 2, 4, 6, 8, 9.9][ii]), index=true_i, index_2=ii)
+            run(seed=0, display=True, result_subdirectory="mode_9_scalar_5_chems_full_sweep_a/{}".format([1, 2, 4, 6, 8, 9.9][ii]), index=true_i, index_2=ii)
