@@ -410,8 +410,8 @@ class JaxMetaLearnerRNN:
                 y_qry
             )
             grads = jax.tree.map(lambda g: jax.numpy.mean(g, axis=0), grads)
-            loss = jnp.mean(losses)
-            acc = jnp.mean(accs)
+            loss = jnp.mean(losses, axis=0)
+            acc = jnp.mean(accs, axis=0)
         else:
             rng, key = jax.random.split(self.key3)
             v = sample_v(self.jaxMetaLearnerOptions.sofo_samples, dynamic_model, key, identity_sampling=self.jaxMetaLearnerOptions.sofo_identity_sampling)
@@ -467,8 +467,8 @@ class JaxMetaLearnerRNN:
 
             vg = jax.tree.map(lambda vg: jnp.mean(vg, axis=0), vgs)
             vggv = jnp.mean(vggvs, axis=0)
-            loss = jnp.mean(losses)
-            acc = jnp.mean(accs)
+            loss = jnp.mean(losses, axis=0)
+            acc = jnp.mean(accs, axis=0)
 
             u, s, _ = jnp.linalg.svd(vggv)
             damped_s = s + self.jaxMetaLearnerOptions.sofo_damping * jnp.max(s)
