@@ -744,8 +744,7 @@ def main_jax_rnn_meta_learner():
         # device = "cpu"
         current_dir = os.getcwd()
         continue_training = (
-            current_dir + "/results_3/jax_ff_sofo_train/20260518-021112"# "/results_3/jax_rnn_12/20260121-024411"  # 20260121-024411"
-            #current_dir + "/results_3/jax_rnn_fixed/20260518-173517"
+            current_dir + "/results_3/mode_9_scalar_converted"
             #current_dir + "/results_3/mode_9_rand_converted"
             #+ "/results_3/jax_rnn_1_chem/20260423-005009"
             #+ "/results_3/jax_rnn_9_chems_100/20260422-175900"
@@ -754,7 +753,7 @@ def main_jax_rnn_meta_learner():
         metaLearnerOptions = JaxRnnMetaLearnerOptions(
             seed=42,
             save_results=True,
-            results_subdir="RTRL_jax_test",
+            results_subdir="RTRL_jax_test_DSEF",
             metatrain_dataset=dataset_name,
             display=True,
             metaLearningRate=0.0007,
@@ -776,7 +775,7 @@ def main_jax_rnn_meta_learner():
             load_model=continue_training,
             load_optimizer=False,
             dont_load_z_y=False,
-            error_type=JaxErrorTypeEnum.DFA,
+            error_type=JaxErrorTypeEnum.DSEF,
             low_dim_DFA=-1,
             two_layer_RNN=False,
             feedforward=True,

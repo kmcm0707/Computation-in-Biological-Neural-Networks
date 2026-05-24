@@ -22,6 +22,7 @@ from options.complex_options import (
 from options.fast_rnn_options import fastRnnOptions
 from options.jax_rnn_meat_learner_options import (
     JaxActivationNonLinearEnum,
+    JaxErrorTypeEnum,
 )
 from options.meta_learner_options import (
     typeOfFeedbackEnum,
@@ -67,7 +68,7 @@ def torch_to_jax_chemical_nn():
             disagreement_regularization=False,
         )
     
-    model_location = os.getcwd() + "/results_3/mode_9_rand/0/20251105-152312/UpdateWeights.pth"
+    model_location = os.getcwd() + "/results_3/mode_9_scalar_10/1/20251124-005417/UpdateWeights.pth"
     state_dict = torch.load(model_location, map_location=torch.device("cpu"), weights_only=True)
     P_matrix = state_dict["P_matrix"]
     K_matrix = state_dict["K_matrix"]
@@ -104,7 +105,7 @@ def torch_to_jax_chemical_nn():
         (Q_matrix_jax, K_matrix_jax, v_vector_jax, y_vector_jax, z_vector_jax)
     )
 
-    save_dir = os.getcwd() + "/results_3/mode_9_rand_converted"
+    save_dir = os.getcwd() + "/results_3/mode_9_scalar_converted"
     os.makedirs(save_dir, exist_ok=True)
 
     eqx.tree_serialise_leaves(save_dir + "/meta_learner_model.eqx", jax_model)
@@ -116,9 +117,9 @@ def torch_to_jax_chemical_nn():
     tester()
 
 def tester():
-    model_location = os.getcwd() + "/results_3/mode_9_rand/0/20251105-152312/UpdateWeights.pth"
+    model_location = os.getcwd() + "/results_3/mode_9_scalar_10/1/20251124-005417/UpdateWeights.pth"
     state_dict = torch.load(model_location, map_location=torch.device("cpu"), weights_only=True)
-    jax_model_location = os.getcwd() + "/results_3/mode_9_rand_converted/meta_learner_model.eqx"
+    jax_model_location = os.getcwd() + "/results_3/mode_9_scalar_converted/meta_learner_model.eqx"
     
 
     jax_model_options = fastRnnOptions(
@@ -161,10 +162,11 @@ def tester():
     )
     jax_model = eqx.tree_deserialise_leaves(jax_model_location, jax_model)
 
+    typeOfFeedback = typeOfFeedbackEnum.scalar
     torch_NN = ChemicalNN(
         device="cpu",
         numberOfChemicals=number_of_chemicals,
-        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+        typeOfFeedback=typeOfFeedback,
     )
     torch_model = ComplexSynapse(
                 device="cpu",
@@ -238,6 +240,7 @@ def tester():
         key=jax_key,
         gradient=True,
         activation=JaxActivationNonLinearEnum.softplus,
+        error_type=JaxErrorTypeEnum.DSEF,
     )
     def sync_model(jax_model, torch_model):
         # Get a flat dictionary of torch parameters for easy lookup
@@ -285,8 +288,6 @@ def tester():
         jax_model = eqx.tree_at(lambda m: m.feedback_layers, jax_model, new_feedback_layers)
 
         return jax_model
-
-
 
     jax_NN = sync_model(jax_NN, torch_NN)
 
@@ -339,11 +340,21 @@ def tester():
     feedback = {name: value for name, value in params.items() if "feedback" in name}
     error = [output - functional.one_hot(label, num_classes=47)]
     
-
-    for y, i in zip(reversed(activations), reversed(list(feedback))):
-        error.insert(
-            0, torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-torch_NN.beta * y))
-        )
+    if typeOfFeedback == typeOfFeedbackEnum.DFA:
+        for y, i in zip(reversed(activations), reversed(list(feedback))):
+            error.insert(
+                0, torch.matmul(error[-1], feedback[i]) * (1 - torch.exp(-torch_NN.beta * y))
+            )
+    elif typeOfFeedback == typeOfFeedbackEnum.scalar:
+        # error_scalar = torch.norm(error[0], p=2, dim=1, keepdim=True)[0]
+        # error_scalar = -error[0][0][label]
+        # error_scalar = torch.tanh(error_scalar)  # tanh to avoid exploding gradients
+        if output[0][label] > 0.5:
+            error_scalar = torch.tensor(0, device="cpu")
+        else:
+            error_scalar = torch.tensor(1.0, device="cpu")
+        for y, i in zip(reversed(activations), reversed(list(feedback))):
+            error.insert(0, error_scalar * feedback[i] * (1 - torch.exp(-torch_NN.beta * y)))
 
     activations_and_output = [*activations, output]
     torch_model(
@@ -402,7 +413,8 @@ def tester():
             err_torch.squeeze().detach().numpy(), 
             atol=1e-5, 
             rtol=1e-5,
-            err_msg=f"Errors are different at layer {i}"
+            err_msg=f"Errors are different at layer {i}",
+            verbose=True
         )
 
     def update_layer(w, p, act, err):

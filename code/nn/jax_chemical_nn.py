@@ -109,11 +109,19 @@ class JAXFeedforwardNN(eqx.Module):
         # 2. Reset Feedback Layers
         def _reset_fb(layer: eqx.nn.Linear, k: jax.random.PRNGKey) -> eqx.nn.Linear:
             new_fb = eqx.nn.Linear(layer.in_features, layer.out_features, key=k, use_bias=False)
-            if self.low_dim_DFA > 0:
+            if self.low_dim_DFA > 0 and self.error_type == JaxErrorTypeEnum.DFA:
                 new_fb = eqx.tree_at(
                     lambda r: r.weight,
                     new_fb,
                     self.low_dim_feedback_initialization(k, layer.in_features, layer.out_features)
+                )
+            elif self.error_type == JaxErrorTypeEnum.DSEF:
+                ## Xavier Uniform initialization for DSEF feedbacks
+                a = (6.0 / (layer.in_features + layer.out_features)) ** 0.5
+                new_fb = eqx.tree_at(
+                    lambda r: r.weight,
+                    new_fb,
+                    jax.random.uniform(k, (layer.out_features, layer.in_features), minval=-a, maxval=a)
                 )
             return new_fb
 
