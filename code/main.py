@@ -15,6 +15,7 @@ from metalearners.rnn_meta_learner_main import main_rnn  # noqa: F401
 from metalearners.runner import runner_main  # noqa: F401
 from metalearners.runner_rnn import main_runner_rnn  # noqa: F401
 from misc.chemical_upscale import chemical_upscale  # noqa: F401
+from misc.expand_Q import expand_Q_matrix  # noqa: F401
 from misc.load_from_params import load_model  # noqa: F401
 from misc.torch_jax_converter import torch_to_jax_chemical_nn  # noqa: F401
 from nn.backprop import backprop_main  # noqa: F401
@@ -40,3 +41,4 @@ if __name__ == "__main__":
     #main_jax_runner()
     #chemical_upscale()
     #torch_to_jax_chemical_nn()
+    #expand_Q_matrix()
