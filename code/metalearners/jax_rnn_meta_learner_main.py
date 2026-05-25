@@ -654,7 +654,7 @@ class JaxMetaLearnerRNN:
 
 
 def main_jax_rnn_meta_learner():
-    os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
+    #os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
     #os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
     #initialise_tracking()
     #jax.config.update("jax_debug_nans", True)
@@ -740,11 +740,11 @@ def main_jax_rnn_meta_learner():
             z_vector=zVectorEnum.default,
             operator=operatorEnum.mode_9,
         )
-        # cuda:1
+        
         # device = "cpu"
         current_dir = os.getcwd()
         continue_training = (
-            current_dir + "/results_3/jax_rnn_Q_expanded/5"
+            current_dir + "/results_3/jax_rnn_Q_expanded/1"
             #current_dir + "/results_3/mode_9_rand_converted"
             #+ "/results_3/jax_rnn_1_chem/20260423-005009"
             #+ "/results_3/jax_rnn_9_chems_100/20260422-175900"
@@ -756,7 +756,7 @@ def main_jax_rnn_meta_learner():
             results_subdir="jax_rnn_fixed_7",
             metatrain_dataset=dataset_name,
             display=True,
-            metaLearningRate=0.0001,
+            metaLearningRate=0.00005,
             numberOfClasses=numberOfClasses,
             dataset_name=dataset_name,
             chemicalInitialization=chemicalEnum.same,
@@ -791,7 +791,7 @@ def main_jax_rnn_meta_learner():
             modelOptions=modelOptions,
             jaxMetaLearnerOptions=metaLearnerOptions,
             key=key,
-            numberOfChemicals=5,
+            numberOfChemicals=1,
             metaTrainingDataset=metatrain_dataset,
         )
 
