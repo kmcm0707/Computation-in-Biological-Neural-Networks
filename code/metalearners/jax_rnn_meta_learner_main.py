@@ -70,7 +70,7 @@ class JaxMetaLearnerRNN:
                 key=k,
                 input_size=self.jaxMetaLearnerOptions.input_size,
                 gradient=self.jaxMetaLearnerOptions.gradient,
-                activation=self.jaxMetaLearnerOptions.outer_activation,
+                activation=JaxActivationNonLinearEnum.softplus,
                 error_type=self.jaxMetaLearnerOptions.error_type,
                 low_dim_DFA=self.jaxMetaLearnerOptions.low_dim_DFA,
             ))(rnn_keys)
@@ -668,9 +668,9 @@ def main_jax_rnn_meta_learner():
 
         dataset_name = "EMNIST"
         minTrainingDataPerClass = 5
-        maxTrainingDataPerClass = 70
+        maxTrainingDataPerClass = 200
         queryDataPerClass = 20
-        numberOfTimeSteps = 7
+        numberOfTimeSteps = 1
         batch_size = 1
 
         if dataset_name == "EMNIST":
@@ -744,7 +744,9 @@ def main_jax_rnn_meta_learner():
         # device = "cpu"
         current_dir = os.getcwd()
         continue_training = (
-            current_dir + "/results_3/jax_rnn_Q_expanded/1"
+            current_dir + "/results_3/mode_9_scalar_converted_13_chems"
+            #+ "/results_3/jax_rnn_fixed_7/20260525-021101"
+            #+ "/results_3/jax_rnn_fixed_7/20260525-021204"
             #current_dir + "/results_3/mode_9_rand_converted"
             #+ "/results_3/jax_rnn_1_chem/20260423-005009"
             #+ "/results_3/jax_rnn_9_chems_100/20260422-175900"
@@ -753,13 +755,13 @@ def main_jax_rnn_meta_learner():
         metaLearnerOptions = JaxRnnMetaLearnerOptions(
             seed=42,
             save_results=True,
-            results_subdir="jax_rnn_fixed_7",
+            results_subdir="RTRL_13_chem_scalar",
             metatrain_dataset=dataset_name,
             display=True,
-            metaLearningRate=0.00005,
+            metaLearningRate=0.0007,
             numberOfClasses=numberOfClasses,
             dataset_name=dataset_name,
-            chemicalInitialization=chemicalEnum.same,
+            chemicalInitialization=chemicalEnum.different,
             minTrainingDataPerClass=minTrainingDataPerClass,
             maxTrainingDataPerClass=maxTrainingDataPerClass,
             queryDataPerClass=queryDataPerClass,
@@ -769,18 +771,18 @@ def main_jax_rnn_meta_learner():
             biological_min_tau=1,
             biological_max_tau=7,
             gradient=True,
-            outer_activation=JaxActivationNonLinearEnum.tanh, ##FF uses this for the feedforward activation (softplus), RNN uses it for outer activation (tanh)
+            outer_activation=JaxActivationNonLinearEnum.tanh,
             recurrent_activation=JaxActivationNonLinearEnum.softplus,
             number_of_time_steps=numberOfTimeSteps,
             load_model=continue_training,
             load_optimizer=False,
             dont_load_z_y=False,
-            error_type=JaxErrorTypeEnum.DFA,
+            error_type=JaxErrorTypeEnum.DSEF,
             low_dim_DFA=-1,
             two_layer_RNN=False,
-            feedforward=False,
+            feedforward=True,
             meta_optimizer=JaxMetaOptimizerEnum.Adam,
-            optimizer_mode=JaxOptimizerModeEnum.BPTT,
+            optimizer_mode=JaxOptimizerModeEnum.RTRL,
             sofo_samples=65,
             sofo_damping=1e-6,
             sofo_identity_sampling=False,
