@@ -164,9 +164,9 @@ class JaxMetaLearnerRNN:
         self.loss_function = optax.safe_softmax_cross_entropy
 
         # -- log params
-        self.result_directory = os.getcwd() + "/results_3"
+        self.result_directory = os.getcwd() + "/results_4"
         if self.save_results:
-            self.result_directory = os.getcwd() + "/results_3"
+            self.result_directory = os.getcwd() + "/results_4"
             os.makedirs(self.result_directory, exist_ok=True)
             self.result_directory += (
                 "/"
@@ -744,9 +744,9 @@ def main_jax_rnn_meta_learner():
         # device = "cpu"
         current_dir = os.getcwd()
         continue_training = (
-            current_dir + "/results_3/mode_9_scalar_converted_13_chems"
-            #+ "/results_3/jax_rnn_fixed_7/20260525-021101"
-            #+ "/results_3/jax_rnn_fixed_7/20260525-021204"
+            current_dir + "/results_4/mode_9_scalar_converted_13_chems"
+            #+ "/results_4/jax_rnn_fixed_7/20260525-021101"
+            #+ "/results_4/jax_rnn_fixed_7/20260525-021204"
             #current_dir + "/results_3/mode_9_rand_converted"
             #+ "/results_3/jax_rnn_1_chem/20260423-005009"
             #+ "/results_3/jax_rnn_9_chems_100/20260422-175900"
