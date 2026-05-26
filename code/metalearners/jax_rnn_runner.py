@@ -536,13 +536,13 @@ def jax_runner(index: int):
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_9_chem_scalar",
+        results_subdir="runner_jax_9_chem_scalar_same",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
         numberOfClasses=numberOfClasses,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
@@ -567,7 +567,7 @@ def jax_runner(index: int):
         modelOptions=modelOptions,
         jaxMetaLearnerOptions=metaLearnerOptions,
         key=key,
-        numberOfChemicals=3,
+        numberOfChemicals=9,
         metaTrainingDataset=metatrain_dataset,
     )
 
@@ -576,5 +576,5 @@ def jax_runner(index: int):
 
 def main_jax_runner():
 
-    for i in range(10):
+    for i in range(30):
         jax_runner(i)
