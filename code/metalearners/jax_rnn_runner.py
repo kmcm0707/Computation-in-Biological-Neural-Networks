@@ -16,6 +16,7 @@ from misc.dataset import (
     IMDBWord2VecMetaDataset,
 )
 from misc.utils import Plot, accuracy, log
+from nn.jax_chemical_nn import JAXFeedforwardNN
 from nn.jax_chemical_rnn import JAXChemicalRNN
 from options.complex_options import operatorEnum, yVectorEnum, zVectorEnum
 from options.fast_rnn_options import fastRnnOptions
@@ -43,20 +44,31 @@ class JaxMetaLearnerRNN:
         key1, key2 = jax.random.split(key)
         self.key1 = key1
         self.key2 = key2
-        self.rnn = JAXChemicalRNN(
-            input_size=self.jaxMetaLearnerOptions.input_size,
-            key=key1,
-            hidden_size=self.jaxMetaLearnerOptions.hidden_size,
-            output_size=self.jaxMetaLearnerOptions.output_size,
-            biological_min_tau=self.jaxMetaLearnerOptions.biological_min_tau,
-            biological_max_tau=self.jaxMetaLearnerOptions.biological_max_tau,
-            gradient=self.jaxMetaLearnerOptions.gradient,
-            outer_activation=self.jaxMetaLearnerOptions.outer_activation,
-            recurrent_activation=self.jaxMetaLearnerOptions.recurrent_activation,
-            error_type=self.jaxMetaLearnerOptions.error_type,
-            low_dim_DFA=self.jaxMetaLearnerOptions.low_dim_DFA,
-            two_layer_RNN=self.jaxMetaLearnerOptions.two_layer_RNN,
-        )
+        if self.jaxMetaLearnerOptions.feedforward:
+            self.rnn = JAXFeedforwardNN(
+                dim_out=self.jaxMetaLearnerOptions.output_size,
+                key=key1,
+                input_size=self.jaxMetaLearnerOptions.input_size,
+                gradient=self.jaxMetaLearnerOptions.gradient,
+                activation=JaxActivationNonLinearEnum.softplus,
+                error_type=self.jaxMetaLearnerOptions.error_type,
+                low_dim_DFA=self.jaxMetaLearnerOptions.low_dim_DFA,
+            )
+        else:
+            self.rnn = JAXChemicalRNN(
+                input_size=self.jaxMetaLearnerOptions.input_size,
+                key=key1,
+                hidden_size=self.jaxMetaLearnerOptions.hidden_size,
+                output_size=self.jaxMetaLearnerOptions.output_size,
+                biological_min_tau=self.jaxMetaLearnerOptions.biological_min_tau,
+                biological_max_tau=self.jaxMetaLearnerOptions.biological_max_tau,
+                gradient=self.jaxMetaLearnerOptions.gradient,
+                outer_activation=self.jaxMetaLearnerOptions.outer_activation,
+                recurrent_activation=self.jaxMetaLearnerOptions.recurrent_activation,
+                error_type=self.jaxMetaLearnerOptions.error_type,
+                low_dim_DFA=self.jaxMetaLearnerOptions.low_dim_DFA,
+                two_layer_RNN=self.jaxMetaLearnerOptions.two_layer_RNN,
+            )
         self.save_results = self.jaxMetaLearnerOptions.save_results
         self.metaTrainingDataset = metaTrainingDataset
         if self.jaxMetaLearnerOptions.dataset_name == "ADDBERNOULLI":
@@ -97,9 +109,9 @@ class JaxMetaLearnerRNN:
         self.loss_function = optax.safe_softmax_cross_entropy
 
         # -- log params
-        self.result_directory = os.getcwd() + "/results_3"
+        self.result_directory = os.getcwd() + "/results_4"
         if self.save_results:
-            self.result_directory = os.getcwd() + "/results_3"
+            self.result_directory = os.getcwd() + "/results_4"
             os.makedirs(self.result_directory, exist_ok=True)
             self.result_directory += (
                 "/"
@@ -150,24 +162,14 @@ class JaxMetaLearnerRNN:
         new_parameters = tuple(res[0] for res in results)
         new_synaptic_weights = tuple(res[1] for res in results)
 
-        if not self.jaxMetaLearnerOptions.two_layer_RNN:
-            new_rnn = eqx.tree_at(
-                lambda r: (r.layers, r.forward1, r.forward2, r.forward3),
-                rnn,
-                (new_parameters, new_parameters[0], new_parameters[1], new_parameters[2]),
-            )
-        else:
-            new_rnn = eqx.tree_at(
-                lambda r: (r.layers, r.forward1, r.forward2, r.forward3, r.forward4),
-                rnn,
-                (
-                    new_parameters,
-                    new_parameters[0],
-                    new_parameters[1],
-                    new_parameters[2],
-                    new_parameters[3],
-                ),
-            )
+        num_layers = len(new_parameters)
+
+        new_rnn = eqx.tree_at(
+            lambda r: (r.layers, *(getattr(r, f"forward{i+1}") for i in range(num_layers))),
+            rnn,
+            (new_parameters, *new_parameters),
+        )
+
         return (
             new_synaptic_weights,
             new_parameters,
@@ -363,24 +365,12 @@ class JaxMetaLearnerRNN:
                 new_parameters[idx] = new_parameter
             self.synaptic_weights = tuple(new_synaptic_weights)
             self.new_parameters = tuple(new_parameters)
-            if not self.jaxMetaLearnerOptions.two_layer_RNN:
-                self.rnn = eqx.tree_at(
-                    lambda r: (r.layers, r.forward1, r.forward2, r.forward3),
-                    self.rnn,
-                    (self.new_parameters, self.new_parameters[0], self.new_parameters[1], self.new_parameters[2]),
-                )
-            else:
-                self.rnn = eqx.tree_at(
-                    lambda r: (r.layers, r.forward1, r.forward2, r.forward3, r.forward4),
-                    self.rnn,
-                    (
-                        self.new_parameters,
-                        self.new_parameters[0],
-                        self.new_parameters[1],
-                        self.new_parameters[2],
-                        self.new_parameters[3],
-                    ),
-                )
+            num_layers = len(self.new_parameters)
+            self.rnn = eqx.tree_at(
+                lambda r: (r.layers, *(getattr(r, f"forward{i+1}") for i in range(num_layers))),
+                self.rnn,
+                (self.new_parameters, *self.new_parameters),
+            )
             # -- meta-optimization --
             loss, acc = self.make_step(
                 self.metaOptimizer,
@@ -423,8 +413,8 @@ def jax_runner(index: int):
 
     # -- load data
     numWorkers = 2
-    training_data = [10, 20, 30, 40, 50, 60, 70, 80, 90]
-    training_data = [
+    training_data = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 350, 375]
+    """training_data = [
         # 10,
         # 9,
         10,
@@ -459,7 +449,7 @@ def jax_runner(index: int):
         # 12000,
         # 14000,
         # 15000,
-    ]
+    ]"""
     if index >= len(training_data):
         return
     epochs = 20
@@ -468,7 +458,7 @@ def jax_runner(index: int):
     minTrainingDataPerClass = training_data[index]
     maxTrainingDataPerClass = training_data[index]
     queryDataPerClass = 20
-    numberOfTimeSteps = 28
+    numberOfTimeSteps = 1
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -530,7 +520,7 @@ def jax_runner(index: int):
     modelOptions = None
     modelOptions = fastRnnOptions(
         nonLinear=JaxActivationNonLinearEnum.tanh,
-        update_rules=[0, 1, 2, 4, 9, 12],  # 4
+        update_rules=[0, 1, 2, 3, 4, 9, 12],
         minSlowTau=2,
         maxSlowTau=50,
         y_vector=yVectorEnum.none,
@@ -541,18 +531,18 @@ def jax_runner(index: int):
     # device = "cpu"
     current_dir = os.getcwd()
     # runner = current_dir + "/results_3/jax_rnn_12/20260121-024411"
-    runner = current_dir + "/results_2/jax_rnn_DFA_3_chems/20260221-195452"#"/results_3/jax_rnn_1_chem/20260423-005009"#jax_rnn_12_28/20260126-043934"
+    runner = current_dir + "/results_4/Jax_9_chem_scalar/20260526-030351"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_rnn_3_chem_28",
+        results_subdir="runner_jax_9_chem_scalar",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
         numberOfClasses=numberOfClasses,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
@@ -566,10 +556,11 @@ def jax_runner(index: int):
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=numberOfTimeSteps,
         load_model=runner,
-        error_type=JaxErrorTypeEnum.DFA,
+        error_type=JaxErrorTypeEnum.DSEF,
         low_dim_DFA=-1,
         permutation=False,
         two_layer_RNN=False,
+        feedforward=True,
     )
 
     metalearning_model = JaxMetaLearnerRNN(
