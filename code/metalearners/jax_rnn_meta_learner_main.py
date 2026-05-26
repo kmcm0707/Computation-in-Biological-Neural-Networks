@@ -654,7 +654,7 @@ class JaxMetaLearnerRNN:
 
 
 def main_jax_rnn_meta_learner():
-    #os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
     #os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
     #initialise_tracking()
     #jax.config.update("jax_debug_nans", True)
@@ -782,7 +782,7 @@ def main_jax_rnn_meta_learner():
             two_layer_RNN=False,
             feedforward=True,
             meta_optimizer=JaxMetaOptimizerEnum.Adam,
-            optimizer_mode=JaxOptimizerModeEnum.RTRL,
+            optimizer_mode=JaxOptimizerModeEnum.BPTT,
             sofo_samples=65,
             sofo_damping=1e-6,
             sofo_identity_sampling=False,
@@ -793,7 +793,7 @@ def main_jax_rnn_meta_learner():
             modelOptions=modelOptions,
             jaxMetaLearnerOptions=metaLearnerOptions,
             key=key,
-            numberOfChemicals=1,
+            numberOfChemicals=13,
             metaTrainingDataset=metatrain_dataset,
         )
 
