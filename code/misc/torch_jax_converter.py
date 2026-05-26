@@ -68,7 +68,7 @@ def torch_to_jax_chemical_nn():
             disagreement_regularization=False,
         )
     
-    model_location = os.getcwd() + "/results_3/mode_10_scalar_13_chems_interleved_full_sweep/2/0/50/UpdateWeights.pth"#mode_9_scalar_10/1/20251124-005417/UpdateWeights.pth"
+    model_location = os.getcwd() + r"/results_3/mode_9_scalar_9_chems_converted_true\0\20260420-043518/UpdateWeights.pth"#mode_9_scalar_10/1/20251124-005417/UpdateWeights.pth"
     state_dict = torch.load(model_location, map_location=torch.device("cpu"), weights_only=True)
     P_matrix = state_dict["P_matrix"]
     K_matrix = state_dict["K_matrix"]
@@ -105,7 +105,7 @@ def torch_to_jax_chemical_nn():
         (Q_matrix_jax, K_matrix_jax, v_vector_jax, y_vector_jax, z_vector_jax)
     )
 
-    save_dir = os.getcwd() + "/results_3/mode_9_scalar_converted_13_chems"
+    save_dir = os.getcwd() + "/results_4/mode_9_scalar_converted_9_chems"
     os.makedirs(save_dir, exist_ok=True)
 
     eqx.tree_serialise_leaves(save_dir + "/meta_learner_model.eqx", jax_model)

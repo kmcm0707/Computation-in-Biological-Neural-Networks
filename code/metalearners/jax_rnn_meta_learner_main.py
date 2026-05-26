@@ -744,7 +744,7 @@ def main_jax_rnn_meta_learner():
         # device = "cpu"
         current_dir = os.getcwd()
         continue_training = (
-            current_dir + "/results_4/mode_9_scalar_converted_13_chems"
+            current_dir + "/results_4/mode_9_scalar_converted_9_chems"
             #+ "/results_4/jax_rnn_fixed_7/20260525-021101"
             #+ "/results_4/jax_rnn_fixed_7/20260525-021204"
             #current_dir + "/results_3/mode_9_rand_converted"
@@ -755,10 +755,10 @@ def main_jax_rnn_meta_learner():
         metaLearnerOptions = JaxRnnMetaLearnerOptions(
             seed=42,
             save_results=True,
-            results_subdir="RTRL_13_chem_scalar",
+            results_subdir="Jax_9_chem_scalar",
             metatrain_dataset=dataset_name,
             display=True,
-            metaLearningRate=0.0007,
+            metaLearningRate=0.0003,
             numberOfClasses=numberOfClasses,
             dataset_name=dataset_name,
             chemicalInitialization=chemicalEnum.different,
@@ -793,7 +793,7 @@ def main_jax_rnn_meta_learner():
             modelOptions=modelOptions,
             jaxMetaLearnerOptions=metaLearnerOptions,
             key=key,
-            numberOfChemicals=13,
+            numberOfChemicals=9,
             metaTrainingDataset=metatrain_dataset,
         )
 
