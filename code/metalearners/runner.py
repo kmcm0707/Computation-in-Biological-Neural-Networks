@@ -947,41 +947,38 @@ def run(
         #10,
         #20,
         #30,
-        40,
+        #40,
         #50,
         #60,
         #70,
-        80,
-        375,
-    ]
-    x =[
+        #80,
         #90,
-        100,
-        110,
-        120,
-        130,
-        140,
-        150,
-        160,
-        170,
-        180,
-        190,
-        200,
-        225,
-        250,
-        275,
-    # 300,
-    # 325,
-    # 350,
-        
+        #100,
+        #110,
+        #120,
+        #130,
+        #140,
+        #150,
+        #160,
+        #170,
+        #180,
+        #190,
+        #200,
+        #225,
+        #250,
+        #275,
+        #300,
+        #325,
+        350,
+        375,        
     ]
     # if index >= len(trainingDataPerClass):
     #    return
     trainingDataPerClass_1 = 20
     #if index >= 3:
     #    return
-    trainingDataPerClass_2 = [0, 20, 20][index]
-    trainingDataPerClass_3 = [0, 0, 20][index]
+    trainingDataPerClass_2 = [0, 20, 20]#[index]
+    trainingDataPerClass_3 = [0, 0, 20]#[index]
 
     #trainingDataPerClass = [30, 40, 50, 60]
 
@@ -1370,29 +1367,17 @@ def runner_main():
         # + "/results_3/mode_10_scalar_13_chems_200/2/20260424-130001"
         # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
     ]
-    outer = os.getcwd() + "/results_3/mode_10_scalar_13_chems_interleved_full_sweep"
-    outer_dir = os.listdir(outer)
+    outer = os.getcwd() + "/results_3/mode_9_scalar_9_chems_converted_true/0/20260420-043518"
 
-    for i in range(len(outer_dir)):
-        if outer_dir[i] == "9.9":
-            tau_min = 99
-        else:
-            tau_min = int(outer_dir[i])
-        modelPath_s = os.path.join(outer, outer_dir[i])
-        modelPath_s = os.path.join(modelPath_s, "0")
-        inner_dir = os.listdir(modelPath_s)
-        for inner_d in inner_dir:
-            tau_max = int(inner_d)
-            current_path = os.path.join(modelPath_s, inner_d)
-            for index_outer in range(0, 3):
-                run(
-                    seed=0,
-                    display=True,
-                    result_subdirectory=f"runner_mode_10_13_chems_interleved_2/{tau_min}/{tau_max}",
-                    index=index_outer,
-                    typeOfFeedback=typeOfFeedbackEnum.scalar,
-                    modelPath=current_path,
-                    numberOfChemicals=13,
-                    gating=gatingEnum.no_gating,
-                    operator=operatorEnum.mode_10,
-                )
+    for index_outer in range(0, 10):
+        run(
+            seed=0,
+            display=True,
+            result_subdirectory="runner_mode_9_scalar_9_chems_converted_2",
+            index=index_outer,
+            typeOfFeedback=typeOfFeedbackEnum.scalar,
+            modelPath=outer,
+            numberOfChemicals=9,
+            gating=gatingEnum.no_gating,
+            operator=operatorEnum.mode_9,
+        )
