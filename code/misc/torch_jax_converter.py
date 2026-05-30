@@ -68,51 +68,62 @@ def torch_to_jax_chemical_nn():
             disagreement_regularization=False,
         )
     
-    model_location = os.getcwd() + r"/results_3/mode_9_scalar_9_chems_converted_true\0\20260420-043518/UpdateWeights.pth"#mode_9_scalar_10/1/20251124-005417/UpdateWeights.pth"
-    state_dict = torch.load(model_location, map_location=torch.device("cpu"), weights_only=True)
-    P_matrix = state_dict["P_matrix"]
-    K_matrix = state_dict["K_matrix"]
-    v_vector = state_dict["v_vector"]
-    y_vector = state_dict["y_vector"]
-    z_vector = state_dict["z_vector"]
+    #model_location = os.getcwd() + r"/results_3/mode_9_scalar_9_chems_converted_true\0\20260420-043518/UpdateWeights.pth"#mode_9_scalar_10/1/20251124-005417/UpdateWeights.pth"
+    #state_dict = torch.load(model_location, map_location=torch.device("cpu"), weights_only=True)
+    outer_location = os.getcwd() + r"\results_3\mode_10_scalar_13_chems_extended_full_sweep"
+    tau_mins = os.listdir(outer_location)
+    for tau_min in tau_mins:
+        tau_min_location = os.path.join(outer_location, tau_min)
+        tau_min_location = os.path.join(tau_min_location, "0")
+        tau_maxs = os.listdir(tau_min_location)
+        for tau_max in tau_maxs:
+            tau_max_location = os.path.join(tau_min_location, tau_max)
+            state_dict = torch.load(os.path.join(tau_max_location, "UpdateWeights.pth"), map_location=torch.device("cpu"), weights_only=True)
+            P_matrix = state_dict["P_matrix"]
+            K_matrix = state_dict["K_matrix"]
+            v_vector = state_dict["v_vector"]
+            y_vector = state_dict["y_vector"]
+            z_vector = state_dict["z_vector"]
 
-    number_of_chemicals = K_matrix.shape[0]
-    jax_model = JAXFastRnn(
-        numberOfChemicals=number_of_chemicals,
-        fastRnnOptionsVal=jax_model_options,
-    )
+            number_of_chemicals = K_matrix.shape[0]
+            jax_model = JAXFastRnn(
+                numberOfChemicals=number_of_chemicals,
+                fastRnnOptionsVal=jax_model_options,
+            )
 
 
-    P_matrix_indicies = [0, 1, 2, 3, 4, 6, 9]
-    ## swap columns 6 and 9 to match the order in the JAX model # Note always remove 8 if it was in model
-    print("Original P matrix shape:", P_matrix.shape)
-    P_matrix[:, [6, 9]] = P_matrix[:, [9, 6]]
-    P_matrix = P_matrix[:, P_matrix_indicies]
-    
-    Q_matrix_jax = jnp.array(P_matrix.detach().numpy())  # Mapping P -> Q
-    K_matrix_jax = jnp.array(K_matrix.detach().numpy())  # Mapping K -> K
+            P_matrix_indicies = [0, 1, 2, 3, 4, 6, 9]
+            ## swap columns 6 and 9 to match the order in the JAX model # Note always remove 8 if it was in model
+            print("Original P matrix shape:", P_matrix.shape)
+            P_matrix[:, [6, 9]] = P_matrix[:, [9, 6]]
+            P_matrix = P_matrix[:, P_matrix_indicies]
+            
+            Q_matrix_jax = jnp.array(P_matrix.detach().numpy())  # Mapping P -> Q
+            K_matrix_jax = jnp.array(K_matrix.detach().numpy())  # Mapping K -> K
 
-    v_vector = v_vector.squeeze()  # Remove extra dimensions if present
-    y_vector = y_vector.squeeze()
-    z_vector = z_vector.squeeze()
-    v_vector_jax = jnp.array(v_vector.detach().numpy())
-    y_vector_jax = jnp.array(y_vector.detach().numpy())
-    z_vector_jax = jnp.array(z_vector.detach().numpy())
+            v_vector = v_vector.squeeze()  # Remove extra dimensions if present
+            y_vector = y_vector.squeeze()
+            z_vector = z_vector.squeeze()
+            v_vector_jax = jnp.array(v_vector.detach().numpy())
+            y_vector_jax = jnp.array(y_vector.detach().numpy())
+            z_vector_jax = jnp.array(z_vector.detach().numpy())
 
-    jax_model = eqx.tree_at(
-        lambda m: (m.Q_matrix, m.K_matrix, m.v_vector, m.y_vector, m.z_vector),
-        jax_model,
-        (Q_matrix_jax, K_matrix_jax, v_vector_jax, y_vector_jax, z_vector_jax)
-    )
+            jax_model = eqx.tree_at(
+                lambda m: (m.Q_matrix, m.K_matrix, m.v_vector, m.y_vector, m.z_vector),
+                jax_model,
+                (Q_matrix_jax, K_matrix_jax, v_vector_jax, y_vector_jax, z_vector_jax)
+            )
 
-    save_dir = os.getcwd() + "/results_4/mode_9_scalar_converted_9_chems"
-    os.makedirs(save_dir, exist_ok=True)
+            save_dir = os.getcwd() + "/results_4/mode_9_scalar_converted_13_chems_extended_full_sweep/" + tau_min + "/" + tau_max
+            os.makedirs(save_dir, exist_ok=True)
 
-    eqx.tree_serialise_leaves(save_dir + "/meta_learner_model.eqx", jax_model)
+            eqx.tree_serialise_leaves(save_dir + "/meta_learner_model.eqx", jax_model)
 
-    text_file_path = save_dir + "/model_options.txt"
-    with open(text_file_path, "w") as f:
-        f.write("Converted from " + model_location + "\n")
+            model_location = os.path.join(tau_max_location, "UpdateWeights.pth")
+
+            text_file_path = save_dir + "/model_options.txt"
+            with open(text_file_path, "w") as f:
+                f.write("Converted from " + model_location + "\n")
 
     tester()
 
