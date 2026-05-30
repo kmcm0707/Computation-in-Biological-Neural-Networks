@@ -668,7 +668,7 @@ def main_jax_rnn_meta_learner():
 
         dataset_name = "EMNIST"
         minTrainingDataPerClass = 5
-        maxTrainingDataPerClass = 200
+        maxTrainingDataPerClass = 80
         queryDataPerClass = 20
         numberOfTimeSteps = 1
         batch_size = 1
@@ -755,7 +755,7 @@ def main_jax_rnn_meta_learner():
         metaLearnerOptions = JaxRnnMetaLearnerOptions(
             seed=42,
             save_results=True,
-            results_subdir="Jax_9_chem_scalar",
+            results_subdir="Jax_9_chem_DFA",
             metatrain_dataset=dataset_name,
             display=True,
             metaLearningRate=0.0006,
@@ -777,7 +777,7 @@ def main_jax_rnn_meta_learner():
             load_model=continue_training,
             load_optimizer=False,
             dont_load_z_y=False,
-            error_type=JaxErrorTypeEnum.DSEF,
+            error_type=JaxErrorTypeEnum.DFA,
             low_dim_DFA=-1,
             two_layer_RNN=False,
             feedforward=True,
