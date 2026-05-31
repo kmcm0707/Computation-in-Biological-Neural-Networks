@@ -643,7 +643,10 @@ class JaxMetaLearnerRNN:
                     with open(self.result_directory + "/{}.txt".format("v_vector"), "a") as f:
                         f.writelines("Episode: {}: {} \n".format(eps + 1, np.array(self.metaOptimizer.v_vector)))
             if jnp.isnan(loss):
-                raise ValueError("Loss is NaN")
+                #raise ValueError("Loss is NaN")
+                print("Loss is NaN")
+                break
+
 
         if self.save_results:
             self.plot()
@@ -662,6 +665,7 @@ def main_jax_rnn_meta_learner():
     #jax.config.update("jax_debug_nans", True)
     outer_location = os.getcwd() + r"/results_4/mode_9_scalar_converted_13_chems_extended_full_sweep"
     tau_mins = os.listdir(outer_location)
+    tau_mins = tau_mins[1:]  # skip the first one which is tau_min=1
     for tau_min in tau_mins:
         tau_min_location = os.path.join(outer_location, tau_min)
         tau_maxs = os.listdir(tau_min_location)
