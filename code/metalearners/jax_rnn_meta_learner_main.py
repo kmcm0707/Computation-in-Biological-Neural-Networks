@@ -663,16 +663,17 @@ def main_jax_rnn_meta_learner():
     #os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
     #initialise_tracking()
     #jax.config.update("jax_debug_nans", True)
+    key = jax.random.PRNGKey(42)
     outer_location = os.getcwd() + r"/results_4/mode_9_scalar_converted_13_chems_extended_full_sweep"
     tau_mins = os.listdir(outer_location)
-    tau_mins = tau_mins[2:]  # skip the first one which is tau_min=1
+    tau_mins = tau_mins[3:]  # skip the first one which is tau_min=1
     for tau_min in tau_mins:
         tau_min_location = os.path.join(outer_location, tau_min)
         tau_maxs = os.listdir(tau_min_location)
         for tau_max in tau_maxs:
             full_location = os.path.join(tau_min_location, tau_max)
     
-            key = jax.random.PRNGKey(42)
+            
             # jax.config.update("jax_enable_x64", False)
 
             # -- load data
