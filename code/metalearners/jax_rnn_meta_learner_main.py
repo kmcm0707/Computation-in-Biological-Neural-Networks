@@ -659,7 +659,7 @@ class JaxMetaLearnerRNN:
 
 
 def main_jax_rnn_meta_learner():
-    #os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
     #os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
     #initialise_tracking()
     #jax.config.update("jax_debug_nans", True)
@@ -681,7 +681,7 @@ def main_jax_rnn_meta_learner():
 
             dataset_name = "EMNIST"
             minTrainingDataPerClass = 5
-            maxTrainingDataPerClass = 200
+            maxTrainingDataPerClass = 80
             queryDataPerClass = 20
             numberOfTimeSteps = 1
             batch_size = 1
@@ -768,7 +768,7 @@ def main_jax_rnn_meta_learner():
             metaLearnerOptions = JaxRnnMetaLearnerOptions(
                 seed=42,
                 save_results=True,
-                results_subdir="Jax_13_chem_DSEF_full_sweep_200",
+                results_subdir="Jax_13_chem_DSEF_full_sweep",
                 metatrain_dataset=dataset_name,
                 display=True,
                 metaLearningRate=0.0003,
