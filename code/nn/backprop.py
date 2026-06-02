@@ -218,6 +218,9 @@ class MetaLearner:
         size: sizeEnum = sizeEnum.normal,
         elastic_weight_consolidation: bool = False,
         ewc_lambda=0.0,
+        synaptic_intelligence: bool = False,
+        si_lambda=0.0,
+        si_epsilon=1e-3,
         split=False,
         split_min_number_of_tasks=2,
         split_max_number_of_tasks=2,
@@ -284,6 +287,9 @@ class MetaLearner:
         self.numberOfDataRepetitions = numberOfDataRepetitions
         self.elastic_weight_consolidation = elastic_weight_consolidation
         self.ewc_lambda = ewc_lambda
+        self.synaptic_intelligence = synaptic_intelligence
+        self.si_lambda = si_lambda
+        self.si_epsilon = si_epsilon
         self.trajectory_analysis = trajectory_analysis
         self.optimizer = optimizer
 
@@ -337,6 +343,9 @@ class MetaLearner:
                 f.writelines("Size: {}\n".format(self.size))
                 f.writelines("Elastic Weight Consolidation: {}\n".format(self.elastic_weight_consolidation))
                 f.writelines("EWC Lambda: {}\n".format(self.ewc_lambda))
+                f.writelines("Synaptic Intelligence: {}\n".format(self.synaptic_intelligence))
+                f.writelines("SI Lambda: {}\n".format(self.si_lambda))
+                f.writelines("SI Epsilon: {}\n".format(self.si_epsilon))
                 f.writelines("Split: {}\n".format(self.split))
                 f.writelines("Split min number of tasks: {}\n".format(self.split_min_number_of_tasks))
                 f.writelines("Split max number of tasks: {}\n".format(self.split_max_number_of_tasks))
@@ -459,6 +468,25 @@ class MetaLearner:
                 """adaptation"""
                 fim_n_all_taks = None
                 saved_params = None
+                si_omega = None
+                si_w = None
+                si_params_star = None
+                if self.synaptic_intelligence:
+                    si_omega = {
+                        n: torch.zeros_like(p.detach())
+                        for n, p in self.model.named_parameters()
+                        if p.requires_grad
+                    }
+                    si_w = {
+                        n: torch.zeros_like(p.detach())
+                        for n, p in self.model.named_parameters()
+                        if p.requires_grad
+                    }
+                    si_params_star = {
+                        n: p.detach().clone()
+                        for n, p in self.model.named_parameters()
+                        if p.requires_grad
+                    }
                 for current_task in range(current_number_of_tasks_1):
                     if self.metatrain_dataset_2 is not None:
                         current_trn_data = all_data[current_task]
@@ -471,6 +499,14 @@ class MetaLearner:
                             max_current_task_range = (current_task + 1) * current_training_data_per_class * 2
                             current_trn_data = x_trn_1[min_current_task_range:max_current_task_range]
                             current_trn_labels = y_trn_1[min_current_task_range:max_current_task_range]
+
+                    si_task_start_params = None
+                    if self.synaptic_intelligence:
+                        si_task_start_params = {
+                            n: p.detach().clone()
+                            for n, p in self.model.named_parameters()
+                            if p.requires_grad
+                        }
 
                     for itr_adapt, (x, label) in enumerate(
                         zip(
@@ -490,17 +526,47 @@ class MetaLearner:
                                 if p.requires_grad:
                                     ewc_loss += (fim_n_all_taks[n] * (p - saved_params[n]).pow(2)).flatten().sum(dim=-1)
                             loss_adapt += ewc_loss * self.ewc_lambda
+                        if self.synaptic_intelligence and si_omega is not None and si_params_star is not None:
+                            # -- SI penalty
+                            si_loss = 0
+                            for n, p in self.model.named_parameters():
+                                if p.requires_grad:
+                                    si_loss += (si_omega[n] * (p - si_params_star[n]).pow(2)).flatten().sum(dim=-1)
+                            loss_adapt += si_loss * self.si_lambda
 
                         # -- backprop
                         self.UpdateParameters.zero_grad()
                         loss_adapt.backward()
+                        si_prev_params_step = None
+                        if self.synaptic_intelligence:
+                            si_prev_params_step = {
+                                n: p.detach().clone()
+                                for n, p in self.model.named_parameters()
+                                if p.requires_grad
+                            }
                         self.UpdateParameters.step()
+                        if self.synaptic_intelligence and si_prev_params_step is not None:
+                            for n, p in self.model.named_parameters():
+                                if p.requires_grad and p.grad is not None:
+                                    delta = p.detach() - si_prev_params_step[n]
+                                    si_w[n] += (-p.grad.detach() * delta)
 
                         # -- trajectory analysis
                         if self.trajectory_analysis:
                             trajectory.append(self.flatten_params(self.model).detach().cpu())
 
                     fim = {}
+                    if self.synaptic_intelligence and len(current_trn_data) > 0 and si_task_start_params is not None:
+                        for n, p in self.model.named_parameters():
+                            if p.requires_grad:
+                                delta = p.detach() - si_task_start_params[n]
+                                si_omega[n] += si_w[n] / (delta.pow(2) + self.si_epsilon)
+                                si_w[n].zero_()
+                        si_params_star = {
+                            n: p.detach().clone()
+                            for n, p in self.model.named_parameters()
+                            if p.requires_grad
+                        }
                     if self.elastic_weight_consolidation and len(current_trn_data) > 0:
                         # -- compute Fisher Information Matrix
 
@@ -742,6 +808,7 @@ def run(
     index: int = 0,
     optimizer: optimizerEnum = optimizerEnum.adam,
     ewc: int = 0,
+    si: float = 0.0,
 ) -> None:
     """
         Main function for Meta-learning the plasticity rule.
@@ -899,6 +966,8 @@ def run(
         size=sizeEnum.normal,
         elastic_weight_consolidation=True,
         ewc_lambda=ewc,
+        synaptic_intelligence=si > 0,
+        si_lambda=si,
         split=False,
         split_min_number_of_tasks=5,
         split_max_number_of_tasks=5,
