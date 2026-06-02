@@ -520,7 +520,7 @@ def jax_runner(index: int):
     modelOptions = None
     modelOptions = fastRnnOptions(
         nonLinear=JaxActivationNonLinearEnum.tanh,
-        update_rules=[0, 1, 2, 3, 4, 9, 12],
+        update_rules=[0, 1, 2, 4, 9, 12],
         minSlowTau=2,
         maxSlowTau=50,
         y_vector=yVectorEnum.none,
@@ -531,18 +531,18 @@ def jax_runner(index: int):
     # device = "cpu"
     current_dir = os.getcwd()
     # runner = current_dir + "/results_3/jax_rnn_12/20260121-024411"
-    runner = current_dir + "/results_4/Jax_9_chem_scalar/20260526-030351"
+    runner = current_dir + "/results_4/jax_rnn_fixed/20260518-181439"#Jax_9_chem_scalar/20260526-030351"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_9_chem_scalar_same",
+        results_subdir="runner_jax_5_chem_RNN_FF_diff",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
         numberOfClasses=numberOfClasses,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,
         minTrainingDataPerClass=minTrainingDataPerClass,
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
@@ -556,7 +556,7 @@ def jax_runner(index: int):
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=numberOfTimeSteps,
         load_model=runner,
-        error_type=JaxErrorTypeEnum.DSEF,
+        error_type=JaxErrorTypeEnum.DFA,
         low_dim_DFA=-1,
         permutation=False,
         two_layer_RNN=False,
@@ -567,7 +567,7 @@ def jax_runner(index: int):
         modelOptions=modelOptions,
         jaxMetaLearnerOptions=metaLearnerOptions,
         key=key,
-        numberOfChemicals=9,
+        numberOfChemicals=5,
         metaTrainingDataset=metatrain_dataset,
     )
 
