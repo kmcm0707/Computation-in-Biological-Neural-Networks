@@ -413,6 +413,7 @@ class ChemicalNN(nn.Module):
 
         # Dropout
         # self.dropout = nn.Dropout(p=0.2)
+        self.output_only = False
 
     def set_errors(self, errors):
         self.errors = errors
@@ -590,4 +591,6 @@ class ChemicalNN(nn.Module):
                 # y4 = self.layer_norm4(y4)
                 # y4 = self.layer_norm4(y4)
                 y5 = self.forward5(y4)
+            if self.output_only:
+                return y5
             return (y0, y1, y2, y3, y4), y5

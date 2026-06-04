@@ -3,6 +3,7 @@ import random
 from typing import Literal, Union
 
 import numpy as np
+import pyhessian
 import torch
 from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset, MnistDataset
 from misc.utils import ChemicalAnalysis, Plot, log, meta_stats
@@ -895,6 +896,75 @@ class Runner:
                 with open(self.result_directory + "/trajectory_pca.npy", "ab") as f:
                     np.save(f, traj_2d)
 
+            with torch.enable_grad():
+                if self.options.hessian_analysis:
+                    """cpu_device = torch.device("cpu")
+                    # --- helper: clone params dict ---
+                        def clone_params(params):
+                            return {k: v.clone() for k, v in params.items()}
+
+                    # --- evaluate loss on query set (stable choice) ---
+                    def eval_loss(params):
+                        self.model.eval().to(cpu_device)
+                        params_cpu = {k: v.to(cpu_device) for k, v in params.items()}
+                        h_parameters_cpu = {k: v.to(cpu_device) for k, v in h_parameters.items()}
+                        feedback_params_cpu = None
+                        x_qry_1_cpu = x_qry_1.to(cpu_device)
+                        y_qry_1_cpu = y_qry_1.to(cpu_device)
+
+                        with torch.no_grad():
+                            if self.options.trainFeedback or self.options.trainSameFeedback:
+                                _, logits = torch.func.functional_call(
+                                    self.model, (params_cpu, h_parameters_cpu, feedback_params_cpu), x_qry_1_cpu
+                                )
+                            else:
+                                _, logits = torch.func.functional_call(self.model, (params_cpu, h_parameters_cpu), x_qry_1_cpu)
+
+                            loss = self.loss_func(logits, y_qry_1_cpu.ravel())
+                            return loss
+
+                    base_params = clone_params(parameters)
+                    base_loss = eval_loss(base_params)
+                    hessian_dict = torch.func.hessian(eval_loss)(base_params)
+
+                    # 5. Flatten and concatenate the blocks into a single 2D matrix
+                    flat_rows = []
+                    for p_name_i, v_dict in hessian_dict.items():
+                        row_pieces = []
+                        for p_name_j, h_block in v_dict.items():
+                            num_elements_i = base_params[p_name_i].numel()
+                            num_elements_j = base_params[p_name_j].numel()
+                            # Reshape the block to (Numel_i, Numel_j)
+                            row_pieces.append(h_block.reshape(num_elements_i, num_elements_j))
+                        # Concatenate horizontally to finish the row for parameter_i
+                        flat_rows.append(torch.cat(row_pieces, dim=1))
+                        
+                    # Concatenate vertically to build the full (Total_Params x Total_Params) Hessian matrix
+                    full_hessian = torch.cat(flat_rows, dim=0)"""
+
+                    with torch.no_grad():
+                        for name, param in self.model.named_parameters():
+                            if name in params:
+                                param.copy_(parameters[name])
+                            else:
+                                param.requires_grad_(False)
+                                print(f"Warning: {name} not found in the provided parameter dictionary.")
+
+
+                    self.model.eval()
+                    self.model.output_only = True
+
+                    def clean_loss_func(predictions, targets):
+                        # Flatten targets if your code expects a 1D vector
+                        return self.loss_func(predictions, targets.ravel())
+
+                    hessian_comp = pyhessian.hessian(self.model, clean_loss_func, data=(x_qry_1, y_qry_1), cuda=True)
+                    top_eigenvalues, top_eigenvector = hessian_comp.eigenvalues(top_n=100)
+
+                    with open(self.result_directory + "/hessian.npy", "ab") as f:
+                        np.save(f, np.array(top_eigenvalues))
+
+                    self.model.output_only = False
         # -- plot
         if self.save_results:
             # self.summary_writer.close()
@@ -937,7 +1007,7 @@ def run(
 
     # -- load data
     numWorkers = 4
-    epochs = 20
+    epochs = 5
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
@@ -951,7 +1021,7 @@ def run(
         #50,
         #60,
         #70,
-        #80,
+        80,
         #90,
         #100,
         #110,
@@ -969,8 +1039,8 @@ def run(
         #275,
         #300,
         #325,
-        350,
-        375,        
+        #350,
+        #375,        
     ]
     # if index >= len(trainingDataPerClass):
     #    return
@@ -1014,7 +1084,7 @@ def run(
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
-    queryDataPerClass = 20
+    queryDataPerClass = 200
     dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
@@ -1266,7 +1336,7 @@ def run(
         numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         numberOfClasses_3=numberOfClasses_3 if dataset_name == "COMBINED_2" else None,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
@@ -1302,12 +1372,13 @@ def run(
         split_max_number_of_tasks=5,
         trajectory_analysis=False,
         chemical_accuracy=False,
+        hessian_analysis=True,
     )
 
     #   -- number of chemicals
     numberOfChemicals = numberOfChemicals
     # -- meta-traing
-    device = "cuda:1" if torch.cuda.is_available() else "cpu"
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
     runner = Runner(
         device=device,
@@ -1367,17 +1438,17 @@ def runner_main():
         # + "/results_3/mode_10_scalar_13_chems_200/2/20260424-130001"
         # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
     ]
-    outer = os.getcwd() + "/results_3/mode_9_scalar_9_chems_converted_true/0/20260420-043518"
+    outer = os.getcwd() + "/results_4/mode_9_rand/0/20251105-152312/arguments.txt"
 
     for index_outer in range(0, 10):
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_mode_9_scalar_9_chems_converted_2",
+            result_subdirectory="runner_mode_9_hessian",
             index=index_outer,
-            typeOfFeedback=typeOfFeedbackEnum.scalar,
+            typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
             modelPath=outer,
-            numberOfChemicals=9,
+            numberOfChemicals=5,
             gating=gatingEnum.no_gating,
             operator=operatorEnum.mode_9,
         )

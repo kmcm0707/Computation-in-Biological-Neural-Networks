@@ -56,6 +56,7 @@ class RunnerOptions:
         split_max_number_of_tasks=5,
         trajectory_analysis=False,
         chemical_accuracy=False,
+        hessian_analysis=False,
     ):
 
         self.model = model
@@ -98,6 +99,7 @@ class RunnerOptions:
         self.split_max_number_of_tasks = split_max_number_of_tasks
         self.trajectory_analysis = trajectory_analysis
         self.chemical_accuracy = chemical_accuracy
+        self.hessian_analysis = hessian_analysis
 
     def __str__(self):
         string = ""
