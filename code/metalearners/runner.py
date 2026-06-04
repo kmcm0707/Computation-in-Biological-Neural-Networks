@@ -1438,7 +1438,7 @@ def runner_main():
         # + "/results_3/mode_10_scalar_13_chems_200/2/20260424-130001"
         # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
     ]
-    outer = os.getcwd() + "/results_4/mode_9_rand/0/20251105-152312/arguments.txt"
+    outer = os.getcwd() + "/results_4/mode_9_rand/0/20251105-152312"
 
     for index_outer in range(0, 10):
         run(
