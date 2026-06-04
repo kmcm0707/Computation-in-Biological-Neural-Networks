@@ -1,6 +1,7 @@
 import os
 from typing import Optional
 
+import datetime
 import equinox as eqx
 import jax
 import jax.numpy as jnp
@@ -171,10 +172,10 @@ class JaxMetaLearnerRNN:
                 "/"
                 + self.jaxMetaLearnerOptions.results_subdir
                 + "/"
-                + str(modelOptions.minSlowTau)
-                + "/"
-                + str(modelOptions.maxSlowTau)
-                #+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+                #+ str(modelOptions.minSlowTau)
+                #+ "/"
+                #+ str(modelOptions.maxSlowTau)
+                + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
             )
             os.makedirs(self.result_directory, exist_ok=False)
             with open(self.result_directory + "/arguments.txt", "w") as f:
@@ -656,11 +657,11 @@ class JaxMetaLearnerRNN:
             eqx.tree_serialise_leaves(self.result_directory + "/meta_learner_optimizer.eqx", self.opt_state)
 
         print("Training completed.")
-        self.make_step.clear_cache()
+        #self.make_step.clear_cache()
 
 
 def main_jax_rnn_meta_learner():
-    #os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
     #os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
     #initialise_tracking()
     #jax.config.update("jax_debug_nans", True)
@@ -748,7 +749,7 @@ def main_jax_rnn_meta_learner():
             modelOptions = None
             modelOptions = fastRnnOptions(
                 nonLinear=JaxActivationNonLinearEnum.tanh,
-                update_rules=[0, 1, 2, 3, 4, 9, 12],  # 4
+                update_rules=[0, 1, 2, 4, 9, 12],  # 4
                 minSlowTau=int(tau_min),
                 maxSlowTau=int(tau_max),
                 y_vector=yVectorEnum.none,
@@ -762,7 +763,7 @@ def main_jax_rnn_meta_learner():
                 current_dir + "/results_4/jax_rnn_12_28/20260126-043934" #"/results_4/mode_9_scalar_converted_13_chems"
                 #+ "/results_4/jax_rnn_fixed_7/20260525-021101"
                 #+ "/results_4/jax_rnn_fixed_7/20260525-021204"
-                #current_dir + "/results_3/mode_9_rand_converted"
+                #current_dir + "/results_4/mode_9_rand_converted"
                 #+ "/results_3/jax_rnn_1_chem/20260423-005009"
                 #+ "/results_3/jax_rnn_9_chems_100/20260422-175900"
             )  # "/results_2/jax_rnn_7_DSEF_fixed/20260217-174916" # "/results_2/jax_rnn_12/20260121-024411"#"/results_2/jax_rnn_12_28/20260126-043934"
@@ -773,7 +774,7 @@ def main_jax_rnn_meta_learner():
                 results_subdir="Jax_rnn_fixed_28",
                 metatrain_dataset=dataset_name,
                 display=True,
-                metaLearningRate=0.0007,
+                metaLearningRate=0.0003,
                 numberOfClasses=numberOfClasses,
                 dataset_name=dataset_name,
                 chemicalInitialization=chemicalEnum.same,
@@ -795,7 +796,7 @@ def main_jax_rnn_meta_learner():
                 error_type=JaxErrorTypeEnum.DFA,
                 low_dim_DFA=-1,
                 two_layer_RNN=False,
-                feedforward=True,
+                feedforward=False,
                 meta_optimizer=JaxMetaOptimizerEnum.Adam,
                 optimizer_mode=JaxOptimizerModeEnum.BPTT,
                 sofo_samples=65,
