@@ -1,7 +1,7 @@
+import datetime
 import os
 from typing import Optional
 
-import datetime
 import equinox as eqx
 import jax
 import jax.numpy as jnp
@@ -49,7 +49,32 @@ class JaxMetaLearnerRNN:
         rnn_keys = jax.random.split(key1, num=self.jaxMetaLearnerOptions.batch_size)
         self.key2_split = jax.random.split(key2, num=self.jaxMetaLearnerOptions.batch_size)
         self.key3 = key3
-        if not self.jaxMetaLearnerOptions.feedforward:
+
+        if self.jaxMetaLearnerOptions.random_architectures:
+            self.rnn_rnns = jax.vmap(lambda k: JAXChemicalRNN(
+                input_size=self.jaxMetaLearnerOptions.input_size,
+                key=k,
+                hidden_size=self.jaxMetaLearnerOptions.hidden_size,
+                output_size=self.jaxMetaLearnerOptions.output_size,
+                biological_min_tau=self.jaxMetaLearnerOptions.biological_min_tau,
+                biological_max_tau=self.jaxMetaLearnerOptions.biological_max_tau,
+                gradient=self.jaxMetaLearnerOptions.gradient,
+                outer_activation=self.jaxMetaLearnerOptions.outer_activation,
+                recurrent_activation=self.jaxMetaLearnerOptions.recurrent_activation,
+                error_type=self.jaxMetaLearnerOptions.error_type,
+                low_dim_DFA=self.jaxMetaLearnerOptions.low_dim_DFA,
+                two_layer_RNN=self.jaxMetaLearnerOptions.two_layer_RNN,
+            ))(rnn_keys)
+            self.rnn_ffs =  jax.vmap(lambda k: JAXFeedforwardNN(
+                dim_out=self.jaxMetaLearnerOptions.output_size,
+                key=k,
+                input_size=784,
+                gradient=self.jaxMetaLearnerOptions.gradient,
+                activation=JaxActivationNonLinearEnum.softplus,
+                error_type=self.jaxMetaLearnerOptions.error_type,
+                low_dim_DFA=self.jaxMetaLearnerOptions.low_dim_DFA,
+            ))(rnn_keys)
+        elif not self.jaxMetaLearnerOptions.feedforward:
             self.rnns = jax.vmap(lambda k: JAXChemicalRNN(
                 input_size=self.jaxMetaLearnerOptions.input_size,
                 key=k,
@@ -68,7 +93,7 @@ class JaxMetaLearnerRNN:
             self.rnns =  jax.vmap(lambda k: JAXFeedforwardNN(
                 dim_out=self.jaxMetaLearnerOptions.output_size,
                 key=k,
-                input_size=self.jaxMetaLearnerOptions.input_size,
+                input_size=784,
                 gradient=self.jaxMetaLearnerOptions.gradient,
                 activation=JaxActivationNonLinearEnum.softplus,
                 error_type=self.jaxMetaLearnerOptions.error_type,
@@ -597,7 +622,24 @@ class JaxMetaLearnerRNN:
                     (new_parameters, *new_parameters),
                 )
                 return rnn, synaptic_weights
-            self.rnns, self.synaptic_weights = eqx.filter_vmap(full_rnns_setup)(self.rnns, self.key2_split) 
+
+            if self.jaxMetaLearnerOptions.random_architectures:
+                random_int = jax.random.randint(self.key3, (), 0, 2)
+
+                def choose_rnns():
+                    return eqx.filter_vmap(full_rnns_setup)(self.rnn_rnns, self.key2_split)
+                    
+                def choose_ffs():
+                    return eqx.filter_vmap(full_rnns_setup)(self.rnn_ffs, self.key2_split)
+                
+                self.rnns, self.synaptic_weights = jax.lax.cond(
+                    random_int == 0,
+                    choose_rnns,  # True branch
+                    choose_ffs     # False branch
+                )
+
+            else:
+                self.rnns, self.synaptic_weights = eqx.filter_vmap(full_rnns_setup)(self.rnns, self.key2_split) 
 
             # -- meta-optimization --
             trainable_mask = self.get_trainable_mask(self.metaOptimizer)
@@ -760,7 +802,7 @@ def main_jax_rnn_meta_learner():
             # device = "cpu"
             current_dir = os.getcwd()
             continue_training = (
-                current_dir + "/results_4/jax_rnn_12_28/20260126-043934" #"/results_4/mode_9_scalar_converted_13_chems"
+                current_dir + "/results_4/Jax_rnn_fixed_28/20260603-160027" #"/results_4/mode_9_scalar_converted_13_chems"
                 #+ "/results_4/jax_rnn_fixed_7/20260525-021101"
                 #+ "/results_4/jax_rnn_fixed_7/20260525-021204"
                 #current_dir + "/results_4/mode_9_rand_converted"
@@ -771,7 +813,7 @@ def main_jax_rnn_meta_learner():
             metaLearnerOptions = JaxRnnMetaLearnerOptions(
                 seed=42,
                 save_results=True,
-                results_subdir="Jax_rnn_fixed_28",
+                results_subdir="Jax_random_architectures",
                 metatrain_dataset=dataset_name,
                 display=True,
                 metaLearningRate=0.0003,
@@ -803,6 +845,7 @@ def main_jax_rnn_meta_learner():
                 sofo_damping=1e-6,
                 sofo_identity_sampling=False,
                 batch_size=batch_size,
+                random_architectures=True,
             )
 
             metalearning_model = JaxMetaLearnerRNN(
