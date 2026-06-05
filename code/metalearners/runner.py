@@ -959,7 +959,7 @@ class Runner:
                         return self.loss_func(predictions, targets.ravel())
 
                     hessian_comp = pyhessian.hessian(self.model, clean_loss_func, data=(x_qry_1, y_qry_1), cuda=True)
-                    top_eigenvalues, top_eigenvector = hessian_comp.eigenvalues(top_n=100, maxIter=200)
+                    top_eigenvalues, top_eigenvector = hessian_comp.eigenvalues(top_n=200, maxIter=300)
 
                     with open(self.result_directory + "/hessian.npy", "ab") as f:
                         np.save(f, np.array(top_eigenvalues))
@@ -1007,7 +1007,7 @@ def run(
 
     # -- load data
     numWorkers = 4
-    epochs = 5
+    epochs = 20
 
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
@@ -1444,7 +1444,7 @@ def runner_main():
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_mode_9_hessian_2",
+            result_subdirectory="runner_mode_9_hessian_3",
             index=index_outer,
             typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
             modelPath=outer,
