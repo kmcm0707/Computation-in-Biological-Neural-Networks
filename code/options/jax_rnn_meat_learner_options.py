@@ -65,7 +65,7 @@ class JaxRnnMetaLearnerOptions:
         sofo_samples: int = 60,
         sofo_damping: float = 1e-5,
         sofo_identity_sampling: bool = False,
-        batch_size: int = 1
+        batch_size: int = 1,
         random_architectures: bool = False,
     ):
         self.seed = seed
