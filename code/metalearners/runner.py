@@ -959,7 +959,7 @@ class Runner:
                         return self.loss_func(predictions, targets.ravel())
 
                     hessian_comp = pyhessian.hessian(self.model, clean_loss_func, data=(x_qry_1, y_qry_1), cuda=True)
-                    top_eigenvalues, top_eigenvector = hessian_comp.eigenvalues(top_n=100)
+                    top_eigenvalues, top_eigenvector = hessian_comp.eigenvalues(top_n=100, maxIter=200)
 
                     with open(self.result_directory + "/hessian.npy", "ab") as f:
                         np.save(f, np.array(top_eigenvalues))
@@ -1084,7 +1084,7 @@ def run(
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
-    queryDataPerClass = 200
+    queryDataPerClass = 300
     dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
@@ -1444,7 +1444,7 @@ def runner_main():
         run(
             seed=0,
             display=True,
-            result_subdirectory="runner_mode_9_hessian",
+            result_subdirectory="runner_mode_9_hessian_2",
             index=index_outer,
             typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
             modelPath=outer,
