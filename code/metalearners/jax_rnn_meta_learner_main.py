@@ -74,6 +74,7 @@ class JaxMetaLearnerRNN:
                 error_type=self.jaxMetaLearnerOptions.error_type,
                 low_dim_DFA=self.jaxMetaLearnerOptions.low_dim_DFA,
             ))(rnn_keys)
+            self.true_number_of_timesteps = self.jaxMetaLearnerOptions.number_of_time_steps
         elif not self.jaxMetaLearnerOptions.feedforward:
             self.rnns = jax.vmap(lambda k: JAXChemicalRNN(
                 input_size=self.jaxMetaLearnerOptions.input_size,
@@ -626,18 +627,12 @@ class JaxMetaLearnerRNN:
             if self.jaxMetaLearnerOptions.random_architectures:
                 random_int = jax.random.randint(self.key3, (), 0, 2)
 
-                def choose_rnns():
-                    return eqx.filter_vmap(full_rnns_setup)(self.rnn_rnns, self.key2_split)
-                    
-                def choose_ffs():
-                    return eqx.filter_vmap(full_rnns_setup)(self.rnn_ffs, self.key2_split)
-                
-                self.rnns, self.synaptic_weights = jax.lax.cond(
-                    random_int == 0,
-                    choose_rnns,  # True branch
-                    choose_ffs     # False branch
-                )
-
+                if random_int == 0:
+                    self.rnns, self.synaptic_weights = eqx.filter_vmap(full_rnns_setup)(self.rnn_rnns, self.key2_split)
+                    self.jaxMetaLearnerOptions.number_of_time_steps = self.true_number_of_timesteps
+                else:
+                    self.rnns, self.synaptic_weights = eqx.filter_vmap(full_rnns_setup)(self.rnn_ffs, self.key2_split)
+                    self.jaxMetaLearnerOptions.number_of_time_steps = 1
             else:
                 self.rnns, self.synaptic_weights = eqx.filter_vmap(full_rnns_setup)(self.rnns, self.key2_split) 
 
@@ -665,6 +660,8 @@ class JaxMetaLearnerRNN:
             line = "Train Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}\tGrad Norm: {:.6f}\tTraining/Class: {}".format(
                 eps + 1, loss.item(), acc, grad_norm, current_training_data_per_class
             )
+            if self.jaxMetaLearnerOptions.random_architectures:
+                line += "\tRandom Int: {}".format(random_int)
             if self.jaxMetaLearnerOptions.display:
                 print(line)
 
@@ -673,8 +670,8 @@ class JaxMetaLearnerRNN:
                 with open(self.result_directory + "/params.txt", "a") as f:
                     f.writelines(line + "\n")
 
-                self.metaOptimizer.Q_matrix.block_until_ready()
                 if eps % 10 == 0:
+                    self.metaOptimizer.Q_matrix.block_until_ready()
                     with open(self.result_directory + "/{}.txt".format("Q_matrix"), "a") as f:
                         f.writelines("Episode: {}: {} \n".format(eps + 1, np.array(self.metaOptimizer.Q_matrix)))
                     with open(self.result_directory + "/{}.txt".format("K_matrix"), "a") as f:
