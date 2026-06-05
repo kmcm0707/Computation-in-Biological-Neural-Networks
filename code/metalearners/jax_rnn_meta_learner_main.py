@@ -625,7 +625,8 @@ class JaxMetaLearnerRNN:
                 return rnn, synaptic_weights
 
             if self.jaxMetaLearnerOptions.random_architectures:
-                random_int = jax.random.randint(self.key3, (), 0, 2)
+                key, self.key3 = jax.random.split(self.key3)
+                random_int = jax.random.randint(key, (), 0, 2)
 
                 if random_int == 0:
                     self.rnns, self.synaptic_weights = eqx.filter_vmap(full_rnns_setup)(self.rnn_rnns, self.key2_split)
