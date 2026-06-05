@@ -407,7 +407,7 @@ class JaxMetaLearnerRNN:
 
 
 def jax_runner(index: int):
-    #os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
     key = jax.random.PRNGKey(42)
     # jax.config.update("jax_enable_x64", False)
 
@@ -458,7 +458,7 @@ def jax_runner(index: int):
     minTrainingDataPerClass = training_data[index]
     maxTrainingDataPerClass = training_data[index]
     queryDataPerClass = 20
-    numberOfTimeSteps = 28
+    numberOfTimeSteps = 1
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -520,7 +520,7 @@ def jax_runner(index: int):
     modelOptions = None
     modelOptions = fastRnnOptions(
         nonLinear=JaxActivationNonLinearEnum.tanh,
-        update_rules=[0, 1, 2, 3, 4, 9, 12],
+        update_rules=[0, 1, 2, 4, 9, 12],
         minSlowTau=2,
         maxSlowTau=50,
         y_vector=yVectorEnum.none,
@@ -531,12 +531,12 @@ def jax_runner(index: int):
     # device = "cpu"
     current_dir = os.getcwd()
     # runner = current_dir + "/results_3/jax_rnn_12/20260121-024411"
-    runner = current_dir + "/results_4/mode_9_rand_converted"#Jax_9_chem_scalar/20260526-030351"
+    runner = current_dir + "/results_4/Jax_rnn_fixed_28/20260603-160027"#mode_9_rand_converted"#Jax_9_chem_scalar/20260526-030351"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_5_chem_FF_RNN_diff_28",
+        results_subdir="runner_jax_5_chem_RNN_FF_28_diff",
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
@@ -560,7 +560,7 @@ def jax_runner(index: int):
         low_dim_DFA=-1,
         permutation=False,
         two_layer_RNN=False,
-        feedforward=False,
+        feedforward=True,
     )
 
     metalearning_model = JaxMetaLearnerRNN(
