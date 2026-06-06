@@ -1363,7 +1363,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         # + "/results_3/mode_9_3_datasets_13_chems/2/20260427-203241" #mode_9_CB_converted_13_chems"  # "/results_3/mode_9_CB/5/20251112-001951"
         # + "/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"
         # current_dir + "/results_3/mode_10_scalar_9_chems_100/1/20260423-004818"# "/results_3/mode_10_scalar_9_chems_converted/0/20260420-190254"
-        current_dir + "/results_4/#20251124-005417" #mode_9_rand/0/20251105-152312"
+        current_dir + "/results_4/20251124-005417" #mode_9_rand/0/20251105-152312"
         #"/results_3/mode_9_scalar_10/1/20251124-005417"
         # + "/results_3/mode_9_scalar_converted_9_chems"
         # + "/results_3/mode_9_scalar_9_chems_converted/0/20260419-173857"

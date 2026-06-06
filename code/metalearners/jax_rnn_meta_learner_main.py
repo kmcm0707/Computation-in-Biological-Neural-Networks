@@ -701,7 +701,7 @@ class JaxMetaLearnerRNN:
 
 
 def main_jax_rnn_meta_learner():
-    os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
+    #os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
     #os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
     #initialise_tracking()
     #jax.config.update("jax_debug_nans", True)
@@ -814,7 +814,7 @@ def main_jax_rnn_meta_learner():
                 results_subdir="Jax_random_architectures",
                 metatrain_dataset=dataset_name,
                 display=True,
-                metaLearningRate=0.0003,
+                metaLearningRate=0.001,
                 numberOfClasses=numberOfClasses,
                 dataset_name=dataset_name,
                 chemicalInitialization=chemicalEnum.same,
