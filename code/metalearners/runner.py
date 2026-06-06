@@ -158,7 +158,7 @@ class Runner:
         self.save_results = self.options.save_results
         self.display = self.options.display
         if self.save_results:
-            self.result_directory = os.getcwd() + "/results_3"
+            self.result_directory = os.getcwd() + "/results_4"
             os.makedirs(self.result_directory, exist_ok=True)
             self.result_directory += (
                 "/"
@@ -958,8 +958,8 @@ class Runner:
                         # Flatten targets if your code expects a 1D vector
                         return self.loss_func(predictions, targets.ravel())
 
-                    hessian_comp = pyhessian.hessian(self.model, clean_loss_func, data=(x_qry_1, y_qry_1), cuda=True)
-                    top_eigenvalues, top_eigenvector = hessian_comp.eigenvalues(top_n=200, maxIter=300)
+                    hessian_comp = pyhessian.hessian(self.model, clean_loss_func, data=(x_qry_1, y_qry_1), cuda=torch.cuda.is_available())
+                    top_eigenvalues, top_eigenvector = hessian_comp.eigenvalues(top_n=100, maxIter=200)
 
                     with open(self.result_directory + "/hessian.npy", "ab") as f:
                         np.save(f, np.array(top_eigenvalues))
@@ -1017,7 +1017,7 @@ def run(
         #10,
         #20,
         #30,
-        #40,
+        40,
         #50,
         #60,
         #70,
@@ -1042,8 +1042,8 @@ def run(
         #350,
         #375,        
     ]
-    # if index >= len(trainingDataPerClass):
-    #    return
+    if index >= len(trainingDataPerClass):
+       return
     trainingDataPerClass_1 = 20
     #if index >= 3:
     #    return
@@ -1431,24 +1431,24 @@ def runner_main():
         # "/results_3/mode_9_rand/0/20251105-152312",
         # os.getcwd() + "/results_3/20251103-214650",
         # os.getcwd() + "/results_3/mode_7_1_chem/1/20260125-202838",
-        # os.getcwd() + "/results_3/mode_9_scalar_10/1/20251124-005417"
+        os.getcwd() + "/results_4/mode_9_scalar_10/1/20251124-005417",
         # os.getcwd() + "/results_3/mode_6_scalar_not_all_ones_same/2/20251123-235027",
-        # os.getcwd() + "/results_3/mode_9_scalar_clip/1/20251204-195612",
-        # os.getcwd() + "/results_3/error_1_fixed/0/20251009-194350",
+        os.getcwd() + "/results_4/mode_9_scalar_clip/1/20251204-195612",
+        os.getcwd() + "/results_4/error_1_fixed/0/20251009-194350",
         # + "/results_3/mode_10_scalar_13_chems_200/2/20260424-130001"
         # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
     ]
-    outer = os.getcwd() + "/results_4/mode_9_rand/0/20251105-152312"
-
-    for index_outer in range(0, 10):
-        run(
-            seed=0,
-            display=True,
-            result_subdirectory="runner_mode_9_hessian_3",
-            index=index_outer,
-            typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
-            modelPath=outer,
-            numberOfChemicals=5,
-            gating=gatingEnum.no_gating,
-            operator=operatorEnum.mode_9,
-        )
+    #outer = os.getcwd() + "/results_4/mode_9_rand/0/20251105-152312"
+    for iiii in range(len(modelPath_s)):
+        for index_outer in range(0, 10):
+            run(
+                seed=0,
+                display=True,
+                result_subdirectory=["runner_hessian_5_chems_DSEF", "runner_hessian_3_chems_DSEF", "runner_hessian_1_chem_DSEF"][iiii],
+                index=index_outer,
+                typeOfFeedback=typeOfFeedbackEnum.DSEF,
+                modelPath=modelPath_s[iiii],
+                numberOfChemicals=[5, 3, 1][iiii],
+                gating=gatingEnum.no_gating,
+                operator=operatorEnum.mode_9,
+            )
