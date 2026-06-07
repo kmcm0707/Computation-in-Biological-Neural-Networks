@@ -1446,7 +1446,7 @@ def runner_main():
                 display=True,
                 result_subdirectory=["runner_hessian_5_chems_DSEF", "runner_hessian_3_chems_DSEF", "runner_hessian_1_chem_DSEF"][iiii],
                 index=index_outer,
-                typeOfFeedback=typeOfFeedbackEnum.DSEF,
+                typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=modelPath_s[iiii],
                 numberOfChemicals=[5, 3, 1][iiii],
                 gating=gatingEnum.no_gating,
