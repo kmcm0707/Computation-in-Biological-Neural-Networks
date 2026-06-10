@@ -5,6 +5,7 @@ import random
 from typing import Literal
 
 import numpy as np
+import pyhessian
 import torch
 from misc.dataset import DataProcess, EmnistDataset, FashionMnistDataset, MnistDataset
 from misc.utils import log
@@ -30,6 +31,7 @@ class RosenbaumNN(nn.Module):
         self.device = device
         self.size = size
         self.dim_out = dim_out
+        self.output_only = False
 
         # Model
         dim_out = dim_out
@@ -186,6 +188,8 @@ class RosenbaumNN(nn.Module):
             y4 = self.forward4(y3)
             y4 = self.activation(y4)
             y5 = self.forward5(y4)
+            if self.output_only:
+                return y5
             return (y0, y1, y2, y3, y4), y5
 
 
@@ -226,6 +230,7 @@ class MetaLearner:
         split_max_number_of_tasks=2,
         queryDataPerClass: int = 20,
         trajectory_analysis: bool = False,
+        hessian_analysis: bool = False,
         optimizer: optimizerEnum = optimizerEnum.adam,
         lr: float = 1e-3,
     ):
@@ -291,6 +296,7 @@ class MetaLearner:
         self.si_lambda = si_lambda
         self.si_epsilon = si_epsilon
         self.trajectory_analysis = trajectory_analysis
+        self.hessian_analysis = hessian_analysis
         self.optimizer = optimizer
 
         # -- model params
@@ -350,6 +356,7 @@ class MetaLearner:
                 f.writelines("Split min number of tasks: {}\n".format(self.split_min_number_of_tasks))
                 f.writelines("Split max number of tasks: {}\n".format(self.split_max_number_of_tasks))
                 f.writelines("Trajectory analysis: {}\n".format(self.trajectory_analysis))
+                f.writelines("Hessian analysis: {}\n".format(self.hessian_analysis))
                 f.writelines("Optimizer: {}\n".format(self.optimizer))
                 f.writelines("Learning rate: {}\n".format(self.lr))
 
@@ -786,6 +793,23 @@ class MetaLearner:
                     with open(self.result_directory + "/trajectory_pca.npy", "ab") as f:
                         np.save(f, traj_2d)
 
+            # -- hessian analysis
+            if self.hessian_analysis:
+                self.model.output_only = True
+                self.model.eval()
+
+                def clean_loss_func(predictions, targets):
+                    # Flatten targets if your code expects a 1D vector
+                    return self.loss_func(predictions, targets.ravel())
+
+                hessian_comp = pyhessian.hessian(self.model, clean_loss_func, data=(x_qry_1, y_qry_1), cuda=torch.cuda.is_available())
+                top_eigenvalues, top_eigenvector = hessian_comp.eigenvalues(top_n=100, maxIter=200)
+
+                with open(self.result_directory + "/hessian.npy", "ab") as f:
+                    np.save(f, np.array(top_eigenvalues))
+                
+                self.model.output_only = False
+
         # -- plot
         if self.save_results:
             self.summary_writer.close()
@@ -805,9 +829,7 @@ def run(
     display: bool = True,
     result_subdirectory: str = "testing",
     trainingDataPerClass: int = 50,
-    index: int = 0,
     optimizer: optimizerEnum = optimizerEnum.adam,
-    ewc: int = 0,
     si: float = 0.0,
 ) -> None:
     """
@@ -835,11 +857,11 @@ def run(
     numWorkers = 3
     epochs = 20
     trainingDataPerClass_1 = 20
-    trainingDataPerClass_2 = [0, 20, 20][index]
-    trainingDataPerClass_3 = [0, 0, 20][index]
+    trainingDataPerClass_2 = [0, 20, 20]
+    trainingDataPerClass_3 = [0, 0, 20]
     dimOut = 47
-    dataset_name = "COMBINED_2"
-    queryDataPerClass = 20
+    dataset_name = "EMNIST"
+    queryDataPerClass = 300
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -938,7 +960,7 @@ def run(
         )
 
     metalearning_model = MetaLearner(
-        device="cuda:1" if torch.cuda.is_available() else "cpu",
+        device="cuda:0" if torch.cuda.is_available() else "cpu",
         result_subdirectory=result_subdirectory,
         save_results=True,
         metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else metatrain_dataset,
@@ -964,8 +986,8 @@ def run(
         dimOut=dimOut,
         numberOfDataRepetitions=1,
         size=sizeEnum.normal,
-        elastic_weight_consolidation=True,
-        ewc_lambda=ewc,
+        elastic_weight_consolidation=False,
+        ewc_lambda=0,
         synaptic_intelligence=si > 0,
         si_lambda=si,
         split=False,
@@ -973,6 +995,7 @@ def run(
         split_max_number_of_tasks=5,
         queryDataPerClass=queryDataPerClass,
         trajectory_analysis=False,
+        hessian_analysis=True,
         optimizer=optimizer,
         lr=1e-3,
     )
@@ -1008,7 +1031,7 @@ def backprop_main():
         # 10,
         # 20,
         30,
-        # 40,
+        40,
         50,
         # 60,
         # 70,
@@ -1062,16 +1085,12 @@ def backprop_main():
         # 1250,
         # 1300,
     ]"""
-    ewc=[200000, 500000, 1000000, 1500000]#[500, 1000, 2000, 2500, 3000, 4000, 5000, 7500, 10000]
-    for i in range(3):
-        #for trainingData in trainingDataPerClass:
-        for ewc_x in ewc:
-            run(
-                seed=0,
-                display=True,
-                result_subdirectory="runner_backprop_three_datasets_ewc_4_{}".format(ewc_x),
-                trainingDataPerClass=None,
-                index=i,
-                optimizer=optimizerEnum.adam,
-                ewc=ewc_x
-            )
+    #ewc=[200000, 500000, 1000000, 1500000]#[500, 1000, 2000, 2500, 3000, 4000, 5000, 7500, 10000]
+    for trainingData in trainingDataPerClass:
+        run(
+            seed=0,
+            display=True,
+            result_subdirectory="runner_backprop_hessian",
+            trainingDataPerClass=trainingData,
+            optimizer=optimizerEnum.adam,
+        )
