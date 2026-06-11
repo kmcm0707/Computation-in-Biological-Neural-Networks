@@ -623,7 +623,8 @@ class Runner:
                     if self.options.chemical_analysis:
                         # self.chemical_analysis.Kh_Pf_tracking(self.UpdateWeights.Kh, self.UpdateWeights.Pf, 40)
                         # self.chemical_analysis.Kh_Pf_norm(self.UpdateWeights.Kh, self.UpdateWeights.Pf)
-                        self.chemical_analysis.Kh_Pf_second_derivative(self.UpdateWeights.Kh, self.UpdateWeights.Pf, 40)
+                        #self.chemical_analysis.Kh_Pf_second_derivative(self.UpdateWeights.Kh, self.UpdateWeights.Pf, 40)
+                        pass
 
                     # -- update time index
                     self.UpdateWeights.update_time_index()
@@ -1012,28 +1013,28 @@ def run(
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
     trainingDataPerClass = [
-        #0,
-        #5,
-        #10,
-        #20,
-        #30,
+        0,
+        5,
+        10,
+        20,
+        30,
         40,
         50,
-        #60,
-        #70,
+        60,
+        70,
         80,
-        #90,
-        #100,
-        #110,
-        #120,
-        #130,
-        #140,
-        #150,
-        #160,
-        #170,
-        #180,
-        #190,
-        #200,
+        90,
+        100,
+        110,
+        120,
+        130,
+        140,
+        150,
+        160,
+        170,
+        180,
+        190,
+        200,
         #225,
         #250,
         #275,
@@ -1084,7 +1085,7 @@ def run(
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
-    queryDataPerClass = 300
+    queryDataPerClass = 100
     dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
@@ -1372,13 +1373,13 @@ def run(
         split_max_number_of_tasks=5,
         trajectory_analysis=False,
         chemical_accuracy=False,
-        hessian_analysis=True,
+        hessian_analysis=False,
     )
 
     #   -- number of chemicals
     numberOfChemicals = numberOfChemicals
     # -- meta-traing
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    device = "cuda:1" if torch.cuda.is_available() else "cpu"
     # device = "cpu"
     runner = Runner(
         device=device,
@@ -1449,7 +1450,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_hessian_5_chems_DFA", "runner_hessian_3_chems_DFA", "runner_hessian_1_chem_DFA"][iiii],
+                result_subdirectory=["runner_BATCH_5_chems_DFA", "runner_BATCH_3_chems_DFA", "runner_BATCH_1_chem_DFA"][iiii],
                 index=index_outer,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[iiii],
