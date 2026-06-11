@@ -475,8 +475,9 @@ def meta_stats(
                     ]
                 # print("Bp_weight_update Norm: ", torch.norm(Bp_weight_update[0]).item())
                 # print("Cs_weight_update Norm: ", torch.norm(weight_update_i_array[0]).item())
-                # print(Bp_weight_update[0].shape)
-                # print(weight_update_i_array[0].shape)
+                print(Bp_weight_update[0].shape)
+                print(weight_update_i_array[0].shape)
+                exit()
 
                 individual_CS_weight_updates.append(weight_update_i_array)
 

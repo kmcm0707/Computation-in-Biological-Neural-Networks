@@ -1450,7 +1450,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_BATCH_5_chems_DFA", "runner_BATCH_3_chems_DFA", "runner_BATCH_1_chem_DFA"][iiii],
+                result_subdirectory=["runner_BATCH_5_chems_DFAa", "runner_BATCH_3_chems_DFA", "runner_BATCH_1_chem_DFA"][iiii],
                 index=index_outer,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=modelPath_s[iiii],
