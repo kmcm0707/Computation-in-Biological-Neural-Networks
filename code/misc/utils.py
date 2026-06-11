@@ -433,6 +433,7 @@ def meta_stats(
         if calculate_weight_update:
             current_params = {k: v.clone() for k, v in params.items() if "forward" in k}
             error_batch_size = e[0].shape[0]
+            total_CS_weight_update = None
             total_BP_weight_update = None
             for i in range(error_batch_size):
                 e_i = [e_x[i, :].unsqueeze(0) for e_x in e]
@@ -455,17 +456,23 @@ def meta_stats(
                     k: temp_params[k].data - current_params[k].data for k in current_params.keys() if "forward" in k
                 }
                 weight_update_i_array = [weight_update[k] for k in weight_update.keys()]
-                if total_BP_weight_update is None:
-                    total_BP_weight_update = weight_update_i_array
+                if total_CS_weight_update is None:
+                    total_CS_weight_update = weight_update_i_array
                 else:
-                    total_BP_weight_update = [
-                        total_BP_weight_update_i + weight_update_i for total_BP_weight_update_i, weight_update_i in zip(total_BP_weight_update, weight_update_i_array)
+                    total_CS_weight_update = [
+                        total_CS_weight_update_i + weight_update_i for total_CS_weight_update_i, weight_update_i in zip(total_CS_weight_update, weight_update_i_array)
                     ]
                 Bp_weight_update = []
                 for e_sym_, y_ in zip(e_sym[1:], y):
                     e_sym_i = e_sym_[i, :]
                     y_i = y_[i, :]
                     Bp_weight_update.append(-torch.matmul(e_sym_i.unsqueeze(1), y_i.unsqueeze(0)))
+                if total_BP_weight_update is None:
+                    total_BP_weight_update = Bp_weight_update
+                else:
+                    total_BP_weight_update = [
+                        total_BP_weight_update_i + Bp_weight_update_i for total_BP_weight_update_i, Bp_weight_update_i in zip(total_BP_weight_update, Bp_weight_update)
+                    ]
                 # print("Bp_weight_update Norm: ", torch.norm(Bp_weight_update[0]).item())
                 # print("Cs_weight_update Norm: ", torch.norm(weight_update_i_array[0]).item())
                 # print(Bp_weight_update[0].shape)
@@ -486,9 +493,28 @@ def meta_stats(
                     ]
 
             weight_angle = [weight_angle_i / error_batch_size for weight_angle_i in weight_angle]
+            total_CS_weight_update = [weight_update_i / error_batch_size for weight_update_i in total_CS_weight_update]
             total_BP_weight_update = [weight_update_i / error_batch_size for weight_update_i in total_BP_weight_update]
 
+            individual_CS_to_batch_CS_weight_updates_angle = None
             individual_CS_to_batch_BP_weight_updates_angle = None
+            for weight_update_i_array in individual_CS_weight_updates:
+                temp_angle = [
+                    measure_angle(Cs_weight_update_i.flatten(), total_CS_weight_update_i.flatten())
+                    for Cs_weight_update_i, total_CS_weight_update_i in zip(weight_update_i_array, total_CS_weight_update)
+                ]
+                if individual_CS_to_batch_CS_weight_updates_angle is None:
+                    individual_CS_to_batch_CS_weight_updates_angle = temp_angle
+                else:
+                    individual_CS_to_batch_CS_weight_updates_angle = [
+                        individual_CS_to_batch_CS_weight_updates_angle_i + temp_angle_i
+                        for individual_CS_to_batch_CS_weight_updates_angle_i, temp_angle_i in zip(
+                            individual_CS_to_batch_CS_weight_updates_angle, temp_angle
+                        )
+                    ]
+            individual_CS_to_batch_CS_weight_updates_angle = [
+                angle_i / error_batch_size for angle_i in individual_CS_to_batch_CS_weight_updates_angle
+            ]
             for weight_update_i_array in individual_CS_weight_updates:
                 temp_angle = [
                     measure_angle(Cs_weight_update_i.flatten(), total_BP_weight_update_i.flatten())
@@ -524,6 +550,7 @@ def meta_stats(
         if save:
             log(e_angl, res_dir + "/e_ang_meta{}.txt".format(save_index))
             log(weight_angle, res_dir + "/weight_ang_meta{}.txt".format(save_index))
+            log(individual_CS_to_batch_CS_weight_updates_angle, res_dir + "/individual_CS_to_batch_CS_weight_updates_ang_meta{}.txt".format(save_index))
             log(individual_CS_to_batch_BP_weight_updates_angle, res_dir + "/individual_CS_to_batch_BP_weight_updates_ang_meta{}.txt".format(save_index))
 
         # -- accuracy
