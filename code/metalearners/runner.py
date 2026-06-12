@@ -1437,9 +1437,11 @@ def runner_main():
         # os.getcwd() + "/results_3/mode_6_scalar_not_all_ones_same/2/20251123-235027",
         #os.getcwd() + "/results_4/mode_9_scalar_clip/1/20251204-195612",
         #os.getcwd() + "/results_4/error_1_fixed/0/20251009-194350",
-        os.getcwd() + "/results_4/mode_9_rand/0/20251105-152312",
-        os.getcwd() + "/results_4/20251103-214650",
-        os.getcwd() + "/results_4/mode_7_1_chem/1/20260125-202838",
+        os.getcwd() + "/results_4/mode_9_9_chem/0/20260611-185437",
+        os.getcwd() + "/results_4/mode_9_scalar_9_chems_converted_true/0/20260420-043518"
+        #os.getcwd() + "/results_4/mode_9_rand/0/20251105-152312",
+        #os.getcwd() + "/results_4/20251103-214650",
+        #os.getcwd() + "/results_4/mode_7_1_chem/1/20260125-202838",
         
         # + "/results_3/mode_10_scalar_13_chems_200/2/20260424-130001"
         # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
@@ -1450,11 +1452,11 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_BATCH_5_chems_DFAa", "runner_BATCH_3_chems_DFA", "runner_BATCH_1_chem_DFA"][iiii],
+                result_subdirectory=["runner_BATCH_9_chems_DFA", "runner_BATCH_9_chems_DSEF"][iiii],
                 index=index_outer,
-                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+                typeOfFeedback=[typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.scalar][iiii],
                 modelPath=modelPath_s[iiii],
-                numberOfChemicals=[5, 3, 1][iiii],
+                numberOfChemicals=[9, 9][iiii],
                 gating=gatingEnum.no_gating,
                 operator=operatorEnum.mode_9,
             )
