@@ -1131,9 +1131,9 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     numWorkers = 2
     epochs = 1200
 
-    dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED", "COMBINED_2"
+    dataset_name = "COMBINED"  # "EMNIST", "FASHION-MNIST", "COMBINED", "COMBINED_2"
     minTrainingDataPerClass = 5
-    maxTrainingDataPerClass = 80
+    maxTrainingDataPerClass = 40
     queryDataPerClass = 20
     dataset_1 = None
     dataset_2 = None
@@ -1238,16 +1238,14 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     # beta = [1, 0.1, 0.01, 0.001, 0.0001]
     # schedulerT0 = [10, 20, 30, 40][index]
     # minTau = [10, 20, 30, 40, 50, 60][index]
+   
     
-    if index >= len([10, 25, 50, 100, 200, 400, 600, 800, 1000, 2000]):
-        return
-    
-    update_rules = [[0, 1, 9], [0, 2, 9], [0, 3, 9], [0, 4, 9], [0, 6, 9]][index]
+    #update_rules = [[0, 1, 9], [0, 2, 9], [0, 3, 9], [0, 4, 9], [0, 6, 9]][index]
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=update_rules,
+            update_rules=[0, 1, 2, 3, 4, 6, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
@@ -1266,7 +1264,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             scheduler_t0=None,  # Only mode_3
             train_tau=False,
             scale_chemical_weights=False,
-            gating=gatingEnum.no_gating,
+            gating=gatingEnum.learning_rule_gating_h,
             disagreement_regularization=False,
         )
     elif model == modelEnum.reservoir:
@@ -1364,7 +1362,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         # + "/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"
         # current_dir + "/results_3/mode_10_scalar_9_chems_100/1/20260423-004818"# "/results_3/mode_10_scalar_9_chems_converted/0/20260420-190254"
         current_dir + #"/results_4/mode_9_converted_9_chems"#20251124-005417" 
-        "/results_4/mode_9_rand/0/20251105-152312"
+        "/results_4/20251112-001951"
+        #"/results_4/mode_9_rand/0/20251105-152312"
         #"/results_4/mode_9_scalar_10/1/20251124-005417"
         # + "/results_3/mode_9_scalar_converted_9_chems"
         # + "/results_3/mode_9_scalar_9_chems_converted/0/20260419-173857"
@@ -1391,12 +1390,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         metatrain_dataset_3=metatrain_dataset_3 if dataset_name == "COMBINED_2" else None,
         display=display,
-        lr=0.0006,#0.0005,  # 0.0005,
+        lr=0.001,#0.0005,  # 0.0005,
         numberOfClasses=(
             numberOfClasses_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else numberOfClasses
         ),
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         trainSeparateFeedback=False,
         feedbackSeparateModel=feedbackModel,
         trainSameFeedback=False,
