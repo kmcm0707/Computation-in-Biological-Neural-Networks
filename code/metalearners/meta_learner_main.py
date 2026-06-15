@@ -1435,7 +1435,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     metalearning_model.train()
-    #exit()
+    exit()
 
 
 def main():
@@ -1455,4 +1455,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for true_i in range(0,17):
-        run(seed=0, display=True, result_subdirectory="mode_9_3_ablations_true", index=true_i, index_2=1)
+        run(seed=0, display=True, result_subdirectory="CB_gating", index=true_i, index_2=1)

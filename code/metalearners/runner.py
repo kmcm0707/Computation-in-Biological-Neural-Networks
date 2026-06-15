@@ -1013,17 +1013,17 @@ def run(
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
     trainingDataPerClass = [
-        #0,
-        #5,
-        #10,
-        #20,
+        0,
+        5,
+        10,
+        20,
         30,
         40,
         50,
-        #60,
-        #70,
+        60,
+        70,
         80,
-        #90,
+        90,
         #100,
         #110,
         #120,
@@ -1085,8 +1085,8 @@ def run(
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
-    queryDataPerClass = 300
-    dataset_name = "EMNIST"
+    queryDataPerClass = 20
+    dataset_name = "COMBINED"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -1111,8 +1111,8 @@ def run(
     elif dataset_name == "COMBINED":
         numberOfClasses_1 = 5
         numberOfClasses_2 = 5
-        minTrainingDataPerClass_1 = 50
-        maxTrainingDataPerClass_1 = 50
+        minTrainingDataPerClass_1 = 40
+        maxTrainingDataPerClass_1 = 40
         minTrainingDataPerClass_2 = minTrainingDataPerClass
         maxTrainingDataPerClass_2 = maxTrainingDataPerClass
         dataset_1 = EmnistDataset(
@@ -1371,9 +1371,9 @@ def run(
         split=False,
         split_min_number_of_tasks=5,
         split_max_number_of_tasks=5,
-        trajectory_analysis=False,
+        trajectory_analysis=True,
         chemical_accuracy=False,
-        hessian_analysis=True,
+        hessian_analysis=False,
     )
 
     #   -- number of chemicals
@@ -1437,11 +1437,13 @@ def runner_main():
         # os.getcwd() + "/results_3/mode_6_scalar_not_all_ones_same/2/20251123-235027",
         #os.getcwd() + "/results_4/mode_9_scalar_clip/1/20251204-195612",
         #os.getcwd() + "/results_4/error_1_fixed/0/20251009-194350",
-        os.getcwd() + "/results_4/mode_9_9_chem/0/20260611-185437",
-        os.getcwd() + "/results_4/mode_9_scalar_9_chems_converted_true/0/20260420-043518"
+        #os.getcwd() + "/results_4/mode_9_9_chem/0/20260611-185437",
+        #os.getcwd() + "/results_4/mode_9_scalar_9_chems_converted_true/0/20260420-043518"
         #os.getcwd() + "/results_4/mode_9_rand/0/20251105-152312",
         #os.getcwd() + "/results_4/20251103-214650",
         #os.getcwd() + "/results_4/mode_7_1_chem/1/20260125-202838",
+        os.getcwd() + "/results_4/CB_gating/0/20260614-171418",
+        os.getcwd() + "/results_4/CB_gating/0/20260614-171833",
         
         # + "/results_3/mode_10_scalar_13_chems_200/2/20260424-130001"
         # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
@@ -1452,11 +1454,11 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_HESSIAN_9_chems_DFA_same", "runner_HESSIAN_9_chems_DSEF_same"][iiii],
+                result_subdirectory=["runner_CB_gating_lr_h", "runner_CB_gating_lr"][iiii],
                 index=index_outer,
-                typeOfFeedback=[typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.scalar][iiii],
+                typeOfFeedback=[typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.DFA_grad][iiii],
                 modelPath=modelPath_s[iiii],
-                numberOfChemicals=[9, 9][iiii],
-                gating=gatingEnum.no_gating,
+                numberOfChemicals=[5, 5][iiii],
+                gating=[gatingEnum.learning_rule_gating_h, gatingEnum.learning_rule_gating][iiii],
                 operator=operatorEnum.mode_9,
             )
