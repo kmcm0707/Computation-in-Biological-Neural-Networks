@@ -1129,7 +1129,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 1200
+    epochs = 2000
 
     dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED", "COMBINED_2"
     minTrainingDataPerClass = 5
@@ -1390,7 +1390,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         metatrain_dataset_3=metatrain_dataset_3 if dataset_name == "COMBINED_2" else None,
         display=display,
+<<<<<<< HEAD
         lr=0.0003,#0.0005,  # 0.0005,
+=======
+        lr=0.0008,#0.0005,  # 0.0005,
+>>>>>>> d92ed081 (res)
         numberOfClasses=(
             numberOfClasses_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else numberOfClasses
         ),

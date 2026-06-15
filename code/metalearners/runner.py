@@ -1371,7 +1371,7 @@ def run(
         split=False,
         split_min_number_of_tasks=5,
         split_max_number_of_tasks=5,
-        trajectory_analysis=True,
+        trajectory_analysis=False,
         chemical_accuracy=False,
         hessian_analysis=False,
     )
@@ -1454,7 +1454,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner_CB_gating_lr_h", "runner_CB_gating_lr"][iiii],
+                result_subdirectory=["runner__CB_gating_lr_h", "runner_CB_gating_lr"][iiii],
                 index=index_outer,
                 typeOfFeedback=[typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.DFA_grad][iiii],
                 modelPath=modelPath_s[iiii],
