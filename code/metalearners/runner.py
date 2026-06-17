@@ -1024,17 +1024,17 @@ def run(
         70,
         80,
         90,
-        #100,
-        #110,
-        #120,
-        #130,
-        #140,
-        #150,
-        #160,
-        #170,
-        #180,
-        #190,
-        #200,
+        100,
+        110,
+        120,
+        130,
+        140,
+        150,
+        160,
+        170,
+        180,
+        190,
+        200,
         #225,
         #250,
         #275,
@@ -1085,8 +1085,8 @@ def run(
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
-    queryDataPerClass = 20
-    dataset_name = "COMBINED"
+    queryDataPerClass = 100
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -1337,7 +1337,7 @@ def run(
         numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         numberOfClasses_3=numberOfClasses_3 if dataset_name == "COMBINED_2" else None,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
@@ -1439,11 +1439,11 @@ def runner_main():
         #os.getcwd() + "/results_4/error_1_fixed/0/20251009-194350",
         #os.getcwd() + "/results_4/mode_9_9_chem/0/20260611-185437",
         #os.getcwd() + "/results_4/mode_9_scalar_9_chems_converted_true/0/20260420-043518"
-        #os.getcwd() + "/results_4/mode_9_rand/0/20251105-152312",
-        #os.getcwd() + "/results_4/20251103-214650",
-        #os.getcwd() + "/results_4/mode_7_1_chem/1/20260125-202838",
-        os.getcwd() + "/results_4/CB_gating/0/20260614-171418",
-        os.getcwd() + "/results_4/CB_gating/0/20260614-171833",
+        os.getcwd() + "/results_4/mode_9_rand/0/20251105-152312",
+        os.getcwd() + "/results_4/20251103-214650",
+        os.getcwd() + "/results_4/mode_7_1_chem/1/20260125-202838",
+        #os.getcwd() + "/results_4/CB_gating/0/20260614-171418",
+        #os.getcwd() + "/results_4/CB_gating/0/20260614-171833",
         
         # + "/results_3/mode_10_scalar_13_chems_200/2/20260424-130001"
         # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
@@ -1454,11 +1454,11 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=["runner__CB_gating_lr_h", "runner_CB_gating_lr"][iiii],
+                result_subdirectory=["runner_K_FAC_DFA_5_chems", "runner_K_FAC_DFA_3_chems", "runner_K_FAC_DFA_1_chems"][iiii],
                 index=index_outer,
-                typeOfFeedback=[typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.DFA_grad][iiii],
+                typeOfFeedback=[typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.DFA_grad][iiii],
                 modelPath=modelPath_s[iiii],
-                numberOfChemicals=[5, 5][iiii],
-                gating=[gatingEnum.learning_rule_gating_h, gatingEnum.learning_rule_gating][iiii],
+                numberOfChemicals=[5, 3, 1][iiii],
+                gating=[gatingEnum.no_gating, gatingEnum.no_gating, gatingEnum.no_gating][iiii],
                 operator=operatorEnum.mode_9,
             )

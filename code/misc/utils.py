@@ -435,6 +435,15 @@ def meta_stats(
             error_batch_size = e[0].shape[0]
             total_CS_weight_update = None
             total_BP_weight_update = None
+
+            # --- K-FAC Storage structures ---
+            # To store activations and activation gradients for the batch
+            # (Assuming zip(e_sym[1:], y) maps directly to your sequential layers)
+            num_layers = len(y)
+            batch_activations = [[] for _ in range(num_layers)]
+            batch_grad_outputs = [[] for _ in range(num_layers)]
+
+
             for i in range(error_batch_size):
                 e_i = [e_x[i, :].unsqueeze(0) for e_x in e]
                 y_i = [y_x[i, :].unsqueeze(0) for y_x in y]
@@ -463,9 +472,13 @@ def meta_stats(
                         total_CS_weight_update_i + weight_update_i for total_CS_weight_update_i, weight_update_i in zip(total_CS_weight_update, weight_update_i_array)
                     ]
                 Bp_weight_update = []
-                for e_sym_, y_ in zip(e_sym[1:], y):
+                for idx, (e_sym_, y_) in enumerate(zip(e_sym[1:], y)):
                     e_sym_i = e_sym_[i, :]
                     y_i = y_[i, :]
+                    # Save factors for K-FAC calculation later
+                    batch_activations[idx].append(y_i)
+                    batch_grad_outputs[idx].append(e_sym_i)
+
                     Bp_weight_update.append(-torch.matmul(e_sym_i.unsqueeze(1), y_i.unsqueeze(0)))
                 if total_BP_weight_update is None:
                     total_BP_weight_update = Bp_weight_update
@@ -496,6 +509,34 @@ def meta_stats(
             weight_angle = [weight_angle_i / error_batch_size for weight_angle_i in weight_angle]
             total_CS_weight_update = [weight_update_i / error_batch_size for weight_update_i in total_CS_weight_update]
             total_BP_weight_update = [weight_update_i / error_batch_size for weight_update_i in total_BP_weight_update]
+
+            # K-FAC
+            kfac_total_BP_weight_update = []
+            eps = 1e-3  # Tikhonov regularization (damping factor) to ensure invertibility
+
+            for idx in range(num_layers):
+                # Stack individual collected samples across the batch
+                # A_inputs shape: [batch_size, input_dim]
+                # G_outputs shape: [batch_size, output_dim]
+                A_inputs = torch.stack(batch_activations[idx])
+                G_outputs = torch.stack(batch_grad_outputs[idx])
+                
+                # Compute Kronecker factor covariances
+                # Covariance of incoming activations: A = (1/N) * A_inputs^T * A_inputs
+                A_cov = torch.matmul(A_inputs.t(), A_inputs) / error_batch_size
+                # Covariance of incoming gradients: G = (1/N) * G_outputs^T * G_outputs
+                G_cov = torch.matmul(G_outputs.t(), G_outputs) / error_batch_size
+                
+                # Apply damping factor (equivalent to adding eps * I)
+                A_inv = torch.inverse(A_cov + eps * torch.eye(A_cov.size(0), device=A_cov.device))
+                G_inv = torch.inverse(G_cov + eps * torch.eye(G_cov.size(0), device=G_cov.device))
+                
+                # Precondition the accumulated batch gradient: F^-1 * vec(Grad)
+                # K-FAC matrix property: (A \otimes G)^-1 * vec(W_grad) = vec(G_inv * W_grad * A_inv)
+                # Note: Your BP gradient calculation is: - (e_sym_i * y_i^T), matching output_dim x input_dim
+                grad_batch = total_BP_weight_update[idx]
+                kfac_grad = torch.matmul(torch.matmul(G_inv, grad_batch), A_inv)
+                kfac_total_BP_weight_update.append(kfac_grad)
 
             individual_CS_to_batch_CS_weight_updates_angle = None
             individual_CS_to_batch_BP_weight_updates_angle = None
@@ -534,6 +575,24 @@ def meta_stats(
                 angle_i / error_batch_size for angle_i in individual_CS_to_batch_BP_weight_updates_angle
             ]
             
+            individual_CS_to_batch_KFAC_BP_weight_updates_angle = None
+            for weight_update_i_array in individual_CS_weight_updates:
+                temp_angle = [
+                    measure_angle(Cs_weight_update_i.flatten(), total_kfac_BP_weight_update_i.flatten())
+                    for Cs_weight_update_i, total_kfac_BP_weight_update_i in zip(weight_update_i_array, kfac_total_BP_weight_update)
+                ]
+                if individual_CS_to_batch_KFAC_BP_weight_updates_angle is None:
+                    individual_CS_to_batch_KFAC_BP_weight_updates_angle = temp_angle
+                else:
+                    individual_CS_to_batch_KFAC_BP_weight_updates_angle = [
+                        individual_CS_to_batch_KFAC_BP_weight_updates_angle_i + temp_angle_i
+                        for individual_CS_to_batch_KFAC_BP_weight_updates_angle_i, temp_angle_i in zip(
+                            individual_CS_to_batch_KFAC_BP_weight_updates_angle, temp_angle
+                        )
+                    ]
+            individual_CS_to_batch_KFAC_BP_weight_updates_angle = [
+                angle_i / error_batch_size for angle_i in individual_CS_to_batch_KFAC_BP_weight_updates_angle
+            ]
 
             """for i in range(len(Cs_weight_update)):
                 Cs_weight_update[i] = Cs_weight_update[i] / error_batch_size
@@ -553,6 +612,7 @@ def meta_stats(
             log(weight_angle, res_dir + "/weight_ang_meta{}.txt".format(save_index))
             log(individual_CS_to_batch_CS_weight_updates_angle, res_dir + "/individual_CS_to_batch_CS_weight_updates_ang_meta{}.txt".format(save_index))
             log(individual_CS_to_batch_BP_weight_updates_angle, res_dir + "/individual_CS_to_batch_BP_weight_updates_ang_meta{}.txt".format(save_index))
+            log(individual_CS_to_batch_KFAC_BP_weight_updates_angle, res_dir + "/individual_CS_to_batch_KFAC_BP_weight_updates_ang_meta{}.txt".format(save_index))
 
         # -- accuracy
         acc = accuracy(logits, label)
