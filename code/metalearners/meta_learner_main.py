@@ -661,9 +661,9 @@ class MetaLearner:
                 with (
                     torch.no_grad()
                     if (
-                        self.options.hrm_discount > 0
+                        (self.options.hrm_discount > 0
                         and current_training_data_per_class * self.options.numberOfClasses - itr_adapt
-                        > self.options.hrm_discount
+                        > self.options.hrm_discount) or self.options.no_training
                     )
                     else torch.enable_grad()
                 ):
@@ -976,7 +976,14 @@ class MetaLearner:
 
             # -- backpropagation
             # loss_meta = torch.log(loss_meta)
-            loss_meta.backward()
+            if not self.options.no_training:
+                loss_meta.backward()
+                torch.nn.utils.clip_grad_value_(self.UpdateWeights.all_meta_parameters.parameters(), 1)
+                # -- update
+                self.UpdateMetaParameters.step()
+                if self.scheduler is not None:
+                    self.scheduler.step()
+                self.UpdateMetaParameters.zero_grad(set_to_none=True)
 
             # -- gradient clipping
             # torch.nn.utils.clip_grad_norm_(self.UpdateWeights.all_meta_parameters.parameters(), 5000)
@@ -990,13 +997,6 @@ class MetaLearner:
                     ]
                 ),
             )"""
-            torch.nn.utils.clip_grad_value_(self.UpdateWeights.all_meta_parameters.parameters(), 1)
-
-            # -- update
-            self.UpdateMetaParameters.step()
-            if self.scheduler is not None:
-                self.scheduler.step()
-            self.UpdateMetaParameters.zero_grad(set_to_none=True)
 
             # -- log
             if self.save_results:
@@ -1129,7 +1129,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     # -- load data
     numWorkers = 2
-    epochs = 2000
+    epochs = 1200
 
     dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED", "COMBINED_2"
     minTrainingDataPerClass = 5
@@ -1240,7 +1240,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     # minTau = [10, 20, 30, 40, 50, 60][index]
    
     
-    update_rules = [[0, 1, 9], [0, 2, 9], [0, 3, 9], [0, 4, 9], [0, 6, 9]][index]
+    update_rules = [[1, 2, 3, 4 ,6, 9], [0, 2, 3, 4 ,6, 9], [0, 1, 3, 4, 6, 9], [0, 1, 2, 4, 6, 9], [0, 1, 2, 3, 6, 9], [0, 1, 2, 3, 4, 9], [0, 1, 2, 3, 4, 6]][index] 
+    #[[0, 1, 9], [0, 2, 9], [0, 3, 9], [0, 4, 9], [0, 6, 9]][index]
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
@@ -1390,11 +1391,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         metatrain_dataset_3=metatrain_dataset_3 if dataset_name == "COMBINED_2" else None,
         display=display,
-<<<<<<< HEAD
         lr=0.0003,#0.0005,  # 0.0005,
-=======
-        lr=0.0008,#0.0005,  # 0.0005,
->>>>>>> d92ed081 (res)
         numberOfClasses=(
             numberOfClasses_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else numberOfClasses
         ),
@@ -1425,6 +1422,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         split_max_number_of_tasks=5,
         split_only_one_task_evaluation=0,  # starts from 0
         regenerate_feedback_weights=-1,  # regenerate feedback weights every n episodes, -1 means never regenerate
+        no_training=True,  # If True, the model will not be trained, only evaluated
     )
 
     # -- number of chemicals
@@ -1459,4 +1457,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for true_i in range(0,17):
-        run(seed=0, display=True, result_subdirectory="mode_9_3_ablation_DSEF", index=true_i, index_2=1)
+        run(seed=0, display=True, result_subdirectory="mode_9_ablation_DSEF_no_training", index=true_i, index_2=1)
