@@ -1364,8 +1364,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         # current_dir + "/results_3/mode_10_scalar_9_chems_100/1/20260423-004818"# "/results_3/mode_10_scalar_9_chems_converted/0/20260420-190254"
         current_dir + #"/results_4/mode_9_converted_9_chems"#20251124-005417" 
         #"/results_4/20251112-001951"
-        #"/results_4/mode_9_rand/0/20251105-152312"
-        "/results_4/mode_9_scalar_10/1/20251124-005417"
+        "/results_4/mode_9_rand/0/20251105-152312"
+        #"/results_4/mode_9_scalar_10/1/20251124-005417"
         # + "/results_3/mode_9_scalar_converted_9_chems"
         # + "/results_3/mode_9_scalar_9_chems_converted/0/20260419-173857"
     )  # "/results_3/mode_9_scalar_11_chems_200/1/20260416-180301"
@@ -1396,7 +1396,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             numberOfClasses_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else numberOfClasses
         ),
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,
         trainSeparateFeedback=False,
         feedbackSeparateModel=feedbackModel,
         trainSameFeedback=False,
@@ -1405,7 +1405,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
         continueTraining=continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.scalar,  # scalar_sign,
+        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,  # scalar_sign,
         dimOut=dimOut,
         hrm_discount=-1,
         error_control=False,
@@ -1457,4 +1457,4 @@ def main():
     # -- run
     # torch.autograd.set_detect_anomaly(True)
     for true_i in range(0,17):
-        run(seed=0, display=True, result_subdirectory="mode_9_ablation_DSEF_no_training", index=true_i, index_2=1)
+        run(seed=0, display=True, result_subdirectory="mode_9_ablation_DFA_no_training", index=true_i, index_2=1)
