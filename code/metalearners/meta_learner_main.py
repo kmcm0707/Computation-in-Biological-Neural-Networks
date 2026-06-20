@@ -1105,7 +1105,7 @@ class MetaLearner:
         print("Meta-training complete.")
 
 
-def run(seed: int, display: bool = True, result_subdirectory: str = "testing", index: int = 0, index_2: int = 0) -> None:
+def run(seed: int, display: bool = True, result_subdirectory: str = "testing", index: int = 0, min_tau=2, max_tau=50, continue_training_index=None) -> None:
     """
         Main function for Meta-learning the plasticity rule.
 
@@ -1133,7 +1133,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
 
     dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED", "COMBINED_2"
     minTrainingDataPerClass = 5
-    maxTrainingDataPerClass = 80
+    maxTrainingDataPerClass = 200
     queryDataPerClass = 20
     dataset_1 = None
     dataset_2 = None
@@ -1246,15 +1246,15 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=update_rules,
+            update_rules=[0, 1, 2, 3, 4, 6, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=2,  # + 1 / 50,
-            maxTau=50,
+            minTau=min_tau,
+            maxTau=max_tau,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_9,  # _pre_activation,
+            operator=operatorEnum.mode_10,  # _pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1396,7 +1396,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
             numberOfClasses_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else numberOfClasses
         ),
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         trainSeparateFeedback=False,
         feedbackSeparateModel=feedbackModel,
         trainSameFeedback=False,
@@ -1404,8 +1404,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,  # scalar_sign,
+        continueTraining=continue_training_index,
+        typeOfFeedback=typeOfFeedbackEnum.scalar,  # scalar_sign,
         dimOut=dimOut,
         hrm_discount=-1,
         error_control=False,
@@ -1422,11 +1422,11 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         split_max_number_of_tasks=5,
         split_only_one_task_evaluation=0,  # starts from 0
         regenerate_feedback_weights=-1,  # regenerate feedback weights every n episodes, -1 means never regenerate
-        no_training=True,  # If True, the model will not be trained, only evaluated
+        no_training=False,  # If True, the model will not be trained, only evaluated
     )
 
     # -- number of chemicals
-    numberOfChemicals = 5
+    numberOfChemicals = 13
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1456,5 +1456,19 @@ def main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    for true_i in range(0,17):
-        run(seed=0, display=True, result_subdirectory="mode_9_ablation_DFA_no_training", index=true_i, index_2=1)
+    outer_folder = os.getcwd() + "/results_4/mode_10_scalar_13_chems_extended_full_sweep"
+    min_taus = os.listdir(outer_folder)
+    for min_tau in min_taus:
+        inner_folder = outer_folder + "/" + min_tau + "/0"
+        max_taus = os.listdir(inner_folder)
+        for max_tau in max_taus:
+            inner_inner_folder = inner_folder + "/" + max_tau
+            run(
+                seed=0,
+                display=True,
+                result_subdirectory="mode_10_scalar_13_chems_extended_full_sweep_200",
+                index=0,
+                min_tau=int(min_tau),
+                max_tau=int(max_tau),
+                continue_training_index=inner_inner_folder
+            )
