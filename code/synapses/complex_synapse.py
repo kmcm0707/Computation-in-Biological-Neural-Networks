@@ -593,7 +593,7 @@ class ComplexSynapse(nn.Module):
                 if "conv" in name:
                     parameter = parameter.view(parameter.shape[0], -1)
                 update_vector = self.calculate_update_vector(error, activations_and_output, parameter, i, h_name)
-                    #print(update_vector[:, :5, :5])
+                # print(update_vector[:, :5, :5])
                 # update_vector = update_vector / (torch.amax(update_vector, dim=(1, 2)) + 1e-5)[:, None, None]
                 # update_vector = update_vector / (torch.norm(update_vector, dim=(1, 2), p=2) + 1e-5)[:, None, None]
 
@@ -902,7 +902,7 @@ class ComplexSynapse(nn.Module):
                         variance_chemical = torch.mean((h_parameters[h_name] - mean_chemical) ** 2, dim=0)
                         norm_chemical = torch.mean(h_parameters[h_name] ** 2, dim=0)
                         u = variance_chemical / (norm_chemical + 1e-12)
-                        u_detached = u #.detach()
+                        u_detached = u  # .detach()
 
                         lambda_value = torch.nn.functional.softplus(self.lambda_param)
                         new_value = new_value / (1.0 + lambda_value * u_detached)
@@ -1063,7 +1063,7 @@ class ComplexSynapse(nn.Module):
             # squeeze_activations = activations_and_output[i].clone().squeeze(0)
             # normalised_activation = torch.nn.functional.normalize(squeeze_activations, p=2, dim=0)
             # diff = parameter - activations_and_output[i].squeeze(0)
-            normalised_weight = torch.nn.functional.normalize(parameter, p=2, dim=0)
+            """normalised_weight = torch.nn.functional.normalize(parameter, p=2, dim=0)
             squeeze_activations = activations_and_output[i].squeeze(0)
             normalised_activation = torch.nn.functional.normalize(squeeze_activations, p=2, dim=0)
             output = torch.nn.functional.softplus(
@@ -1072,27 +1072,15 @@ class ComplexSynapse(nn.Module):
             )
             softmax_output = torch.nn.functional.softmax(output, dim=0)
             diff = normalised_weight - normalised_activation
-            update_vector[5] = -(diff * softmax_output[:, None])
+            update_vector[5] = -(diff * softmax_output[:, None])"""
             """norm_uv = torch.norm(update_vector[5], p=2)
             norm_diff = torch.norm(diff, p=2)
             norm_activation = torch.norm(activations_and_output[i].squeeze(0), p=2)
-            softmax_output_norm = torch.norm(softmax_output, p=2)
-            line = (
-                "time: "
-                + str(self.time_index)
-                + "update vector norm: "
-                + str(norm_uv)
-                + " diff norm: "
-                + str(norm_diff)
-                + " activation norm: "
-                + str(norm_activation)
-                + " softmax output: "
-                + str(softmax_output_norm)
-            )
-            current_cwd = os.getcwd()
-            with open(current_cwd + "/check.txt", "a+") as f:
-                print(line)
-                f.writelines(line + "\n")"""
+            softmax_output_norm = torch.norm(softmax_output, p=2)"""
+
+            update_vector[5] = -torch.pow(
+                torch.matmul(error[i + 1].T, activations_and_output[i]), 2
+            )  # Pseudo-gradient Squared
 
         if self.update_rules[6]:
             """update_vector[6] = -torch.matmul(
