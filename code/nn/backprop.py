@@ -233,6 +233,8 @@ class MetaLearner:
         hessian_analysis: bool = False,
         optimizer: optimizerEnum = optimizerEnum.adam,
         lr: float = 1e-3,
+        beta_1: float = 0.9,
+        beta_2: float = 0.999,
     ):
 
         # -- processor params
@@ -309,6 +311,8 @@ class MetaLearner:
         self.loss_func = nn.CrossEntropyLoss()
 
         self.lr = lr
+        self.beta_1 = beta_1
+        self.beta_2 = beta_2
 
         # -- log params
         self.save_results = save_results
@@ -323,12 +327,20 @@ class MetaLearner:
                 + "/"
                 + str(seed)
                 + "/"
+                + str(self.beta_1)
+                + "/"
+                + str(self.beta_2)
+                + "/"
+                + str(self.lr)
+                + "/"
                 + str(
                     self.trainingDataPerClass_2 + self.trainingDataPerClass_3
                     if self.trainingDataPerClass_3 is not None
-                    else self.trainingDataPerClass_2
-                    if self.trainingDataPerClass_2 is not None
-                    else self.trainingDataPerClass_1
+                    else (
+                        self.trainingDataPerClass_2
+                        if self.trainingDataPerClass_2 is not None
+                        else self.trainingDataPerClass_1
+                    )
                 )
             )
 
@@ -359,6 +371,8 @@ class MetaLearner:
                 f.writelines("Hessian analysis: {}\n".format(self.hessian_analysis))
                 f.writelines("Optimizer: {}\n".format(self.optimizer))
                 f.writelines("Learning rate: {}\n".format(self.lr))
+                f.writelines("Beta 1: {}\n".format(self.beta_1))
+                f.writelines("Beta 2: {}\n".format(self.beta_2))
 
             self.average_window = 10
             self.summary_writer = SummaryWriter(log_dir=self.result_directory)
@@ -421,7 +435,9 @@ class MetaLearner:
             self.model.train()
             self.model.apply(self.weights_init)
             if self.optimizer == optimizerEnum.adam:
-                self.UpdateParameters = optim.Adam(self.model.parameters(), lr=self.lr)
+                self.UpdateParameters = optim.Adam(
+                    self.model.parameters(), lr=self.lr, betas=(self.beta_1, self.beta_2)
+                )
             elif self.optimizer == optimizerEnum.sgd:
                 self.UpdateParameters = optim.SGD(self.model.parameters(), lr=self.lr, momentum=0.9)
 
@@ -480,19 +496,13 @@ class MetaLearner:
                 si_params_star = None
                 if self.synaptic_intelligence:
                     si_omega = {
-                        n: torch.zeros_like(p.detach())
-                        for n, p in self.model.named_parameters()
-                        if p.requires_grad
+                        n: torch.zeros_like(p.detach()) for n, p in self.model.named_parameters() if p.requires_grad
                     }
                     si_w = {
-                        n: torch.zeros_like(p.detach())
-                        for n, p in self.model.named_parameters()
-                        if p.requires_grad
+                        n: torch.zeros_like(p.detach()) for n, p in self.model.named_parameters() if p.requires_grad
                     }
                     si_params_star = {
-                        n: p.detach().clone()
-                        for n, p in self.model.named_parameters()
-                        if p.requires_grad
+                        n: p.detach().clone() for n, p in self.model.named_parameters() if p.requires_grad
                     }
                 for current_task in range(current_number_of_tasks_1):
                     if self.metatrain_dataset_2 is not None:
@@ -510,9 +520,7 @@ class MetaLearner:
                     si_task_start_params = None
                     if self.synaptic_intelligence:
                         si_task_start_params = {
-                            n: p.detach().clone()
-                            for n, p in self.model.named_parameters()
-                            if p.requires_grad
+                            n: p.detach().clone() for n, p in self.model.named_parameters() if p.requires_grad
                         }
 
                     for itr_adapt, (x, label) in enumerate(
@@ -547,16 +555,14 @@ class MetaLearner:
                         si_prev_params_step = None
                         if self.synaptic_intelligence:
                             si_prev_params_step = {
-                                n: p.detach().clone()
-                                for n, p in self.model.named_parameters()
-                                if p.requires_grad
+                                n: p.detach().clone() for n, p in self.model.named_parameters() if p.requires_grad
                             }
                         self.UpdateParameters.step()
                         if self.synaptic_intelligence and si_prev_params_step is not None:
                             for n, p in self.model.named_parameters():
                                 if p.requires_grad and p.grad is not None:
                                     delta = p.detach() - si_prev_params_step[n]
-                                    si_w[n] += (-p.grad.detach() * delta)
+                                    si_w[n] += -p.grad.detach() * delta
 
                         # -- trajectory analysis
                         if self.trajectory_analysis:
@@ -570,9 +576,7 @@ class MetaLearner:
                                 si_omega[n] += si_w[n] / (delta.pow(2) + self.si_epsilon)
                                 si_w[n].zero_()
                         si_params_star = {
-                            n: p.detach().clone()
-                            for n, p in self.model.named_parameters()
-                            if p.requires_grad
+                            n: p.detach().clone() for n, p in self.model.named_parameters() if p.requires_grad
                         }
                     if self.elastic_weight_consolidation and len(current_trn_data) > 0:
                         # -- compute Fisher Information Matrix
@@ -802,12 +806,14 @@ class MetaLearner:
                     # Flatten targets if your code expects a 1D vector
                     return self.loss_func(predictions, targets.ravel())
 
-                hessian_comp = pyhessian.hessian(self.model, clean_loss_func, data=(x_qry_1, y_qry_1), cuda=torch.cuda.is_available())
+                hessian_comp = pyhessian.hessian(
+                    self.model, clean_loss_func, data=(x_qry_1, y_qry_1), cuda=torch.cuda.is_available()
+                )
                 top_eigenvalues, top_eigenvector = hessian_comp.eigenvalues(top_n=100, maxIter=200)
 
                 with open(self.result_directory + "/hessian.npy", "ab") as f:
                     np.save(f, np.array(top_eigenvalues))
-                
+
                 self.model.output_only = False
 
         # -- plot
@@ -831,6 +837,9 @@ def run(
     trainingDataPerClass: int = 50,
     optimizer: optimizerEnum = optimizerEnum.adam,
     si: float = 0.0,
+    lr: float = 1e-3,
+    beta_1: float = 0.9,
+    beta_2: float = 0.999,
 ) -> None:
     """
         Main function for Meta-learning the plasticity rule.
@@ -861,7 +870,7 @@ def run(
     trainingDataPerClass_3 = [0, 0, 20]
     dimOut = 47
     dataset_name = "EMNIST"
-    queryDataPerClass = 300
+    queryDataPerClass = 20
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -963,7 +972,9 @@ def run(
         device="cuda:0" if torch.cuda.is_available() else "cpu",
         result_subdirectory=result_subdirectory,
         save_results=True,
-        metatrain_dataset_1=metatrain_dataset_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else metatrain_dataset,
+        metatrain_dataset_1=(
+            metatrain_dataset_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else metatrain_dataset
+        ),
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         metatrain_dataset_3=metatrain_dataset_3 if dataset_name == "COMBINED_2" else None,
         seed=seed,
@@ -995,9 +1006,11 @@ def run(
         split_max_number_of_tasks=5,
         queryDataPerClass=queryDataPerClass,
         trajectory_analysis=False,
-        hessian_analysis=True,
+        hessian_analysis=False,
         optimizer=optimizer,
-        lr=1e-3,
+        lr=lr,
+        beta_1=beta_1,
+        beta_2=beta_2,
     )
     metalearning_model.train()
 
@@ -1018,40 +1031,40 @@ def backprop_main():
     """
     # -- run
     trainingDataPerClass = [
-        # 0,
+        0,
         # 1,
         # 2,
         # 3,
         # 4,
-        # 5,
+        5,
         # 6,
         # 7,
         # 8,
         # 9,
-        # 10,
-        # 20,
+        10,
+        20,
         30,
         40,
         50,
-        # 60,
-        # 70,
+        60,
+        70,
         80,
-        # 90,
+        90,
         100,
-        # 110,
-        # 120,
-        # 130,
-        # 140,
-        # 150,
-        # 160,
-        # 170,
-        # 180,
-        # 190,
-        # 200,
-        # 225,
+        110,
+        120,
+        130,
+        140,
+        150,
+        160,
+        170,
+        180,
+        190,
+        200,
+        225,
         250,
-        # 275,
-        # 300,
+        275,
+        300,
         # 325,
         # 350,
         # 375,
@@ -1085,12 +1098,23 @@ def backprop_main():
         # 1250,
         # 1300,
     ]"""
-    #ewc=[200000, 500000, 1000000, 1500000]#[500, 1000, 2000, 2500, 3000, 4000, 5000, 7500, 10000]
-    for trainingData in trainingDataPerClass:
-        run(
-            seed=0,
-            display=True,
-            result_subdirectory="runner_backprop_hessian",
-            trainingDataPerClass=trainingData,
-            optimizer=optimizerEnum.adam,
-        )
+    # ewc=[200000, 500000, 1000000, 1500000]#[500, 1000, 2000, 2500, 3000, 4000, 5000, 7500, 10000]
+    lrs = [1e-1, 7e-2, 5e-2, 3e-2, 1e-2, 7e-3, 5e-3, 3e-3, 1e-3, 7e-4, 5e-4, 3e-4, 1e-4, 7e-5, 5e-5, 3e-5, 1e-5]
+    beta_1s = [0.5, 0.6, 0.7, 0.8, 0.9, 0.99]
+    beta_2s = [0.5, 0.6, 0.7, 0.8, 0.9, 0.99, 0.999, 0.9999, 0.99999]
+
+    for lr in lrs:
+        for beta_1 in beta_1s:
+            for beta_2 in beta_2s:
+                for trainingData in trainingDataPerClass:
+                    run(
+                        seed=0,
+                        display=True,
+                        result_subdirectory="runner_backprop_full_sweep",
+                        trainingDataPerClass=trainingData,
+                        optimizer=optimizerEnum.adam,
+                        si=0.0,
+                        lr=lr,
+                        beta_1=beta_1,
+                        beta_2=beta_2,
+                    )
