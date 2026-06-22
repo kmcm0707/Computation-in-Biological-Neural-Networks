@@ -406,14 +406,14 @@ class JaxMetaLearnerRNN:
         print("Training completed.")
 
 
-def jax_runner(index: int):
+def jax_runner(index: int, result_subdirectory: str, modelPath: str):
     os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # second gpu
     key = jax.random.PRNGKey(42)
     # jax.config.update("jax_enable_x64", False)
 
     # -- load data
     numWorkers = 2
-    training_data = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 350, 375]
+    training_data = [20, 30, 40, 50, 80, 150, 200, 225, 375]
     """training_data = [
         # 10,
         # 9,
@@ -531,12 +531,14 @@ def jax_runner(index: int):
     # device = "cpu"
     current_dir = os.getcwd()
     # runner = current_dir + "/results_3/jax_rnn_12/20260121-024411"
-    runner = current_dir + "/results_4/Jax_rnn_fixed_28/20260603-160027"#mode_9_rand_converted"#Jax_9_chem_scalar/20260526-030351"
+    runner = (
+        current_dir + "/results_4/Jax_rnn_fixed_28/20260603-160027"
+    )  # mode_9_rand_converted"#Jax_9_chem_scalar/20260526-030351"
     # -- meta-learner options
     metaLearnerOptions = JaxRnnMetaLearnerOptions(
         seed=42,
         save_results=True,
-        results_subdir="runner_jax_5_chem_RNN_FF_28_diff",
+        results_subdir=result_subdirectory,
         metatrain_dataset=dataset_name,
         display=True,
         metaLearningRate=None,
@@ -555,8 +557,8 @@ def jax_runner(index: int):
         outer_activation=JaxActivationNonLinearEnum.tanh,
         recurrent_activation=JaxActivationNonLinearEnum.softplus,
         number_of_time_steps=numberOfTimeSteps,
-        load_model=runner,
-        error_type=JaxErrorTypeEnum.DFA,
+        load_model=modelPath,
+        error_type=JaxErrorTypeEnum.DSEF,
         low_dim_DFA=-1,
         permutation=False,
         two_layer_RNN=False,
@@ -567,7 +569,7 @@ def jax_runner(index: int):
         modelOptions=modelOptions,
         jaxMetaLearnerOptions=metaLearnerOptions,
         key=key,
-        numberOfChemicals=5,
+        numberOfChemicals=13,
         metaTrainingDataset=metatrain_dataset,
     )
 
@@ -575,6 +577,16 @@ def jax_runner(index: int):
 
 
 def main_jax_runner():
-
-    for i in range(30):
-        jax_runner(i)
+    outer = os.getcwd() + "/results_4/Jax_13_chem_DSEF_full_sweep_200"
+    tau_min = os.listdir(outer)
+    for tau in tau_min:
+        inner = outer + "/" + tau
+        tau_max = os.listdir(inner)
+        for tau2 in tau_max:
+            inner2 = inner + "/" + tau2
+            for index_outer in range(0, 30):
+                jax_runner(
+                    i=index_outer,
+                    result_subdirectory="runner_13_chem_DSEF_full_sweep_200_tau_min_" + tau + "_tau_max_" + tau2,
+                    modelPath=inner2,
+                )
