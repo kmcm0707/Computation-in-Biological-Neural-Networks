@@ -520,7 +520,7 @@ def jax_runner(index: int, result_subdirectory: str, modelPath: str):
     modelOptions = None
     modelOptions = fastRnnOptions(
         nonLinear=JaxActivationNonLinearEnum.tanh,
-        update_rules=[0, 1, 2, 4, 9, 12],
+        update_rules=[0, 1, 2, 3, 4, 9, 12],
         minSlowTau=2,
         maxSlowTau=50,
         y_vector=yVectorEnum.none,
@@ -577,7 +577,7 @@ def jax_runner(index: int, result_subdirectory: str, modelPath: str):
 
 
 def main_jax_runner():
-    outer = os.getcwd() + "/results_4/Jax_13_chem_DSEF_full_sweep_200"
+    outer = os.getcwd() + "/results_4/Jax_13_chem_DSEF_full_sweep"
     tau_min = os.listdir(outer)
     for tau in tau_min:
         inner = outer + "/" + tau
@@ -586,7 +586,7 @@ def main_jax_runner():
             inner2 = inner + "/" + tau2
             for index_outer in range(0, 30):
                 jax_runner(
-                    i=index_outer,
-                    result_subdirectory="runner_13_chem_DSEF_full_sweep_200_tau_min_" + tau + "_tau_max_" + tau2,
+                    index=index_outer,
+                    result_subdirectory="runner_13_chem_DSEF_full_sweep_tau_min_" + tau + "_tau_max_" + tau2,
                     modelPath=inner2,
                 )
