@@ -663,9 +663,12 @@ class MetaLearner:
                 with (
                     torch.no_grad()
                     if (
-                        (self.options.hrm_discount > 0
-                        and current_training_data_per_class * self.options.numberOfClasses - itr_adapt
-                        > self.options.hrm_discount) or self.options.no_training
+                        (
+                            self.options.hrm_discount > 0
+                            and current_training_data_per_class * self.options.numberOfClasses - itr_adapt
+                            > self.options.hrm_discount
+                        )
+                        or self.options.no_training
                     )
                     else torch.enable_grad()
                 ):
@@ -783,10 +786,7 @@ class MetaLearner:
                     elif self.options.typeOfFeedback == typeOfFeedbackEnum.DFA_grad_FA:
                         DFA_feedback = {name: value for name, value in params.items() if "DFA_feedback" in name}
                         feedback = {name: value for name, value in params.items() if "feedback_FA" in name}
-                        DFA_error = [
-                            output
-                            - functional.one_hot(label, num_classes=self.options.dimOut)
-                        ]
+                        DFA_error = [output - functional.one_hot(label, num_classes=self.options.dimOut)]
                         for y, i in zip(reversed(activations), reversed(list(DFA_feedback))):
                             DFA_error.insert(
                                 0, torch.matmul(error[-1], DFA_feedback[i]) * (1 - torch.exp(-self.model.beta * y))
@@ -1107,7 +1107,15 @@ class MetaLearner:
         print("Meta-training complete.")
 
 
-def run(seed: int, display: bool = True, result_subdirectory: str = "testing", index: int = 0, min_tau=2, max_tau=50, continue_training_index=None) -> None:
+def run(
+    seed: int,
+    display: bool = True,
+    result_subdirectory: str = "testing",
+    index: int = 0,
+    min_tau=2,
+    max_tau=50,
+    continue_training_index=None,
+) -> None:
     """
         Main function for Meta-learning the plasticity rule.
 
@@ -1240,15 +1248,22 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     # beta = [1, 0.1, 0.01, 0.001, 0.0001]
     # schedulerT0 = [10, 20, 30, 40][index]
     # minTau = [10, 20, 30, 40, 50, 60][index]
-   
-    
-    update_rules = [[1, 2, 3, 4 ,6, 9], [0, 2, 3, 4 ,6, 9], [0, 1, 3, 4, 6, 9], [0, 1, 2, 4, 6, 9], [0, 1, 2, 3, 6, 9], [0, 1, 2, 3, 4, 9], [0, 1, 2, 3, 4, 6]][index] 
-    #[[0, 1, 9], [0, 2, 9], [0, 3, 9], [0, 4, 9], [0, 6, 9]][index]
+
+    update_rules = [
+        [1, 2, 3, 4, 6, 9],
+        [0, 2, 3, 4, 6, 9],
+        [0, 1, 3, 4, 6, 9],
+        [0, 1, 2, 4, 6, 9],
+        [0, 1, 2, 3, 6, 9],
+        [0, 1, 2, 3, 4, 9],
+        [0, 1, 2, 3, 4, 6],
+    ][index]
+    # [[0, 1, 9], [0, 2, 9], [0, 3, 9], [0, 4, 9], [0, 6, 9]][index]
 
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4, 6, 9],
+            update_rules=[0, 1, 2, 3, 4, 5, 6, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
@@ -1356,18 +1371,19 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     current_dir = os.getcwd()
     continue_training = (
         # current_dir + "/results_3/mode_10_scalar_11_chems_200/0/20260417-193142"
-        #current_dir + #"/results_3/mode_9_scalar_converted_13_chems" #+ "/results_3/mode_9_3_datasets_9_chems/0/20260427-125628" 
-        #+"/results_3/mode_10_extended_13_chems"
-        #"/results_3/20251111-203959"
-        #+ "/results_3/mode_9_CB/5/20251112-220930"
+        # current_dir + #"/results_3/mode_9_scalar_converted_13_chems" #+ "/results_3/mode_9_3_datasets_9_chems/0/20260427-125628"
+        # +"/results_3/mode_10_extended_13_chems"
+        # "/results_3/20251111-203959"
+        # + "/results_3/mode_9_CB/5/20251112-220930"
         # +"/results_3/mode_9_3_datasets_9_chems/2/20260426-204647"
         # + "/results_3/mode_9_3_datasets_13_chems/2/20260427-203241" #mode_9_CB_converted_13_chems"  # "/results_3/mode_9_CB/5/20251112-001951"
         # + "/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"
         # current_dir + "/results_3/mode_10_scalar_9_chems_100/1/20260423-004818"# "/results_3/mode_10_scalar_9_chems_converted/0/20260420-190254"
-        current_dir + #"/results_4/mode_9_converted_9_chems"#20251124-005417" 
-        #"/results_4/20251112-001951"
+        current_dir  # "/results_4/mode_9_converted_9_chems"#20251124-005417"
+        +
+        # "/results_4/20251112-001951"
         "/results_4/mode_9_rand/0/20251105-152312"
-        #"/results_4/mode_9_scalar_10/1/20251124-005417"
+        # "/results_4/mode_9_scalar_10/1/20251124-005417"
         # + "/results_3/mode_9_scalar_converted_9_chems"
         # + "/results_3/mode_9_scalar_9_chems_converted/0/20260419-173857"
     )  # "/results_3/mode_9_scalar_11_chems_200/1/20260416-180301"
@@ -1393,12 +1409,12 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         metatrain_dataset_3=metatrain_dataset_3 if dataset_name == "COMBINED_2" else None,
         display=display,
-        lr=0.0003,#0.0005,  # 0.0005,
+        lr=0.0007,  # 0.0005,  # 0.0005,
         numberOfClasses=(
             numberOfClasses_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else numberOfClasses
         ),
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,  # chemicalEnum.different,  # chemicalEnum.same,
         trainSeparateFeedback=False,
         feedbackSeparateModel=feedbackModel,
         trainSameFeedback=False,
@@ -1406,8 +1422,8 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=continue_training_index,
-        typeOfFeedback=typeOfFeedbackEnum.scalar,  # scalar_sign,
+        continueTraining=continue_training,
+        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
         hrm_discount=-1,
         error_control=False,
@@ -1439,7 +1455,7 @@ def run(seed: int, display: bool = True, result_subdirectory: str = "testing", i
     )
 
     metalearning_model.train()
-    #exit()
+    # exit()
 
 
 def main():
@@ -1465,12 +1481,13 @@ def main():
         max_taus = os.listdir(inner_folder)
         for max_tau in max_taus:
             inner_inner_folder = inner_folder + "/" + max_tau
-            run(
-                seed=0,
-                display=True,
-                result_subdirectory="mode_10_scalar_13_chems_extended_full_sweep_200",
-                index=0,
-                min_tau=int(min_tau),
-                max_tau=int(max_tau),
-                continue_training_index=inner_inner_folder
-            )
+
+    run(
+        seed=0,
+        display=True,
+        result_subdirectory="mode_9_grad_squared",
+        index=0,
+        min_tau=2,  # int(min_tau),
+        max_tau=50,  # int(max_tau),
+        continue_training_index=None,  # inner_inner_folder
+    )
