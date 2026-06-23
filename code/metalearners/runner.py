@@ -1218,7 +1218,7 @@ def run(
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4, 6, 9],  # 5
+            update_rules=[0, 1, 2, 3, 4, 5, 6, 9],  # 5
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
@@ -1442,26 +1442,27 @@ def runner_main():
         # os.getcwd() + "/results_4/mode_7_1_chem/1/20260125-202838",
         # os.getcwd() + "/results_4/CB_gating/0/20260614-171418",
         # os.getcwd() + "/results_4/CB_gating/0/20260614-171833",
+        os.getcwd() + "/results_4/mode_9_grad_squared/0/20260621-232250",
+        os.getcwd() + "/results_4/mode_9_grad_squared/0/20260621-221201",
         # + "/results_3/mode_10_scalar_13_chems_200/2/20260424-130001"
         # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
     ]
-    outer = os.getcwd() + "/results_4/Jax_13_chem_DSEF_full_sweep_200"
     for iiii in range(len(modelPath_s)):
         for index_outer in range(0, 30):
             run(
                 seed=0,
                 display=True,
                 result_subdirectory=[
-                    "runner_K_FAC_DFA_5_chems",
-                    "runner_K_FAC_DFA_3_chems",
-                    "runner_K_FAC_DFA_1_chems",
+                    "runner_grad_squared_1",
+                    "runner_grad_squared_2",
+                    "runner_grad_squared_3  ",
                 ][iiii],
                 index=index_outer,
                 typeOfFeedback=[typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.DFA_grad][
                     iiii
                 ],
                 modelPath=modelPath_s[iiii],
-                numberOfChemicals=[5, 3, 1][iiii],
+                numberOfChemicals=[5, 5, 1][iiii],
                 gating=[gatingEnum.no_gating, gatingEnum.no_gating, gatingEnum.no_gating][iiii],
                 operator=operatorEnum.mode_9,
             )
