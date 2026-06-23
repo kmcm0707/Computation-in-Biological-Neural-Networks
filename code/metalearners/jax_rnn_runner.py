@@ -577,7 +577,7 @@ def jax_runner(index: int, result_subdirectory: str, modelPath: str):
 
 
 def main_jax_runner():
-    outer = os.getcwd() + "/results_4/Jax_13_chem_DSEF_full_sweep"
+    outer = os.getcwd() + "/results_4/Jax_13_chem_DSEF_full_sweep_200"
     tau_min = os.listdir(outer)
     for tau in tau_min:
         inner = outer + "/" + tau
@@ -587,6 +587,6 @@ def main_jax_runner():
             for index_outer in range(0, 30):
                 jax_runner(
                     index=index_outer,
-                    result_subdirectory="runner_13_chem_DSEF_full_sweep/" + tau + "/" + tau2,
+                    result_subdirectory="runner_13_chem_DSEF_full_sweep_200/" + tau + "/" + tau2,
                     modelPath=inner2,
                 )
