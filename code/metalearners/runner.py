@@ -1012,34 +1012,34 @@ def run(
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
     trainingDataPerClass = [
-        # 0,
-        # 5,
-        # 10,
-        # 20,
+        0,
+        5,
+        10,
+        20,
         30,
         40,
         50,
-        # 60,
-        # 70,
+        60,
+        70,
         80,
-        # 90,
-        # 100,
-        # 110,
-        # 120,
-        # 130,
-        # 140,
+        90,
+        100,
+        110,
+        120,
+        130,
+        140,
         150,
-        # 160,
-        # 170,
-        # 180,
-        # 190,
+        160,
+        170,
+        180,
+        190,
         200,
-        # 225,
-        # 250,
-        # 275,
-        # 300,
-        # 325,
-        # 350,
+        225,
+        250,
+        275,
+        300,
+        325,
+        350,
         375,
     ]
     if index >= len(trainingDataPerClass):
@@ -1084,7 +1084,7 @@ def run(
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
-    queryDataPerClass = 100
+    queryDataPerClass = 20
     dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
