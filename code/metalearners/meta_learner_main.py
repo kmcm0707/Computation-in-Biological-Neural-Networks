@@ -1143,7 +1143,7 @@ def run(
 
     dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED", "COMBINED_2"
     minTrainingDataPerClass = 5
-    maxTrainingDataPerClass = 200
+    maxTrainingDataPerClass = 160
     queryDataPerClass = 20
     dataset_1 = None
     dataset_2 = None
@@ -1476,9 +1476,10 @@ def main():
     # torch.autograd.set_detect_anomaly(True)
     outer_folder = os.getcwd() + "/results_4/mode_10_scalar_13_chems_extended_full_sweep"
     min_taus = os.listdir(outer_folder)
-    min_taus = sorted(min_taus, key=lambda x: int(x))
+    #min_taus = sorted(min_taus, key=lambda x: int(x))
 
     for min_tau in min_taus:
+        min_tau="2"
         inner_folder = outer_folder + "/" + min_tau + "/0"
         max_taus = os.listdir(inner_folder)
         max_taus = sorted(max_taus, key=lambda x: int(x))
