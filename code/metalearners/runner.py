@@ -1455,7 +1455,7 @@ def runner_main():
                 result_subdirectory=[
                     "runner_grad_squared_1",
                     "runner_grad_squared_2",
-                    "runner_grad_squared_3  ",
+                    "runner_grad_squared_3",
                 ][iiii],
                 index=index_outer,
                 typeOfFeedback=[typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.DFA_grad][

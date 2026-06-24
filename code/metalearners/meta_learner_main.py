@@ -255,7 +255,7 @@ class MetaLearner:
                 + str(metaLearnerOptions.seed)
                 + "/"
                 + str(self.modelOptions.maxTau)
-                #+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+                # + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
             )
             os.makedirs(self.result_directory, exist_ok=False)
             with open(self.result_directory + "/arguments.txt", "w") as f:
@@ -1263,7 +1263,7 @@ def run(
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4, 5, 6, 9],
+            update_rules=[0, 1, 2, 3, 4, 6, 9],
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
@@ -1409,12 +1409,12 @@ def run(
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         metatrain_dataset_3=metatrain_dataset_3 if dataset_name == "COMBINED_2" else None,
         display=display,
-        lr=0.0007,  # 0.0005,  # 0.0005,
+        lr=0.0003,  # 0.0005,  # 0.0005,
         numberOfClasses=(
             numberOfClasses_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else numberOfClasses
         ),
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,  # chemicalEnum.different,  # chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.same,  # chemicalEnum.different,  # chemicalEnum.same,
         trainSeparateFeedback=False,
         feedbackSeparateModel=feedbackModel,
         trainSameFeedback=False,
@@ -1422,8 +1422,8 @@ def run(
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=continue_training,
-        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+        continueTraining=continue_training_index,
+        typeOfFeedback=typeOfFeedbackEnum.scalar,
         dimOut=dimOut,
         hrm_discount=-1,
         error_control=False,
@@ -1476,18 +1476,20 @@ def main():
     # torch.autograd.set_detect_anomaly(True)
     outer_folder = os.getcwd() + "/results_4/mode_10_scalar_13_chems_extended_full_sweep"
     min_taus = os.listdir(outer_folder)
+    min_taus = sorted(min_taus, key=lambda x: int(x))
+
     for min_tau in min_taus:
         inner_folder = outer_folder + "/" + min_tau + "/0"
         max_taus = os.listdir(inner_folder)
+        max_taus = sorted(max_taus, key=lambda x: int(x))
         for max_tau in max_taus:
             inner_inner_folder = inner_folder + "/" + max_tau
-
-    run(
-        seed=0,
-        display=True,
-        result_subdirectory="mode_9_grad_squared",
-        index=0,
-        min_tau=2,  # int(min_tau),
-        max_tau=50,  # int(max_tau),
-        continue_training_index=None,  # inner_inner_folder
-    )
+            run(
+                seed=0,
+                display=True,
+                result_subdirectory="mode_10_scalar_13_chems_extended_full_sweep_200",
+                index=0,
+                min_tau=int(min_tau),
+                max_tau=int(max_tau),
+                continue_training_index=inner_inner_folder,
+            )
