@@ -1012,33 +1012,33 @@ def run(
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
     trainingDataPerClass = [
-        0,
-        5,
+        # 0,
+        # 5,
         10,
-        20,
+        # 20,
         30,
         40,
         50,
-        60,
-        70,
+        # 60,
+        # 70,
         80,
         90,
         100,
-        110,
-        120,
-        130,
-        140,
-        150,
+        # 110,
+        # 120,
+        # 130,
+        # 140,
+        # 150,
         160,
-        170,
-        180,
-        190,
-        200,
-        225,
+        # 170,
+        # 180,
+        # 190,
+        # 200,
+        # 225,
         250,
-        275,
-        300,
-        325,
+        # 275,
+        # 300,
+        # 325,
         350,
         375,
     ]
@@ -1447,22 +1447,21 @@ def runner_main():
         # + "/results_3/mode_10_scalar_13_chems_200/2/20260424-130001"
         # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
     ]
-    for iiii in range(len(modelPath_s)):
+    outer_dir = os.getcwd() + "/results_4/mode_10_scalar_13_chems_interleved_full_sweep_200/2/0"
+    tau_maxs = os.listdir(outer_dir)
+
+    # for iiii in range(len(modelPath_s)):
+    for tau_max in tau_maxs:
+        path = os.path.join(outer_dir, tau_max)
         for index_outer in range(0, 30):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory=[
-                    "runner_grad_squared_1",
-                    "runner_grad_squared_2",
-                    "runner_grad_squared_3",
-                ][iiii],
+                result_subdirectory="runner_mode_10_scalar_13_chems_interleved_full_sweep_200/2/" + tau_max,
                 index=index_outer,
-                typeOfFeedback=[typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.DFA_grad, typeOfFeedbackEnum.DFA_grad][
-                    iiii
-                ],
-                modelPath=modelPath_s[iiii],
-                numberOfChemicals=[5, 5, 1][iiii],
-                gating=[gatingEnum.no_gating, gatingEnum.no_gating, gatingEnum.no_gating][iiii],
-                operator=operatorEnum.mode_9,
+                typeOfFeedback=typeOfFeedbackEnum.scalar,
+                modelPath=path,  # modelPath_s[iiii],
+                numberOfChemicals=13,
+                gating=gatingEnum.no_gating,
+                operator=operatorEnum.mode_10,
             )
