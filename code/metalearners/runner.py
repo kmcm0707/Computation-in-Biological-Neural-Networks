@@ -691,9 +691,10 @@ class Runner:
                 self.save_results,
                 typeOfFeedback=self.options.typeOfFeedback,
                 dimOut=self.options.dimOut,
-                calculate_weight_update=True,
+                calculate_weight_update=False,
                 complex_synapse=self.UpdateWeights,
                 h_params=h_parameters,
+                calculate_only_acc=True,
             )
             if self.metatrain_dataset_2 is not None:
                 acc_2 = meta_stats(
@@ -1447,21 +1448,28 @@ def runner_main():
         # + "/results_3/mode_10_scalar_13_chems_200/2/20260424-130001"
         # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
     ]
-    outer_dir = os.getcwd() + "/results_4/mode_10_scalar_13_chems_interleved_full_sweep_200/2/0"
-    tau_maxs = os.listdir(outer_dir)
+    outer_dir = os.getcwd() + "/results_4/mode_10_scalar_13_chems_interleved_full_sweep_200_true/"
+    tau_mins = os.listdir(outer_dir)
 
     # for iiii in range(len(modelPath_s)):
-    for tau_max in tau_maxs:
-        path = os.path.join(outer_dir, tau_max)
-        for index_outer in range(0, 30):
-            run(
-                seed=0,
-                display=True,
-                result_subdirectory="runner_mode_10_scalar_13_chems_interleved_full_sweep_200_2/2/" + tau_max,
-                index=index_outer,
-                typeOfFeedback=typeOfFeedbackEnum.scalar,
-                modelPath=path,  # modelPath_s[iiii],
-                numberOfChemicals=13,
-                gating=gatingEnum.no_gating,
-                operator=operatorEnum.mode_10,
-            )
+    for tau_min in tau_mins:
+        path = os.path.join(outer_dir, tau_min)
+        path = path + "/0/"
+        tau_maxs = os.listdir(path)
+        for tau_max in tau_maxs:
+            path_2 = os.path.join(path, tau_max)
+            for index_outer in range(0, 30):
+                run(
+                    seed=0,
+                    display=True,
+                    result_subdirectory="runner_mode_10_scalar_13_chems_interleved_full_sweep_200_true/"
+                    + tau_min
+                    + "/"
+                    + tau_max,
+                    index=index_outer,
+                    typeOfFeedback=typeOfFeedbackEnum.scalar,
+                    modelPath=path_2,  # modelPath_s[iiii],
+                    numberOfChemicals=13,
+                    gating=gatingEnum.no_gating,
+                    operator=operatorEnum.mode_10,
+                )
