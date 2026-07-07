@@ -512,7 +512,7 @@ def meta_stats(
 
             # K-FAC
             kfac_total_BP_weight_update = []
-            eps = 1e-3  # Tikhonov regularization (damping factor) to ensure invertibility
+            eps = 1e-2  # Tikhonov regularization (damping factor) to ensure invertibility
 
             for idx in range(num_layers):
                 # Stack individual collected samples across the batch

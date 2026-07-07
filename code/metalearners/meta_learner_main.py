@@ -1474,12 +1474,12 @@ def main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    outer_folder = os.getcwd() + "/results_4/mode_10_scalar_13_chems_extended_full_sweep"
+    outer_folder = os.getcwd() + "/results_4/mode_10_scalar_13_chems_interleved_full_sweep"
     min_taus = os.listdir(outer_folder)
     #min_taus = sorted(min_taus, key=lambda x: int(x))
 
     for min_tau in min_taus:
-        min_tau="2"
+        min_tau="9.9"
         inner_folder = outer_folder + "/" + min_tau + "/0"
         max_taus = os.listdir(inner_folder)
         max_taus = sorted(max_taus, key=lambda x: int(x))
@@ -1488,9 +1488,9 @@ def main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="mode_10_scalar_13_chems_interleved_full_sweep_200",
+                result_subdirectory="mode_10_scalar_13_chems_interleved_full_sweep_200_true",
                 index=0,
-                min_tau=int(min_tau),
+                min_tau=9.9,
                 max_tau=int(max_tau),
                 continue_training_index=inner_inner_folder,
             )

@@ -1457,7 +1457,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_mode_10_scalar_13_chems_interleved_full_sweep_200/2/" + tau_max,
+                result_subdirectory="runner_mode_10_scalar_13_chems_interleved_full_sweep_200_2/2/" + tau_max,
                 index=index_outer,
                 typeOfFeedback=typeOfFeedbackEnum.scalar,
                 modelPath=path,  # modelPath_s[iiii],
