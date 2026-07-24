@@ -317,9 +317,9 @@ class MetaLearner:
         # -- log params
         self.save_results = save_results
         self.display = True
-        self.result_directory = os.getcwd() + "/results_3"
+        self.result_directory = os.getcwd() + "/results_4"
         if self.save_results:
-            self.result_directory = os.getcwd() + "/results_3"
+            self.result_directory = os.getcwd() + "/results_4"
             os.makedirs(self.result_directory, exist_ok=True)
             self.result_directory += (
                 "/"
@@ -1099,9 +1099,9 @@ def backprop_main():
         # 1300,
     ]"""
     # ewc=[200000, 500000, 1000000, 1500000]#[500, 1000, 2000, 2500, 3000, 4000, 5000, 7500, 10000]
-    lrs = [1e-1, 7e-2, 5e-2, 3e-2, 1e-2, 7e-3, 5e-3, 3e-3, 1e-3, 7e-4, 5e-4, 3e-4, 1e-4, 7e-5, 5e-5, 3e-5, 1e-5]
-    beta_1s = [0.5, 0.6, 0.7, 0.8, 0.9, 0.99]
-    beta_2s = [0.5, 0.6, 0.7, 0.8, 0.9, 0.99, 0.999, 0.9999, 0.99999]
+    lrs = [5e-2, 3e-2, 1e-2, 5e-3, 3e-3, 1e-3, 5e-4, 3e-4, 1e-4, 5e-5, 3e-5, 1e-5]
+    beta_1s = [0.5, 0.7, 0.9, 0.99]
+    beta_2s = [0.5, 0.7, 0.9, 0.999, 0.99999]
 
     for lr in lrs:
         for beta_1 in beta_1s:
