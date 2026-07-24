@@ -1143,7 +1143,7 @@ def run(
 
     dataset_name = "EMNIST"  # "EMNIST", "FASHION-MNIST", "COMBINED", "COMBINED_2"
     minTrainingDataPerClass = 5
-    maxTrainingDataPerClass = 160
+    maxTrainingDataPerClass = 80
     queryDataPerClass = 20
     dataset_1 = None
     dataset_2 = None
@@ -1409,12 +1409,12 @@ def run(
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         metatrain_dataset_3=metatrain_dataset_3 if dataset_name == "COMBINED_2" else None,
         display=display,
-        lr=0.0003,  # 0.0005,  # 0.0005,
+        lr=0.0005,  # 0.0005,  # 0.0005,
         numberOfClasses=(
             numberOfClasses_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else numberOfClasses
         ),
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,  # chemicalEnum.different,  # chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,  # chemicalEnum.different,  # chemicalEnum.same,
         trainSeparateFeedback=False,
         feedbackSeparateModel=feedbackModel,
         trainSameFeedback=False,
@@ -1422,8 +1422,8 @@ def run(
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=continue_training_index,
-        typeOfFeedback=typeOfFeedbackEnum.scalar,
+        continueTraining=continue_training,
+        typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
         hrm_discount=-1,
         error_control=False,
@@ -1444,7 +1444,7 @@ def run(
     )
 
     # -- number of chemicals
-    numberOfChemicals = 13
+    numberOfChemicals = 5
     # -- meta-train
     metalearning_model = MetaLearner(
         device=device,
@@ -1474,23 +1474,15 @@ def main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    outer_folder = os.getcwd() + "/results_4/mode_10_scalar_13_chems_interleved_full_sweep"
-    min_taus = os.listdir(outer_folder)
-    #min_taus = sorted(min_taus, key=lambda x: int(x))
+    taus = [10, 20, 40, 50, 100, 200]
+    # min_taus = sorted(min_taus, key=lambda x: int(x))
 
-    for min_tau in min_taus:
-        min_tau="9.9"
-        inner_folder = outer_folder + "/" + min_tau + "/0"
-        max_taus = os.listdir(inner_folder)
-        max_taus = sorted(max_taus, key=lambda x: int(x))
-        for max_tau in max_taus:
-            inner_inner_folder = inner_folder + "/" + max_tau
-            run(
-                seed=0,
-                display=True,
-                result_subdirectory="mode_10_scalar_13_chems_interleved_full_sweep_200_true",
-                index=0,
-                min_tau=9.9,
-                max_tau=int(max_tau),
-                continue_training_index=inner_inner_folder,
-            )
+    for tau in taus:
+        run(
+            seed=0,
+            display=True,
+            result_subdirectory="mode_9_DFA_grad_same_tau",
+            index=0,
+            min_tau=tau,
+            max_tau=tau,
+        )
