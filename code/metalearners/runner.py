@@ -1013,35 +1013,35 @@ def run(
     numberOfClasses = None
     # trainingDataPerClass = [90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
     trainingDataPerClass = [
-        # 0,
-        # 5,
+        0,
+        5,
         10,
-        # 20,
+        20,
         30,
         40,
         50,
         60,
-        70,
-        80,
-        90,
-        100,
+        # 70,
+        # 80,
+        # 90,
+        # 100,
         # 110,
         # 120,
         # 130,
         # 140,
         # 150,
-        160,
+        # 160,
         # 170,
         # 180,
         # 190,
         # 200,
         # 225,
-        250,
+        # 250,
         # 275,
         # 300,
         # 325,
-        350,
-        375,
+        # 350,
+        # 375,
     ]
     if index >= len(trainingDataPerClass):
         return
@@ -1086,7 +1086,7 @@ def run(
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "EMNIST"
+    dataset_name = "COMBINED"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -1223,8 +1223,8 @@ def run(
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
-            minTau=2,
-            maxTau=50,
+            minTau=100,
+            maxTau=100,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
             operator=operator,  # _pre_activation,
@@ -1443,33 +1443,25 @@ def runner_main():
         # os.getcwd() + "/results_4/mode_7_1_chem/1/20260125-202838",
         # os.getcwd() + "/results_4/CB_gating/0/20260614-171418",
         # os.getcwd() + "/results_4/CB_gating/0/20260614-171833",
-        os.getcwd() + "/results_4/mode_9_grad_squared/0/20260621-232250",
-        os.getcwd() + "/results_4/mode_9_grad_squared/0/20260621-221201",
+        # os.getcwd() + "/results_4/mode_9_grad_squared/0/20260621-232250",
+        # os.getcwd() + "/results_4/mode_9_grad_squared/0/20260621-221201",
+        os.getcwd() + "/results_4/mode_9_DFA_grad_same_tau_CB_3/100/0/100",
         # + "/results_3/mode_10_scalar_13_chems_200/2/20260424-130001"
         # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
     ]
     outer_dir = os.getcwd() + "/results_4/mode_10_scalar_13_chems_interleved_full_sweep_200_true/"
     tau_mins = os.listdir(outer_dir)
 
-    # for iiii in range(len(modelPath_s)):
-    for tau_min in tau_mins:
-        path = os.path.join(outer_dir, tau_min)
-        path = path + "/0/"
-        tau_maxs = os.listdir(path)
-        for tau_max in tau_maxs:
-            path_2 = os.path.join(path, tau_max)
-            for index_outer in range(0, 30):
-                run(
-                    seed=0,
-                    display=True,
-                    result_subdirectory="runner_mode_10_scalar_13_chems_interleved_full_sweep_200_true/"
-                    + tau_min
-                    + "/"
-                    + tau_max,
-                    index=index_outer,
-                    typeOfFeedback=typeOfFeedbackEnum.scalar,
-                    modelPath=path_2,  # modelPath_s[iiii],
-                    numberOfChemicals=13,
-                    gating=gatingEnum.no_gating,
-                    operator=operatorEnum.mode_10,
-                )
+    for iiii in range(len(modelPath_s)):
+        for index_outer in range(0, 30):
+            run(
+                seed=0,
+                display=True,
+                result_subdirectory="mode_9_DFA_grad_same_tau_CB_3",
+                index=index_outer,
+                typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
+                modelPath=modelPath_s[iiii],
+                numberOfChemicals=5,
+                gating=gatingEnum.no_gating,
+                operator=operatorEnum.mode_9,
+            )
