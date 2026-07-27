@@ -1374,13 +1374,13 @@ def run(
         # current_dir + #"/results_3/mode_9_scalar_converted_13_chems" #+ "/results_3/mode_9_3_datasets_9_chems/0/20260427-125628"
         # +"/results_3/mode_10_extended_13_chems"
         # "/results_3/20251111-203959"
-        current_dir + "/results_3/mode_9_CB/5/20251112-220930"
+        current_dir + "/results_4/mode_9_CB/5/20251112-001951"
         # +"/results_3/mode_9_3_datasets_9_chems/2/20260426-204647"
         # + "/results_3/mode_9_3_datasets_13_chems/2/20260427-203241" #mode_9_CB_converted_13_chems"  # "/results_3/mode_9_CB/5/20251112-001951"
         # + "/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"
         # current_dir + "/results_3/mode_10_scalar_9_chems_100/1/20260423-004818"# "/results_3/mode_10_scalar_9_chems_converted/0/20260420-190254"
         #current_dir  # "/results_4/mode_9_converted_9_chems"#20251124-005417"
-        +
+        
         # "/results_4/20251112-001951"
         #"/results_4/mode_9_rand/0/20251105-152312"
         # "/results_4/mode_9_scalar_10/1/20251124-005417"
@@ -1391,7 +1391,7 @@ def run(
     #  current_dir + "/results_3/mode_9_rand/0/20251105-152312"
     # )  # "/results_3/mode_9/0/20251107-172732"
     # -- meta-learner options
-    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
+    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P and K matrices (check 1.5)
@@ -1409,7 +1409,7 @@ def run(
         metatrain_dataset_2=metatrain_dataset_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         metatrain_dataset_3=metatrain_dataset_3 if dataset_name == "COMBINED_2" else None,
         display=display,
-        lr=0.0007,  # 0.0005,  # 0.0005,
+        lr=0.0003,  # 0.0005,  # 0.0005,
         numberOfClasses=(
             numberOfClasses_1 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else numberOfClasses
         ),
@@ -1474,14 +1474,14 @@ def main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    taus = [10, 20, 40, 50, 100, 200]
+    taus = [2, 5, 10, 20, 40, 50, 100, 200]
     # min_taus = sorted(min_taus, key=lambda x: int(x))
 
     for tau in taus:
         run(
             seed=0,
             display=True,
-            result_subdirectory="mode_9_DFA_grad_same_tau_CB",
+            result_subdirectory="mode_9_DFA_grad_same_tau_CB_4",
             index=0,
             min_tau=tau,
             max_tau=tau,
