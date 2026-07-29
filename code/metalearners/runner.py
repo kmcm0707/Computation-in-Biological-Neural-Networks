@@ -1337,7 +1337,7 @@ def run(
         numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         numberOfClasses_3=numberOfClasses_3 if dataset_name == "COMBINED_2" else None,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
@@ -1460,7 +1460,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="mode_9_DFA_grad_same_tau/" + tau_min,
+                result_subdirectory="runner_DFA_grad_same_tau/" + tau_min,
                 index=index_outer,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=tau_min_dir,
