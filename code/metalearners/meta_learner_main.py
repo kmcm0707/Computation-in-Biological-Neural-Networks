@@ -1474,7 +1474,7 @@ def main():
     """
     # -- run
     # torch.autograd.set_detect_anomaly(True)
-    taus = [2, 5, 10, 20, 40, 50, 100, 200]
+    taus = [10, 20, 40, 50, 100, 200]
     # min_taus = sorted(min_taus, key=lambda x: int(x))
     outer_index = os.getcwd() + "/results_4/mode_9_DFA_grad_same_tau"
 
@@ -1487,5 +1487,5 @@ def main():
             index=0,
             min_tau=tau,
             max_tau=tau,
-            current_training_index=current_index,
+            continue_training_index=current_index,
         )
