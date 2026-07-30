@@ -979,6 +979,7 @@ def run(
     display: bool = True,
     result_subdirectory: str = "testing",
     index: int = 0,
+    index_2: int = 0,
     typeOfFeedback: typeOfFeedbackEnum = typeOfFeedbackEnum.FA,
     modelPath=None,
     numberOfChemicals=1,
@@ -1022,12 +1023,12 @@ def run(
         50,
         60,
         70,
-        #80,
-        #90,
-        #100,
-        #110,
-        #120,
-        #130,
+        80,
+        90,
+        100,
+        110,
+        120,
+        130,
         #140,
         #150,
         #160,
@@ -1050,6 +1051,8 @@ def run(
     #    return
     trainingDataPerClass_2 = [0, 20, 20]  # [index]
     trainingDataPerClass_3 = [0, 0, 20]  # [index]
+
+    UPDATE_rules = [[0, 1, 9], [0, 2, 9], [0, 3, 9], [0, 4, 9], [0, 6, 9]][index_2]
 
     # trainingDataPerClass = [30, 40, 50, 60]
 
@@ -1086,7 +1089,7 @@ def run(
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "COMBINED"
+    dataset_name = "EMNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -1219,7 +1222,7 @@ def run(
     if model == modelEnum.complex or model == modelEnum.individual:
         modelOptions = complexOptions(
             nonLinear=nonLinearEnum.tanh,
-            update_rules=[0, 1, 2, 3, 4, 5, 6, 9],  # 5
+            update_rules=UPDATE_rules,
             bias=False,
             pMatrix=pMatrixEnum.first_col,
             kMatrix=kMatrixEnum.zero,
@@ -1449,19 +1452,18 @@ def runner_main():
         # + "/results_3/mode_10_scalar_13_chems_200/2/20260424-130001"
         # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
     ]
-    outer_dir = os.getcwd() + "/results_4/mode_9_DFA_grad_same_tau_CB_train_2/"
-    tau_mins = ["20"]
+    outer_dir = os.getcwd() + "/results_4/mode_9_3_ablations_true/0"
+    tau_mins = os.listdir(outer_dir)
 
-    for tau_min in tau_mins:
+    for index_l, tau_min in enumerate(tau_mins):
         tau_min_dir = os.path.join(outer_dir, tau_min)
-        tau_min_dir = os.path.join(tau_min_dir, "0")
-        tau_min_dir = os.path.join(tau_min_dir, tau_min)
         for index_outer in range(0, 30):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_DFA_grad_same_tau_CB_2/" + tau_min,
+                result_subdirectory="runner_DFA_grad_ablation/" + tau_min,
                 index=index_outer,
+                index_2=index_l,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=tau_min_dir,
                 numberOfChemicals=5,
