@@ -1271,7 +1271,7 @@ def run(
             maxTau=max_tau,
             y_vector=yVectorEnum.none,
             z_vector=zVectorEnum.default,
-            operator=operatorEnum.mode_10,  # _pre_activation,
+            operator=operatorEnum.mode_9,  # _pre_activation,
             train_z_vector=False,
             mode=modeEnum.all,
             v_vector=vVectorEnum.default,
@@ -1422,7 +1422,7 @@ def run(
         maxTrainingDataPerClass=maxTrainingDataPerClass,
         queryDataPerClass=queryDataPerClass,
         datasetDevice=device,
-        continueTraining=continue_training_index,
+        continueTraining=continue_training,
         typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
         dimOut=dimOut,
         hrm_discount=-1,
@@ -1476,14 +1476,14 @@ def main():
     # torch.autograd.set_detect_anomaly(True)
     taus = [10, 20, 40, 50, 100, 200]
     # min_taus = sorted(min_taus, key=lambda x: int(x))
-    outer_index = os.getcwd() + "/results_4/mode_9_DFA_grad_same_tau"
+    # outer_index = os.getcwd() + "/results_4/mode_9_DFA_grad_same_tau"
 
     for tau in taus:
         current_index = outer_index + "/{}/0/{}".format(str(tau), str(tau))
         run(
             seed=0,
             display=True,
-            result_subdirectory="mode_9_DFA_grad_same_tau_CB_train",
+            result_subdirectory="mode_9_DFA_grad_same_tau_CB_train_2",
             index=0,
             min_tau=tau,
             max_tau=tau,
