@@ -1450,7 +1450,7 @@ def runner_main():
         # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
     ]
     outer_dir = os.getcwd() + "/results_4/mode_9_DFA_grad_same_tau_CB_train_2/"
-    tau_mins = ["10"]
+    tau_mins = ["20"]
 
     for tau_min in tau_mins:
         tau_min_dir = os.path.join(outer_dir, tau_min)
