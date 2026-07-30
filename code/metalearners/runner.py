@@ -1022,15 +1022,15 @@ def run(
         50,
         60,
         70,
-        80,
-        90,
-        100,
-        110,
-        120,
-        130,
-        140,
-        150,
-        160,
+        #80,
+        #90,
+        #100,
+        #110,
+        #120,
+        #130,
+        #140,
+        #150,
+        #160,
         # 170,
         # 180,
         # 190,
@@ -1086,7 +1086,7 @@ def run(
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "EMNIST"
+    dataset_name = "COMBINED"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -1337,7 +1337,7 @@ def run(
         numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         numberOfClasses_3=numberOfClasses_3 if dataset_name == "COMBINED_2" else None,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
@@ -1449,8 +1449,8 @@ def runner_main():
         # + "/results_3/mode_10_scalar_13_chems_200/2/20260424-130001"
         # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
     ]
-    outer_dir = os.getcwd() + "/results_4/mode_9_DFA_grad_same_tau/"
-    tau_mins = os.listdir(outer_dir)
+    outer_dir = os.getcwd() + "/results_4/mode_9_DFA_grad_same_tau_CB_train_2/"
+    tau_mins = ["10"]
 
     for tau_min in tau_mins:
         tau_min_dir = os.path.join(outer_dir, tau_min)
@@ -1460,7 +1460,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_DFA_grad_same_tau/" + tau_min,
+                result_subdirectory="runner_DFA_grad_same_tau_CB_2/" + tau_min,
                 index=index_outer,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=tau_min_dir,

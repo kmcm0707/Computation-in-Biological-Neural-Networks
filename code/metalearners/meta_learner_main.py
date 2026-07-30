@@ -1141,7 +1141,7 @@ def run(
     numWorkers = 2
     epochs = 1200
 
-    dataset_name = "COMBINED"  # "EMNIST", "FASHION-MNIST", "COMBINED", "COMBINED_2"
+    dataset_name = "COMBINED_2"  # "EMNIST", "FASHION-MNIST", "COMBINED", "COMBINED_2"
     minTrainingDataPerClass = 5
     maxTrainingDataPerClass = 40
     queryDataPerClass = 20
@@ -1391,7 +1391,7 @@ def run(
     #  current_dir + "/results_3/mode_9_rand/0/20251105-152312"
     # )  # "/results_3/mode_9/0/20251107-172732"
     # -- meta-learner options
-    device: Literal["cpu", "cuda"] = "cuda:0" if torch.cuda.is_available() else "cpu"
+    device: Literal["cpu", "cuda"] = "cuda:1" if torch.cuda.is_available() else "cpu"
     metaLearnerOptions = MetaLearnerOptions(
         scheduler=schedulerEnum.none,
         metaLossRegularization=0,  # L1 regularization on P and K matrices (check 1.5)
@@ -1479,13 +1479,13 @@ def main():
     # outer_index = os.getcwd() + "/results_4/mode_9_DFA_grad_same_tau"
 
     for tau in taus:
-        current_index = outer_index + "/{}/0/{}".format(str(tau), str(tau))
+        #current_index = outer_index + "/{}/0/{}".format(str(tau), str(tau))
         run(
             seed=0,
             display=True,
-            result_subdirectory="mode_9_DFA_grad_same_tau_CB_train_2",
+            result_subdirectory="mode_9_DFA_grad_same_tau_3_DATA_train_2",
             index=0,
             min_tau=tau,
             max_tau=tau,
-            continue_training_index=current_index,
+            #continue_training_index=current_index,
         )
