@@ -1059,7 +1059,7 @@ def run(
     """ trainingDataPerClass = [
         250,
     ]"""
-    """trainingDataPerClass = [
+    trainingDataPerClass = [
         10,       # 30,
         # 40,
         50,
@@ -1076,20 +1076,26 @@ def run(
         800,
         # 900,
         # 950,
-        # 1000,
+        1000,
         # 1050,
         # 1100,
         # 1150,
-        # 1200,
+        1200,
         # 1250,
-        # 1300,
-    ]"""
+        1300,
+        1500,
+        1750,
+        2000,
+        3000,
+        5000,
+        10000,
+    ]
     # trainingDataPerClass = [200, 225, 250, 275, 300, 325, 350, 375]
     # trainingDataPerClass = [200, 250, 300, 350, 375]
     minTrainingDataPerClass = trainingDataPerClass[index]
     maxTrainingDataPerClass = trainingDataPerClass[index]
     queryDataPerClass = 20
-    dataset_name = "COMBINED"
+    dataset_name = "FASHION-MNIST"
 
     if dataset_name == "EMNIST":
         numberOfClasses = 5
@@ -1101,7 +1107,7 @@ def run(
         )
         dimOut = 47
     elif dataset_name == "FASHION-MNIST":
-        numberOfClasses = 10
+        numberOfClasses = 5
         dataset = FashionMnistDataset(
             minTrainingDataPerClass=minTrainingDataPerClass,
             maxTrainingDataPerClass=maxTrainingDataPerClass,
@@ -1340,7 +1346,7 @@ def run(
         numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         numberOfClasses_3=numberOfClasses_3 if dataset_name == "COMBINED_2" else None,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.same,
+        chemicalInitialization=chemicalEnum.different,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
@@ -1441,32 +1447,32 @@ def runner_main():
         # os.getcwd() + "/results_4/error_1_fixed/0/20251009-194350",
         # os.getcwd() + "/results_4/mode_9_9_chem/0/20260611-185437",
         # os.getcwd() + "/results_4/mode_9_scalar_9_chems_converted_true/0/20260420-043518"
-        # os.getcwd() + "/results_4/mode_9_rand/0/20251105-152312",
+        os.getcwd() + "/results_4/mode_9_rand/0/20251105-152312",
         # os.getcwd() + "/results_4/20251103-214650",
         # os.getcwd() + "/results_4/mode_7_1_chem/1/20260125-202838",
         # os.getcwd() + "/results_4/CB_gating/0/20260614-171418",
         # os.getcwd() + "/results_4/CB_gating/0/20260614-171833",
         # os.getcwd() + "/results_4/mode_9_grad_squared/0/20260621-232250",
         # os.getcwd() + "/results_4/mode_9_grad_squared/0/20260621-221201",
-        os.getcwd() + "/results_4/mode_9_DFA_grad_same_tau_CB_3/100/0/100",
+        #os.getcwd() + "/results_4/mode_9_DFA_grad_same_tau_CB_3/100/0/100",
         # + "/results_3/mode_10_scalar_13_chems_200/2/20260424-130001"
         # +"/results_3/mode_10_scalar_13_chems_100/1/20260424-042527"#mode_9_scalar_9_chems_100_gating/0/20260423-235530"
     ]
-    outer_dir = os.getcwd() + "/results_4/mode_9_DFA_grad_same_tau_CB_train_2/"
-    tau_mins = ["40", "50", "100", "200"]
+    #outer_dir = os.getcwd() + "/results_4/mode_9_DFA_grad_same_tau_CB_train_2/"
+    #tau_mins = ["40", "50", "100", "200"]
 
-    for tau_min in tau_mins:
-        tau_min_dir = os.path.join(outer_dir, tau_min)
-        tau_min_dir = os.path.join(tau_min_dir, "0")
-        tau_min_dir = os.path.join(tau_min_dir, tau_min)
-        for index_outer in range(0, 30):
+    for x in modelPath_s:
+        #tau_min_dir = os.path.join(outer_dir, tau_min)
+        #tau_min_dir = os.path.join(tau_min_dir, "0")
+        #tau_min_dir = os.path.join(tau_min_dir, tau_min)
+        for index_outer in range(0, 50):
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_DFA_grad_same_tau_CB_2/" + tau_min,
+                result_subdirectory="runner_DFA_grad_longs",
                 index=index_outer,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
-                modelPath=tau_min_dir,
+                modelPath=x,
                 numberOfChemicals=5,
                 gating=gatingEnum.no_gating,
                 operator=operatorEnum.mode_9,
