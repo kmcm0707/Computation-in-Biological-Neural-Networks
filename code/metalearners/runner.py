@@ -1346,7 +1346,7 @@ def run(
         numberOfClasses_2=numberOfClasses_2 if dataset_name == "COMBINED" or dataset_name == "COMBINED_2" else None,
         numberOfClasses_3=numberOfClasses_3 if dataset_name == "COMBINED_2" else None,
         dataset_name=dataset_name,
-        chemicalInitialization=chemicalEnum.different,
+        chemicalInitialization=chemicalEnum.same,
         trainFeedback=False,
         trainSameFeedback=False,
         feedbackModel=feedbackModel,
@@ -1447,7 +1447,7 @@ def runner_main():
         # os.getcwd() + "/results_4/error_1_fixed/0/20251009-194350",
         # os.getcwd() + "/results_4/mode_9_9_chem/0/20260611-185437",
         # os.getcwd() + "/results_4/mode_9_scalar_9_chems_converted_true/0/20260420-043518"
-        os.getcwd() + "/results_4/DFA_5_chem_longer/2/20251014-003536" #mode_9_rand/0/20251105-152312",
+        os.getcwd() + "/results_4/mode_9_longer_post_train_fashion/1/20251126-025553" #mode_9_rand/0/20251105-152312",
         # os.getcwd() + "/results_4/20251103-214650",
         # os.getcwd() + "/results_4/mode_7_1_chem/1/20260125-202838",
         # os.getcwd() + "/results_4/CB_gating/0/20260614-171418",
@@ -1469,7 +1469,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_DFA_grad_longs",
+                result_subdirectory="runner_DFA_grad_longsgs",
                 index=index_outer,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=x,
