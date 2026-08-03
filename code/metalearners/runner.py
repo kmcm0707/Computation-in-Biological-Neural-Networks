@@ -1044,8 +1044,8 @@ def run(
         # 350,
         # 375,
     ]
-    if index >= len(trainingDataPerClass):
-        return
+    #if index >= len(trainingDataPerClass):
+    #    return
     trainingDataPerClass_1 = 20
     # if index >= 3:
     #    return
@@ -1469,7 +1469,7 @@ def runner_main():
             run(
                 seed=0,
                 display=True,
-                result_subdirectory="runner_DFA_grad_longsgs",
+                result_subdirectory="runner_DFA__grad_longsgs",
                 index=index_outer,
                 typeOfFeedback=typeOfFeedbackEnum.DFA_grad,
                 modelPath=x,
