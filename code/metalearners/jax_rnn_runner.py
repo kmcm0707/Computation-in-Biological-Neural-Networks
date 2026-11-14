@@ -247,6 +247,14 @@ class JaxMetaLearnerRNN:
         scaler_error,
         correct_class_probability,
         weight_history,
+
+
+
+
+
+
+
+        
         bp_weight_history,
     ) = jax.lax.scan(
                 self.inner_loop_per_image,
