@@ -13,8 +13,21 @@ class EmnistDataset:
     def __init__(self, minTrainingDataPerClass, maxTrainingDataPerClass, queryDataPerClass,
                  dimensionOfImage=28, use_jax=True):
         self.root = str(Path(__file__).resolve().parents[2] / "data" / "emnist")
+        if not os.path.isdir(self.root):
+            raise FileNotFoundError(f"EMNIST dataset directory not found: {self.root}")
         self.classes = sorted(folder for folder in os.listdir(self.root)
                               if os.path.isdir(os.path.join(self.root, folder)))
+        if not self.classes:
+            raise FileNotFoundError(f"No class folders found in EMNIST dataset: {self.root}")
+        required_images = maxTrainingDataPerClass + queryDataPerClass
+        insufficient = [folder for folder in self.classes
+                        if len([name for name in os.listdir(os.path.join(self.root, folder))
+                                if os.path.isfile(os.path.join(self.root, folder, name))]) < required_images]
+        if insufficient:
+            raise ValueError(
+                f"Each EMNIST class needs at least {required_images} images; "
+                f"insufficient images in: {', '.join(insufficient[:5])}"
+            )
         self.k = maxTrainingDataPerClass
         self.q = queryDataPerClass
         self.image_size = dimensionOfImage

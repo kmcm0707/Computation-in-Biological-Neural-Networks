@@ -1,9 +1,10 @@
-import os
+﻿import os
 from pathlib import Path
 from typing import Optional
 import equinox as eqx
 import jax
 import jax.numpy as jnp
+import numpy as np
 import optax
 from misc.jax_data import DataProcess, EmnistDataset, emnist_batches
 from misc.jax_utils import Plot, accuracy, log
@@ -18,6 +19,56 @@ from options.jax_rnn_meat_learner_options import (
 from synapses.jax_fast_rnn import JAXFastRnn
 
 DATASET_NAME = "emnist"
+SAVE_WEIGHT_DIAGNOSTICS = os.environ.get("CBNN_SAVE_WEIGHT_DIAGNOSTICS", "0") == "1"
+
+
+def save_npy(path: str, array: np.ndarray) -> None:
+    """Write a NumPy array through a binary stream on Windows and POSIX."""
+    with open(path, "wb") as stream:
+        np.save(stream, array)
+
+
+def save_weight_diagnostics(result_directory: str, episode: int, complex_history, bp_history) -> None:
+    """Save sampled per-layer updates in the padded format used by alignment_angle_bp.py."""
+    def as_layer_arrays(history):
+        arrays = []
+        for layer_history in history:
+            array = np.asarray(layer_history)
+            # The runner currently evaluates one task per episode. The task
+            # axis is retained by the outer scan, so remove it here.
+            if array.ndim == 4 and array.shape[0] == 1:
+                array = array[0]
+            if array.ndim != 3:
+                raise ValueError(
+                    f"Expected sampled updates shaped (samples, inputs, outputs), got {array.shape}"
+                )
+            arrays.append(array)
+        return arrays
+
+    histories = (as_layer_arrays(complex_history), as_layer_arrays(bp_history))
+    if len(histories[0]) != len(histories[1]):
+        raise ValueError("Complex and BP histories have different layer counts")
+    layer_shapes = np.asarray([array.shape[1:] for array in histories[0]], dtype=np.int32)
+    if not np.array_equal(layer_shapes, np.asarray([array.shape[1:] for array in histories[1]])):
+        raise ValueError("Complex and BP layer shapes differ")
+    if any(array.shape[0] != histories[0][0].shape[0] for arrays in histories for array in arrays):
+        raise ValueError("Sample counts differ between saved layers")
+
+    max_rows = int(layer_shapes[:, 0].max())
+    max_cols = int(layer_shapes[:, 1].max())
+    sample_count = histories[0][0].shape[0]
+    for kind, arrays in zip(("weight_changes", "bp_weight_changes"), histories):
+        dtype = np.result_type(*(array.dtype for array in arrays))
+        padded = np.zeros((len(arrays), sample_count, max_rows, max_cols), dtype=dtype)
+        for layer, array in enumerate(arrays):
+            rows, cols = array.shape[1:]
+            padded[layer, :, :rows, :cols] = array
+        #This is where I save the change in weights matrices
+        save_npy(os.path.join(result_directory, f"{kind}_episode_{episode:04d}.npy"), padded)
+        save_npy(
+            os.path.join(result_directory, f"{kind}_episode_{episode:04d}_layer_shapes.npy"),
+            layer_shapes,
+        )
 
 
 class JaxMetaLearnerRNN:
@@ -30,10 +81,10 @@ class JaxMetaLearnerRNN:
         numberOfChemicals: int = 1,
         metaTrainingDataset: Optional[EmnistDataset] = None,
         #Changing this below
-        tracked_layer: int = 3,
+        tracked_layer: int = 4,
         tracked_neuron: int = 40,
         tracked_input_synapse: int = 8,
-        weight_sample_blocksize: int = 20,
+        weight_sample_blocksize: int = 3,
         bp_learning_rate: float = 0.01,
     ):
         self.jaxMetaLearnerOptions = jaxMetaLearnerOptions
@@ -93,7 +144,9 @@ class JaxMetaLearnerRNN:
             with open(self.result_directory + "/arguments.txt", "w") as f:
                 f.writelines(str(self.jaxMetaLearnerOptions))
                 f.writelines(str(modelOptions))
-
+            self.accuracy_by_episode_path = os.path.join(self.result_directory, "accuracy_by_episode.txt")
+            with open(self.accuracy_by_episode_path, "w", encoding="utf-8") as f:
+                f.write("episode\taccuracy\n")
             self.average_window = 10
             self.plot = Plot(self.result_directory, self.average_window)
 
@@ -162,17 +215,12 @@ class JaxMetaLearnerRNN:
             )
             for new_parameter, old_parameter in zip(new_parameters, parameters)
         )
-        bp_delta_weights = compute_bp_delta_w(rnn, x, labels, learning_rate=self.bp_learning_rate)
-        sampled_bp_weight_changes = tuple(
-            jax.lax.cond(
-                is_sample_step,
-                lambda delta=delta: delta,
-                lambda delta=delta: jnp.zeros_like(delta),
-            )
-            for delta in bp_delta_weights
+        sampled_bp_weight_changes = jax.lax.cond(
+            is_sample_step,
+            lambda: compute_bp_delta_w(rnn, x, labels, learning_rate=self.bp_learning_rate),
+            lambda: tuple(jnp.zeros_like(parameter.weight.T) for parameter in parameters),
         )
         sample_slot = sample_slot + is_sample_step.astype(jnp.int32)
-
         new_carry = (new_synaptic_weights, new_parameters, new_rnn, hidden_state, metaOptimizer, step_idx + 1, sample_slot)
         return new_carry, (y, tracked_chemicals, scaler_error, correct_class_probability, sampled_weight_changes, sampled_bp_weight_changes)
 
@@ -199,7 +247,7 @@ class JaxMetaLearnerRNN:
         scaler_error,
         correct_class_probability,
         weight_history,
-        bp_weight_history
+        bp_weight_history,
     ) = jax.lax.scan(
                 self.inner_loop_per_image,
                 (synaptic_weights, parameters, rnn, None, metaOptimizer, jnp.array(0), jnp.array(0)),
@@ -360,48 +408,20 @@ class JaxMetaLearnerRNN:
            if self.save_results:
                log([loss.item()], self.result_directory + "/loss_meta.txt")
                log([acc], self.result_directory + "/acc_meta.txt")
+               with open(self.accuracy_by_episode_path, "a", encoding="utf-8") as f:
+                   f.write(f"{eps + 1}\t{float(acc):.6f}\n")
                self.save_neuron_chemical_plot(tracked_chemicals, scaler_error, correct_class_probability, eps + 1)
-               # Store only sampled changes, with layer first. Pad to the
-               # largest layer matrix and save true dimensions separately.
-               layer_changes = [np.asarray(layer_history[0]) for layer_history in weight_changes]
-               max_inputs = max(array.shape[1] for array in layer_changes)
-               max_outputs = max(array.shape[2] for array in layer_changes)
-               saved_weight_changes = np.zeros(
-                   (len(layer_changes), layer_changes[0].shape[0], max_inputs, max_outputs),
-                   dtype=layer_changes[0].dtype,
-               )
-               layer_shapes = np.asarray([array.shape[1:] for array in layer_changes], dtype=np.int32)
-               for layer_index, array in enumerate(layer_changes):
-                   saved_weight_changes[
-                       layer_index, :, : array.shape[1], : array.shape[2]
-                   ] = array
-               np.save(
-                   os.path.join(self.result_directory, f"weight_changes_episode_{eps + 1:04d}.npy"),
-                   saved_weight_changes,
-               )
-               np.save(
-                   os.path.join(self.result_directory, f"weight_changes_episode_{eps + 1:04d}_layer_shapes.npy"),
-                   layer_shapes,
-               )
-               bp_layer_changes = [np.asarray(layer_history[0]) for layer_history in bp_weight_changes]
-               max_bp_inputs = max(array.shape[1] for array in bp_layer_changes)
-               max_bp_outputs = max(array.shape[2] for array in bp_layer_changes)
-               saved_bp_weight_changes = np.zeros(
-                   (len(bp_layer_changes), bp_layer_changes[0].shape[0], max_bp_inputs, max_bp_outputs),
-                   dtype=bp_layer_changes[0].dtype,
-               )
-               bp_layer_shapes = np.asarray([array.shape[1:] for array in bp_layer_changes], dtype=np.int32)
-               for layer_index, array in enumerate(bp_layer_changes):
-                   saved_bp_weight_changes[layer_index, :, : array.shape[1], : array.shape[2]] = array
-               np.save(os.path.join(self.result_directory, f"bp_weight_changes_episode_{eps + 1:04d}.npy"), saved_bp_weight_changes)
-               np.save(os.path.join(self.result_directory, f"bp_weight_changes_episode_{eps + 1:04d}_layer_shapes.npy"), bp_layer_shapes)
+               if SAVE_WEIGHT_DIAGNOSTICS:
+                   save_weight_diagnostics(
+                       self.result_directory, eps + 1, weight_changes, bp_weight_changes
+                   )
            self.weight_changes = tuple(layer_history[0] for layer_history in weight_changes)
 
            line = "Runner Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}\tTraining/Class: {}".format(
                eps + 1, loss.item(), acc, current_training_data_per_class
         )
            if self.jaxMetaLearnerOptions.display:
-               print(line)
+               print(line, flush=True)
 
            if self.save_results:
 
@@ -410,10 +430,27 @@ class JaxMetaLearnerRNN:
             
        if self.save_results:
            self.plot()
+           self.plot_episode_accuracy()
            # -- save model --
            eqx.tree_serialise_leaves(self.result_directory + "/meta_learner_model.eqx", self.metaOptimizer)
 
-       print("Training completed.")
+       print("Training completed.", flush=True)
+
+    def plot_episode_accuracy(self):
+        """Plot the recorded query accuracy for each training episode."""
+        values = np.loadtxt(self.accuracy_by_episode_path, skiprows=1, usecols=1, ndmin=1)
+        episodes = np.arange(1, len(values) + 1)
+        fig, ax = plt.subplots(figsize=(9, 5))
+        ax.plot(episodes, values, marker="o", linewidth=1.8)
+        ax.set_title(f"Accuracy by Episode ({len(values)} episodes)")
+        ax.set_xlabel("Episode")
+        ax.set_ylabel("Query accuracy")
+        ax.set_xticks(episodes)
+        ax.set_ylim(0, 1)
+        ax.grid(True, alpha=0.3)
+        fig.tight_layout()
+        fig.savefig(os.path.join(self.result_directory, "accuracy_by_episode.png"), dpi=150)
+        plt.close(fig)
 
     def save_neuron_chemical_plot(self, chemical_history, scaler_error_history, correct_class_probability, episode: int):
         """Plot each chemical on the selected input-to-neuron synapse over images."""
@@ -499,7 +536,6 @@ class JaxMetaLearnerRNN:
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import numpy as np
 
 
 
@@ -507,8 +543,8 @@ def jax_runner(index: int, result_subdirectory: str, modelPath: str):
     key = jax.random.PRNGKey(42)
     # jax.config.update("jax_enable_x64", False)
 
-    # Retain the intended sample indexes for callers that want periodic snapshots.
-    sample_indices = JaxMetaLearnerRNN.make_sample_list(numtrainingimages=350, blocksize=20)
+    # Save alignment diagnostics every three training images.
+    sample_indices = JaxMetaLearnerRNN.make_sample_list(numtrainingimages=350, blocksize=3)
 
     # -- load data
     training_data = [20, 30, 40, 50, 80, 150, 200, 225, 375]
@@ -586,6 +622,7 @@ def jax_runner(index: int, result_subdirectory: str, modelPath: str):
         key=key,
         numberOfChemicals=13,
         metaTrainingDataset=metatrain_dataset,
+        weight_sample_blocksize=3,
     )
 
     metalearning_model.train()
@@ -636,14 +673,21 @@ def compute_bp_delta_w(rnn, x_image, y_label, learning_rate=0.01):
     return tuple(-learning_rate * layer.weight.T for layer in forward_layers)
 
 
+
 def main_jax_runner():
-    root = Path(__file__).resolve().parents[2] / "results_4" / "Jax_13_chem_DSEF_full_sweep_200"
-    # Run the selected inner loop with tau_min=1, tau_max=400 and 20 examples per class.
-    model_path = str(root / "1" / "400")
+    repo_root = Path(__file__).resolve().parents[2]
+    # The checked-in checkpoint is stored at results_4/<sweep>/1/400.
+    model_path = repo_root / "results_4" / "Jax_13_chem_DSEF_full_sweep_200" / "1" / "400"
+    checkpoint = model_path / "meta_learner_model.eqx"
+    dataset_path = repo_root / "data" / "emnist"
+    if not checkpoint.is_file():
+        raise FileNotFoundError(f"Meta-learner checkpoint not found: {checkpoint}")
+    if not dataset_path.is_dir() or not any(dataset_path.iterdir()):
+        raise FileNotFoundError(f"EMNIST dataset directory is missing or empty: {dataset_path}")
     jax_runner(
         index=0,
         result_subdirectory="inner_loop",
-        modelPath=model_path,
+        modelPath=str(model_path),
     )
 
 
