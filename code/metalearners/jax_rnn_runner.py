@@ -1,11 +1,17 @@
 ﻿import os
 from pathlib import Path
 from typing import Optional
+
 import equinox as eqx
 import jax
 import jax.numpy as jnp
+import matplotlib
 import numpy as np
 import optax
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
 from misc.jax_data import DataProcess, EmnistDataset, emnist_batches
 from misc.jax_utils import Plot, accuracy, log
 from nn.jax_chemical_nn import JAXFeedforwardNN
@@ -19,7 +25,9 @@ from options.jax_rnn_meat_learner_options import (
 from synapses.jax_fast_rnn import JAXFastRnn
 
 DATASET_NAME = "emnist"
-SAVE_WEIGHT_DIAGNOSTICS = os.environ.get("CBNN_SAVE_WEIGHT_DIAGNOSTICS", "0") == "1"
+# Save the sampled complex and backpropagation updates during normal runs.
+# Set CBNN_SAVE_WEIGHT_DIAGNOSTICS=0 to disable these larger diagnostic files.
+SAVE_WEIGHT_DIAGNOSTICS = os.environ.get("CBNN_SAVE_WEIGHT_DIAGNOSTICS", "1") == "1"
 
 
 def save_npy(path: str, array: np.ndarray) -> None:
@@ -63,12 +71,40 @@ def save_weight_diagnostics(result_directory: str, episode: int, complex_history
         for layer, array in enumerate(arrays):
             rows, cols = array.shape[1:]
             padded[layer, :, :rows, :cols] = array
-        #This is where I save the change in weights matrices
         save_npy(os.path.join(result_directory, f"{kind}_episode_{episode:04d}.npy"), padded)
         save_npy(
             os.path.join(result_directory, f"{kind}_episode_{episode:04d}_layer_shapes.npy"),
             layer_shapes,
         )
+
+
+def compute_bp_delta_w(rnn, x_image, y_label, learning_rate: float = 0.01):
+    """
+    Computes the weight change matrix Delta W that standard Backpropagation
+    would prescribe for all layers given the current image and label.
+    """
+    num_classes = rnn.forward5.out_features
+    if y_label.ndim > 0 and y_label.shape[-1] == num_classes:
+        y_one_hot = y_label
+    else:
+        y_one_hot = jax.nn.one_hot(y_label, num_classes=num_classes)
+
+    def loss_fn(model):
+        # Use logits directly; this bypasses the network's feedback error path.
+        y_pred, _, _, _, _ = model(x_image, None, None)
+        return jnp.sum(optax.safe_softmax_cross_entropy(y_pred, y_one_hot))
+
+    grads = eqx.filter_grad(loss_fn)(rnn)
+
+    forward_layers = (
+        grads.forward1,
+        grads.forward2,
+        grads.forward3,
+        grads.forward4,
+        grads.forward5,
+    )
+    # Saved matrices use (input, output), matching the chemical update history.
+    return tuple(-learning_rate * layer.weight.T for layer in forward_layers)
 
 
 class JaxMetaLearnerRNN:
@@ -80,14 +116,15 @@ class JaxMetaLearnerRNN:
         key: jax.random.key,
         numberOfChemicals: int = 1,
         metaTrainingDataset: Optional[EmnistDataset] = None,
-        #Changing this below
-        tracked_layer: int = 4,
+        tracked_layer: int = 2,
         tracked_neuron: int = 40,
         tracked_input_synapse: int = 8,
         weight_sample_blocksize: int = 3,
         bp_learning_rate: float = 0.01,
+        freeze_after_step: int = 50,
     ):
         self.jaxMetaLearnerOptions = jaxMetaLearnerOptions
+        self.freeze_after_step = freeze_after_step
         key1, key2 = jax.random.split(key)
         self.key1 = key1
         self.key2 = key2
@@ -122,13 +159,14 @@ class JaxMetaLearnerRNN:
         self.metaOptimizer = JAXFastRnn(numberOfChemicals, modelOptions)
         # -- load model --
         self.metaOptimizer = eqx.tree_deserialise_leaves(
-            self.jaxMetaLearnerOptions.load_model + "/meta_learner_model.eqx", self.metaOptimizer
+            self.jaxMetaLearnerOptions.load_model + "/meta_learner_model.eqx",
+            self.metaOptimizer,
         )
 
         # -- loss function --
         self.loss_function = optax.safe_softmax_cross_entropy
 
-        # -- log params
+        # -- log params --
         self.result_directory = str(Path(__file__).resolve().parents[2] / "results_4")
         if self.save_results:
             os.makedirs(self.result_directory, exist_ok=True)
@@ -138,8 +176,6 @@ class JaxMetaLearnerRNN:
                 + "/"
                 + str(self.jaxMetaLearnerOptions.minTrainingDataPerClass)
             )
-            # Reuse an existing run directory so rerunning the documented
-            # entry point does not fail before training starts.
             os.makedirs(self.result_directory, exist_ok=True)
             with open(self.result_directory + "/arguments.txt", "w") as f:
                 f.writelines(str(self.jaxMetaLearnerOptions))
@@ -150,8 +186,6 @@ class JaxMetaLearnerRNN:
             self.average_window = 10
             self.plot = Plot(self.result_directory, self.average_window)
 
-    
-    #Below is the list with the times (after this training image) that I want to record all the synaptic variables for all of the neurons!
     @staticmethod
     def make_sample_list(numtrainingimages, blocksize):
         """Return zero-based image indexes at which weight snapshots are taken."""
@@ -163,14 +197,16 @@ class JaxMetaLearnerRNN:
         layers = self.rnn.layers
         self.synaptic_weights = []
         for i in layers:
-            # self.synaptic_weights.append(jnp.empty((numberOfChemicals, i.in_features, i.out_features)))
-            ## Initialize to xavier initialization
             if self.jaxMetaLearnerOptions.chemicalInitialization == "same":
                 temp = jax.nn.initializers.xavier_uniform()(self.key2, (i.in_features, i.out_features))
                 holder = jnp.tile(temp, (self.numberOfChemicals, 1, 1))
             elif self.jaxMetaLearnerOptions.chemicalInitialization == "different":
                 holder = jax.nn.initializers.xavier_uniform()(
                     self.key2, (self.numberOfChemicals, i.in_features, i.out_features)
+                )
+            else:
+                raise ValueError(
+                    f"Unknown chemicalInitialization: {self.jaxMetaLearnerOptions.chemicalInitialization}"
                 )
             self.synaptic_weights.append(holder)
         self.synaptic_weights = tuple(self.synaptic_weights)
@@ -181,7 +217,9 @@ class JaxMetaLearnerRNN:
 
         labels = jax.nn.one_hot(labels, num_classes=self.jaxMetaLearnerOptions.output_size)
 
-        y, hidden_state, activations_arr, errors_arr, scaler_error, correct_class_probability = rnn(x, hidden_state, labels)
+        y, hidden_state, activations_arr, errors_arr, scaler_error, correct_class_probability = rnn(
+            x, hidden_state, labels
+        )
 
         def update_layer(w, p, act, err):
             return metaOptimizer(w, p, act, err)
@@ -190,8 +228,24 @@ class JaxMetaLearnerRNN:
         errors_arr = tuple(errors_arr)
 
         results = jax.tree_util.tree_map(update_layer, synaptic_weights, parameters, activations_arr, errors_arr)
-        new_parameters = tuple(res[0] for res in results)
-        new_synaptic_weights = tuple(res[1] for res in results)
+        computed_parameters = tuple(res[0] for res in results)
+        computed_synaptic_weights = tuple(res[1] for res in results)
+
+        # --- FREEZING LOGIC ---
+        # Freeze early layers (all except final readout layer) once `freeze_after_step` images are processed
+        should_freeze = step_idx >= self.freeze_after_step
+
+        def apply_freeze(old_tuple, new_tuple):
+            frozen_prefix = jax.lax.cond(
+                should_freeze,
+                lambda: old_tuple[:-1],
+                lambda: new_tuple[:-1],
+            )
+            return frozen_prefix + (new_tuple[-1],)
+
+        new_parameters = apply_freeze(parameters, computed_parameters)
+        new_synaptic_weights = apply_freeze(synaptic_weights, computed_synaptic_weights)
+        # ----------------------
 
         num_layers = len(new_parameters)
 
@@ -201,7 +255,6 @@ class JaxMetaLearnerRNN:
             (new_parameters, *new_parameters),
         )
 
-        # Keep the existing chemical-history diagnostic for one selected synapse.
         tracked_chemicals = new_synaptic_weights[self.tracked_layer][
             :, self.tracked_input_synapse, self.tracked_neuron
         ]
@@ -210,7 +263,7 @@ class JaxMetaLearnerRNN:
         sampled_weight_changes = tuple(
             jax.lax.cond(
                 is_sample_step,
-                lambda new=new_parameter, old=old_parameter: new.weight.T - old_parameter.weight.T,
+                lambda new=new_parameter, old=old_parameter: new.weight.T - old.weight.T,
                 lambda new=new_parameter: jnp.zeros_like(new.weight.T),
             )
             for new_parameter, old_parameter in zip(new_parameters, parameters)
@@ -221,47 +274,55 @@ class JaxMetaLearnerRNN:
             lambda: tuple(jnp.zeros_like(parameter.weight.T) for parameter in parameters),
         )
         sample_slot = sample_slot + is_sample_step.astype(jnp.int32)
-        new_carry = (new_synaptic_weights, new_parameters, new_rnn, hidden_state, metaOptimizer, step_idx + 1, sample_slot)
-        return new_carry, (y, tracked_chemicals, scaler_error, correct_class_probability, sampled_weight_changes, sampled_bp_weight_changes)
+        new_carry = (
+            new_synaptic_weights,
+            new_parameters,
+            new_rnn,
+            hidden_state,
+            metaOptimizer,
+            step_idx + 1,
+            sample_slot,
+        )
+        return new_carry, (
+            y,
+            tracked_chemicals,
+            scaler_error,
+            correct_class_probability,
+            sampled_weight_changes,
+            sampled_bp_weight_changes,
+        )
 
-    def full_inner_loop(self, carry, input) -> jnp.ndarray:
+    def full_inner_loop(self, carry, input):
         synaptic_weights, parameters, rnn, metaOptimizer = carry
         x, label = input
 
         number_of_time_steps = self.jaxMetaLearnerOptions.number_of_time_steps
-        # The outer scan item is one complete task (all examples in the
-        # task), not a single image. Flatten the task/example axes while
-        # preserving the image feature dimension, then scan over examples.
         x = jnp.reshape(x, (-1, number_of_time_steps, self.jaxMetaLearnerOptions.input_size))
         label = jnp.reshape(label, (-1,))
         x = jnp.reshape(x, (-1, self.jaxMetaLearnerOptions.input_size))
-        # Labels are class indices for each example. Repeat each label only
-        # when an image itself is split into multiple recurrent time steps.
         label = jnp.repeat(label, number_of_time_steps)
-        self.weight_sample_indices = jnp.asarray(
+
+        sample_indices = jnp.asarray(
             self.make_sample_list(x.shape[0], self.weight_sample_blocksize), dtype=jnp.int32
         )
+        self.weight_sample_indices = sample_indices
+
+        step_idx_init = jnp.array(0, dtype=jnp.int32)
+        sample_slot_init = jnp.array(0, dtype=jnp.int32)
+
         (new_synaptic_weights, new_parameters, new_rnn, hidden_state, metaOptimizer, _, _), (
-        y,
-        tracked_chemicals,
-        scaler_error,
-        correct_class_probability,
-        weight_history,
+            y,
+            tracked_chemicals,
+            scaler_error,
+            correct_class_probability,
+            weight_history,
+            bp_weight_history,
+        ) = jax.lax.scan(
+            self.inner_loop_per_image,
+            (synaptic_weights, parameters, rnn, None, metaOptimizer, step_idx_init, sample_slot_init),
+            (x, label),
+        )
 
-
-
-
-
-
-
-        
-        bp_weight_history,
-    ) = jax.lax.scan(
-                self.inner_loop_per_image,
-                (synaptic_weights, parameters, rnn, None, metaOptimizer, jnp.array(0), jnp.array(0)),
-                (x, label),
-         )
-        sample_indices = jnp.asarray(self.make_sample_list(x.shape[0], self.weight_sample_blocksize))
         weight_changes = jax.tree_util.tree_map(
             lambda history: history[sample_indices], weight_history
         )
@@ -269,13 +330,12 @@ class JaxMetaLearnerRNN:
             lambda history: history[sample_indices], bp_weight_history
         )
         return (
-            new_synaptic_weights, 
-            new_parameters, 
-            new_rnn, 
-            metaOptimizer
+            new_synaptic_weights,
+            new_parameters,
+            new_rnn,
+            metaOptimizer,
         ), (y, tracked_chemicals, scaler_error, correct_class_probability, weight_changes, bp_weight_changes)
 
-        
     def inner_loop_per_image_no_update(self, carry, input):
         hidden_state, rnn = carry
         x = input
@@ -283,10 +343,6 @@ class JaxMetaLearnerRNN:
         return (hidden_state, rnn), y
 
     def full_inner_loop_no_update(self, x, number_of_timesteps, rnn):
-        # DataProcess supplies (tasks, examples, flattened_pixels). Match the
-        # training path: partition pixels into recurrent steps only when the
-        # configured step count requires it. With one step, each input remains
-        # the full 784-feature image expected by forward1.
         input_size = self.jaxMetaLearnerOptions.input_size
         x = jnp.reshape(x, (x.shape[0], x.shape[1], number_of_timesteps, input_size))
         predict = lambda sequence: jax.vmap(
@@ -294,7 +350,6 @@ class JaxMetaLearnerRNN:
         )(sequence)
         return jax.vmap(predict)(x)
 
-    # @eqx.filter_jit
     def compute_meta_loss(
         self,
         metaOptimizer,
@@ -306,22 +361,20 @@ class JaxMetaLearnerRNN:
         x_qry,
         y_qry,
     ):
-
-        synaptic_weights_tuple = synaptic_weights
-        parameters_tuple = rnn_layers
-        rnn = rnn
-
-        # -- inner loop --
         carry_init = (
-            synaptic_weights_tuple,
-            parameters_tuple,
+            synaptic_weights,
+            rnn_layers,
             rnn,
             metaOptimizer,
         )
 
         (new_synaptic_weights, new_parameters, new_rnn, _), (
-            y, tracked_chemicals, scaler_error, correct_class_probability,
-            weight_changes, bp_weight_changes
+            y,
+            tracked_chemicals,
+            scaler_error,
+            correct_class_probability,
+            weight_changes,
+            bp_weight_changes,
         ) = jax.lax.scan(
             self.full_inner_loop,
             carry_init,
@@ -332,8 +385,6 @@ class JaxMetaLearnerRNN:
             x_qry, self.jaxMetaLearnerOptions.number_of_time_steps, new_rnn
         )
 
-        # Shape is (tasks, examples, time_steps, classes). Select the final
-        # recurrent output, then flatten task/example axes to match y_qry.
         qry_predictions = qry_predictions[:, :, -1, :]
         qry_predictions = qry_predictions.reshape((-1, self.jaxMetaLearnerOptions.output_size))
         query_labels = y_qry.reshape((-1,))
@@ -342,7 +393,15 @@ class JaxMetaLearnerRNN:
         avg_loss = jnp.mean(losses)
         acc = accuracy(qry_predictions, query_labels, use_jax=True)
 
-        return avg_loss, acc, tracked_chemicals, scaler_error, correct_class_probability, weight_changes, bp_weight_changes
+        return (
+            avg_loss,
+            acc,
+            tracked_chemicals,
+            scaler_error,
+            correct_class_probability,
+            weight_changes,
+            bp_weight_changes,
+        )
 
     @eqx.filter_jit
     def make_step(
@@ -356,93 +415,97 @@ class JaxMetaLearnerRNN:
         x_qry,
         y_qry,
     ):
-
-        loss, acc, tracked_chemicals, scaler_error, correct_class_probability, weight_changes, bp_weight_changes = self.compute_meta_loss(
+        return self.compute_meta_loss(
             metaOptimizer, synaptic_weights_tuple, rnn_layers, rnn, x_trn, y_trn, x_qry, y_qry
         )
 
-        return loss, acc, tracked_chemicals, scaler_error, correct_class_probability, weight_changes, bp_weight_changes
-
-
     def train(self):
-       current_training_data_per_class = None
-    
-       for eps, data in enumerate(self.metaTrainingDataset):
+        for eps, data in enumerate(self.metaTrainingDataset):
+            x_trn, y_trn, x_qry, y_qry, current_training_data_per_class, _ = self.data_process(
+                data, self.jaxMetaLearnerOptions.numberOfClasses
+            )
+            # -- convert to jax arrays --
+            x_trn = jnp.array(x_trn)
+            y_trn = jnp.array(y_trn)
+            x_qry = jnp.array(x_qry)
+            y_qry = jnp.array(y_qry)
 
-           x_trn, y_trn, x_qry, y_qry, current_training_data_per_class, _ = self.data_process(
-               data, self.jaxMetaLearnerOptions.numberOfClasses
-           )
-           # -- convert to jax arrays --
-           x_trn = jnp.array(x_trn)
-           y_trn = jnp.array(y_trn)
-           x_qry = jnp.array(x_qry)
-           y_qry = jnp.array(y_qry)
+            # -- weight initialization --
+            self.rnn = self.rnn.reset_weights(self.key2)
 
-           # -- weight initialization --
-           self.rnn = self.rnn.reset_weights(self.key2)
+            # -- initialize chemicals --
+            self.chemicals_init()
+            new_parameters = list(self.rnn.layers)
+            new_synaptic_weights = list(self.synaptic_weights)
+            for idx, parameter in enumerate(self.rnn.layers):
+                synaptic_weight = self.synaptic_weights[idx]
+                new_synaptic_weight, new_parameter = self.metaOptimizer.initialize_parameters(
+                    synaptic_weight, parameter
+                )
+                new_synaptic_weights[idx] = new_synaptic_weight
+                new_parameters[idx] = new_parameter
+            self.synaptic_weights = tuple(new_synaptic_weights)
+            self.new_parameters = tuple(new_parameters)
+            num_layers = len(self.new_parameters)
+            self.rnn = eqx.tree_at(
+                lambda r: (r.layers, *(getattr(r, f"forward{i+1}") for i in range(num_layers))),
+                self.rnn,
+                (self.new_parameters, *self.new_parameters),
+            )
 
-           # -- initialize chemicals --
-           self.chemicals_init()
-           new_parameters = list(self.rnn.layers)
-           new_synaptic_weights = list(self.synaptic_weights)
-           for idx, parameter in enumerate(self.rnn.layers):
-               synaptic_weight = self.synaptic_weights[idx]
-               new_synaptic_weight, new_parameter = self.metaOptimizer.initialize_parameters(
-                   synaptic_weight, parameter
-               )
-               new_synaptic_weights[idx] = new_synaptic_weight
-               new_parameters[idx] = new_parameter
-           self.synaptic_weights = tuple(new_synaptic_weights)
-           self.new_parameters = tuple(new_parameters)
-           num_layers = len(self.new_parameters)
-           self.rnn = eqx.tree_at(
-               lambda r: (r.layers, *(getattr(r, f"forward{i+1}") for i in range(num_layers))),
-               self.rnn,
-               (self.new_parameters, *self.new_parameters),
-           )
+            # -- meta-optimization / inner loop evaluation --
+            (
+                loss,
+                acc,
+                tracked_chemicals,
+                scaler_error,
+                correct_class_probability,
+                weight_changes,
+                bp_weight_changes,
+            ) = self.make_step(
+                self.metaOptimizer,
+                self.synaptic_weights,
+                self.rnn.layers,
+                self.rnn,
+                x_trn,
+                y_trn,
+                x_qry,
+                y_qry,
+            )
 
-        # -- meta-optimization --
-           loss, acc, tracked_chemicals, scaler_error, correct_class_probability, weight_changes, bp_weight_changes = self.make_step(
-               self.metaOptimizer,
-               self.synaptic_weights,
-               self.rnn.layers,
-               self.rnn,
-               x_trn,
-               y_trn,
-               x_qry,
-               y_qry,
-           )
+            if self.save_results:
+                log([loss.item()], self.result_directory + "/loss_meta.txt")
+                log([acc], self.result_directory + "/acc_meta.txt")
+                with open(self.accuracy_by_episode_path, "a", encoding="utf-8") as f:
+                    f.write(f"{eps + 1}\t{float(acc):.6f}\n")
+                self.save_neuron_chemical_plot(
+                    tracked_chemicals, scaler_error, correct_class_probability, eps + 1
+                )
+                if SAVE_WEIGHT_DIAGNOSTICS:
+                    save_weight_diagnostics(
+                        self.result_directory, eps + 1, weight_changes, bp_weight_changes
+                    )
+            self.weight_changes = tuple(layer_history[0] for layer_history in weight_changes)
 
-           if self.save_results:
-               log([loss.item()], self.result_directory + "/loss_meta.txt")
-               log([acc], self.result_directory + "/acc_meta.txt")
-               with open(self.accuracy_by_episode_path, "a", encoding="utf-8") as f:
-                   f.write(f"{eps + 1}\t{float(acc):.6f}\n")
-               self.save_neuron_chemical_plot(tracked_chemicals, scaler_error, correct_class_probability, eps + 1)
-               if SAVE_WEIGHT_DIAGNOSTICS:
-                   save_weight_diagnostics(
-                       self.result_directory, eps + 1, weight_changes, bp_weight_changes
-                   )
-           self.weight_changes = tuple(layer_history[0] for layer_history in weight_changes)
+            line = "Runner Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}\tTraining/Class: {}".format(
+                eps + 1, loss.item(), acc, current_training_data_per_class
+            )
+            if self.jaxMetaLearnerOptions.display:
+                print(line, flush=True)
 
-           line = "Runner Episode: {}\tLoss: {:.6f}\tAccuracy: {:.3f}\tTraining/Class: {}".format(
-               eps + 1, loss.item(), acc, current_training_data_per_class
-        )
-           if self.jaxMetaLearnerOptions.display:
-               print(line, flush=True)
+            if self.save_results:
+                with open(self.result_directory + "/params.txt", "a") as f:
+                    f.writelines(line + "\n")
 
-           if self.save_results:
+        if self.save_results:
+            self.plot()
+            self.plot_episode_accuracy()
+            # -- save model --
+            eqx.tree_serialise_leaves(
+                self.result_directory + "/meta_learner_model.eqx", self.metaOptimizer
+            )
 
-               with open(self.result_directory + "/params.txt", "a") as f:
-                   f.writelines(line + "\n")
-            
-       if self.save_results:
-           self.plot()
-           self.plot_episode_accuracy()
-           # -- save model --
-           eqx.tree_serialise_leaves(self.result_directory + "/meta_learner_model.eqx", self.metaOptimizer)
-
-       print("Training completed.", flush=True)
+        print("Training completed.", flush=True)
 
     def plot_episode_accuracy(self):
         """Plot the recorded query accuracy for each training episode."""
@@ -460,10 +523,11 @@ class JaxMetaLearnerRNN:
         fig.savefig(os.path.join(self.result_directory, "accuracy_by_episode.png"), dpi=150)
         plt.close(fig)
 
-    def save_neuron_chemical_plot(self, chemical_history, scaler_error_history, correct_class_probability, episode: int):
+    def save_neuron_chemical_plot(
+        self, chemical_history, scaler_error_history, correct_class_probability, episode: int
+    ):
         """Plot each chemical on the selected input-to-neuron synapse over images."""
         history = np.asarray(chemical_history)
-        # The scan is vmapped over tasks; this runner uses one task per episode.
         if history.ndim == 3:
             history = history[0]
         scaler_error = np.asarray(scaler_error_history)
@@ -478,7 +542,6 @@ class JaxMetaLearnerRNN:
             raise ValueError(
                 f"Expected one scaler error per training image ({history.shape[0]}), got {scaler_error.shape}"
             )
-        # Expected shape: (training_images, chemicals).
         if history.ndim != 2 or history.shape[-1] != self.numberOfChemicals:
             raise ValueError(f"Expected (images, chemicals), got {history.shape}")
 
@@ -500,7 +563,9 @@ class JaxMetaLearnerRNN:
             f"neuron_synapse_chemicals_episode_{episode:04d}.csv",
         )
         with open(csv_path, "w", newline="") as csv_file:
-            csv_file.write("training_image,input_synapse,output_neuron,chemical,value,scaler_error,correct_class_probability\n")
+            csv_file.write(
+                "training_image,input_synapse,output_neuron,chemical,value,scaler_error,correct_class_probability\n"
+            )
             for image_index in range(history.shape[0]):
                 for chemical_index in range(history.shape[1]):
                     csv_file.write(
@@ -541,18 +606,8 @@ class JaxMetaLearnerRNN:
         plt.close(fig)
 
 
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-
-
-
 def jax_runner(index: int, result_subdirectory: str, modelPath: str):
     key = jax.random.PRNGKey(42)
-    # jax.config.update("jax_enable_x64", False)
-
-    # Save alignment diagnostics every three training images.
-    sample_indices = JaxMetaLearnerRNN.make_sample_list(numtrainingimages=350, blocksize=3)
 
     # -- load data
     training_data = [20, 30, 40, 50, 80, 150, 200, 225, 375]
@@ -560,8 +615,6 @@ def jax_runner(index: int, result_subdirectory: str, modelPath: str):
         return
     epochs = 20
 
-    #minTrainingDataPerClass = training_data[index]
-    #maxTrainingDataPerClass = training_data[index]
     minTrainingDataPerClass = 70
     maxTrainingDataPerClass = 70
     queryDataPerClass = 20
@@ -574,16 +627,12 @@ def jax_runner(index: int, result_subdirectory: str, modelPath: str):
         queryDataPerClass=queryDataPerClass,
         dimensionOfImage=28,
     )
-    #dimOut is 47 because there are 47 classes in the EMNIST dataset. dimIn is 784 because the images are 28x28 pixels, and we divide by numberOfTimeSteps (which is 1 here) to get the input size for the RNN.
     dimOut = 47
     dimIn = int(28 * 28 / numberOfTimeSteps)
-
-
 
     metatrain_dataset = emnist_batches(dataset, epochs, numberOfClasses, numberOfClasses)
 
     # -- options
-    modelOptions = None
     modelOptions = fastRnnOptions(
         nonLinear=JaxActivationNonLinearEnum.tanh,
         update_rules=[0, 1, 2, 3, 4, 9, 12],
@@ -631,60 +680,17 @@ def jax_runner(index: int, result_subdirectory: str, modelPath: str):
         numberOfChemicals=13,
         metaTrainingDataset=metatrain_dataset,
         weight_sample_blocksize=3,
+        #!!THIS is what you change!
+        # step_idx is int32; use its maximum as the "never freeze" threshold.
+        freeze_after_step=2**31 - 1,
+        #freeze_after_step=250,
     )
 
     metalearning_model.train()
 
 
-
-import jax
-import jax.numpy as jnp
-import equinox as eqx
-
-
-#Lisa added this
-def compute_bp_delta_w(rnn, x_image, y_label, learning_rate=0.01):
-    """
-    Computes the weight change matrix Delta W that standard Backpropagation 
-    would prescribe for all layers given the current image and label.
-    """
-    # inner_loop_per_image already one-hot encodes labels before calling this
-    # function; support integer labels too for standalone use.
-    num_classes = rnn.forward5.out_features
-    if y_label.ndim > 0 and y_label.shape[-1] == num_classes:
-        y_one_hot = y_label
-    else:
-        y_one_hot = jax.nn.one_hot(y_label, num_classes=num_classes)
-
-    # 2. Define standard Cross-Entropy Loss function with respect to model weights
-    def loss_fn(model):
-        # Use logits directly; this bypasses the network's feedback error path.
-        y_pred, _, _, _, _ = model(x_image, None, None)
-        return jnp.sum(optax.safe_softmax_cross_entropy(y_pred, y_one_hot))
-
-    # 3. Compute BP gradients w.r.t the trainable layer parameters using jax.grad
-    # eqx.filter_grad ensures JAX only differentiates w.r.t floating point array weights
-    grads = eqx.filter_grad(loss_fn)(rnn)
-
-    # The forward pass reads forward1..forward5 directly. Differentiate those
-    # fields rather than the `layers` convenience tuple, which is a separate
-    # tree path and can contain zero cotangents despite referring to the same
-    # layer objects at construction time.
-    forward_layers = (
-        grads.forward1,
-        grads.forward2,
-        grads.forward3,
-        grads.forward4,
-        grads.forward5,
-    )
-    # Saved matrices use (input, output), matching the chemical update history.
-    return tuple(-learning_rate * layer.weight.T for layer in forward_layers)
-
-
-
 def main_jax_runner():
     repo_root = Path(__file__).resolve().parents[2]
-    # The checked-in checkpoint is stored at results_4/<sweep>/1/400.
     model_path = repo_root / "results_4" / "Jax_13_chem_DSEF_full_sweep_200" / "1" / "400"
     checkpoint = model_path / "meta_learner_model.eqx"
     dataset_path = repo_root / "data" / "emnist"
@@ -697,5 +703,3 @@ def main_jax_runner():
         result_subdirectory="inner_loop",
         modelPath=str(model_path),
     )
-
-

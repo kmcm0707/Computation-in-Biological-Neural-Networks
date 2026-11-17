@@ -10,7 +10,7 @@ import math
 
 RESULTS = Path(__file__).resolve().parents[1] / "results_4" / "inner_loop" / "70"
 EPISODE = 1
-LAYER = 4
+LAYER = 2
 
 
 
@@ -55,6 +55,7 @@ def main() -> None:
 
     index_list=[]
     angle_list=[]
+    cosine_list=[]
     # Infer the interval from the compact saved history so this works with
     # both older 20-image samples and new 3-image samples.
     num_training_images = 350
@@ -77,6 +78,7 @@ def main() -> None:
         angle = math.degrees(math.acos(cosine))
         angle_list.append(angle)
         index_list.append(image_index)
+        cosine_list.append(cosine)
         print(
             f"Episode {EPISODE}, layer {LAYER}, training image {image_index + 1} (zero-based index {image_index}): "
             f"angle={angle:.4f} degrees, cosine={cosine:.8f} "
@@ -84,9 +86,9 @@ def main() -> None:
             f"BP norm={np.linalg.norm(bp_update):.6g})"
         )
 
-    plt.plot([index + 1 for index in index_list], angle_list, marker=".", markersize=3)
+    plt.plot([index + 1 for index in index_list], cosine_list, marker=".", markersize=3)
     plt.xlabel("Training image (one-based)")
-    plt.ylabel("Alignment angle (degrees)")
+    plt.ylabel("Cosine of Alignment angle")
     plt.title(f"BP alignment angle: episode {EPISODE}, layer {LAYER}")
     plt.grid(True, alpha=0.3)
     output_path = RESULTS / f"bp_alignment_episode_{EPISODE:04d}_layer_{LAYER}.png"
