@@ -615,8 +615,8 @@ def jax_runner(index: int, result_subdirectory: str, modelPath: str):
         return
     epochs = 20
 
-    minTrainingDataPerClass = 70
-    maxTrainingDataPerClass = 70
+    minTrainingDataPerClass = 200
+    maxTrainingDataPerClass = 200
     queryDataPerClass = 20
     numberOfTimeSteps = 1
 
@@ -682,8 +682,8 @@ def jax_runner(index: int, result_subdirectory: str, modelPath: str):
         weight_sample_blocksize=3,
         #!!THIS is what you change!
         # step_idx is int32; use its maximum as the "never freeze" threshold.
-        freeze_after_step=2**31 - 1,
-        #freeze_after_step=250,
+        #freeze_after_step=2**31 - 1,
+        freeze_after_step=0,
     )
 
     metalearning_model.train()

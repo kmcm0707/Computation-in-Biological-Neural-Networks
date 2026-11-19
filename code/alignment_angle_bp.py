@@ -8,8 +8,8 @@ import numpy as np
 import math
 
 
-RESULTS = Path(__file__).resolve().parents[1] / "results_4" / "inner_loop" / "70"
-EPISODES = [1, 2,3,4,5]      # Episode files are numbered starting at 1
+RESULTS = Path(__file__).resolve().parents[1] / "results_4" / "inner_loop" / "200"
+EPISODES = [8]      # Episode files are numbered starting at 1
 LAYERS = [0, 1, 2, 3,4]     # Edit with the layers you want to run (or set to None for all layers)
 
 
@@ -43,7 +43,7 @@ def process_episode(episode: int, layers: list[int] | None = None) -> None:
     if cs.shape != bp.shape:
         raise ValueError(f"Saved array shapes differ: complex={cs.shape}, BP={bp.shape}")
 
-    num_training_images = 350
+    num_training_images = 200*5
     sample_count = cs.shape[1]
     if sample_count == 0:
         raise ValueError("No saved weight-update samples were found")
