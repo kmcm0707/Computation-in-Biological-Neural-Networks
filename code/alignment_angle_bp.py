@@ -1,4 +1,4 @@
-"""Compare one sampled complex update with its backprop update."""
+"""Compare sampled complex updates with backprop updates across episodes and layers."""
 
 from pathlib import Path
 import matplotlib
@@ -9,9 +9,8 @@ import math
 
 
 RESULTS = Path(__file__).resolve().parents[1] / "results_4" / "inner_loop" / "70"
-EPISODE = 1
-LAYER = 2
-
+EPISODES = [1, 2,3,4,5]      # Episode files are numbered starting at 1
+LAYERS = [0, 1, 2, 3,4]     # Edit with the layers you want to run (or set to None for all layers)
 
 
 def compute_cosine_similarity(delta_w_cs: np.ndarray, delta_w_bp: np.ndarray) -> float:
@@ -32,12 +31,10 @@ def compute_cosine_similarity(delta_w_cs: np.ndarray, delta_w_bp: np.ndarray) ->
     return float(np.clip(np.dot(u, v) / (norm_u * norm_v), -1.0, 1.0))
 
 
-def main() -> None:
-    prefix = f"episode_{EPISODE:04d}"
-    cs_path = RESULTS / f"weight_changes_{prefix}.npy"
-    bp_path = RESULTS / f"bp_weight_changes_{prefix}.npy"
-    cs = np.load(cs_path)
-    bp = np.load(bp_path)
+def process_episode(episode: int, layers: list[int] | None = None) -> None:
+    prefix = f"episode_{episode:04d}"
+    cs = np.load(RESULTS / f"weight_changes_{prefix}.npy")
+    bp = np.load(RESULTS / f"bp_weight_changes_{prefix}.npy")
     cs_shapes = np.load(RESULTS / f"weight_changes_{prefix}_layer_shapes.npy")
     bp_shapes = np.load(RESULTS / f"bp_weight_changes_{prefix}_layer_shapes.npy")
 
@@ -45,19 +42,7 @@ def main() -> None:
         raise ValueError(f"Expected padded 4D arrays; got complex={cs.shape}, BP={bp.shape}")
     if cs.shape != bp.shape:
         raise ValueError(f"Saved array shapes differ: complex={cs.shape}, BP={bp.shape}")
-    if not 0 <= LAYER < cs.shape[0]:
-        raise ValueError(f"Layer index {LAYER} is outside the saved layer range 0..{cs.shape[0] - 1}")
-    if cs_shapes[LAYER].tolist() != bp_shapes[LAYER].tolist():
-        raise ValueError(
-            f"Layer {LAYER} shapes differ: complex={cs_shapes[LAYER]}, BP={bp_shapes[LAYER]}"
-        )
 
-
-    index_list=[]
-    angle_list=[]
-    cosine_list=[]
-    # Infer the interval from the compact saved history so this works with
-    # both older 20-image samples and new 3-image samples.
     num_training_images = 350
     sample_count = cs.shape[1]
     if sample_count == 0:
@@ -69,32 +54,64 @@ def main() -> None:
             f"Cannot map {sample_count} saved samples to {num_training_images} training images"
         )
 
-    for slot, image_index in enumerate(sample_indices):
+    target_layers = range(cs.shape[0]) if layers is None else layers
 
-        rows, cols = map(int, cs_shapes[LAYER])
-        cs_update = cs[LAYER, slot, :rows, :cols]
-        bp_update = bp[LAYER, slot, :rows, :cols]
-        cosine = compute_cosine_similarity(cs_update, bp_update)
-        angle = math.degrees(math.acos(cosine))
-        angle_list.append(angle)
-        index_list.append(image_index)
-        cosine_list.append(cosine)
-        print(
-            f"Episode {EPISODE}, layer {LAYER}, training image {image_index + 1} (zero-based index {image_index}): "
-            f"angle={angle:.4f} degrees, cosine={cosine:.8f} "
-            f"(complex norm={np.linalg.norm(cs_update):.6g}, "
-            f"BP norm={np.linalg.norm(bp_update):.6g})"
-        )
+    for layer in target_layers:
+        if not 0 <= layer < cs.shape[0]:
+            raise ValueError(f"Layer index {layer} is outside the saved layer range 0..{cs.shape[0] - 1}")
+        if cs_shapes[layer].tolist() != bp_shapes[layer].tolist():
+            raise ValueError(
+                f"Layer {layer} shapes differ: complex={cs_shapes[layer]}, BP={bp_shapes[layer]}"
+            )
 
-    plt.plot([index + 1 for index in index_list], cosine_list, marker=".", markersize=3)
-    plt.xlabel("Training image (one-based)")
-    plt.ylabel("Cosine of Alignment angle")
-    plt.title(f"BP alignment angle: episode {EPISODE}, layer {LAYER}")
-    plt.grid(True, alpha=0.3)
-    output_path = RESULTS / f"bp_alignment_episode_{EPISODE:04d}_layer_{LAYER}.png"
-    plt.savefig(output_path, dpi=200, bbox_inches="tight")
-    plt.close()
-    print(f"Saved alignment plot to {output_path}")
+        index_list = []
+        angle_list = []
+        cosine_list = []
+        rows, cols = map(int, cs_shapes[layer])
+
+        for slot, image_index in enumerate(sample_indices):
+            cs_update = cs[layer, slot, :rows, :cols]
+            bp_update = bp[layer, slot, :rows, :cols]
+            cosine = compute_cosine_similarity(cs_update, bp_update)
+            angle = math.degrees(math.acos(cosine))
+            angle_list.append(angle)
+            index_list.append(image_index)
+            cosine_list.append(cosine)
+            print(
+                f"Episode {episode}, layer {layer}, training image {image_index + 1} (zero-based index {image_index}): "
+                f"angle={angle:.4f} degrees, cosine={cosine:.8f} "
+                f"(complex norm={np.linalg.norm(cs_update):.6g}, "
+                f"BP norm={np.linalg.norm(bp_update):.6g})"
+            )
+
+        # 1. Line plot
+        plt.plot([index + 1 for index in index_list], cosine_list, marker=".", markersize=3)
+        plt.xlabel("Training image (one-based)")
+        plt.ylabel("Cosine of Alignment angle")
+        plt.title(f"BP alignment angle: episode {episode}, layer {layer}")
+        plt.grid(True, alpha=0.3)
+        output_path = RESULTS / f"bp_alignment_episode_{episode:04d}_layer_{layer}.png"
+        plt.savefig(output_path, dpi=200, bbox_inches="tight")
+        plt.close()
+        print(f"Saved alignment plot to {output_path}")
+
+        # 2. Symmetric histogram
+        limit = max(abs(min(cosine_list)), abs(max(cosine_list)))
+        limit = min(1.0, limit * 1.05) if limit > 0 else 1.0
+        plt.hist(cosine_list, bins=20, range=(-limit, limit), density=True, edgecolor="black")
+        plt.xlim(-limit, limit)
+        plt.axvline(0, color="red", linestyle="--", linewidth=1)
+        plt.xlabel("Cosine of alignment angle")
+        plt.ylabel("Density")
+        plt.title(f"BP alignment angle: episode {episode}, layer {layer}")
+        output_path = RESULTS / f"bp_alignment_episode_{episode:04d}_layer_{layer}_hist.png"
+        plt.savefig(output_path, dpi=200, bbox_inches="tight")
+        plt.close()
+
+
+def main() -> None:
+    for episode in EPISODES:
+        process_episode(episode, layers=LAYERS)
 
 
 if __name__ == "__main__":
