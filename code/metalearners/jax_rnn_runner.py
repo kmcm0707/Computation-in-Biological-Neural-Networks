@@ -692,7 +692,7 @@ def jax_runner(index: int, result_subdirectory: str, modelPath: str):
 
 def main_jax_runner():
     repo_root = Path(__file__).resolve().parents[2]
-    model_path = repo_root / "results_4" / "Jax_13_chem_DSEF_full_sweep_200" / "1" / "400"
+    model_path = repo_root / "results_5" / "Jax_13_chem_DSEF_full_sweep_200" / "1" / "400"
     checkpoint = model_path / "meta_learner_model.eqx"
     dataset_path = repo_root / "data" / "emnist"
     if not checkpoint.is_file():
